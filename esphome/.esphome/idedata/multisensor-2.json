@@ -1,0 +1,191 @@
+{
+  "env_name": "multisensor-2",
+  "libsource_dirs": [
+    "/config/esphome/.esphome/build/multisensor-2/lib",
+    "/data/multisensor-2/.piolibdeps/multisensor-2",
+    "/piolibs",
+    "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries"
+  ],
+  "defines": [
+    "PLATFORMIO=50205",
+    "ESP8266",
+    "ARDUINO_ARCH_ESP8266",
+    "ARDUINO_ESP8266_NODEMCU_ESP12E",
+    "ESPHOME_LOG_LEVEL=ESPHOME_LOG_LEVEL_DEBUG",
+    "NEW_OOM_ABORT",
+    "PIO_FRAMEWORK_ARDUINO_LWIP2_HIGHER_BANDWIDTH_LOW_FLASH",
+    "USE_ARDUINO",
+    "USE_ESP8266",
+    "USE_ESP8266_FRAMEWORK_ARDUINO",
+    "USE_STORE_LOG_STR_IN_FLASH",
+    "F_CPU=80000000L",
+    "__ets__",
+    "ICACHE_FLASH",
+    "ARDUINO=10805",
+    "ARDUINO_BOARD=\"PLATFORMIO_NODEMCUV2\"",
+    "FLASHMODE_DOUT",
+    "LWIP_OPEN_SRC",
+    "NONOSDK22x_190703=1",
+    "TCP_MSS=1460",
+    "LWIP_FEATURES=0",
+    "LWIP_IPV6=0",
+    "VTABLES_IN_FLASH",
+    "MMU_IRAM_SIZE=0x8000",
+    "MMU_ICACHE_SIZE=0x8000"
+  ],
+  "includes": {
+    "build": [
+      "/config/esphome/.esphome/build/multisensor-2/include",
+      "/config/esphome/.esphome/build/multisensor-2/src",
+      "/config/esphome/.esphome/build/multisensor-2/src",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/ESP8266mDNS/src",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/DNSServer/src",
+      "/piolibs/ESPAsyncWebServer-esphome/src",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/ESP8266WiFi/src",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/Hash/src",
+      "/piolibs/ESPAsyncTCP-esphome/src",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/tools/sdk/include",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/cores/esp8266",
+      "/data/cache/platformio/packages/toolchain-xtensa/include",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/tools/sdk/lwip2/include",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/variants/nodemcu"
+    ],
+    "compatlib": [
+      "/piolibs/ESPAsyncTCP-esphome/src",
+      "/piolibs/ESPAsyncTCP-esphome/src",
+      "/piolibs/ESPAsyncWebServer-esphome/src",
+      "/piolibs/ESPAsyncWebServer-esphome/src",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/ESP8266WiFi/src",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/Hash/src",
+      "/piolibs/ESPAsyncTCP-esphome/src",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/DNSServer/src",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/ESP8266WiFi/src",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/ESP8266mDNS/src",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/Hash/src",
+      "/piolibs/ArduinoJson/src",
+      "/piolibs/AsyncMqttClient-esphome/src",
+      "/piolibs/Crypto",
+      "/piolibs/Dsmr/src",
+      "/piolibs/FastLED",
+      "/piolibs/Improv/src",
+      "/piolibs/MideaUART/include",
+      "/piolibs/MideaUART/src",
+      "/piolibs/NeoPixelBus/src",
+      "/piolibs/TM1651",
+      "/piolibs/TinyGPSPlus/src",
+      "/piolibs/arduino-MLX90393",
+      "/piolibs/libsodium/libsodium/src/libsodium/include",
+      "/piolibs/libsodium/libsodium/src/libsodium",
+      "/piolibs/libsodium/libsodium/src/libsodium/include/sodium",
+      "/piolibs/libsodium/port_include",
+      "/piolibs/noise-c/include",
+      "/piolibs/noise-c/src",
+      "/piolibs/qr-code-generator-library/src",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/ArduinoOTA",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/EEPROM",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/ESP8266AVRISP/src",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/ESP8266HTTPClient/src",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/ESP8266HTTPUpdateServer/src",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/ESP8266LLMNR",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/ESP8266NetBIOS",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/ESP8266SSDP",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/ESP8266SdFat/src",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/ESP8266WebServer/src",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/ESP8266WiFiMesh/src",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/ESP8266httpUpdate/src",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/Ethernet/src",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/GDBStub/src",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/I2S/src",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/LittleFS/src",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/Netdump/src",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/SD/src",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/SDFS/src",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/SPI",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/SPISlave/src",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/Servo/src",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/SoftwareSerial/src",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/TFT_Touch_Shield_V2",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/Ticker/src",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/Wire",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/esp8266/src",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/lwIP_PPP/src",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/lwIP_enc28j60/src",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/lwIP_w5100/src",
+      "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries/lwIP_w5500/src"
+    ],
+    "toolchain": [
+      "/data/cache/platformio/packages/toolchain-xtensa/xtensa-lx106-elf/include/c++/10.3.0",
+      "/data/cache/platformio/packages/toolchain-xtensa/xtensa-lx106-elf/include/c++/10.3.0/xtensa-lx106-elf",
+      "/data/cache/platformio/packages/toolchain-xtensa/lib/gcc/xtensa-lx106-elf/10.3.0/include",
+      "/data/cache/platformio/packages/toolchain-xtensa/lib/gcc/xtensa-lx106-elf/10.3.0/include-fixed",
+      "/data/cache/platformio/packages/toolchain-xtensa/xtensa-lx106-elf/include"
+    ],
+    "unity": []
+  },
+  "cc_path": "/data/cache/platformio/packages/toolchain-xtensa/bin/xtensa-lx106-elf-gcc",
+  "cxx_path": "/data/cache/platformio/packages/toolchain-xtensa/bin/xtensa-lx106-elf-g++",
+  "gdb_path": "/data/cache/platformio/packages/toolchain-xtensa/bin/xtensa-lx106-elf-gdb",
+  "prog_path": "/data/multisensor-2/.pioenvs/multisensor-2/firmware.elf",
+  "svd_path": null,
+  "compiler_type": "gcc",
+  "targets": [
+    {
+      "name": "buildfs",
+      "title": "Build Filesystem Image",
+      "description": null,
+      "group": "Platform"
+    },
+    {
+      "name": "size",
+      "title": "Program Size",
+      "description": "Calculate program size",
+      "group": "Platform"
+    },
+    {
+      "name": "upload",
+      "title": "Upload",
+      "description": null,
+      "group": "Platform"
+    },
+    {
+      "name": "uploadfs",
+      "title": "Upload Filesystem Image",
+      "description": null,
+      "group": "Platform"
+    },
+    {
+      "name": "uploadfsota",
+      "title": "Upload Filesystem Image OTA",
+      "description": null,
+      "group": "Platform"
+    },
+    {
+      "name": "erase",
+      "title": "Erase Flash",
+      "description": null,
+      "group": "Platform"
+    },
+    {
+      "name": "compiledb",
+      "title": "Compilation Database",
+      "description": "Generate compilation database `compile_commands.json`",
+      "group": "Advanced"
+    },
+    {
+      "name": "clean",
+      "title": "Clean",
+      "group": "General"
+    },
+    {
+      "name": "cleanall",
+      "title": "Clean All",
+      "group": "General",
+      "description": "Clean a build environment and installed library dependencies"
+    }
+  ],
+  "extra": {
+    "flash_images": []
+  },
+  "cc_flags": "-std=gnu17 -Wpointer-arith -Wno-implicit-function-declaration -Wl,-EL -fno-inline-functions -nostdlib -Wno-nonnull-compare -Wno-sign-compare -Wno-unused-but-set-variable -Wno-unused-variable -fno-exceptions -Os -mlongcalls -mtext-section-literals -falign-functions=4 -U__STRICT_ANSI__ -D_GNU_SOURCE -ffunction-sections -fdata-sections -Wall -Werror=return-type -free -fipa-pta",
+  "cxx_flags": "-fno-rtti -std=gnu++17 -fno-exceptions -Wno-nonnull-compare -Wno-sign-compare -Wno-unused-but-set-variable -Wno-unused-variable -fno-exceptions -Os -mlongcalls -mtext-section-literals -falign-functions=4 -U__STRICT_ANSI__ -D_GNU_SOURCE -ffunction-sections -fdata-sections -Wall -Werror=return-type -free -fipa-pta"
+}

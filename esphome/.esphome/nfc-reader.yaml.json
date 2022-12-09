@@ -1,0 +1,13 @@
+{
+  "storage_version": 1,
+  "name": "nfc-reader",
+  "comment": null,
+  "esphome_version": "2021.11.4",
+  "src_version": 1,
+  "address": "nfc-reader.local",
+  "web_port": null,
+  "esp_platform": "ESP8266",
+  "build_path": null,
+  "firmware_bin_path": null,
+  "loaded_integrations": []
+}

@@ -1,0 +1,14 @@
+{
+  "storage_version": 1,
+  "name": "Tag Reader",
+  "comment": null,
+  "esphome_version": "1.17.1",
+  "src_version": 1,
+  "arduino_version": null,
+  "address": "Tag Reader.local",
+  "esp_platform": "ESP8266",
+  "board": "d1_mini",
+  "build_path": null,
+  "firmware_bin_path": null,
+  "loaded_integrations": []
+}
