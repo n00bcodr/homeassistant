@@ -1,0 +1,115 @@
+default_config:
+
+homeassistant:
+  allowlist_external_dirs:
+    - /config/.storage
+    - /config/
+browser:
+logger:
+  default: critical
+  logs:
+    homeassistant.components.shell_command: debug
+
+python_script:
+
+my:
+
+folder_watcher:
+  - folder: /config/.storage
+
+tts:
+  - platform: google_translate
+
+wake_on_lan:
+
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+binary_sensor: !include binary_sensors.yaml
+input_select: !include input_select.yaml
+sensor: !include sensor.yaml
+notify: !include notify.yaml
+rest_command: !include rest_commands.yaml
+
+frontend:
+  themes: !include_dir_merge_named themes
+  extra_module_url:
+    - /local/card-mod.js
+
+monitor_docker:
+  - name: Docker
+    url: tcp://192.168.68.168:2375
+    switchname: "Docker {name}"
+    containers:
+      - plex
+      - my_special_tower
+      - Tautulli
+      - broadlinkmanager
+      - portainer
+      - addon_core_samba
+    rename:
+      plex: Plex
+      my_special_tower: WatchTower
+      broadlinkmanager: Broadlink Manager
+      portainer: Portainer
+      addon_core_samba: Samba
+    monitored_conditions:
+      - version
+      - containers_running
+      - containers_total
+      - state
+      - status
+      - image
+      - memory
+
+#mariadb config
+recorder:
+  db_url: !secret recorder_db_url
+  purge_keep_days: 10
+  exclude:
+    entity_globs:
+      - sensor.weather_*
+      - sensor.time_date
+
+spotcast:
+  sp_dc: !secret sp_dc
+  sp_key: !secret sp_key
+
+telegram_bot:
+  - platform: polling
+    api_key: !secret telegram_api
+    allowed_chat_ids:
+      - !secret telegram_chat_id
+
+shell_command:
+  lovelace_default_convert: python /config/tools/lovelace_default_convert.py
+  lovelace_wallmount_convert: python /config/tools/lovelace_wallmount_convert.py
+  git_core_update_push: bash /config/tools/git_core_update_push.sh
+  git_commit_push: bash /config/tools/ha_gitpush.sh "{{states.input_text.git_commit_message.state}}"
+  git_status: echo -e -n "$(git status)" >/config/www/git_status.txt
+  git_hacs_update: bash /config/tools/hacs_updates_push.sh
+
+withings:
+  use_webhook: true
+
+media_player:
+  - platform: androidtv
+    name: Google TV
+    host: 192.168.68.11
+    #adbkey: "/config/.storage/androidtv_adbkey"
+    exclude_unnamed_apps: true
+    apps:
+      com.google.android.apps.tv.launcherx: "Home"
+      com.netflix.ninja: "Netflix"
+      com.amazon.amazonvideo.livingroom: "Prime"
+      com.google.android.youtube.tv: "YouTube"
+      com.google.android.tvlauncher: "Home"
+      com.spotify.tv.android: "Spotify"
+      ahaflix.tv: "Aha"
+      in.startv.hotstar: "Hotstar"
+      com.plexapp.android: "Plex"
+      com.mxtech.videoplayer.television: "MX Player"
+      com.jio.media.stb.ondemand: "Jio Cinema"
+      com.tvf.tvfplay.tv: "TVF Play"
+      com.graymatrix.did: "Zee5"

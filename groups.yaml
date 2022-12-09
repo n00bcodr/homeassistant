@@ -1,0 +1,5 @@
+den:
+  name: Den
+  entities:
+    - light.light
+  icon: mdi:castle
