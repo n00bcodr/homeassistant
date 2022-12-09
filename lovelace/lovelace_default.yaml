@@ -1,0 +1,1631 @@
+button_card_templates:
+  ac_button:
+    aspect_ratio: 1/1
+    color_type: icon
+    hold_action:
+      action: none
+    layout: vertical
+    show_label: false
+    show_name: true
+    show_state: false
+    styles:
+      card:
+      - border-radius: 10px
+      - border: solid 1px var(--primary-color)
+      - box-shadow: none
+      - padding: 0px 6px
+      - margin: 0px 0px
+      - --paper-card-background-color: rgba(0, 0, 0, 0)
+      icon:
+      - width: 5px
+      name:
+      - justify-self: middle
+      - align-self: middle
+      - font-size: 14px
+      - padding: 0px 0px
+      - color: var(--secondary-text-color)
+    tap_action:
+      action: call-service
+  blank_button:
+    aspect_ratio: 4/3
+    color_type: icon
+    hold_action:
+      action: none
+    layout: vertical
+    show_label: false
+    show_name: false
+    show_state: false
+    styles:
+      card:
+      - border-radius: 0px
+      - border: solid 0px var(--primary-color)
+      - box-shadow: none
+      - padding: 6px 6px
+      - margin: 0px 0px
+      - --paper-card-background-color: rgba(0, 0, 0, 0)
+    tap_action:
+      action: none
+  icon_button:
+    aspect_ratio: 4/3
+    color_type: card
+    hold_action:
+      action: none
+    layout: vertical
+    show_label: false
+    show_name: false
+    show_state: false
+    styles:
+      card:
+      - border-radius: 10px
+      - border: solid 1px var(--primary-color)
+      - box-shadow: none
+      - padding: 6px 6px
+      - margin: 0px 0px
+      - --paper-card-background-color: rgba(0, 0, 0, 0)
+      icon:
+      - width: 28px
+    tap_action:
+      action: call-service
+  list_button:
+    aspect_ratio: 5/1
+    color_type: icon
+    layout: vertical
+    show_entity_picture: true
+    show_name: true
+    show_state: false
+    styles:
+      card:
+      - border-radius: 15px
+      - border: solid 0.1px var(--primary-color)
+      - box-shadow: none
+      - padding: 0px 0px
+      - margin: 0px 0px
+      - background-size: cover
+      - --paper-card-background-color: rgba(0, 0, 0, 0)
+      name:
+      - justify-self: middle
+      - align-self: middle
+      - font-size: 20px
+      - padding: 0px 0px
+      - color: var(--secondary-text-color)
+    tap_action:
+      action: call-service
+  logo_button:
+    aspect_ratio: 21/9
+    color: rgb(255,255,255)
+    color_type: card
+    hold_action:
+      action: none
+    layout: vertical
+    show_label: false
+    show_name: false
+    show_state: false
+    styles:
+      card:
+      - border-radius: 5px
+      - border: solid 0.5px var(--primary-color)
+      - box-shadow: none
+      - padding: 0px 0px
+      - margin: 0px 0px
+      - --paper-card-background-color: rgba(0, 0, 0, 0)
+      icon:
+      - width: 50px
+    tap_action:
+      action: call-service
+  menu_button:
+    aspect_ratio: 4/3
+    color_type: icon
+    hold_action:
+      action: none
+    layout: vertical
+    show_label: false
+    show_name: false
+    show_state: false
+    styles:
+      card:
+      - border-radius: 10px
+      - border: solid 1px var(--primary-color)
+      - box-shadow: none
+      - padding: 6px 6px
+      - margin: 0px 0px
+      - --paper-card-background-color: rgba(0, 0, 0, 0)
+      icon:
+      - width: 28px
+    tap_action:
+      action: call-service
+preload_cards:
+- markdown
+- gauge
+- picture-glance
+preload_rows:
+- divider
+title: ''
+views:
+- badges: []
+  cards:
+  - entity: mediaquery
+    states:
+      '(min-width: 800px)':
+        entity: weather.home
+        number_of_forecasts: '5'
+        type: custom:weather-card
+    type: custom:state-switch
+  - badges:
+    - entity: sun.sun
+      style: ":host {\n  --label-badge-red: #F28C38;\n}           \n"
+      tap_action:
+        action: fire-dom-event
+        browser_mod:
+          data:
+            browser_id: THIS
+            content:
+              type: custom:sun-card
+          service: browser_mod.popup
+    - entity: sensor.moon_phase
+      style:
+        ha-state-label-badge:
+          $:
+            ha-label-badge:
+              $: ".label-badge {\n    border-style: none !important;   \n  }    \n\
+                \      \n"
+    - entity: sensor.download_speed
+      hold_action:
+        action: more-info
+      name: Internet Speed
+      style: ':host {
+
+        --label-badge-red: teal;
+
+        }
+
+        '
+      tap_action:
+        action: call-service
+        service: homeassistant.update_entity
+        service_data:
+          entity_id: sensor.speedtest_download
+      unit_of_measurement: Mbps
+    - entity: binary_sensor.den_motion
+      name: Den Motion
+      style: ":host {\n  --label-badge-blue:\n    {% if is_state('binary_sensor.den_motion','on')\
+        \ %}\n      red\n    {% else %}\n      green\n    {% endif %}\n    ;\n}\n"
+    - entity: binary_sensor.chair_occupancy
+      name: Occupancy
+      style: ":host {\n  --label-badge-blue:\n    {% if is_state('binary_sensor.chair_occupancy','on')\
+        \ %}\n      green\n    {% else %}\n      Grey\n    {% endif %}\n    ;\n}\n"
+    - entity: binary_sensor.in_bed
+      name: Bed
+      style:
+        ha-state-label-badge:
+          $:
+            ha-label-badge:
+              $: ".label-badge {\n  {% if is_state('binary_sensor.in_bed','off') %}\n\
+                \    border-style: dashed dotted !important;\n    border-color: grey\
+                \ !important;\n  {% else %}\n    border-style: double !important;\n\
+                \    border-color: blue !important;\n  {% endif %}\n"
+    - entities:
+      - entity: sensor.hacs
+        style:
+          ha-state-label-badge:
+            $:
+              ha-label-badge:
+                $: ".label-badge {\n border-style: dashed !important;\n}      \n"
+        tap_action:
+          action: navigate
+          navigation_path: /config/dashboard
+      state_filter:
+      - 'on'
+      - operator: '>'
+        value: 0
+      type: entity-filter
+    - entities:
+      - entity: sensor.supervisor_updates
+        style:
+          ha-state-label-badge:
+            $:
+              ha-label-badge:
+                $: ".label-badge {\n border-style: dashed !important;\n border-color:\
+                  \ yellow !important;\n}     \n"
+        tap_action:
+          action: navigate
+          navigation_path: /config/dashboard
+      state_filter:
+      - 'on'
+      - operator: '>'
+        value: 0
+      type: entity-filter
+    - entities:
+      - entity: update.home_assistant_core_update
+        hold_action:
+          action: more-info
+        name: Update Available
+        style:
+          ha-state-label-badge:
+            $:
+              ha-label-badge:
+                $: ".label-badge {\n border-style: dashed !important;\n border-color:\
+                  \ blue !important;\n}   \n"
+        tap_action:
+          action: navigate
+          navigation_path: /config/dashboard
+      state_filter:
+      - 'on'
+      - name: updates
+      type: entity-filter
+    - entities:
+      - entity: binary_sensor.backups_stale
+      state_filter:
+      - 'on'
+      style:
+        ha-state-label-badge:
+          $:
+            ha-label-badge:
+              $: ".label-badge {\n border-style: dashed solid !important;\n"
+      type: entity-filter
+    type: custom:badge-card
+    view_layout:
+      column: 2
+  - entity: mediaquery
+    states:
+      '(max-width: 1000px)':
+        alignment: justify
+        chips:
+        - entity: weather.home
+          show_conditions: true
+          show_temperature: true
+          type: weather
+        type: custom:mushroom-chips-card
+    type: custom:state-switch
+    view_layout:
+      column: 2
+  - cards:
+    - cards:
+      - double_tap_action:
+          action: call-service
+          data: {}
+          service: homeassistant.turn_on
+          target:
+            entity_id: group.den
+        entity: group.den
+        fill_container: false
+        hold_action:
+          action: none
+        icon: mdi:home-account
+        icon_color: '{% if is_state(''group.den'', ''on'') %}
+
+          green
+
+          {% else %}
+
+          grey
+
+          {% endif %}'
+        layout: horizontal
+        primary: Home
+        secondary: ''
+        tap_action:
+          action: none
+        type: custom:mushroom-template-card
+      - double_tap_action:
+          action: call-service
+          data: {}
+          service: homeassistant.turn_off
+          target:
+            entity_id: group.den
+        entity: group.den
+        fill_container: false
+        hold_action:
+          action: none
+        icon: mdi:door-open
+        icon_color: '{% if is_state(''group.den'', ''on'') %}
+
+          grey
+
+          {% else %}
+
+          blue
+
+          {% endif %}'
+        layout: horizontal
+        primary: Away
+        secondary: ''
+        tap_action:
+          action: none
+        type: custom:mushroom-template-card
+      - double_tap_action:
+          action: none
+        fill_container: false
+        hold_action:
+          action: none
+        icon: mdi:sleep
+        icon_color: yellow
+        layout: horizontal
+        primary: Sleep
+        secondary: ''
+        tap_action:
+          action: none
+        type: custom:mushroom-template-card
+      columns: 3
+      square: false
+      type: grid
+    - collapsible_controls: false
+      entity: light.light
+      fill_container: false
+      show_brightness_control: true
+      show_color_control: true
+      show_color_temp_control: true
+      type: custom:mushroom-light-card
+      use_light_color: true
+    - cards:
+      - double_tap_action:
+          action: ''
+        entity: switch.monitor_1_socket_1
+        hold_action:
+          action: fire-dom-event
+          browser_mod:
+            data:
+              browser_id: THIS
+              content:
+                cards:
+                - fill_container: false
+                  icon: fab:windows
+                  icon_color: blue
+                  layout: vertical
+                  primary: ''
+                  tap_action:
+                    action: call-service
+                    service: script.hdmi_three
+                  type: custom:mushroom-template-card
+                - fill_container: false
+                  icon: fab:apple
+                  icon_color: grey
+                  layout: vertical
+                  tap_action:
+                    action: call-service
+                    service: script.hdmi_two
+                  type: custom:mushroom-template-card
+                - fill_container: false
+                  icon: fab:google
+                  icon_color: green
+                  layout: vertical
+                  tap_action:
+                    action: call-service
+                    service: script.hdmi_one
+                  type: custom:mushroom-template-card
+                type: horizontal-stack
+            service: browser_mod.popup
+        icon: mdi:monitor
+        name: Monitor 1
+        tap_action:
+          action: toggle
+        type: custom:mushroom-entity-card
+      - entity: switch.monitor_2_socket_1
+        icon: mdi:monitor
+        icon_color: red
+        name: Monitor 2
+        tap_action:
+          action: toggle
+        type: custom:mushroom-entity-card
+      columns: 2
+      square: false
+      type: grid
+    - entity: switch.smart_plug_socket_1
+      name: Smart Plug
+      tap_action:
+        action: toggle
+      type: custom:mushroom-entity-card
+    type: vertical-stack
+    view_layout:
+      column: 2
+  - cards:
+    - artwork: full-cover
+      entity: media_player.spotify
+      group: false
+      hide:
+        icon_state: true
+        power: true
+        shuffle: false
+      info: scroll
+      sound_mode: full
+      source: full
+      toggle_power: true
+      type: custom:mini-media-player
+      volume_stateless: false
+    - content: '{{(states.media_player.spotify.attributes.media_content_id) | replace
+        ("spotify:track:", "https://open.spotify.com/track/")}}'
+      type: markdown
+    - account: default
+      always_play_random_song: true
+      device: Motu
+      display_style: list
+      filter_devices:
+      - Priyadarshini
+      - Downstairs Group
+      - Family Room Mini
+      - TV
+      - Bedroom TV
+      - Akashavani
+      - Friday
+      - Home Group
+      - Bedroom Mini
+      - Hall TV
+      - Upstairs Group
+      grid_center_covers: true
+      height: 350
+      hide_currently_playing: true
+      hide_top_header: true
+      hide_warning: true
+      limit: 40
+      playlist_type: default
+      spotify_entity: media_player.spotify
+      type: custom:spotify-card
+    parameters:
+      autoHeight: true
+      effect: fade
+    type: custom:swipe-card
+    view_layout:
+      column: 3
+  - entity: mediaquery
+    states:
+      '(min-width: 800px)':
+        alignment: center
+        chips:
+        - content: "{% if is_state('device_tracker.oneplus_10pro', 'home') %}\n  {{states.device_tracker.oneplus_10pro.attributes.deco_device\
+            \ | replace(\"living_room\",\" Living Room\") }} - {{ states.device_tracker.oneplus_10pro.attributes.connection_type\
+            \ | replace(\"band\",\"\") | replace(\"5\",\"5 GHz\")| replace(\"2_4\"\
+            ,\"2.4 GHz\")}} \n{% else %}\n  Not Connected\n{% endif %}"
+          double_tap_action:
+            action: none
+          hold_action:
+            action: none
+          icon: '{% if is_state(''device_tracker.oneplus_10pro'', ''home'') %}
+
+            mdi:cellphone-wireless
+
+            {% else %}
+
+            mdi:cellphone-off
+
+            {% endif %}'
+          icon_color: '{% if is_state(''device_tracker.oneplus_10pro'', ''home'')
+            %}
+
+            blue
+
+            {% else %}
+
+            white
+
+            {% endif %}
+
+            '
+          tap_action:
+            action: none
+          type: template
+        - icon: mdi:update
+          icon_color: yellow
+          tap_action:
+            action: call-service
+            data: {}
+            service: script.update_all_phone_sensors
+            target: {}
+          type: action
+        - content_info: state
+          entity: sensor.10pro_battery_level
+          icon: mdi:cellphone
+          icon_color: blue
+          type: entity
+          use_entity_picture: false
+        - content_info: none
+          entity: binary_sensor.10pro_is_charging
+          icon_color: yellow
+          type: entity
+        - entity: sensor.galaxy_watch4_classic_battery_level
+          icon: mdi:watch
+          icon_color: deep-orange
+          type: entity
+        - content_info: none
+          entity: binary_sensor.galaxy_watch4_classic_is_charging
+          icon_color: amber
+          type: entity
+        type: custom:mushroom-chips-card
+    type: custom:state-switch
+    view_layout:
+      column: 1
+  - cards:
+    - buttonStyle: 'font-size: 14px;'
+      cards:
+      - artwork: material
+        entity: media_player.clock
+        group: true
+        type: custom:mini-media-player
+      defaultOpen: contain-toggled
+      title: Players
+      type: custom:collapsable-cards
+    - artwork: material
+      entity: media_player.google_tv
+      group: true
+      hide:
+        controls: true
+        icon: true
+        name: true
+        power: true
+        volume: true
+      name: Google TV
+      source: icon
+      toggle_power: true
+      type: custom:mini-media-player
+      volume_stateless: false
+    - cards:
+      - entities:
+        - card_type: horizontal-stack
+          cards:
+          - entity: media_player.google_tv
+            icon: mdi:power
+            name: "[[[ var pow = entity.state\n  return 'Power ' + (pow)\n]]]\n"
+            styles:
+              icon:
+              - color: '[[[ if (entity.state == ''off'' ) return "red"; else return
+                  "green"]]]
+
+                  '
+            tap_action:
+              service: androidtv.adb_command
+              service_data:
+                command: POWER
+                entity_id: media_player.google_tv
+            template: icon_button
+            type: custom:button-card
+          - template: blank_button
+            type: custom:button-card
+          - template: blank_button
+            type: custom:button-card
+          - template: blank_button
+            type: custom:button-card
+          type: custom:hui-element
+        - row_type: section
+          type: custom:hui-element
+        - card_type: horizontal-stack
+          cards:
+          - entity: media_player.google_tv
+            entity_picture: /local/icons/netflix.png
+            show_entity_picture: true
+            tap_action:
+              service: media_player.select_source
+              service_data:
+                entity_id: media_player.google_tv
+                source: com.netflix.ninja
+            template: logo_button
+            type: custom:button-card
+          - entity: media_player.google_tv
+            entity_picture: /local/icons/prime.png
+            show_entity_picture: true
+            tap_action:
+              service: media_player.select_source
+              service_data:
+                entity_id: media_player.google_tv
+                source: Prime
+            template: logo_button
+            type: custom:button-card
+          - entity: media_player.google_tv
+            entity_picture: /local/icons/youtube.png
+            show_entity_picture: true
+            tap_action:
+              service: media_player.select_source
+              service_data:
+                entity_id: media_player.google_tv
+                source: YouTube
+            template: logo_button
+            type: custom:button-card
+          type: custom:hui-element
+        - card_type: horizontal-stack
+          cards:
+          - entity: media_player.google_tv
+            entity_picture: /local/icons/plex.png
+            show_entity_picture: true
+            tap_action:
+              service: media_player.select_source
+              service_data:
+                entity_id: media_player.google_tv
+                source: Plex
+            template: logo_button
+            type: custom:button-card
+          - entity: media_player.google_tv
+            entity_picture: /local/icons/disney.png
+            show_entity_picture: true
+            tap_action:
+              service: media_player.select_source
+              service_data:
+                entity_id: media_player.google_tv
+                source: Hotstar
+            template: logo_button
+            type: custom:button-card
+          - entity: media_player.google_tv
+            entity_picture: /local/icons/spotify.png
+            show_entity_picture: true
+            tap_action:
+              service: media_player.select_source
+              service_data:
+                entity_id: media_player.google_tv
+                source: Spotify
+            template: logo_button
+            type: custom:button-card
+          type: custom:hui-element
+        - row_type: section
+          type: custom:hui-element
+        - card_type: horizontal-stack
+          cards:
+          - entity: media_player.google_tv
+            full_row: true
+            grow: true
+            step: 1
+            toggle: false
+            type: custom:slider-entity-row
+          type: custom:hui-element
+        - row_type: section
+          type: custom:hui-element
+        - card_type: horizontal-stack
+          cards:
+          - entity: media_player.google_tv
+            icon: mdi:volume-off
+            name: Mute
+            tap_action:
+              service: androidtv.adb_command
+              service_data:
+                command: MUTE
+                entity_id: media_player.google_tv
+            template: menu_button
+            type: custom:button-card
+          - template: blank_button
+            type: custom:button-card
+          - entity: media_player.google_tv
+            icon: mdi:arrow-up-bold
+            name: Up
+            tap_action:
+              service: androidtv.adb_command
+              service_data:
+                command: UP
+                entity_id: media_player.google_tv
+            template: icon_button
+            type: custom:button-card
+          - template: blank_button
+            type: custom:button-card
+          - entity: media_player.google_tv
+            icon: mdi:cog
+            name: Settings
+            tap_action:
+              service: androidtv.adb_command
+              service_data:
+                command: SETTINGS
+                entity_id: media_player.google_tv
+            template: menu_button
+            type: custom:button-card
+          type: custom:hui-element
+        - card_type: horizontal-stack
+          cards:
+          - template: blank_button
+            type: custom:button-card
+          - entity: media_player.google_tv
+            icon: mdi:arrow-left-bold
+            name: Left
+            tap_action:
+              service: androidtv.adb_command
+              service_data:
+                command: LEFT
+                entity_id: media_player.google_tv
+            template: icon_button
+            type: custom:button-card
+          - entity: media_player.google_tv
+            icon: mdi:circle
+            name: Ok
+            styles:
+              card:
+              - background: var(--secondary-background-color-alpha)
+            tap_action:
+              service: androidtv.adb_command
+              service_data:
+                command: CENTER
+                entity_id: media_player.google_tv
+            template: icon_button
+            type: custom:button-card
+          - entity: media_player.google_tv
+            icon: mdi:arrow-right-bold
+            name: Right
+            tap_action:
+              service: androidtv.adb_command
+              service_data:
+                command: RIGHT
+                entity_id: media_player.google_tv
+            template: icon_button
+            type: custom:button-card
+          - template: blank_button
+            type: custom:button-card
+          type: custom:hui-element
+        - card_type: horizontal-stack
+          cards:
+          - entity: media_player.google_tv
+            icon: mdi:keyboard-return
+            name: Return
+            tap_action:
+              service: androidtv.adb_command
+              service_data:
+                command: BACK
+                entity_id: media_player.google_tv
+            template: menu_button
+            type: custom:button-card
+          - template: blank_button
+            type: custom:button-card
+          - entity: media_player.google_tv
+            icon: mdi:arrow-down-bold
+            name: Down
+            tap_action:
+              service: androidtv.adb_command
+              service_data:
+                command: DOWN
+                entity_id: media_player.google_tv
+            template: icon_button
+            type: custom:button-card
+          - template: blank_button
+            type: custom:button-card
+          - entity: media_player.google_tv
+            icon: mdi:home
+            name: Home
+            tap_action:
+              service: androidtv.adb_command
+              service_data:
+                command: HOME
+                entity_id: media_player.google_tv
+            template: menu_button
+            type: custom:button-card
+          type: custom:hui-element
+        show_header_toggle: false
+        type: entities
+      title: Remote
+      type: custom:collapsable-cards
+    type: vertical-stack
+    view_layout:
+      column: 3
+  - entities:
+    - sensor.multisensor_1_humidity
+    - sensor.multisensor_1_light
+    - binary_sensor.multisensor_1_motion
+    - sensor.multisensor_1_temperature
+    title: multisensor-1
+    type: entities
+  icon: mdi:castle
+  layout:
+    max_cols: 3
+  path: den
+  title: Den
+  type: custom:vertical-layout
+  visible:
+  - user: 74f7e2ffd3594037b1a2fc4de82d9fea
+  - user: 5e94cdd892054937b560071ed6662cb8
+- badges: []
+  cards:
+  - cards:
+    - entities:
+      - entity: input_select.speakers_spotify
+      theme: AMOLED Blue
+      type: entities
+    - cards:
+      - aspect_ratio: 5/2
+        entity: input_select.speakers_spotify
+        show_name: false
+        show_state: true
+        type: custom:button-card
+      - aspect_ratio: 5/2
+        icon: mdi:play-outline
+        tap_action:
+          action: call-service
+          service: script.spotify_start
+        type: custom:button-card
+      mode: horizontal
+      type: custom:stack-in-card
+    type: vertical-stack
+  - card:
+      show_header_toggle: false
+      state_color: true
+      type: entities
+    filter:
+      exclude:
+      - state: unavailable
+      - state: 'off'
+      - state: standby
+      - state: unknown
+      - entity_id: '*browser*'
+      - entity_id: '*plex*'
+      include:
+      - domain: media_player
+    show_empty: false
+    sort:
+      method: last_changed
+      reverse: true
+    type: custom:auto-entities
+  - cards:
+    - aspect_ratio: 21/2
+      name: Refresh Libraries
+      type: custom:button-card
+    - cards:
+      - aspect_ratio: 1/1
+        entity_picture: /local/icons/movie.png
+        show_entity_picture: true
+        size: 60%
+        tap_action:
+          action: call-service
+          service: plex.refresh_library
+          service_data:
+            library_name: Movies
+            server_name: Plex Server
+        type: custom:button-card
+      - aspect_ratio: 1/1
+        entity_picture: /local/icons/music.png
+        show_entity_picture: true
+        size: 60%
+        tap_action:
+          action: call-service
+          service: plex.refresh_library
+          service_data:
+            library_name: Music
+            server_name: Plex Server
+        type: custom:button-card
+      - aspect_ratio: 1/1
+        entity_picture: /local/icons/tvshow.png
+        show_entity_picture: true
+        size: 60%
+        tap_action:
+          action: call-service
+          service: plex.refresh_library
+          service_data:
+            library_name: TV Shows
+            server_name: Plex Server
+        type: custom:button-card
+      - aspect_ratio: 1/1
+        confirmation:
+          text: '[[[ return `Are you sure you want to toggle ${entity.attributes.friendly_name}?`
+            ]]]'
+        entity: switch.docker_plex
+        icon: fab:docker
+        name: Docker
+        show_state: false
+        size: 60%
+        tap_action:
+          action: toggle
+        type: custom:button-card
+      type: horizontal-stack
+    - card:
+        type: entities
+      filter:
+        exclude:
+        - state: unavailable
+        include:
+        - name: Plex Media Server
+          type: weblink
+          url: http://homeassistant.local:32400/web/index.html#!/
+        - name: /[Pp]lex/
+      show_empty: false
+      sort:
+        ignore_case: false
+        method: domain
+        reverse: false
+      type: custom:auto-entities
+    type: vertical-stack
+  - cards:
+    - artwork: material
+      entity: media_player.youtube_music
+      hide:
+        icon_state: false
+        shuffle: false
+      name: YouTube Music
+      type: custom:mini-media-player
+    - entities:
+      - entity: input_select.youtube_music_player_playlist
+      - entity: input_select.youtube_music_player_source
+      - entity: input_select.youtube_music_player_speakers
+      title: YouTube Music
+      type: entities
+    type: custom:stack-in-card
+  - entity: media_player.youtube_music
+    states:
+      playing:
+        content: '{% if is_state(''media_player.youtube_music'',''playing'') %}{{
+          state_attr("sensor.youtube_music_extra", "lyrics") }}{% else %}Player off{%
+          endif %}'
+        title: Lyrics
+        type: markdown
+    type: custom:state-switch
+  - entity: media_player.youtube_music
+    states:
+      playing:
+        cards:
+        - content: "\n**Media Type**: {{state_attr(\"media_player.youtube_music\"\
+            ,\"_media_type\")}} \n**Media ID**: {{state_attr(\"media_player.youtube_music\"\
+            , \"_media_id\")}}\n\n## **Current Track Info:**  \n**Artist:** {{state_attr(\"\
+            media_player.youtube_music\",\"media_artist\")}} \n**Track:** {{state_attr(\"\
+            media_player.youtube_music\",\"media_title\")}}\n**Video Link:** [{{state_attr(\"\
+            media_player.youtube_music\", \"videoId\")}}](https://www.youtube.com/watch?v={{state_attr(\"\
+            media_player.youtube_music\", \"videoId\")}})\n**Rating:** {{state_attr(\"\
+            media_player.youtube_music\",\"likeStatus\")}}\n**Playing on:** {{state_attr(\"\
+            media_player.youtube_music\",\"remote_player_id\")}}"
+          type: markdown
+        - cards:
+          - state:
+            - icon: mdi:thumb-up
+              operator: template
+              value: '[[[ return states[''media_player.youtube_music''].attributes.likeStatus
+                == "LIKE"]]]
+
+                '
+            - icon: mdi:thumb-up-outline
+              operator: template
+              value: '[[[ return states[''media_player.youtube_music''].attributes.likeStatus
+                == "INDIFFERENT"]]]
+
+                '
+            - icon: mdi:power-off
+              operator: default
+              value: false
+            tap_action:
+              action: call-service
+              service: ytube_music_player.call_method
+              service_data:
+                command: rate_track
+                entity_id: media_player.youtube_music
+                parameters: thumb_toggle_up_middle
+            type: custom:button-card
+          - content: '{% if is_state(''media_player.youtube_music'',''playing'') %}Currently
+              playing track {{ state_attr("media_player.youtube_music", "current_track")+1
+              }} of {{ state_attr("sensor.youtube_music_extra", "total_tracks") }}{%
+              else %}Player off{% endif %}     '
+            type: markdown
+          type: horizontal-stack
+        - content: "{% if is_state('media_player.youtube_music','playing') %}{% for\
+            \ i in range(0,state_attr(\"sensor.youtube_music_extra\", \"total_tracks\"\
+            )) %}\n {% if i == state_attr(\"sensor.youtube_music_extra\",\n\"current_track\"\
+            ) %}**{% endif %}\\[{{i+1}}] {{ state_attr(\"sensor.youtube_music_extra\"\
+            , \"tracks\")[i] }}{% if i == state_attr(\"media_player.youtube_music\"\
+            , \"current_track\") %} **{% endif %}\n{%- endfor %}{% else %}Player off{%\
+            \ endif %}\n    "
+          type: markdown
+        type: vertical-stack
+    type: custom:state-switch
+  icon: mdi:play-network
+  path: media
+  title: Media
+  type: custom:masonry-layout
+  visible:
+  - user: 74f7e2ffd3594037b1a2fc4de82d9fea
+- badges: []
+  cards:
+  - aspect_ratio: 4/3
+    custom_fields:
+      cpu: "[[[\n  return `<ha-icon\n    icon=\"mdi:server\"\n    style=\"width: 20px;\
+        \ height: 20px; color: deepskyblue;\">\n    </ha-icon><span> CPU: <span style=\"\
+        color: var(--text-color-sensor);\">${states['sensor.processor_use_percent'].state}%</span></span>`\n\
+        ]]]\n"
+      disk: "[[[\n  return `<ha-icon\n    icon=\"mdi:harddisk\"\n    style=\"width:\
+        \ 20px; height: 20px; color: deepskyblue;\">\n    </ha-icon><span> Disk: <span\
+        \ style=\"color: var(--text-color-sensor);\">${states['sensor.disk_use_percent'].state}%</span></span>`\n\
+        ]]]\n"
+      lastboot: "[[[\n  return `<ha-icon\n    icon=\"mdi:clock\"\n    style=\"width:\
+        \ 20px; height: 20px; color: yellow;\">\n    </ha-icon><span> Last Boot: <span\
+        \ style=\"color: var(--text-color-sensor);\">${states['sensor.server_last_boot'].state}</span></span>`\n\
+        ]]]\n"
+      ram: "[[[\n  return `<ha-icon\n    icon=\"mdi:memory\"\n    style=\"width: 20px;\
+        \ height: 20px; color: deepskyblue;\">\n    </ha-icon><span> RAM: <span style=\"\
+        color: var(--text-color-sensor);\">${states['sensor.memory_use_percent'].state}%</span></span>`\n\
+        ]]]\n"
+      temp: "[[[\n  return `<ha-icon\n    icon=\"mdi:thermometer\"\n    style=\"width:\
+        \ 20px; height: 20px; color: var(--text-color-sensor);\">\n    </ha-icon><span\
+        \ style=\"color: var(--text-color-sensor);\">${entity.state} \xB0C</span>`\n\
+        ]]]\n"
+    entity: sensor.processor_temperature
+    icon: mdi:server
+    name: Debian
+    styles:
+      card:
+      - background-color: '#000000'
+      - border-radius: 10%
+      - padding: 10%
+      - color: ivory
+      - font-size: 18px
+      - text-shadow: 0px 0px 5px black
+      - text-transform: capitalize
+      custom_fields:
+        cpu:
+        - padding-bottom: 2px
+        - align-self: middle
+        - justify-self: start
+        - --text-color-sensor: '[[[ if (states["sensor.processor_use_percent"].state
+            > 80) return "red"; ]]]'
+        disk:
+        - align-self: middle
+        - justify-self: start
+        - --text-color-sensor: '[[[ if (states["sensor.disk_use_percent"].state >
+            80) return "red"; ]]]'
+        lastboot:
+        - align-self: start
+        - justify-self: end
+        - font_size: 25px
+        ram:
+        - padding-bottom: 2px
+        - align-self: middle
+        - justify-self: start
+        - --text-color-sensor: '[[[ if (states["sensor.memory_use_percent"].state
+            > 80) return "red"; ]]]'
+        temp:
+        - align-self: start
+        - justify-self: end
+        - font_size: 25px
+        - --text-color-sensor: '[[[ if (states["sensor.processor_temperature"].state
+            > 80) return "red"; ]]]'
+      grid:
+      - grid-template-areas: '"i temp" "i lastboot" "n n" "cpu cpu" "ram ram" "disk
+          disk"'
+      - grid-template-columns: 1fr 1fr
+      - grid-template-rows: 1fr 5fr min-content min-content min-content
+      icon:
+      - color: "[[[\n  if (entity.state < 60) return 'lime';\n  if (entity.state >=\
+          \ 60 && entity.state < 80) return 'orange';\n  else return 'red';\n]]]\n"
+      - width: 60%
+      - margin-top: -10%
+      img_cell:
+      - justify-content: start
+      - align-items: start
+      - margin: none
+      name:
+      - font-weight: bold
+      - font-size: 18px
+      - color: white
+      - align-self: middle
+      - justify-self: start
+      - padding-bottom: 4px
+    type: custom:button-card
+  - cards:
+    - entity: sensor.download_speed
+      max: 300
+      min: 0
+      needle: false
+      severity:
+        green: 300
+        red: 0
+        yellow: 150
+      type: gauge
+    - entity: sensor.upload_speed
+      max: 300
+      min: 0
+      needle: false
+      severity:
+        green: 250
+        red: 0
+        yellow: 0
+      type: gauge
+    mode: horizontal
+    title: SpeedTest
+    type: custom:stack-in-card
+  - entities:
+    - entity: sensor.count_automations
+      icon: mdi:robot
+      name: '# Automations'
+    - entity: sensor.count_scripts
+      icon: mdi:script
+      name: '# Scripts'
+    - entity: sensor.count_scenes
+      icon: mdi:palette-outline
+      name: '# Scenes'
+    - entity: sensor.count_sensors
+      icon: ''
+      name: '# Sensors'
+    - entity: sensor.count_binary_sensors
+      name: '# Binary Sensors'
+    - entity: sensor.count_device_trackers
+      icon: mdi:lan-connect
+      name: '# Device Trackers'
+    - entity: sensor.count_input_booleans
+      name: '# Input Booleans'
+    - entity: sensor.count_switches
+      icon: mdi:light-switch
+      name: '# Switches'
+    - entity: sensor.count_lights
+      icon: mdi:lightbulb
+      name: '# Lights'
+    - entity: sensor.count_fans
+      icon: mdi:fan
+      name: '# Fans'
+    - entity: sensor.count_media_players
+      icon: mdi:cast
+      name: '# Media Players'
+    - entity: sensor.count_zones
+      icon: mdi:map-clock
+      name: '# Zones'
+    type: entities
+  - cards:
+    - entity: sensor.database_size
+      icon_color: blue-grey
+      primary_info: state
+      secondary_info: name
+      type: custom:mushroom-entity-card
+    - entity: sensor.home_assistant_log_size
+      icon: mdi:math-log
+      icon_color: deep-orange
+      name: Homeassistant Log Size
+      primary_info: state
+      secondary_info: name
+      type: custom:mushroom-entity-card
+    - double_tap_action:
+        action: url
+        url_path: https://drive.google.com/drive/folders/1iDzbeGS-PLCnsDwG5i3dcOs1g-Ws4BjOhttps://drive.google.com/drive/folders/1iDzbeGS-PLCnsDwG5i3dcOs1g-Ws4BjO
+      entity: sensor.backup_state
+      fill_container: false
+      icon: mdi:google-drive
+      icon_color: yellow
+      multiline_secondary: false
+      primary: '{{states.sensor.backup_state.attributes.size_in_google_drive}}'
+      secondary: Google Drive Backup Size
+      type: custom:mushroom-template-card
+    - double_tap_action:
+        action: url
+        url_path: /hassio/backups
+      entity: sensor.backup_state
+      fill_container: false
+      icon: si:homeassistant
+      icon_color: blue
+      multiline_secondary: false
+      primary: '{{states.sensor.backup_state.attributes.size_in_home_assistant}}'
+      secondary: Homeassistant Local Backup Size
+      tap_action:
+        action: none
+      type: custom:mushroom-template-card
+    - entity: sensor.disk_use_percent
+      icon_color: green
+      name: Disk use %
+      primary_info: state
+      secondary_info: name
+      type: custom:mushroom-entity-card
+    type: vertical-stack
+  - cards:
+    - entities:
+      - icon: fab:git
+        name: /n00bcodr/homeassistant-ireland
+        type: weblink
+        url: https://github.com/n00bcodr/homeassistant-ireland
+      - entity: sensor.n00bcodr_homeassistant_ireland_latest_commit
+        icon: mdi:source-commit-end
+        name: Last Commit
+      - type: section
+      - icon: mdi:text
+        name: Suggested Commit - files on {{ now().timestamp() | timestamp_custom('%b
+          %d, %Y - %-I:%M %p') }}
+        tap_action: none
+        type: custom:template-entity-row
+      - entity: input_text.git_commit_message
+        extend_paper_buttons_row:
+          buttons:
+          - icon: mdi:close
+            tap_action:
+              action: call-service
+              service: input_text.set_value
+              service_data:
+                value: "\u200E"
+              target:
+                entity_id: input_text.git_commit_message
+          - icon: fas:paste
+            tap_action:
+              action: call-service
+              service: script.git_commit_copy
+          position: right
+        name: Commit Message
+      - type: section
+      - buttons:
+        - entity: script.git_push
+          icon: mdi:upload-multiple
+        - entity: script.git_push_ha_version
+          icon: mdi:upload
+        type: custom:paper-buttons-row
+      - buttons:
+        - icon: hacs:hacs
+          name: Push Custom Components
+          tap_action:
+            action: call-service
+            service: shell_command.git_hacs_update
+        - icon: mdi:git
+          name: Git Status
+          tap_action:
+            action: call-service
+            service: shell_command.git_status
+        type: custom:paper-buttons-row
+      icon: fab:github
+      title: Git
+      type: entities
+    - aspect_ratio: 120%
+      type: iframe
+      url: http://homeassistant.local:8123/local/git_status.txt
+    type: vertical-stack
+  - card:
+      content: Snapshots are stale! Please visit the "Home Assistant Google Drive
+        Backup" add-on status page for details.
+      title: Stale Snapshots!
+      type: markdown
+    conditions:
+    - entity: binary_sensor.backups_stale
+      state: 'on'
+    type: conditional
+  icon: mdi:server-network
+  path: system_monitor
+  theme: Backend-selected
+  title: System Monitor
+  visible:
+  - user: 74f7e2ffd3594037b1a2fc4de82d9fea
+- badges:
+  - entity: person.pavanthanuj
+  - entity: binary_sensor.den_motion_1
+    style: ":host {\n  --label-badge-blue:\n    {% if is_state('binary_sensor.den_motion_1','on')\
+      \ %}\n      red\n    {% else %}\n      green\n    {% endif %}\n    ;\n}\n"
+  - entity: binary_sensor.den_motion_2
+    style: ":host {\n  --label-badge-blue:\n    {% if is_state('binary_sensor.den_motion_2','on')\
+      \ %}\n      red\n    {% else %}\n      green\n    {% endif %}\n    ;\n}\n"
+  - entity: binary_sensor.den_door
+    style: ":host {\n  --label-badge-blue:\n    {% if is_state('binary_sensor.den_door','off')\
+      \ %}\n      red\n    {% else %}\n      green\n    {% endif %}\n    ;\n}\n"
+  - entity: binary_sensor.chair_occupancy
+    name: Occupancy
+    style: ":host {\n  --label-badge-blue:\n    {% if is_state('binary_sensor.chair_occupancy','on')\
+      \ %}\n      green\n    {% else %}\n      Grey\n    {% endif %}\n    ;\n}\n"
+  - entity: binary_sensor.vibration
+  - entity: script.update_all_phone_sensors
+    hold_action:
+      action: more-info
+    tap_action:
+      action: call-service
+      service: script.update_all_phone_sensors
+  cards:
+  - bulk_rename:
+    - from: -Battery
+      to: ''
+    - from: ' Battery'
+      to: ''
+    - from: Sensor
+      to: ''
+    - from: e/
+      to: 'e and '
+    collapse:
+    - entities:
+      - sensor.den_motion_1_battery
+      - sensor.den_motion_2_battery
+      - sensor.den_door_battery
+      - sensor.temperature_and_humidity_battery
+      - sensor.chair_battery
+      - sensor.button_battery
+      - sensor.magic_cube_battery
+      - sensor.vibration_battery
+      - sensor.ikea_multi_button_battery
+      - sensor.ikea_on_off_battery
+      icon: mdi:zigbee
+      name: 'Zigbee Sensors (min: {min}%, count: {count})'
+      secondary_info: Battery levels {range}%
+    color_gradient:
+    - '#ff0000'
+    - '#ffff00'
+    - '#00ff00'
+    entities:
+    - charging_state:
+        entity_id: binary_sensor.oneplus7t_is_charging
+        state: 'on'
+      entity: sensor.oneplus7t_battery_level
+      name: 7T
+      tap_action: more-info
+    - charging_state:
+        entity_id: binary_sensor.10pro_is_charging
+        state: 'on'
+      entity: sensor.10pro_battery_level
+      name: 10 Pro
+      tap_action: more-info
+    - charging_state:
+        entity_id: binary_sensor.galaxy_watch4_classic_is_charging
+        state: 'on'
+      entity: sensor.galaxy_watch4_classic_battery_level
+      name: Watch Classic
+      tap_action: more-info
+    - charging_state:
+        entity_id: sensor.pavan_thanujs_ipad_battery_state
+        state: 'on'
+      entity: sensor.pavan_thanujs_ipad_battery_level
+      name: iPad Pro
+      tap_action: more-info
+    title: Battery Status
+    type: custom:battery-state-card
+  - cards:
+    - cards:
+      - align_icon: left
+        align_state: center
+        decimals: 1
+        entities:
+        - sensor.multisensor_1_humidity
+        font_size: 70
+        hours_to_show: 6
+        line_color: skyblue
+        line_width: 5
+        points_per_hour: 10
+        show:
+          name: false
+        type: custom:mini-graph-card
+        update_interval: 10
+      - align_icon: left
+        align_state: center
+        color_thresholds:
+        - color: '#f39c12'
+          value: 25
+        - color: '#d35400'
+          value: 28
+        - color: '#ff1800'
+          value: 30
+        decimals: 1
+        entities:
+        - sensor.multisensor_1_temperature
+        font_size: 70
+        hours_to_show: 6
+        line_color: '#e74c3c'
+        line_width: 5
+        points_per_hour: 10
+        show:
+          name: false
+        type: custom:mini-graph-card
+        update_interval: 10
+      title: Room
+      type: horizontal-stack
+    mode: vertical
+    type: custom:stack-in-card
+  - cards:
+    - card_mod:
+        style:
+          ha-markdown:
+            $: "ha-markdown-element:first-of-type hr{\n  border-color: #303030;\n\
+              }\n"
+      content: '<h2> <ha-icon icon=''mdi:shield-half-full''></ha-icon> Watchman report<h2>
+        <h3>Missing Entities: {{ states.sensor.watchman_missing_entities.state }}
+        </h3> {%- for item in state_attr("sensor.watchman_missing_entities", "entities")
+        %} <hr> <table><tr> <td> <ha-icon icon=''mdi: {%- if item.state=="missing"-%}cloud-alert''
+        {%- elif item.state=="unavail" -%}cloud-off-outline'' {%- else-%}cloud-question''
+        {%- endif -%} ></ha-icon> {{ item.id }} [{{item.state}}] <a title="{{item.occurrences}}">
+        {{item.occurrences.split(''/'')[-1].split('':'')[0]}}</a> </td></tr></table>
+        {%- endfor %}'
+      type: markdown
+    - card_mod:
+        style:
+          ha-markdown:
+            $: "ha-markdown-element:first-of-type hr{\n  border-color: #303030;\n\
+              }\n"
+      content: '<h2 class="some"> <ha-icon icon=''mdi:shield-half-full''></ha-icon>
+        Watchman report<h2> <h3> Missing Services: {{ states.sensor.watchman_missing_services.state
+        }} </h3> {%- for item in state_attr("sensor.watchman_missing_services", "entities")
+        %} <hr><table><tr> <td>  <ha-icon icon=''mdi:cloud-alert''></ha-icon> {{ item.id
+        }} <a title="{{item.occurrences}}">{{item.occurrences.split(''/'')[-1].split('':'')[0]}}</a>
+        </td></tr></table> {%- endfor %}'
+      type: markdown
+    - alignment: center
+      chips:
+      - double_tap_action:
+          action: call-service
+          service: watchman.report
+          service_data:
+            data:
+              data:
+                parse_mode: html
+              parse_config: true
+          target: {}
+        entity: sensor.watchman_last_updated
+        hold_action:
+          action: none
+        icon: mdi:camera-timer
+        name: 'Watchman Last Updated :'
+        tap_action:
+          action: none
+        type: entity
+      type: custom:mushroom-chips-card
+    type: custom:stack-in-card
+  - cards:
+    - card:
+        show_header_toggle: false
+        state_color: false
+        title: Den Automations
+        type: entities
+      filter:
+        exclude: []
+        include:
+        - name: "/\U0001F3F0/"
+      show_empty: true
+      sort:
+        ignore_case: false
+        method: last_triggered
+      type: custom:auto-entities
+    - card:
+        show_header_toggle: false
+        state_color: false
+        title: Tools
+        type: entities
+      filter:
+        exclude: []
+        include:
+        - name: "/\u2699\uFE0F/"
+      show_empty: true
+      sort:
+        ignore_case: false
+        method: last_triggered
+      type: custom:auto-entities
+    - card:
+        show_header_toggle: false
+        state_color: false
+        title: Media Automations
+        type: entities
+      filter:
+        exclude: []
+        include:
+        - name: "/\U0001F3B5/"
+        - name: "/\U0001F3AC/"
+      show_empty: true
+      sort:
+        ignore_case: false
+        method: last_triggered
+      type: custom:auto-entities
+    - card:
+        show_header_toggle: false
+        state_color: false
+        title: Other Automations
+        type: entities
+      filter:
+        exclude:
+        - name: "*\U0001F3B5*"
+        - name: "*\U0001F9FA*"
+        - name: "*\U0001F4A1*"
+        - name: "*\U0001F4A7*"
+        - name: "*\U0001F3AC*"
+        - name: "*\U0001F3F0*"
+        - name: "*\u2699\uFE0F*"
+        include:
+        - domain: automation
+      show_empty: true
+      sort:
+        ignore_case: false
+        method: last_triggered
+      type: custom:auto-entities
+    parameters:
+      autoHeight: true
+      effect: flow
+      freeModeSticky: true
+      loop: true
+      preventClicks: false
+      shortSwipes: true
+      simulateTouch: true
+    type: custom:swipe-card
+  - align_icon: left
+    align_state: center
+    entities:
+    - color: orange
+      entity: sensor.multisensor_1_light
+      name: Bedroom
+    - color: aqua
+      entity: sensor.multisensor_2_light
+      name: Living Room
+      show_state: true
+    font_size: 90
+    hours_to_show: 6
+    line_width: 1
+    points_per_hour: 10
+    show:
+      fill: fade
+    type: custom:mini-graph-card
+    update_interval: 30
+  - cards:
+    - icon: '{% if is_state(''device_tracker.oneplus_10pro'', ''home'') %}
+
+        mdi:cellphone-wireless
+
+        {% else %}
+
+        mdi:cellphone-off
+
+        {% endif %}
+
+        '
+      icon_color: '{% if is_state(''device_tracker.oneplus_10pro'', ''home'') %}
+
+        blue
+
+        {% else %}
+
+        white
+
+        {% endif %}
+
+        '
+      primary: "{% if is_state('device_tracker.oneplus_10pro', 'home') %}\n{{ states.device_tracker.oneplus_10pro.attributes.deco_device\
+        \ | replace(\"living_room\",\" Living Room\")  | replace(\"bedroom\",\" Bedroom\"\
+        ) }} - {{ states.device_tracker.oneplus_10pro.attributes.connection_type |\
+        \ replace(\"band\",\"\") | replace(\"5\",\"5 GHz\")| replace(\"2_4\",\"2.4\
+        \ GHz\") }}\n{% else %}\n  Not Connected\n{% endif %}\n"
+      secondary: OnePlus 10 Pro
+      type: custom:mushroom-template-card
+    type: vertical-stack
+  - cards:
+    - double_tap_action:
+        action: fire-dom-event
+        browser_mod:
+          data:
+            browser_id: THIS
+            content:
+              cards:
+              - content: "<h2><center> <ha-icon icon='mdi:podium'></ha-icon> Constructors\
+                  \ Standings</h2>  <center><table border= \"1\" style=\"width: 80%;\
+                  \ text-align: center;border-collapse: collapse;\"> <tr>\n  <th><b>Position</th>\n\
+                  \  <th><b>Constructor</th>\n  <th><b>Wins</th>\n  <th><b>Points</th>\n\
+                  </tr> {%- for item in state_attr(\"sensor.f1_constructor_standings\"\
+                  , \"standings\") %}  <tr>  <td> {{ item.Position }} </td> <td>\n\
+                  \ {{item.Constructor}}\n</td> <td> {{item.Wins}} </td> <td> {{item.Points}}\
+                  \ </td> </tr> {%- endfor %}"
+                type: markdown
+              - content: "<h2> <center><ha-icon icon='mdi:racing-helmet'></ha-icon>\
+                  \ Driver Standings</h2> <center><table border= \"1\" style=\"width:\
+                  \ 80%; text-align: center;\"> <tr>\n  <th><b>Position</th>\n  <th><b>Driver</th>\n\
+                  \  <th><b>Team</th>\n  <th><b>Points</th>\n</tr> {%- for item in\
+                  \ state_attr(\"sensor.f1_driver_standings\", \"standings\") %} \
+                  \ <tr>  <td> {{ item.Position }} </td> <td>\n {{item.Driver}}\n\
+                  </td> <td> {{item.Team}} </td><td> {{item.Points}} </td> </tr> {%-\
+                  \ endfor %}"
+                type: markdown
+              parameters:
+                autoHeight: true
+                effect: fade
+              type: custom:swipe-card
+            title: Standings
+          service: browser_mod.popup
+      entity_picture: /local/f1/F1.png
+      show_entity_picture: true
+      type: custom:button-card
+    - entity: '{% if (states.sensor.ics_1.attributes.remaining > 5) %} wait {% elif
+        (states.sensor.ics_1.attributes.remaining <= 5) and (states.sensor.ics_1.attributes.remaining
+        >= 1) %} race_weekend {% elif (states.sensor.ics_1.attributes.remaining ==
+        0) %} race_day {% endif %}'
+      states:
+        race_day:
+          cards:
+          - content: "<h1><center>\U0001F3C1 Race Day \U0001F3C1</center></h1>\n<h2><em><center><img\n\
+              \          height=\"18\"\n          src=\"{{(states.sensor.formula_1.attributes.flag)}}\"\
+              >{{(states.sensor.formula_1.attributes.grand_prix) |\nreplace (\"FORMULA\
+              \ 1\", \"\") }}</em></h2>\n<h2><center> {{ states.sensor.ics_1.attributes.description\
+              \  | replace (\"Grand Prix \",\"\")}}\n      \n{{ as_timestamp(states.sensor.ics_1.attributes.start)\
+              \ |\ntimestamp_custom('at %-I:%M %p') }}</center> </h2>"
+            type: markdown
+          - cards:
+            - content: " <img src=\"{{(states.sensor.formula_1.attributes.circuit_image)}}\"\
+                \n  alt=\"{{(states.sensor.ics_1.attributes.description) | replace\
+                \ (\"Qualifying \",\n  \"\")}} Circuit\">"
+              theme: Google Light Theme
+              type: markdown
+            - content: "<p><a href=\"{{(states.sensor.formula_1.attributes.circuit_link)}}\"\
+                >\n<img src=\"/local/f1/circuit_stats/{{(states.sensor.ics_1.attributes.location)}}.png\"\
+                \n              alt=\"{{(states.sensor.ics_1.attributes.description)\
+                \ | replace (\"Qualifying \",\n              \"\")}} Circuit\"> </a></p>"
+              type: markdown
+            type: custom:swipe-card
+          type: vertical-stack
+        race_weekend:
+          content: <h1><center>Race this weekend</center>       <h2><center><img height="18"
+            src="{{(states.sensor.formula_1.attributes.flag)}}"> {{(states.sensor.ics_1.attributes.description)
+            | replace ("Qualifying ", "")}} <br>
+          type: markdown
+        wait:
+          content: '<h1><center><img height="18"       src="{{(states.sensor.formula_1.attributes.flag)}}">
+            {{(states.sensor.ics_1.attributes.description) | replace ("Qualifying
+            ", "")}} </center> <h2><center>{{(states.sensor.ics_1.attributes.remaining)}}
+            days to go </center> '
+          type: markdown
+      type: custom:state-switch
+    type: custom:stack-in-card
+    view_layout:
+      column: 1
+  icon: mdi:home-analytics
+  path: network
+  theme: ''
+  title: Network and Devices
+  visible:
+  - user: 74f7e2ffd3594037b1a2fc4de82d9fea
