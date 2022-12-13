@@ -60,7 +60,7 @@ void setup() {
   //   includes: []
   //   libraries: []
   //   name_add_mac_suffix: false
-  //   min_version: 2022.11.4
+  //   min_version: 2022.12.0
   App.pre_setup("multisensor-1", __DATE__ ", " __TIME__, false);
   // binary_sensor:
   // text_sensor:

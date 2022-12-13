@@ -92,24 +92,3 @@ shell_command:
 
 withings:
   use_webhook: true
-
-media_player:
-  - platform: androidtv
-    name: Google TV
-    host: 192.168.68.11
-    #adbkey: "/config/.storage/androidtv_adbkey"
-    exclude_unnamed_apps: true
-    apps:
-      com.google.android.apps.tv.launcherx: "Home"
-      com.netflix.ninja: "Netflix"
-      com.amazon.amazonvideo.livingroom: "Prime"
-      com.google.android.youtube.tv: "YouTube"
-      com.google.android.tvlauncher: "Home"
-      com.spotify.tv.android: "Spotify"
-      ahaflix.tv: "Aha"
-      in.startv.hotstar: "Hotstar"
-      com.plexapp.android: "Plex"
-      com.mxtech.videoplayer.television: "MX Player"
-      com.jio.media.stb.ondemand: "Jio Cinema"
-      com.tvf.tvfplay.tv: "TVF Play"
-      com.graymatrix.did: "Zee5"

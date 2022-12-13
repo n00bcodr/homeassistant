@@ -5,4 +5,4 @@
 - name: all_phones
   platform: group
   services:
-    - service: mobile_app_10_pro
+    - service: mobile_app_10pro

@@ -1,102 +1,105 @@
 - id: homeassistant_update_notification
   alias: ⚙️HomeAssistant Update notification
   trigger:
-  - platform: state
-    entity_id:
-    - update.home_assistant_core_update
-    from: 'off'
-    to: 'on'
-    for:
-      hours: 0
-      minutes: 0
-      seconds: 0
+    - platform: state
+      entity_id:
+        - update.home_assistant_core_update
+      from: "off"
+      to: "on"
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 0
   condition: []
   action:
-  - service: notify.mobile_app_10pro
-    data:
-      message: Home Assistant {{states.update.home_assistant_core_update.attributes.latest_version}}
-        is available.
-      title: "\U0001F195 Update Available!"
+    - service: notify.mobile_app_10pro
       data:
-        notification_icon: mdi:package-up
-        subject: "You are running {{states.update.home_assistant_core_update.attributes.installed_version
-          }}, the latest\n    version is {{ states.update.home_assistant_core_update.attributes.latest_version
-          }}."
-        clickAction: /config/dashboard
-        icon_url: https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/313/partying-face_1f973.png
+        message:
+          Home Assistant {{states.update.home_assistant_core_update.attributes.latest_version}}
+          is available.
+        title: "\U0001F195 Update Available!"
+        data:
+          notification_icon: mdi:package-up
+          subject:
+            "You are running {{states.update.home_assistant_core_update.attributes.installed_version
+            }}, the latest\n    version is {{ states.update.home_assistant_core_update.attributes.latest_version
+            }}."
+          clickAction: /config/dashboard
+          icon_url: https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/313/partying-face_1f973.png
   mode: single
 - id: spotify_playback
   alias: "\U0001F3B5Spotify Selected Device Force playback"
-  description: ''
+  description: ""
   trigger:
-  - platform: state
-    entity_id: input_select.speakers_spotify
+    - platform: state
+      entity_id: input_select.speakers_spotify
   condition: []
   action:
-  - service: script.spotify_start
+    - service: script.spotify_start
   mode: single
 - id: movies_on_plex
   alias: "\U0001F3ACMovies"
   trigger:
-  - platform: event
-    event_type: tag_scanned
+    - platform: event
+      event_type: tag_scanned
   condition:
-  - condition: template
-    value_template: '{{ trigger.event.data.tag_id in tags }}'
+    - condition: template
+      value_template: "{{ trigger.event.data.tag_id in tags }}"
   action:
-  - variables:
-      media_content_id: '{{ tags[trigger.event.data.tag_id].media_content_id }}'
-      media_content_type: '{{ tags[trigger.event.data.tag_id].media_content_type }}'
-      announce_name: '{{ tags[trigger.event.data.tag_id].announce_name }}'
-  - choose:
-    - conditions:
-      - condition: not
-        conditions:
-        - condition: state
-          entity_id: media_player.google_tv
-          state: Plex
-          attribute: source
-      sequence:
-      - service: media_player.select_source
-        target:
-          entity_id: media_player.google_tv
-        data:
-          source: Plex
-      - wait_template: '{{ not is_state(''media_player.plex_plex_for_android_tv_google_tv'',
-          ''unavailable'') }}'
-        timeout: 00:00:10
-      - service: media_player.play_media
-        target:
-          entity_id: media_player.plex_plex_for_android_tv_google_tv
-        data:
-          media_content_id: '{{ media_content_id }}'
-          media_content_type: '{{ media_content_type }}'
-    - conditions:
-      - condition: state
-        entity_id: media_player.google_tv
-        state: Plex
-        attribute: source
-      sequence:
-      - service: androidtv.adb_command
-        data:
-          entity_id: media_player.google_tv
-          command: BACK
-      - service: media_player.media_stop
-        target:
-          entity_id: media_player.plex_plex_for_android_tv_google_tv
-        data: {}
-      - service: media_player.select_source
-        target:
-          entity_id: media_player.google_tv
-        data:
-          source: Plex
-      - service: media_player.play_media
-        target:
-          entity_id: media_player.plex_plex_for_android_tv_google_tv
-        data:
-          media_content_id: '{{ media_content_id }}'
-          media_content_type: '{{ media_content_type }}'
-    default: []
+    - variables:
+        media_content_id: "{{ tags[trigger.event.data.tag_id].media_content_id }}"
+        media_content_type: "{{ tags[trigger.event.data.tag_id].media_content_type }}"
+        announce_name: "{{ tags[trigger.event.data.tag_id].announce_name }}"
+    - choose:
+        - conditions:
+            - condition: not
+              conditions:
+                - condition: state
+                  entity_id: media_player.google_tv
+                  state: Plex
+                  attribute: source
+          sequence:
+            - service: media_player.select_source
+              target:
+                entity_id: media_player.google_tv
+              data:
+                source: Plex
+            - wait_template:
+                "{{ not is_state('media_player.plex_plex_for_android_tv_google_tv',
+                'unavailable') }}"
+              timeout: 00:00:10
+            - service: media_player.play_media
+              target:
+                entity_id: media_player.plex_plex_for_android_tv_google_tv
+              data:
+                media_content_id: "{{ media_content_id }}"
+                media_content_type: "{{ media_content_type }}"
+        - conditions:
+            - condition: state
+              entity_id: media_player.google_tv
+              state: Plex
+              attribute: source
+          sequence:
+            - service: androidtv.adb_command
+              data:
+                entity_id: media_player.google_tv
+                command: BACK
+            - service: media_player.media_stop
+              target:
+                entity_id: media_player.plex_plex_for_android_tv_google_tv
+              data: {}
+            - service: media_player.select_source
+              target:
+                entity_id: media_player.google_tv
+              data:
+                source: Plex
+            - service: media_player.play_media
+              target:
+                entity_id: media_player.plex_plex_for_android_tv_google_tv
+              data:
+                media_content_id: "{{ media_content_id }}"
+                media_content_type: "{{ media_content_type }}"
+      default: []
   mode: parallel
   max_exceeded: silent
   variables:
@@ -186,22 +189,23 @@
 - id: music_spotify
   alias: "\U0001F3B5Music Jukebox"
   trigger:
-  - platform: event
-    event_type: tag_scanned
+    - platform: event
+      event_type: tag_scanned
   condition:
-  - condition: template
-    value_template: '{{ trigger.event.data.tag_id in tags }}'
+    - condition: template
+      value_template: "{{ trigger.event.data.tag_id in tags }}"
   action:
-  - variables:
-      uri: '{{ tags[trigger.event.data.tag_id].uri }}'
-  - service: spotcast.start
-    data:
-      device_name: '{% if is_state(''media_player.spotify'', ''playing'') %} {{state_attr("media_player.spotify",
-        "source")}} {%else%}{{ states(''input_select.speakers_spotify'') }}{%endif%}'
-      uri: '{{ uri }}'
-      random_song: true
-      force_playback: true
-      shuffle: true
+    - variables:
+        uri: "{{ tags[trigger.event.data.tag_id].uri }}"
+    - service: spotcast.start
+      data:
+        device_name:
+          '{% if is_state(''media_player.spotify'', ''playing'') %} {{state_attr("media_player.spotify",
+          "source")}} {%else%}{{ states(''input_select.speakers_spotify'') }}{%endif%}'
+        uri: "{{ uri }}"
+        random_song: true
+        force_playback: true
+        shuffle: true
   mode: restart
   variables:
     tags:
@@ -247,19 +251,19 @@
         uri: spotify:playlist:2XPCqkfm5o7HHjLZ4b4ntS?si=45d4f05eeaf04eff
 - id: player_controls
   alias: "\U0001F3B5Player Controls"
-  description: ''
+  description: ""
   trigger:
-  - platform: event
-    event_type: tag_scanned
+    - platform: event
+      event_type: tag_scanned
   condition:
-  - condition: template
-    value_template: '{{ trigger.event.data.tag_id in tags }}'
+    - condition: template
+      value_template: "{{ trigger.event.data.tag_id in tags }}"
   action:
-  - variables:
-      service: '{{ tags[trigger.event.data.tag_id].service }}'
-  - service: '{{ service }}'
-    target:
-      entity_id: media_player.spotify
+    - variables:
+        service: "{{ tags[trigger.event.data.tag_id].service }}"
+    - service: "{{ service }}"
+      target:
+        entity_id: media_player.spotify
   mode: restart
   variables:
     tags:
@@ -269,326 +273,404 @@
         service: media_player.media_play_pause
       next:
         service: media_player.media_next_track
-- id: '1636123727125'
+- id: "1636123727125"
   alias: ⚙️Shopping list update
-  description: ''
+  description: ""
   trigger:
-  - platform: state
-    entity_id: input_text.shopping_list
+    - platform: state
+      entity_id: input_text.shopping_list
   condition: []
   action:
-  - service: script.add_shopping_list
-    data: {}
+    - service: script.add_shopping_list
+      data: {}
   mode: single
 - id: hacs_sensor_refresh
   alias: ⚙️HACS Sensor Refresh
   description: Refreshes the HACS sensor once an update is installed.
   trigger:
-  - platform: event
-    event_type: hacs/repository
-    event_data:
-      action: install
+    - platform: event
+      event_type: hacs/repository
+      event_data:
+        action: install
   action:
-  - delay:
-      seconds: 4
-  - service: homeassistant.update_entity
-    target:
-      entity_id: sensor.hacs
+    - delay:
+        seconds: 4
+    - service: homeassistant.update_entity
+      target:
+        entity_id: sensor.hacs
   initial_state: true
-- id: '1636974013216'
+- id: "1636974013216"
   alias: ⚙️Lovelace Reload
-  description: ''
+  description: ""
   trigger:
-  - platform: event
-    event_type: lovelace_updated
-    event_data:
-      url_path: lovelace-wallmount
-    id: wallmount
-  - platform: event
-    event_type: lovelace_updated
-    event_data:
-      url_path:
-    id: lovelace
+    - platform: event
+      event_type: lovelace_updated
+      event_data:
+        url_path: lovelace-wallmount
+      id: wallmount
+    - platform: event
+      event_type: lovelace_updated
+      event_data:
+        url_path:
+      id: lovelace
   condition: []
   action:
-  - delay:
-      hours: 0
-      minutes: 0
-      seconds: 20
-      milliseconds: 0
-  - choose:
-    - conditions:
-      - condition: trigger
-        id: wallmount
-      sequence:
-      - service: browser_mod.refresh
-        data: {}
-        target:
-          device_id: 534f77b165463f8e653c72beaa4d9399
-    default: []
+    - delay:
+        hours: 0
+        minutes: 0
+        seconds: 20
+        milliseconds: 0
+    - choose:
+        - conditions:
+            - condition: trigger
+              id: wallmount
+          sequence:
+            - service: browser_mod.refresh
+              data: {}
+              target:
+                device_id: 534f77b165463f8e653c72beaa4d9399
+      default: []
   mode: queued
-- id: '1638974963835'
+- id: "1638974963835"
   alias: ⚙️Homeassistant Start/Stop
   description: Runs various automations based on homeassistant starting or stopping.
   trigger:
-  - platform: homeassistant
-    event: shutdown
-    id: shutdown
-  - platform: homeassistant
-    event: start
-    id: start
+    - platform: homeassistant
+      event: shutdown
+      id: shutdown
+    - platform: homeassistant
+      event: start
+      id: start
   condition: []
   action:
-  - choose:
-    - conditions:
-      - condition: trigger
-        id: shutdown
-      sequence: []
-    - conditions:
-      - condition: trigger
-        id: start
-      sequence:
-      - service: pyscript.f1constructorstandings
-        data: {}
-      - service: pyscript.f1driverstandings
-        data: {}
-    default: []
+    - choose:
+        - conditions:
+            - condition: trigger
+              id: shutdown
+          sequence: []
+        - conditions:
+            - condition: trigger
+              id: start
+          sequence:
+            - service: pyscript.f1constructorstandings
+              data: {}
+            - service: pyscript.f1driverstandings
+              data: {}
+      default: []
   mode: single
-- id: '1642654396519'
+- id: "1642654396519"
   alias: ⚙️Low battery level detection & notification for all battery sensors
-  description: ''
+  description: ""
   use_blueprint:
     path: sbyx/low-battery-level-detection-notification-for-all-battery-sensors.yaml
     input:
       actions:
-      - service: notify.mobile_app_10pro
-        data:
-          message: '{{sensors}}'
+        - service: notify.mobile_app_10pro
           data:
-            notification_icon: mdi:battery-alert
-            color: red
+            message: "{{sensors}}"
+            data:
+              notification_icon: mdi:battery-alert
+              color: red
       threshold: 15
-- id: '1654855874344'
+- id: "1654855874344"
   alias: ⚙️Convert Lovelace configuration to yaml
-  description: ''
+  description: ""
   trigger:
-  - platform: event
-    event_type: lovelace_updated
-    event_data: {}
+    - platform: event
+      event_type: lovelace_updated
+      event_data: {}
   condition: []
   action:
-  - service: shell_command.lovelace_default_convert
-    data: {}
-  - service: shell_command.lovelace_wallmount_convert
-    data: {}
+    - service: shell_command.lovelace_default_convert
+      data: {}
+    - service: shell_command.lovelace_wallmount_convert
+      data: {}
   mode: single
-- id: '1655137751596'
+- id: "1655137751596"
   alias: ⚙️Tag Github with version when core updated
-  description: ''
+  description: ""
   trigger:
-  - platform: homeassistant
-    event: start
+    - platform: homeassistant
+      event: start
   condition:
-  - condition: template
-    value_template: '{{states.sensor.current_version.state > states.sensor.n00bcodr_homeassistant_ireland_latest_tag.state}}'
+    - condition: template
+      value_template: "{{states.sensor.current_version.state > states.sensor.n00bcodr_homeassistant_ireland_latest_tag.state}}"
   action:
-  - service: notify.mobile_app_10pro
-    data:
-      message: Update tag in GitHub?
-      title: Home Assistant Core Updated!
+    - service: notify.mobile_app_10pro
       data:
-        notification_icon: mdi:git
-        icon_url: https://github.com/home-assistant/assets/blob/master/logo/logo-small.png?raw=true
-        color: red
-        actions:
-        - action: tag_update
-          title: Update!
-        - action: URI
-          title: Open Repo
-          uri: https://github.com/n00bcodr/homeassistant-ireland
-  - wait_for_trigger:
-    - platform: event
-      event_type: mobile_app_notification_action
-      event_data:
-        action: tag_update
-    continue_on_timeout: false
-  - service: shell_command.git_core_update_push
-    data: {}
+        message: Update tag in GitHub?
+        title: Home Assistant Core Updated!
+        data:
+          notification_icon: mdi:git
+          icon_url: https://github.com/home-assistant/assets/blob/master/logo/logo-small.png?raw=true
+          color: red
+          actions:
+            - action: tag_update
+              title: Update!
+            - action: URI
+              title: Open Repo
+              uri: https://github.com/n00bcodr/homeassistant-ireland
+    - wait_for_trigger:
+        - platform: event
+          event_type: mobile_app_notification_action
+          event_data:
+            action: tag_update
+      continue_on_timeout: false
+    - service: shell_command.git_core_update_push
+      data: {}
   mode: single
-- id: '1655814095516'
+- id: "1655814095516"
   alias: "\U0001F3AC\U0001F3F0Capture Shared URL - Google TV"
   description: Captures the URL shared and updates input_text ccgtv_share_url
   trigger:
-  - platform: event
-    event_type: mobile_app.share
+    - platform: event
+      event_type: mobile_app.share
   condition: []
   action:
-  - choose:
-    - conditions:
-      - condition: template
-        value_template: '{{ trigger.event.data|regex_search(''com.netflix'', ignorecase=TRUE)
-          }}'
-      sequence:
-      - service: input_text.set_value
-        data:
-          value: '{{ trigger.event.data.text|regex_findall_index(find=''(http.*)'',
-            ignorecase=TRUE) }}
+    - choose:
+        - conditions:
+            - condition: template
+              value_template:
+                "{{ trigger.event.data|regex_search('com.netflix', ignorecase=TRUE)
+                }}"
+          sequence:
+            - service: input_text.set_value
+              data:
+                value:
+                  "{{ trigger.event.data.text|regex_findall_index(find='(http.*)',
+                  ignorecase=TRUE) }}
 
-            '
-        target:
-          entity_id: input_text.ccgtv_share_url
-    - conditions:
-      - condition: template
-        value_template: '{{ trigger.event.data|regex_search(''com.amazon'', ignorecase=TRUE)
-          }}'
-      sequence:
-      - service: input_text.set_value
-        data:
-          value: '{{ trigger.event.data.text|regex_findall_index(find=''(http.*)'',
-            ignorecase=true)|replace ("&ref_=atv_dp_share_seas&r=web", "") }}
+                  "
+              target:
+                entity_id: input_text.ccgtv_share_url
+        - conditions:
+            - condition: template
+              value_template:
+                "{{ trigger.event.data|regex_search('com.amazon', ignorecase=TRUE)
+                }}"
+          sequence:
+            - service: input_text.set_value
+              data:
+                value:
+                  '{{ trigger.event.data.text|regex_findall_index(find=''(http.*)'',
+                  ignorecase=true)|replace ("&ref_=atv_dp_share_seas&r=web", "") }}
 
-            '
-        target:
-          entity_id: input_text.ccgtv_share_url
-    - conditions:
-      - condition: template
-        value_template: '{{ trigger.event.data|regex_search(''startv.hotstar'', ignorecase=TRUE)
-          }}'
-      sequence:
-      - service: input_text.set_value
-        data:
-          value: '{{ trigger.event.data.text|regex_findall_index(find=''(http.*)'',
-            ignorecase=TRUE) }}
+                  '
+              target:
+                entity_id: input_text.ccgtv_share_url
+        - conditions:
+            - condition: template
+              value_template:
+                "{{ trigger.event.data|regex_search('startv.hotstar', ignorecase=TRUE)
+                }}"
+          sequence:
+            - service: input_text.set_value
+              data:
+                value:
+                  "{{ trigger.event.data.text|regex_findall_index(find='(http.*)',
+                  ignorecase=TRUE) }}
 
-            '
-        target:
-          entity_id: input_text.ccgtv_share_url
-    - conditions:
-      - condition: template
-        value_template: '{{ trigger.event.data|regex_search(''youtu.be'', ignorecase=TRUE)
-          }}'
-      sequence:
-      - service: input_text.set_value
-        data:
-          value: '{{ trigger.event.data.url|regex_findall_index(find=''(http.*)'',
-            ignorecase=TRUE) }}
+                  "
+              target:
+                entity_id: input_text.ccgtv_share_url
+        - conditions:
+            - condition: template
+              value_template:
+                "{{ trigger.event.data|regex_search('youtu.be', ignorecase=TRUE)
+                }}"
+          sequence:
+            - service: input_text.set_value
+              data:
+                value:
+                  "{{ trigger.event.data.url|regex_findall_index(find='(http.*)',
+                  ignorecase=TRUE) }}
 
-            '
-        target:
-          entity_id: input_text.ccgtv_share_url
-    default:
-    - service: notify.persistent_notification
+                  "
+              target:
+                entity_id: input_text.ccgtv_share_url
+      default:
+        - service: notify.persistent_notification
+          data:
+            message: "{{ states('input_text.ccgtv_share_url') }}
+
+              "
+    - service: androidtv.adb_command
       data:
-        message: '{{ states(''input_text.ccgtv_share_url'') }}
-
-          '
-  - service: androidtv.adb_command
-    data:
-      entity_id: media_player.google_tv
-      command: HOME
-  - service: script.load_share_url_googletv
-    data: {}
+        entity_id: media_player.google_tv
+        command: HOME
+    - service: script.load_share_url_googletv
+      data: {}
   mode: single
-- id: '1659935815150'
+- id: "1659935815150"
   alias: ⚙️Update Formula1 Standings after every Race
-  description: ''
+  description: ""
   trigger:
-  - platform: calendar
-    event: end
-    offset: 0:0:0
-    entity_id: calendar.formula1_2022
+    - platform: calendar
+      event: end
+      offset: 0:0:0
+      entity_id: calendar.formula1_2022
   condition: []
   action:
-  - service: pyscript.f1driverstandings
-    data: {}
-  - service: pyscript.f1constructorstandings
-    data: {}
+    - service: pyscript.f1driverstandings
+      data: {}
+    - service: pyscript.f1constructorstandings
+      data: {}
   mode: single
-- id: '1670537821206'
+- id: "1670537821206"
   alias: Tag Desk is scanned
-  description: ''
+  description: ""
   trigger:
-  - platform: tag
-    tag_id: 73a21e41-133b-484e-a5a7-e8a2a7df1085
+    - platform: tag
+      tag_id: 73a21e41-133b-484e-a5a7-e8a2a7df1085
   condition: []
   action:
-  - service: light.toggle
-    data: {}
-    target:
-      device_id: d12db564ed70f93b24fe2e6cbca174b8
+    - service: homeassistant.turn_on
+      data: {}
+      target:
+        entity_id:
+          - group.den
   mode: single
-- id: '1670578939434'
+- id: "1670578939434"
   alias: "\U0001F3F0Button"
-  description: ''
+  description: ""
   trigger:
-  - platform: device
-    domain: mqtt
-    device_id: 3fd72c6a517024c03b9531259c2d55d9
-    type: action
-    subtype: single
-    discovery_id: 0x00124b001eaa8251 action_single
-    id: click
-  - platform: device
-    domain: mqtt
-    device_id: 3fd72c6a517024c03b9531259c2d55d9
-    type: action
-    subtype: double
-    discovery_id: 0x00124b001eaa8251 action_double
-    id: doubleclick
+    - platform: device
+      domain: mqtt
+      device_id: 3fd72c6a517024c03b9531259c2d55d9
+      type: action
+      subtype: single
+      discovery_id: 0x00124b001eaa8251 action_single
+      id: click
+    - platform: device
+      domain: mqtt
+      device_id: 3fd72c6a517024c03b9531259c2d55d9
+      type: action
+      subtype: double
+      discovery_id: 0x00124b001eaa8251 action_double
+      id: doubleclick
   condition: []
   action:
-  - choose:
-    - conditions:
-      - condition: trigger
-        id: click
-      sequence:
-      - choose:
+    - choose:
         - conditions:
-          - condition: state
-            entity_id: light.light
-            state: 'on'
+            - condition: trigger
+              id: click
           sequence:
-          - service: light.turn_off
-            target:
-              entity_id: light.light
-            data: {}
+            - choose:
+                - conditions:
+                    - condition: state
+                      entity_id: light.light
+                      state: "on"
+                  sequence:
+                    - service: light.turn_off
+                      target:
+                        entity_id: light.light
+                      data: {}
+                - conditions:
+                    - condition: state
+                      entity_id: light.light
+                      state: "off"
+                  sequence:
+                    - service: light.turn_on
+                      target:
+                        entity_id: light.light
+                      data:
+                        color_temp: 500
+                        brightness: 255
+              default: []
         - conditions:
-          - condition: state
-            entity_id: light.light
-            state: 'off'
+            - condition: trigger
+              id: doubleclick
           sequence:
-          - service: light.turn_on
-            target:
-              entity_id: light.light
-            data:
-              color_temp: 500
-              brightness: 255
-        default: []
-    - conditions:
-      - condition: trigger
-        id: doubleclick
-      sequence:
-      - choose:
+            - choose:
+                - conditions:
+                    - condition: state
+                      entity_id: light.light
+                      state: "on"
+                  sequence:
+                    - service: light.turn_off
+                      target:
+                        entity_id: light.light
+                      data: {}
+                - conditions:
+                    - condition: state
+                      entity_id: light.light
+                      state: "off"
+                  sequence:
+                    - service: light.turn_on
+                      target:
+                        entity_id: light.light
+                      data:
+                        brightness: 255
+                        color_temp: 153
+              default: []
+      default: []
+  mode: single
+- id: "1670800244266"
+  alias: Bed Routine
+  description: ""
+  trigger:
+    - platform: state
+      entity_id:
+        - binary_sensor.in_bed
+      from: "off"
+      to: "on"
+      for:
+        hours: 0
+        minutes: 5
+        seconds: 0
+  condition:
+    - condition: device
+      type: is_on
+      device_id: d12db564ed70f93b24fe2e6cbca174b8
+      entity_id: light.light
+      domain: light
+  action:
+    - service: homeassistant.turn_off
+      data: {}
+      target:
+        entity_id:
+          - light.light
+  mode: single
+- id: "1670844577464"
+  alias: ⚡Full charge notification
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.10pro_is_charging
+      to: "on"
+      id: 10pro
+    - platform: state
+      entity_id:
+        - sensor.pavan_thanujs_ipad_battery_state
+      to: "on"
+      id: ipad
+  condition: []
+  action:
+    - choose:
         - conditions:
-          - condition: state
-            entity_id: light.light
-            state: 'on'
+            - condition: state
+              entity_id: sensor.10pro_battery_level
+              state: "100"
+            - condition: trigger
+              id: 10pro
           sequence:
-          - service: light.turn_off
-            target:
-              entity_id: light.light
-            data: {}
+            - service: notify.mobile_app_10pro
+              data:
+                message: ⚡Charging Complete⚡
+                data:
+                  notification_icon: mdi:battery-charging-high
+                  color: red
         - conditions:
-          - condition: state
-            entity_id: light.light
-            state: 'off'
+            - condition: state
+              entity_id: sensor.pavan_thanujs_ipad_battery_level
+              state: "100"
+            - condition: trigger
+              id: ipad
           sequence:
-          - service: light.turn_on
-            target:
-              entity_id: light.light
-            data:
-              brightness: 255
-              color_temp: 153
-        default: []
-    default: []
+            - service: notify.mobile_app_10pro
+              data:
+                message: ⚡iPad Charging Complete⚡
+                data:
+                  notification_icon: mdi:battery-charging-high
+                  color: red
   mode: single
