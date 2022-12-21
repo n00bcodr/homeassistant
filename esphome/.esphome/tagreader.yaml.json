@@ -2,7 +2,7 @@
   "storage_version": 1,
   "name": "tagreader",
   "comment": null,
-  "esphome_version": "2022.11.4",
+  "esphome_version": "2022.12.0",
   "src_version": 1,
   "address": "tagreader.local",
   "web_port": null,

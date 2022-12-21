@@ -158,7 +158,7 @@ void setup() {
   //   includes: []
   //   libraries: []
   //   name_add_mac_suffix: false
-  //   min_version: 2022.11.4
+  //   min_version: 2022.12.0
   App.pre_setup("tagreader", __DATE__ ", " __TIME__, false);
   // switch:
   // button:
@@ -372,6 +372,7 @@ void setup() {
   //   restore_state: true
   //   entity_category: config
   //   disabled_by_default: false
+  //   restore_mode: RESTORE_DEFAULT_OFF
   //   assumed_state: false
   buzzer_enabled = new template_::TemplateSwitch();
   App.register_switch(buzzer_enabled);
@@ -379,6 +380,7 @@ void setup() {
   buzzer_enabled->set_disabled_by_default(false);
   buzzer_enabled->set_icon("mdi:volume-high");
   buzzer_enabled->set_entity_category(::ENTITY_CATEGORY_CONFIG);
+  buzzer_enabled->set_restore_mode(switch_::SWITCH_RESTORE_DEFAULT_OFF);
   buzzer_enabled->set_component_source("template.switch");
   App.register_component(buzzer_enabled);
   buzzer_enabled->set_optimistic(true);
@@ -393,6 +395,7 @@ void setup() {
   //   restore_state: true
   //   entity_category: config
   //   disabled_by_default: false
+  //   restore_mode: RESTORE_DEFAULT_OFF
   //   assumed_state: false
   led_enabled = new template_::TemplateSwitch();
   App.register_switch(led_enabled);
@@ -400,6 +403,7 @@ void setup() {
   led_enabled->set_disabled_by_default(false);
   led_enabled->set_icon("mdi:alarm-light-outline");
   led_enabled->set_entity_category(::ENTITY_CATEGORY_CONFIG);
+  led_enabled->set_restore_mode(switch_::SWITCH_RESTORE_DEFAULT_OFF);
   led_enabled->set_component_source("template.switch");
   App.register_component(led_enabled);
   led_enabled->set_optimistic(true);
@@ -632,8 +636,8 @@ void setup() {
   //       open_drain: false
   //       pullup: false
   //       pulldown: false
-  //     inverted: false
   //     id: esphome_esp8266_esp8266gpiopin
+  //     inverted: false
   //   id: buzzer
   //   zero_means_zero: false
   //   frequency: 1000.0

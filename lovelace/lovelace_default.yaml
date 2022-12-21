@@ -212,7 +212,7 @@ views:
                 $: ".label-badge {\n border-style: dashed !important;\n}      \n"
         tap_action:
           action: navigate
-          navigation_path: /config/dashboard
+          navigation_path: /hacs/entry
       state_filter:
       - 'on'
       - operator: '>'
@@ -435,10 +435,16 @@ views:
     - attributes:
         icon: mdi:speaker-multiple
       card:
-        artwork: material
-        entity: media_player.clock
-        group: true
-        type: custom:mini-media-player
+        cards:
+        - artwork: material
+          entity: media_player.clock
+          group: true
+          type: custom:mini-media-player
+        - artwork: material
+          entity: media_player.friday
+          group: true
+          type: custom:mini-media-player
+        type: vertical-stack
       styles:
         --mdc-theme-primary: '#ff66ff'
     type: custom:tabbed-card
@@ -793,20 +799,16 @@ views:
       - color: Black
         entity: sensor.washing_machine_voltage
         name: Voltage
-      hours_to_show: 6
+      hours_to_show: 4
       icon: mdi:washing-machine
       line_width: 2
-      name: First Floor Washing Machine
-      points_per_hour: 10
+      name: Washing Machine
+      points_per_hour: 100
       smoothing: false
       type: custom:mini-graph-card
       update_interval: 1
     type: custom:stack-in-card
-  - entity: switch.balcony_light_socket_1
-    icon: mdi:string-lights
-    name: Balcony Lights
-    type: custom:mushroom-entity-card
-  icon: hue:room-laundry
+  icon: mdi:washing-machine
   path: utilities
   theme: Backend-selected
   title: Utilities
@@ -1267,8 +1269,8 @@ views:
   - entity: binary_sensor.den_motion
     style: ":host {\n  --label-badge-blue:\n    {% if is_state('binary_sensor.den_motion','on')\
       \ %}\n      red\n    {% else %}\n      green\n    {% endif %}\n    ;\n}\n"
-  - entity: binary_sensor.den_door
-    style: ":host {\n  --label-badge-blue:\n    {% if is_state('binary_sensor.den_door','off')\
+  - entity: binary_sensor.den_door_contact
+    style: ":host {\n  --label-badge-blue:\n    {% if is_state('binary_sensor.den_door_contact','off')\
       \ %}\n      red\n    {% else %}\n      green\n    {% endif %}\n    ;\n}\n"
   - entity: binary_sensor.chair_occupancy
     name: Occupancy
@@ -1565,37 +1567,6 @@ views:
       styles:
         --mdc-theme-primary: lightgreen
     type: custom:tabbed-card
-  - cards:
-    - icon: '{% if is_state(''device_tracker.oneplus_10pro'', ''home'') %}
-
-        mdi:cellphone-wireless
-
-        {% else %}
-
-        mdi:cellphone-off
-
-        {% endif %}
-
-        '
-      icon_color: '{% if is_state(''device_tracker.oneplus_10pro'', ''home'') %}
-
-        blue
-
-        {% else %}
-
-        white
-
-        {% endif %}
-
-        '
-      primary: "{% if is_state('device_tracker.oneplus_10pro', 'home') %}\n{{ states.device_tracker.oneplus_10pro.attributes.deco_device\
-        \ | replace(\"living_room\",\" Living Room\")  | replace(\"bedroom\",\" Bedroom\"\
-        ) }} - {{ states.device_tracker.oneplus_10pro.attributes.connection_type |\
-        \ replace(\"band\",\"\") | replace(\"5\",\"5 GHz\")| replace(\"2_4\",\"2.4\
-        \ GHz\") }}\n{% else %}\n  Not Connected\n{% endif %}\n"
-      secondary: OnePlus 10 Pro
-      type: custom:mushroom-template-card
-    type: vertical-stack
   - cards:
     - double_tap_action:
         action: fire-dom-event
@@ -1934,5 +1905,4 @@ views:
   theme: Backend-selected
   title: Shopping
   type: panel
-  visible:
-  - user: 74f7e2ffd3594037b1a2fc4de82d9fea
+  visible: []

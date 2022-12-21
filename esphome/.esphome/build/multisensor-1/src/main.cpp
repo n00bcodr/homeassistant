@@ -179,8 +179,8 @@ void setup() {
   //       open_drain: false
   //       pullup: false
   //       pulldown: false
-  //     id: esphome_esp8266_esp8266gpiopin
   //     inverted: false
+  //     id: esphome_esp8266_esp8266gpiopin
   //   model: DHT11
   //   update_interval: 30s
   //   temperature:
@@ -243,8 +243,8 @@ void setup() {
   //       open_drain: false
   //       pullup: false
   //       pulldown: false
-  //     id: esphome_esp8266_esp8266gpiopin_2
   //     inverted: false
+  //     id: esphome_esp8266_esp8266gpiopin_2
   //   name: Multisensor 1 Light
   //   device_class: illuminance
   //   update_interval: 2s
@@ -293,8 +293,8 @@ void setup() {
   //       open_drain: false
   //       pullup: false
   //       pulldown: false
-  //     id: esphome_esp8266_esp8266gpiopin_3
   //     inverted: false
+  //     id: esphome_esp8266_esp8266gpiopin_3
   //   name: Multisensor 1 Motion
   //   device_class: motion
   //   disabled_by_default: false

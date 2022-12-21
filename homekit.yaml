@@ -1,0 +1,26 @@
+- filter:
+    #include_entity_globs:
+    include_entities:
+      - binary_sensor.den_motion
+      - binary_sensor.chair_occupancy
+      - binary_sensor.den_door
+      - sensor.den_temperature
+      - sensor.den_humidity
+      - sensor.multisensor_1_light
+      - light.light
+      - switch.monitor_2_socket_1
+      - switch.monitor_1_socket_1
+      - switch.smart_plug_socket_1
+
+  #Configure Each Entity
+  entity_config:
+    binary_sensor.den_motion:
+      linked_battery_sensor: sensor.den_motion_1_battery
+    sensor.den_humidity:
+      name: Den Humidity
+      linked_battery_sensor: sensor.temperature_and_humidity_battery
+    sensor.den_temperature:
+      name: Den Temperature
+      linked_battery_sensor: sensor.temperature_and_humidity_battery
+    sensor.multisensor_1_light:
+      name: Den Illumination
