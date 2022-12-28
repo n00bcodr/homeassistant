@@ -17,7 +17,7 @@
     "issue_tracker": "https://github.com/hacs/integration/issues",
     "name": "HACS",
     "requirements": [
-        "aiogithubapi>=22.10.1"
+        "aiogithubapi==22.10.1"
     ],
     "version": "1.29.0"
 }

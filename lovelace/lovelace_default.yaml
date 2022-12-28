@@ -268,13 +268,13 @@ views:
   - entity: mediaquery
     states:
       '(max-width: 1000px)':
-        alignment: justify
-        chips:
-        - entity: weather.home
-          show_conditions: true
-          show_temperature: true
-          type: weather
-        type: custom:mushroom-chips-card
+        backdrop: true
+        entity: weather.home
+        name: ' '
+        secondary_info:
+        - humidity
+        - precipitation_probability
+        type: custom:simple-weather-card
     type: custom:state-switch
     view_layout:
       column: 2
@@ -438,6 +438,10 @@ views:
         cards:
         - artwork: material
           entity: media_player.clock
+          group: true
+          type: custom:mini-media-player
+        - artwork: material
+          entity: media_player.chotu
           group: true
           type: custom:mini-media-player
         - artwork: material
@@ -762,13 +766,19 @@ views:
     type: vertical-stack
     view_layout:
       column: 3
-  - entities:
-    - sensor.multisensor_1_humidity
-    - sensor.multisensor_1_light
-    - binary_sensor.multisensor_1_motion
-    - sensor.multisensor_1_temperature
-    title: multisensor-1
-    type: entities
+  - entity: sensor.random_joke
+    fill_container: false
+    hold_action:
+      action: more-info
+    icon: ''
+    multiline_secondary: true
+    primary: ''
+    secondary: '{{ states("sensor.random_joke") }}'
+    tap_action:
+      action: none
+    type: custom:mushroom-template-card
+    view_layout:
+      column: 1
   icon: mdi:castle
   layout:
     max_cols: 3
@@ -1651,6 +1661,13 @@ views:
       name: Temperature
     title: Temperature and Humidity
     type: entities
+  - entities:
+    - sensor.multisensor_1_humidity
+    - sensor.multisensor_1_light
+    - binary_sensor.multisensor_1_motion
+    - sensor.multisensor_1_temperature
+    title: multisensor-1
+    type: entities
   icon: mdi:home-analytics
   path: network
   theme: ''
@@ -1906,3 +1923,51 @@ views:
   title: Shopping
   type: panel
   visible: []
+- badges: []
+  cards:
+  - card_type: driver_standings
+    sensor: sensor.formula_one_sensor_drivers
+    standings:
+      show_flag: true
+      show_team: true
+    title: Driver Standings
+    type: custom:formulaone-card
+  - card_type: next_race
+    date_locale: nl
+    image_clickable: true
+    sensor: sensor.formula_one_sensor_races
+    title: Next Race
+    translations:
+      circuitname: Circuit name
+      date: Date
+      endofseason: Season is over. See you next year!!
+      location: Location
+      practice1: Practice 1
+      practice2: Practice 2
+      practice3: Practice 3
+      qualifying: Qualifying
+      race: Race
+      racename: Race name
+      racetime: Race
+      sprint: Sprint
+    type: custom:formulaone-card
+  - card_type: schedule
+    sensor: sensor.formula_one_sensor_races
+    title: Schedule
+    type: custom:formulaone-card
+  - card_type: last_result
+    image_clickable: true
+    sensor: sensor.formula_one_sensor_last_result
+    title: Last Result
+    type: custom:formulaone-card
+  - card_type: constructor_standings
+    sensor: sensor.formula_one_sensor_constructors
+    standings:
+      show_flag: true
+    title: Constructor Standings
+    type: custom:formulaone-card
+  icon: mdi:racing-helmet
+  path: formula-1
+  theme: Backend-selected
+  title: formula-1
+  type: custom:masonry-layout

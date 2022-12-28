@@ -864,7 +864,8 @@
   description: ''
   trigger:
   - platform: state
-    entity_id: binary_sensor.vibration
+    entity_id:
+    - binary_sensor.vibration_vibration
     from: 'off'
     to: 'on'
   condition:
@@ -897,4 +898,20 @@
         target:
           entity_id: switch.monitor_1_socket_1
     default: []
+  mode: single
+- id: '1672227190927'
+  alias: "\U0001F3F0Clear Notification when motion is detected"
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.den_motion
+    from: 'off'
+    to: 'on'
+  condition: []
+  action:
+  - service: notify.mobile_app_10pro
+    data:
+      data:
+        tag: den_off
+      message: clear_notification
   mode: single

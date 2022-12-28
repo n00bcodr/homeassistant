@@ -9,6 +9,9 @@ logger:
   default: critical
   logs:
     homeassistant.components.shell_command: debug
+    custom_components.jokes: debug
+    custom_components.ha_jokes: debug
+    custom_components.hacs: debug
 
 python_script:
 
