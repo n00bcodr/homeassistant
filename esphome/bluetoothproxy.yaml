@@ -26,9 +26,3 @@ captive_portal:
 
 bluetooth_proxy:
 esp32_ble_tracker:
-
-
-binary_sensor:
-  - platform: ble_presence
-    mac_address: 44:EA:30:9A:A7:5B
-    name: "ESP32 BLE Presence Watch"

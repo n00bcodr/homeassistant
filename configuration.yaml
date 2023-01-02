@@ -9,10 +9,8 @@ logger:
   default: critical
   logs:
     homeassistant.components.shell_command: debug
-    custom_components.jokes: debug
-    custom_components.ha_jokes: debug
-    custom_components.hacs: debug
-
+    custom_components.monitor_docker: debug
+    homeassistant.components.withings: debug
 python_script:
 
 my:
@@ -47,15 +45,11 @@ monitor_docker:
     switchname: "Docker {name}"
     containers:
       - plex
-      - my_special_tower
       - Tautulli
-      - broadlinkmanager
       - portainer
       - addon_core_samba
     rename:
       plex: Plex
-      my_special_tower: WatchTower
-      broadlinkmanager: Broadlink Manager
       portainer: Portainer
       addon_core_samba: Samba
     monitored_conditions:

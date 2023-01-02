@@ -2,7 +2,7 @@
   "storage_version": 1,
   "name": "multisensor-2",
   "comment": null,
-  "esphome_version": "2022.9.1",
+  "esphome_version": "2022.12.3",
   "src_version": 1,
   "address": "multisensor-2.local",
   "web_port": null,

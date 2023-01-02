@@ -32,6 +32,7 @@
 #include "esphome/components/ota/ota_backend.h"
 #include "esphome/components/ota/ota_backend_arduino_esp32.h"
 #include "esphome/components/ota/ota_backend_arduino_esp8266.h"
+#include "esphome/components/ota/ota_backend_arduino_rp2040.h"
 #include "esphome/components/ota/ota_backend_esp_idf.h"
 #include "esphome/components/ota/ota_component.h"
 #include "esphome/components/preferences/syncer.h"

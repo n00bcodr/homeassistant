@@ -505,7 +505,7 @@
     data: {}
   mode: single
 - id: '1670537821206'
-  alias: Tag Desk is scanned
+  alias: "\U0001F3F0Tag Desk is scanned"
   description: ''
   trigger:
   - platform: tag
@@ -638,7 +638,7 @@
     default: []
   mode: single
 - id: '1670800244266'
-  alias: Bed Routine
+  alias: "\U0001F3F0 Bed Routine"
   description: ''
   trigger:
   - platform: state
@@ -707,7 +707,7 @@
             color: red
   mode: single
 - id: '1671021630739'
-  alias: '[Z2M] Generic Ikea Remote Control'
+  alias: "\U0001F3F0[Z2M] Generic Ikea Remote Control"
   description: ''
   use_blueprint:
     path: pavax/z2m-ikea-remote-controls.yaml
@@ -915,3 +915,112 @@
         tag: den_off
       message: clear_notification
   mode: single
+- id: '1672388963171'
+  alias: "\U0001F3F0\U0001F3B5Controller - TRÅDFRI Wireless 5-Button Remote"
+  description: ''
+  use_blueprint:
+    path: EPMatt/ikea_e1524_e1810.yaml
+    input:
+      integration: Zigbee2MQTT
+      controller_device: 97ca075758792ef9bbde00dd0db2f808
+      controller_entity: sensor.ikea_multi_button_action
+      helper_last_controller_event: input_text.multibutton_last_state
+      action_button_left_short: []
+      action_button_center_short: []
+      action_button_up_short: []
+      action_button_down_release: []
+      action_button_down_short: []
+      action_button_right_double: []
+      action_button_left_double: []
+      action_button_center_long:
+      - choose:
+        - conditions:
+          - condition: state
+            entity_id: media_player.spotify
+            state: playing
+          sequence:
+          - service: media_player.media_pause
+            target:
+              entity_id: media_player.spotify
+            data: {}
+        - conditions:
+          - condition: state
+            entity_id: media_player.spotify
+            state: paused
+          sequence:
+          - service: media_player.media_play
+            target:
+              entity_id: media_player.spotify
+            data: {}
+        - conditions:
+          - condition: state
+            entity_id: media_player.spotify
+            state: idle
+          sequence:
+          - service: spotcast.start
+            data:
+              device_name: '{% if is_state(''media_player.spotify'', ''playing'')
+                %} {{state_attr("media_player.spotify", "source")}} {%else%}{{ states(''input_select.speakers_spotify'')
+                }}{%endif%}'
+              force_playback: true
+              random_song: true
+              shuffle: true
+        default: []
+      action_button_center_double:
+      - choose:
+        - conditions:
+          - condition: state
+            entity_id: media_player.spotify
+            state: playing
+          sequence:
+          - service: media_player.media_pause
+            target:
+              entity_id: media_player.spotify
+            data: {}
+        - conditions:
+          - condition: state
+            entity_id: media_player.spotify
+            state: paused
+          sequence:
+          - service: media_player.media_play
+            target:
+              entity_id: media_player.spotify
+            data: {}
+        - conditions:
+          - condition: state
+            entity_id: media_player.spotify
+            state: idle
+          sequence:
+          - service: spotcast.start
+            data:
+              device_name: '{% if is_state(''media_player.spotify'', ''playing'')
+                %} {{state_attr("media_player.spotify", "source")}} {%else%}{{ states(''input_select.speakers_spotify'')
+                }}{%endif%}'
+              force_playback: true
+              random_song: true
+              shuffle: true
+        default: []
+- id: '1672388988293'
+  alias: "\U0001F3F0\U0001F3B5Hook - Media Player"
+  description: ''
+  use_blueprint:
+    path: EPMatt/media_player.yaml
+    input:
+      controller_device: 97ca075758792ef9bbde00dd0db2f808
+      controller_entity: sensor.ikea_multi_button_action
+      controller_model: IKEA E1524/E1810 TRÅDFRI Wireless 5-Button Remote
+      media_player: media_player.spotify
+      volume_steps_short: 10
+      volume_steps_long: 20
+- id: '1672404137791'
+  alias: "\U0001F3F0 Bed IFTTT"
+  description: ''
+  trigger:
+    platform: event
+    event_type: ifttt_webhook_received
+    event_data:
+      action: call_service
+  action:
+    service_template: '{{ trigger.event.data.service }}'
+    data_template:
+      entity_id: '{{ trigger.event.data.entity_id }}'

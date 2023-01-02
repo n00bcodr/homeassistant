@@ -820,14 +820,13 @@ views:
     type: custom:stack-in-card
   icon: mdi:washing-machine
   path: utilities
-  theme: Backend-selected
+  theme: null
   title: Utilities
 - badges: []
   cards:
   - cards:
     - entities:
       - entity: input_select.speakers_spotify
-      theme: AMOLED Blue
       type: entities
     - cards:
       - aspect_ratio: 5/2
@@ -877,7 +876,7 @@ views:
           service: plex.refresh_library
           service_data:
             library_name: Movies
-            server_name: Plex Server
+            server_name: Plex Media Server
         type: custom:button-card
       - aspect_ratio: 1/1
         entity_picture: /local/icons/music.png
@@ -888,7 +887,7 @@ views:
           service: plex.refresh_library
           service_data:
             library_name: Music
-            server_name: Plex Server
+            server_name: Plex Media Server
         type: custom:button-card
       - aspect_ratio: 1/1
         entity_picture: /local/icons/tvshow.png
@@ -899,7 +898,7 @@ views:
           service: plex.refresh_library
           service_data:
             library_name: TV Shows
-            server_name: Plex Server
+            server_name: Plex Media Server
         type: custom:button-card
       - aspect_ratio: 1/1
         confirmation:
@@ -1018,148 +1017,143 @@ views:
   - user: 74f7e2ffd3594037b1a2fc4de82d9fea
 - badges: []
   cards:
-  - aspect_ratio: 4/3
-    custom_fields:
-      cpu: "[[[\n  return `<ha-icon\n    icon=\"mdi:server\"\n    style=\"width: 20px;\
-        \ height: 20px; color: deepskyblue;\">\n    </ha-icon><span> CPU: <span style=\"\
-        color: var(--text-color-sensor);\">${states['sensor.processor_use_percent'].state}%</span></span>`\n\
-        ]]]\n"
-      disk: "[[[\n  return `<ha-icon\n    icon=\"mdi:harddisk\"\n    style=\"width:\
-        \ 20px; height: 20px; color: deepskyblue;\">\n    </ha-icon><span> Disk: <span\
-        \ style=\"color: var(--text-color-sensor);\">${states['sensor.disk_use_percent'].state}%</span></span>`\n\
-        ]]]\n"
-      lastboot: "[[[\n  return `<ha-icon\n    icon=\"mdi:clock\"\n    style=\"width:\
-        \ 20px; height: 20px; color: yellow;\">\n    </ha-icon><span> Last Boot: <span\
-        \ style=\"color: var(--text-color-sensor);\">${states['sensor.server_last_boot'].state}</span></span>`\n\
-        ]]]\n"
-      ram: "[[[\n  return `<ha-icon\n    icon=\"mdi:memory\"\n    style=\"width: 20px;\
-        \ height: 20px; color: deepskyblue;\">\n    </ha-icon><span> RAM: <span style=\"\
-        color: var(--text-color-sensor);\">${states['sensor.memory_use_percent'].state}%</span></span>`\n\
-        ]]]\n"
-      temp: "[[[\n  return `<ha-icon\n    icon=\"mdi:thermometer\"\n    style=\"width:\
-        \ 20px; height: 20px; color: var(--text-color-sensor);\">\n    </ha-icon><span\
-        \ style=\"color: var(--text-color-sensor);\">${entity.state} \xB0C</span>`\n\
-        ]]]\n"
-    entity: sensor.processor_temperature
-    icon: mdi:server
-    name: Debian
-    styles:
-      card:
-      - background-color: '#000000'
-      - border-radius: 10%
-      - padding: 10%
-      - color: ivory
-      - font-size: 18px
-      - text-shadow: 0px 0px 5px black
-      - text-transform: capitalize
-      custom_fields:
-        cpu:
-        - padding-bottom: 2px
-        - align-self: middle
-        - justify-self: start
-        - --text-color-sensor: '[[[ if (states["sensor.processor_use_percent"].state
-            > 80) return "red"; ]]]'
-        disk:
-        - align-self: middle
-        - justify-self: start
-        - --text-color-sensor: '[[[ if (states["sensor.disk_use_percent"].state >
-            80) return "red"; ]]]'
-        lastboot:
-        - align-self: start
-        - justify-self: end
-        - font_size: 25px
-        ram:
-        - padding-bottom: 2px
-        - align-self: middle
-        - justify-self: start
-        - --text-color-sensor: '[[[ if (states["sensor.memory_use_percent"].state
-            > 80) return "red"; ]]]'
-        temp:
-        - align-self: start
-        - justify-self: end
-        - font_size: 25px
-        - --text-color-sensor: '[[[ if (states["sensor.processor_temperature"].state
-            > 80) return "red"; ]]]'
-      grid:
-      - grid-template-areas: '"i temp" "i lastboot" "n n" "cpu cpu" "ram ram" "disk
-          disk"'
-      - grid-template-columns: 1fr 1fr
-      - grid-template-rows: 1fr 5fr min-content min-content min-content
-      icon:
-      - color: "[[[\n  if (entity.state < 60) return 'lime';\n  if (entity.state >=\
-          \ 60 && entity.state < 80) return 'orange';\n  else return 'red';\n]]]\n"
-      - width: 60%
-      - margin-top: -10%
-      img_cell:
-      - justify-content: start
-      - align-items: start
-      - margin: none
-      name:
-      - font-weight: bold
-      - font-size: 18px
-      - color: white
-      - align-self: middle
-      - justify-self: start
-      - padding-bottom: 4px
-    type: custom:button-card
   - cards:
-    - entity: sensor.download_speed
-      max: 300
-      min: 0
-      needle: false
-      severity:
-        green: 300
-        red: 0
-        yellow: 150
-      type: gauge
-    - entity: sensor.upload_speed
-      max: 300
-      min: 0
-      needle: false
-      severity:
-        green: 250
-        red: 0
-        yellow: 0
-      type: gauge
-    mode: horizontal
-    title: SpeedTest
+    - custom_fields:
+        item:
+          card:
+            cards:
+            - entity: sensor.processor_use_percent
+              icon_color: '#01C852'
+              name: CPU
+              primary_info: state
+              secondary_info: name
+              type: custom:mushroom-entity-card
+            - entity: sensor.memory_use_percent
+              icon_color: '#E91E63'
+              name: RAM
+              primary_info: state
+              secondary_info: name
+              type: custom:mushroom-entity-card
+            - entity: sensor.disk_use_percent
+              icon_color: '#FF9101'
+              name: Disk
+              primary_info: state
+              secondary_info: name
+              type: custom:mushroom-entity-card
+            mode: vertical
+            type: custom:stack-in-card
+        radial:
+          card:
+            apex_config:
+              legend:
+                show: false
+              title:
+                align: top
+                floating: true
+            chart_type: radialBar
+            header:
+              show: false
+            series:
+            - color: '#01C852'
+              entity: sensor.processor_use_percent
+            - color: '#E91E63'
+              entity: sensor.memory_use_percent
+            - color: '#FF9101'
+              entity: sensor.disk_use_percent
+            type: custom:apexcharts-card
+      styles:
+        grid:
+        - grid-template-areas: '''item radial'''
+        - grid-template-columns: 30% 75%
+        - grid-template-rows: 220px
+      type: custom:button-card
+    - cards:
+      - entity: sensor.processor_temperature
+        icon_color: red
+        name: Processor Temperature
+        primary_info: state
+        secondary_info: name
+        type: custom:mushroom-entity-card
+      - entity: sensor.server_last_boot
+        icon: mdi:clock
+        name: Last Boot
+        primary_info: state
+        secondary_info: name
+        type: custom:mushroom-entity-card
+      mode: horizontal
+      type: custom:stack-in-card
+    mode: vertical
+    title: Debian
     type: custom:stack-in-card
-  - entities:
-    - entity: sensor.count_automations
-      icon: mdi:robot
-      name: '# Automations'
-    - entity: sensor.count_scripts
-      icon: mdi:script
-      name: '# Scripts'
-    - entity: sensor.count_scenes
-      icon: mdi:palette-outline
-      name: '# Scenes'
-    - entity: sensor.count_sensors
-      icon: ''
-      name: '# Sensors'
-    - entity: sensor.count_binary_sensors
-      name: '# Binary Sensors'
-    - entity: sensor.count_device_trackers
-      icon: mdi:lan-connect
-      name: '# Device Trackers'
-    - entity: sensor.count_input_booleans
-      name: '# Input Booleans'
-    - entity: sensor.count_switches
-      icon: mdi:light-switch
-      name: '# Switches'
-    - entity: sensor.count_lights
-      icon: mdi:lightbulb
-      name: '# Lights'
-    - entity: sensor.count_fans
-      icon: mdi:fan
-      name: '# Fans'
-    - entity: sensor.count_media_players
-      icon: mdi:cast
-      name: '# Media Players'
-    - entity: sensor.count_zones
-      icon: mdi:map-clock
-      name: '# Zones'
-    type: entities
+  - custom_fields:
+      item1:
+        card:
+          entity: sensor.download_speed
+          hold_action:
+            action: call-service
+            service: homeassistant.update_entity
+            service_data:
+              entity_id: sensor.speedtest_download
+          icon_color: orange
+          name: Download
+          primary_info: state
+          secondary_info: name
+          type: custom:mushroom-entity-card
+      item2:
+        card:
+          entity: sensor.upload_speed
+          hold_action:
+            action: call-service
+            service: homeassistant.update_entity
+            service_data:
+              entity_id: sensor.speedtest_download
+          icon_color: blue
+          name: Upload
+          primary_info: state
+          secondary_info: name
+          type: custom:mushroom-entity-card
+      item3:
+        card:
+          entity: sensor.speedtest_ping
+          icon_color: green
+          name: Ping
+          primary_info: state
+          secondary_info: name
+          type: custom:mushroom-entity-card
+      line:
+        card:
+          apex_config:
+            chart:
+              height: 250px
+            legend:
+              show: false
+            title:
+              align: top
+          chart_type: line
+          graph_span: 3h
+          header:
+            show: false
+          layout: minimal
+          series:
+          - color: orange
+            curve: smooth
+            entity: sensor.download_speed
+            fill_raw: last
+            float_precision: 1
+            stroke_width: 2
+          - color: skyblue
+            curve: smooth
+            entity: sensor.upload_speed
+            fill_raw: last
+            float_precision: 1
+            stroke_width: 2
+          type: custom:apexcharts-card
+    styles:
+      grid:
+      - grid-template-areas: '''item1 line'' ''item2 line'' ''item3 line'''
+      - grid-template-columns: 33% 65%
+      - grid-template-rows: 1fr 1fr 1fr
+    type: custom:button-card
   - cards:
     - entity: sensor.database_size
       icon_color: blue-grey
@@ -1204,6 +1198,90 @@ views:
       secondary_info: name
       type: custom:mushroom-entity-card
     type: vertical-stack
+  - cards:
+    - entity: sensor.count_automations
+      icon: mdi:robot
+      icon_color: red
+      name: '# Automations'
+      primary_info: state
+      secondary_info: name
+      type: custom:mushroom-entity-card
+    - entity: sensor.count_scripts
+      icon: mdi:script
+      icon_color: purple
+      name: '# Scripts'
+      primary_info: state
+      secondary_info: name
+      type: custom:mushroom-entity-card
+    - entity: sensor.count_scenes
+      icon: mdi:palette-outline
+      icon_color: indigo
+      name: '# Scenes'
+      primary_info: state
+      secondary_info: name
+      type: custom:mushroom-entity-card
+    - entity: sensor.count_sensors
+      icon: ''
+      icon_color: blue
+      name: '# Sensors'
+      primary_info: state
+      secondary_info: name
+      type: custom:mushroom-entity-card
+    - entity: sensor.count_binary_sensors
+      icon_color: green
+      name: '# Binary Sensors'
+      primary_info: state
+      secondary_info: name
+      type: custom:mushroom-entity-card
+    - entity: sensor.count_device_trackers
+      icon: mdi:lan-connect
+      icon_color: light-green
+      name: '# Device Trackers'
+      primary_info: state
+      secondary_info: name
+      type: custom:mushroom-entity-card
+    - entity: sensor.count_input_booleans
+      icon_color: yellow
+      name: '# Input Booleans'
+      primary_info: state
+      secondary_info: name
+      type: custom:mushroom-entity-card
+    - entity: sensor.count_switches
+      icon: mdi:light-switch
+      icon_color: brown
+      name: '# Switches'
+      primary_info: state
+      secondary_info: name
+      type: custom:mushroom-entity-card
+    - entity: sensor.count_lights
+      icon: mdi:lightbulb
+      icon_color: deep-orange
+      name: '# Lights'
+      primary_info: state
+      secondary_info: name
+      type: custom:mushroom-entity-card
+    - entity: sensor.count_fans
+      icon: mdi:fan
+      icon_color: deep-purple
+      name: '# Fans'
+      primary_info: state
+      secondary_info: name
+      type: custom:mushroom-entity-card
+    - entity: sensor.count_media_players
+      icon: mdi:cast
+      icon_color: amber
+      name: '# Media Players'
+      primary_info: state
+      secondary_info: name
+      type: custom:mushroom-entity-card
+    - entity: sensor.count_zones
+      icon: mdi:map-clock
+      name: '# Zones'
+      primary_info: state
+      secondary_info: name
+      type: custom:mushroom-entity-card
+    mode: vertical
+    type: custom:stack-in-card
   - cards:
     - entities:
       - icon: fab:git
@@ -1270,7 +1348,7 @@ views:
     type: conditional
   icon: mdi:server-network
   path: system_monitor
-  theme: Backend-selected
+  theme: null
   title: System Monitor
   visible:
   - user: 74f7e2ffd3594037b1a2fc4de82d9fea
@@ -1437,54 +1515,6 @@ views:
       fill: fade
     type: custom:mini-graph-card
     update_interval: 30
-  - cards:
-    - card_mod:
-        style:
-          ha-markdown:
-            $: "ha-markdown-element:first-of-type hr{\n  border-color: #303030;\n\
-              }\n"
-      content: '<h2> <ha-icon icon=''mdi:shield-half-full''></ha-icon> Watchman report<h2>
-        <h3>Missing Entities: {{ states.sensor.watchman_missing_entities.state }}
-        </h3> {%- for item in state_attr("sensor.watchman_missing_entities", "entities")
-        %} <hr> <table><tr> <td> <ha-icon icon=''mdi: {%- if item.state=="missing"-%}cloud-alert''
-        {%- elif item.state=="unavail" -%}cloud-off-outline'' {%- else-%}cloud-question''
-        {%- endif -%} ></ha-icon> {{ item.id }} [{{item.state}}] <a title="{{item.occurrences}}">
-        {{item.occurrences.split(''/'')[-1].split('':'')[0]}}</a> </td></tr></table>
-        {%- endfor %}'
-      type: markdown
-    - card_mod:
-        style:
-          ha-markdown:
-            $: "ha-markdown-element:first-of-type hr{\n  border-color: #303030;\n\
-              }\n"
-      content: '<h2 class="some"> <ha-icon icon=''mdi:shield-half-full''></ha-icon>
-        Watchman report<h2> <h3> Missing Services: {{ states.sensor.watchman_missing_services.state
-        }} </h3> {%- for item in state_attr("sensor.watchman_missing_services", "entities")
-        %} <hr><table><tr> <td>  <ha-icon icon=''mdi:cloud-alert''></ha-icon> {{ item.id
-        }} <a title="{{item.occurrences}}">{{item.occurrences.split(''/'')[-1].split('':'')[0]}}</a>
-        </td></tr></table> {%- endfor %}'
-      type: markdown
-    - alignment: center
-      chips:
-      - double_tap_action:
-          action: call-service
-          service: watchman.report
-          service_data:
-            data:
-              data:
-                parse_mode: html
-              parse_config: true
-          target: {}
-        entity: sensor.watchman_last_updated
-        hold_action:
-          action: none
-        icon: mdi:camera-timer
-        name: 'Watchman Last Updated :'
-        tap_action:
-          action: none
-        type: entity
-      type: custom:mushroom-chips-card
-    type: custom:stack-in-card
   - styles:
       --mdc-icon-size: 25px
       --mdc-tab-color-default: white
@@ -1578,95 +1608,62 @@ views:
         --mdc-theme-primary: lightgreen
     type: custom:tabbed-card
   - cards:
-    - double_tap_action:
-        action: fire-dom-event
-        browser_mod:
-          data:
-            browser_id: THIS
-            content:
-              cards:
-              - content: "<h2><center> <ha-icon icon='mdi:podium'></ha-icon> Constructors\
-                  \ Standings</h2>  <center><table border= \"1\" style=\"width: 80%;\
-                  \ text-align: center;border-collapse: collapse;\"> <tr>\n  <th><b>Position</th>\n\
-                  \  <th><b>Constructor</th>\n  <th><b>Wins</th>\n  <th><b>Points</th>\n\
-                  </tr> {%- for item in state_attr(\"sensor.f1_constructor_standings\"\
-                  , \"standings\") %}  <tr>  <td> {{ item.Position }} </td> <td>\n\
-                  \ {{item.Constructor}}\n</td> <td> {{item.Wins}} </td> <td> {{item.Points}}\
-                  \ </td> </tr> {%- endfor %}"
-                type: markdown
-              - content: "<h2> <center><ha-icon icon='mdi:racing-helmet'></ha-icon>\
-                  \ Driver Standings</h2> <center><table border= \"1\" style=\"width:\
-                  \ 80%; text-align: center;\"> <tr>\n  <th><b>Position</th>\n  <th><b>Driver</th>\n\
-                  \  <th><b>Team</th>\n  <th><b>Points</th>\n</tr> {%- for item in\
-                  \ state_attr(\"sensor.f1_driver_standings\", \"standings\") %} \
-                  \ <tr>  <td> {{ item.Position }} </td> <td>\n {{item.Driver}}\n\
-                  </td> <td> {{item.Team}} </td><td> {{item.Points}} </td> </tr> {%-\
-                  \ endfor %}"
-                type: markdown
-              parameters:
-                autoHeight: true
-                effect: fade
-              type: custom:swipe-card
-            title: Standings
-          service: browser_mod.popup
-      entity_picture: /local/f1/F1.png
-      show_entity_picture: true
-      type: custom:button-card
-    - entity: '{% if (states.sensor.ics_1.attributes.remaining > 5) %} wait {% elif
-        (states.sensor.ics_1.attributes.remaining <= 5) and (states.sensor.ics_1.attributes.remaining
-        >= 1) %} race_weekend {% elif (states.sensor.ics_1.attributes.remaining ==
-        0) %} race_day {% endif %}'
-      states:
-        race_day:
-          cards:
-          - content: "<h1><center>\U0001F3C1 Race Day \U0001F3C1</center></h1>\n<h2><em><center><img\n\
-              \          height=\"18\"\n          src=\"{{(states.sensor.formula_1.attributes.flag)}}\"\
-              >{{(states.sensor.formula_1.attributes.grand_prix) |\nreplace (\"FORMULA\
-              \ 1\", \"\") }}</em></h2>\n<h2><center> {{ states.sensor.ics_1.attributes.description\
-              \  | replace (\"Grand Prix \",\"\")}}\n      \n{{ as_timestamp(states.sensor.ics_1.attributes.start)\
-              \ |\ntimestamp_custom('at %-I:%M %p') }}</center> </h2>"
-            type: markdown
-          - cards:
-            - content: " <img src=\"{{(states.sensor.formula_1.attributes.circuit_image)}}\"\
-                \n  alt=\"{{(states.sensor.ics_1.attributes.description) | replace\
-                \ (\"Qualifying \",\n  \"\")}} Circuit\">"
-              theme: Google Light Theme
-              type: markdown
-            - content: "<p><a href=\"{{(states.sensor.formula_1.attributes.circuit_link)}}\"\
-                >\n<img src=\"/local/f1/circuit_stats/{{(states.sensor.ics_1.attributes.location)}}.png\"\
-                \n              alt=\"{{(states.sensor.ics_1.attributes.description)\
-                \ | replace (\"Qualifying \",\n              \"\")}} Circuit\"> </a></p>"
-              type: markdown
-            type: custom:swipe-card
-          type: vertical-stack
-        race_weekend:
-          content: <h1><center>Race this weekend</center>       <h2><center><img height="18"
-            src="{{(states.sensor.formula_1.attributes.flag)}}"> {{(states.sensor.ics_1.attributes.description)
-            | replace ("Qualifying ", "")}} <br>
-          type: markdown
-        wait:
-          content: '<h1><center><img height="18"       src="{{(states.sensor.formula_1.attributes.flag)}}">
-            {{(states.sensor.ics_1.attributes.description) | replace ("Qualifying
-            ", "")}} </center> <h2><center>{{(states.sensor.ics_1.attributes.remaining)}}
-            days to go </center> '
-          type: markdown
-      type: custom:state-switch
+    - card_mod:
+        style:
+          ha-markdown:
+            $: "ha-markdown-element:first-of-type hr{\n  border-color: #303030;\n\
+              }\n"
+      content: '<h2> <ha-icon icon=''mdi:shield-half-full''></ha-icon> Watchman report<h2>
+        <h3>Missing Entities: {{ states.sensor.watchman_missing_entities.state }}
+        </h3> {%- for item in state_attr("sensor.watchman_missing_entities", "entities")
+        %} <hr> <table><tr> <td> <ha-icon icon=''mdi: {%- if item.state=="missing"-%}cloud-alert''
+        {%- elif item.state=="unavail" -%}cloud-off-outline'' {%- else-%}cloud-question''
+        {%- endif -%} ></ha-icon> {{ item.id }} [{{item.state}}] <a title="{{item.occurrences}}">
+        {{item.occurrences.split(''/'')[-1].split('':'')[0]}}</a> </td></tr></table>
+        {%- endfor %}'
+      type: markdown
+    - card_mod:
+        style:
+          ha-markdown:
+            $: "ha-markdown-element:first-of-type hr{\n  border-color: #303030;\n\
+              }\n"
+      content: '<h2 class="some"> <ha-icon icon=''mdi:shield-half-full''></ha-icon>
+        Watchman report<h2> <h3> Missing Services: {{ states.sensor.watchman_missing_services.state
+        }} </h3> {%- for item in state_attr("sensor.watchman_missing_services", "entities")
+        %} <hr><table><tr> <td>  <ha-icon icon=''mdi:cloud-alert''></ha-icon> {{ item.id
+        }} <a title="{{item.occurrences}}">{{item.occurrences.split(''/'')[-1].split('':'')[0]}}</a>
+        </td></tr></table> {%- endfor %}'
+      type: markdown
+    - alignment: center
+      chips:
+      - double_tap_action:
+          action: call-service
+          service: watchman.report
+          service_data:
+            data:
+              data:
+                parse_mode: html
+              parse_config: true
+          target: {}
+        entity: sensor.watchman_last_updated
+        hold_action:
+          action: none
+        icon: mdi:camera-timer
+        name: 'Watchman Last Updated :'
+        tap_action:
+          action: none
+        type: entity
+      type: custom:mushroom-chips-card
     type: custom:stack-in-card
-    view_layout:
-      column: 1
-  - entities:
-    - entity: sensor.temperature_and_humidity_humidity
-      name: Humidity
-    - entity: sensor.temperature_and_humidity_temperature
-      name: Temperature
-    title: Temperature and Humidity
-    type: entities
   - entities:
     - sensor.multisensor_1_humidity
     - sensor.multisensor_1_light
     - binary_sensor.multisensor_1_motion
     - sensor.multisensor_1_temperature
-    title: multisensor-1
+    - entity: sensor.temperature_and_humidity_humidity
+      name: Humidity
+    - entity: sensor.temperature_and_humidity_temperature
+      name: Temperature
     type: entities
   icon: mdi:home-analytics
   path: network
@@ -1919,55 +1916,137 @@ views:
     type: horizontal-stack
   icon: mdi:cart
   path: shopping
-  theme: Backend-selected
+  theme: null
   title: Shopping
   type: panel
   visible: []
 - badges: []
   cards:
-  - card_type: driver_standings
-    sensor: sensor.formula_one_sensor_drivers
-    standings:
-      show_flag: true
-      show_team: true
-    title: Driver Standings
-    type: custom:formulaone-card
-  - card_type: next_race
-    date_locale: nl
-    image_clickable: true
-    sensor: sensor.formula_one_sensor_races
-    title: Next Race
-    translations:
-      circuitname: Circuit name
-      date: Date
-      endofseason: Season is over. See you next year!!
-      location: Location
-      practice1: Practice 1
-      practice2: Practice 2
-      practice3: Practice 3
-      qualifying: Qualifying
-      race: Race
-      racename: Race name
-      racetime: Race
-      sprint: Sprint
-    type: custom:formulaone-card
-  - card_type: schedule
-    sensor: sensor.formula_one_sensor_races
-    title: Schedule
-    type: custom:formulaone-card
-  - card_type: last_result
-    image_clickable: true
-    sensor: sensor.formula_one_sensor_last_result
-    title: Last Result
-    type: custom:formulaone-card
-  - card_type: constructor_standings
-    sensor: sensor.formula_one_sensor_constructors
-    standings:
-      show_flag: true
-    title: Constructor Standings
-    type: custom:formulaone-card
+  - cards:
+    - card_type: driver_standings
+      sensor: sensor.formula_one_sensor_drivers
+      standings:
+        show_flag: true
+        show_team: true
+      title: Driver Standings
+      type: custom:formulaone-card
+    - card_type: constructor_standings
+      sensor: sensor.formula_one_sensor_constructors
+      standings:
+        show_flag: true
+        show_team: true
+      title: Constructor Standings
+      type: custom:formulaone-card
+    - card_type: last_result
+      image_clickable: true
+      sensor: sensor.formula_one_sensor_last_result
+      standings:
+        show_flag: true
+        show_team: true
+      title: Last Result
+      type: custom:formulaone-card
+    - card_type: schedule
+      sensor: sensor.formula_one_sensor_races
+      title: Schedule
+      type: custom:formulaone-card
+    - card_type: next_race
+      date_locale: nl
+      image_clickable: true
+      sensor: sensor.formula_one_sensor_races
+      title: Next Race
+      translations:
+        circuitname: Circuit name
+        date: Date
+        endofseason: Season is over. See you next year!!
+        location: Location
+        practice1: Practice 1
+        practice2: Practice 2
+        practice3: Practice 3
+        qualifying: Qualifying
+        race: Race
+        racename: Race name
+        racetime: Race
+        sprint: Sprint
+      type: custom:formulaone-card
+    type: custom:swipe-card
+  - cards:
+    - double_tap_action:
+        action: fire-dom-event
+        browser_mod:
+          data:
+            browser_id: THIS
+            content:
+              cards:
+              - content: "<h2><center> <ha-icon icon='mdi:podium'></ha-icon> Constructors\
+                  \ Standings</h2>  <center><table border= \"1\" style=\"width: 80%;\
+                  \ text-align: center;border-collapse: collapse;\"> <tr>\n  <th><b>Position</th>\n\
+                  \  <th><b>Constructor</th>\n  <th><b>Wins</th>\n  <th><b>Points</th>\n\
+                  </tr> {%- for item in state_attr(\"sensor.f1_constructor_standings\"\
+                  , \"standings\") %}  <tr>  <td> {{ item.Position }} </td> <td>\n\
+                  \ {{item.Constructor}}\n</td> <td> {{item.Wins}} </td> <td> {{item.Points}}\
+                  \ </td> </tr> {%- endfor %}"
+                type: markdown
+              - content: "<h2> <center><ha-icon icon='mdi:racing-helmet'></ha-icon>\
+                  \ Driver Standings</h2> <center><table border= \"1\" style=\"width:\
+                  \ 80%; text-align: center;\"> <tr>\n  <th><b>Position</th>\n  <th><b>Driver</th>\n\
+                  \  <th><b>Team</th>\n  <th><b>Points</th>\n</tr> {%- for item in\
+                  \ state_attr(\"sensor.f1_driver_standings\", \"standings\") %} \
+                  \ <tr>  <td> {{ item.Position }} </td> <td>\n {{item.Driver}}\n\
+                  </td> <td> {{item.Team}} </td><td> {{item.Points}} </td> </tr> {%-\
+                  \ endfor %}"
+                type: markdown
+              parameters:
+                autoHeight: true
+                effect: fade
+              type: custom:swipe-card
+            title: Standings
+          service: browser_mod.popup
+      entity_picture: /local/f1/F1.png
+      show_entity_picture: true
+      type: custom:button-card
+    - entity: '{% if (states.sensor.ics_1.attributes.remaining > 5) %} wait {% elif
+        (states.sensor.ics_1.attributes.remaining <= 5) and (states.sensor.ics_1.attributes.remaining
+        >= 1) %} race_weekend {% elif (states.sensor.ics_1.attributes.remaining ==
+        0) %} race_day {% endif %}'
+      states:
+        race_day:
+          cards:
+          - content: "<h1><center>\U0001F3C1 Race Day \U0001F3C1</center></h1>\n<h2><em><center><img\n\
+              \          height=\"18\"\n          src=\"{{(states.sensor.formula_1.attributes.flag)}}\"\
+              >{{(states.sensor.formula_1.attributes.grand_prix) |\nreplace (\"FORMULA\
+              \ 1\", \"\") }}</em></h2>\n<h2><center> {{ states.sensor.ics_1.attributes.description\
+              \  | replace (\"Grand Prix \",\"\")}}\n      \n{{ as_timestamp(states.sensor.ics_1.attributes.start)\
+              \ |\ntimestamp_custom('at %-I:%M %p') }}</center> </h2>"
+            type: markdown
+          - cards:
+            - content: " <img src=\"{{(states.sensor.formula_1.attributes.circuit_image)}}\"\
+                \n  alt=\"{{(states.sensor.ics_1.attributes.description) | replace\
+                \ (\"Qualifying \",\n  \"\")}} Circuit\">"
+              theme: Google Light Theme
+              type: markdown
+            - content: "<p><a href=\"{{(states.sensor.formula_1.attributes.circuit_link)}}\"\
+                >\n<img src=\"/local/f1/circuit_stats/{{(states.sensor.ics_1.attributes.location)}}.png\"\
+                \n              alt=\"{{(states.sensor.ics_1.attributes.description)\
+                \ | replace (\"Qualifying \",\n              \"\")}} Circuit\"> </a></p>"
+              type: markdown
+            type: custom:swipe-card
+          type: vertical-stack
+        race_weekend:
+          content: <h1><center>Race this weekend</center>       <h2><center><img height="18"
+            src="{{(states.sensor.formula_1.attributes.flag)}}"> {{(states.sensor.ics_1.attributes.description)
+            | replace ("Qualifying ", "")}} <br>
+          type: markdown
+        wait:
+          content: '<h1><center><img height="18"       src="{{(states.sensor.formula_1.attributes.flag)}}">
+            {{(states.sensor.ics_1.attributes.description) | replace ("Qualifying
+            ", "")}} </center> <h2><center>{{(states.sensor.ics_1.attributes.remaining)}}
+            days to go </center> '
+          type: markdown
+      type: custom:state-switch
+    type: custom:stack-in-card
+    view_layout:
+      column: 1
   icon: mdi:racing-helmet
   path: formula-1
-  theme: Backend-selected
+  theme: null
   title: formula-1
-  type: custom:masonry-layout

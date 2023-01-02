@@ -60,6 +60,7 @@ void setup() {
   //   includes: []
   //   libraries: []
   //   name_add_mac_suffix: false
+  //   min_version: 2022.12.3
   App.pre_setup("multisensor-2", __DATE__ ", " __TIME__, false);
   // binary_sensor:
   // text_sensor:
@@ -72,7 +73,8 @@ void setup() {
   //   level: DEBUG
   //   logs: {}
   //   esp8266_store_log_strings_in_flash: true
-  logger_logger = new logger::Logger(115200, 512, logger::UART_SELECTION_UART0);
+  logger_logger = new logger::Logger(115200, 512);
+  logger_logger->set_uart_selection(logger::UART_SELECTION_UART0);
   logger_logger->pre_setup();
   logger_logger->set_component_source("logger");
   App.register_component(logger_logger);
@@ -107,15 +109,19 @@ void setup() {
   //   use_address: multisensor-2.local
   wifi_wificomponent = new wifi::WiFiComponent();
   wifi_wificomponent->set_use_address("multisensor-2.local");
+  {
   wifi::WiFiAP wifi_wifiap_2 = wifi::WiFiAP();
-  wifi_wifiap_2.set_ssid("upadrasta");
-  wifi_wifiap_2.set_password("Upadrasta123");
+  wifi_wifiap_2.set_ssid("Everyday I'm Buffering");
+  wifi_wifiap_2.set_password("notyourordinarywifi");
   wifi_wifiap_2.set_priority(0.0f);
   wifi_wificomponent->add_sta(wifi_wifiap_2);
+  }
+  {
   wifi::WiFiAP wifi_wifiap = wifi::WiFiAP();
   wifi_wifiap.set_ssid("multisensor-2 Fallback Hotspot");
   wifi_wifiap.set_password("123456789");
   wifi_wificomponent->set_ap(wifi_wifiap);
+  }
   wifi_wificomponent->set_ap_timeout(60000);
   wifi_wificomponent->set_reboot_timeout(900000);
   wifi_wificomponent->set_power_save_mode(wifi::WIFI_POWER_SAVE_NONE);

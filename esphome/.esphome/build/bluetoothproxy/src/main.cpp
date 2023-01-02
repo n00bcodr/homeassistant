@@ -5,7 +5,6 @@ using namespace esphome;
 using std::isnan;
 using std::min;
 using std::max;
-using namespace binary_sensor;
 logger::Logger *logger_logger;
 web_server_base::WebServerBase *web_server_base_webserverbase;
 captive_portal::CaptivePortal *captive_portal_captiveportal;
@@ -17,7 +16,6 @@ using namespace api;
 preferences::IntervalSyncer *preferences_intervalsyncer;
 bluetooth_proxy::BluetoothProxy *bluetooth_proxy_bluetoothproxy;
 esp32_ble_tracker::ESP32BLETracker *esp32_ble_tracker_esp32bletracker;
-ble_presence::BLEPresenceDevice *ble_presence_blepresencedevice;
 #define yield() esphome::yield()
 #define millis() esphome::millis()
 #define micros() esphome::micros()
@@ -36,8 +34,8 @@ void setup() {
   //   includes: []
   //   libraries: []
   //   name_add_mac_suffix: false
+  //   min_version: 2022.12.3
   App.pre_setup("bluetoothproxy", __DATE__ ", " __TIME__, false);
-  // binary_sensor:
   // logger:
   //   level: VERY_VERBOSE
   //   id: logger_logger
@@ -46,7 +44,8 @@ void setup() {
   //   deassert_rts_dtr: false
   //   hardware_uart: UART0
   //   logs: {}
-  logger_logger = new logger::Logger(115200, 512, logger::UART_SELECTION_UART0);
+  logger_logger = new logger::Logger(115200, 512);
+  logger_logger->set_uart_selection(logger::UART_SELECTION_UART0);
   logger_logger->pre_setup();
   logger_logger->set_component_source("logger");
   App.register_component(logger_logger);
@@ -80,15 +79,19 @@ void setup() {
   //   use_address: bluetoothproxy.local
   wifi_wificomponent = new wifi::WiFiComponent();
   wifi_wificomponent->set_use_address("bluetoothproxy.local");
+  {
   wifi::WiFiAP wifi_wifiap_2 = wifi::WiFiAP();
-  wifi_wifiap_2.set_ssid("upadrasta");
-  wifi_wifiap_2.set_password("Upadrasta123");
+  wifi_wifiap_2.set_ssid("Everyday I'm Buffering");
+  wifi_wifiap_2.set_password("notyourordinarywifi");
   wifi_wifiap_2.set_priority(0.0f);
   wifi_wificomponent->add_sta(wifi_wifiap_2);
+  }
+  {
   wifi::WiFiAP wifi_wifiap = wifi::WiFiAP();
   wifi_wifiap.set_ssid("Bluetoothproxy Fallback Hotspot");
   wifi_wifiap.set_password("123456789");
   wifi_wificomponent->set_ap(wifi_wifiap);
+  }
   wifi_wificomponent->set_ap_timeout(60000);
   wifi_wificomponent->set_reboot_timeout(900000);
   wifi_wificomponent->set_power_save_mode(wifi::WIFI_POWER_SAVE_LIGHT);
@@ -126,9 +129,9 @@ void setup() {
   // esp32:
   //   board: esp32dev
   //   framework:
-  //     version: 1.0.6
-  //     source: ~3.10006.0
-  //     platform_version: platformio/espressif32 @ 3.5.0
+  //     version: 2.0.5
+  //     source: ~3.20005.0
+  //     platform_version: platformio/espressif32 @ 5.2.0
   //     type: arduino
   //   variant: ESP32
   // preferences:
@@ -140,10 +143,12 @@ void setup() {
   App.register_component(preferences_intervalsyncer);
   // bluetooth_proxy:
   //   id: bluetooth_proxy_bluetoothproxy
+  //   active: false
   //   esp32_ble_id: esp32_ble_tracker_esp32bletracker
   bluetooth_proxy_bluetoothproxy = new bluetooth_proxy::BluetoothProxy();
   bluetooth_proxy_bluetoothproxy->set_component_source("bluetooth_proxy");
   App.register_component(bluetooth_proxy_bluetoothproxy);
+  bluetooth_proxy_bluetoothproxy->set_active(false);
   // esp32_ble_tracker:
   //   id: esp32_ble_tracker_esp32bletracker
   //   scan_parameters:
@@ -160,21 +165,6 @@ void setup() {
   esp32_ble_tracker_esp32bletracker->set_scan_window(48);
   esp32_ble_tracker_esp32bletracker->set_scan_active(true);
   esp32_ble_tracker_esp32bletracker->set_scan_continuous(true);
-  // binary_sensor.ble_presence:
-  //   platform: ble_presence
-  //   mac_address: 44:EA:30:9A:A7:5B
-  //   name: ESP32 BLE Presence Watch
-  //   disabled_by_default: false
-  //   id: ble_presence_blepresencedevice
-  //   esp32_ble_id: esp32_ble_tracker_esp32bletracker
-  ble_presence_blepresencedevice = new ble_presence::BLEPresenceDevice();
-  App.register_binary_sensor(ble_presence_blepresencedevice);
-  ble_presence_blepresencedevice->set_name("ESP32 BLE Presence Watch");
-  ble_presence_blepresencedevice->set_disabled_by_default(false);
-  ble_presence_blepresencedevice->set_component_source("ble_presence.binary_sensor");
-  App.register_component(ble_presence_blepresencedevice);
-  esp32_ble_tracker_esp32bletracker->register_listener(ble_presence_blepresencedevice);
-  ble_presence_blepresencedevice->set_address(0x44EA309AA75BULL);
   // socket:
   //   implementation: bsd_sockets
   // network:

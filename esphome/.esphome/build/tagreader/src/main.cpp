@@ -128,9 +128,9 @@ void setup() {
   //       type_id: waituntilaction
   //     - logger.log:
   //         format: API is connected!
-  //         tag: main
   //         args: []
   //         level: DEBUG
+  //         tag: main
   //       type_id: lambdaaction
   //     - rtttl.play:
   //         rtttl: success:d=24,o=5,b=100:c,g,b
@@ -158,7 +158,7 @@ void setup() {
   //   includes: []
   //   libraries: []
   //   name_add_mac_suffix: false
-  //   min_version: 2022.12.0
+  //   min_version: 2022.12.3
   App.pre_setup("tagreader", __DATE__ ", " __TIME__, false);
   // switch:
   // button:
