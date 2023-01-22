@@ -16,7 +16,7 @@ class RacesSensor(FormulaOneSensor):
         f1 = F1()
 
         now = dt.now()
-        races = f1.current_schedule().json
+        races = f1.season_schedule(season=now.year).json
         next_race = None
 
         found = False
@@ -37,7 +37,6 @@ class RacesSensor(FormulaOneSensor):
             'next_race': next_race,
             'data': races['MRData']['RaceTable']['Races']
         }
-
         return all_attr
 
     def set_state(self):
@@ -53,5 +52,4 @@ class RacesSensor(FormulaOneSensor):
             self._state = 'Scheduled'
 
         self._state_attributes = all_attr
-
         return self._state
