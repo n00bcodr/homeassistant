@@ -1,0 +1,13 @@
+intents:
+  dentemperature:
+    - What is the temperature in Den
+    - den temperature
+    - home temperature
+  work:
+    - let's get to work
+    - Jarvis, let's get to work
+    - let's start working
+    - work
+  internetspeed:
+    - how fast is [the] internet
+    - what is [the] [current] internet speed

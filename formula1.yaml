@@ -12,6 +12,8 @@ value_template: >
     {{ "🇺🇸 Miami" }}
   {% elif (states.sensor.ics_1.attributes.location == "Catalunya") %}
     {{ "🇪🇸 Spain" }}
+  {% elif (states.sensor.ics_1.attributes.location == "Doha") %}
+    {{ "🇶🇦 Qatar" }}
   {% elif (states.sensor.ics_1.attributes.location == "Monte Carlo") %}
     {{ "🇲🇨 Monaco" }}
   {% elif (states.sensor.ics_1.attributes.location == "Baku") %}
@@ -59,6 +61,8 @@ attribute_templates:
       {{ "/local/f1/f1_circuits/Miami_Circuit.png" }}
     {% elif (states.sensor.ics_1.attributes.location == "Catalunya") %}
       {{ "/local/f1/f1_circuits/Spain_Circuit.png" }}
+    {% elif (states.sensor.ics_1.attributes.location == "Doha") %}
+      {{ "/local/f1/f1_circuits/Qatar_Circuit.png" }}
     {% elif (states.sensor.ics_1.attributes.location == "Monte Carlo") %}
       {{ "/local/f1/f1_circuits/Monoco_Circuit.png" }}
     {% elif (states.sensor.ics_1.attributes.location == "Baku") %}
@@ -105,6 +109,8 @@ attribute_templates:
       {{ "/local/f1/f1_flags/miami-flag.png" }}
     {% elif (states.sensor.ics_1.attributes.location == "Catalunya") %}
       {{ "/local/f1/f1_flags/spain-flag.png" }}
+    {% elif (states.sensor.ics_1.attributes.location == "Doha") %}
+      {{ "/local/f1/f1_flags/qatar-flag.png" }}      
     {% elif (states.sensor.ics_1.attributes.location == "Monte Carlo") %}
       {{ "/local/f1/f1_flags/monaco-flag.png" }}
     {% elif (states.sensor.ics_1.attributes.location == "Baku") %}

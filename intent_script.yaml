@@ -1,0 +1,18 @@
+dentemperature:
+  speech:
+    text: It is currently {{ states.sensor.den_temperature.state }} degrees in Den.
+    type: plain
+work:
+  speech:
+    text: Oh yeah!
+    type: plain
+  action:
+    service: homeassistant.turn_on
+    data:
+      entity_id:
+        - switch.monitor_1_socket_1
+        - light.light
+        - switch.monitor_2_socket_1
+internetspeed:
+  speech:
+    text: Current Internet Speed is {{states.sensor.download_speed.state}}

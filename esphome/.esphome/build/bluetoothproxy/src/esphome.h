@@ -16,6 +16,7 @@
 #include "esphome/components/bluetooth_proxy/bluetooth_proxy.h"
 #include "esphome/components/captive_portal/captive_index.h"
 #include "esphome/components/captive_portal/captive_portal.h"
+#include "esphome/components/dashboard_import/dashboard_import.h"
 #include "esphome/components/esp32/gpio.h"
 #include "esphome/components/esp32/preferences.h"
 #include "esphome/components/esp32_ble_client/ble_characteristic.h"

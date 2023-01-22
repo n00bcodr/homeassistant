@@ -99,3 +99,51 @@ load_share_url_googletv:
     default: []
   mode: single
   icon: mdi:monitor-share
+new_script:
+  alias: New Script
+  sequence:
+  - variables:
+      action_yes: '{{ ''YES_'' ~ context.id }}'
+      action_no: '{{ ''NO_'' ~ context.id }}'
+  - service: notify.mobile_app_10pro
+    data:
+      message: Going to Bed?
+      data:
+        notification_icon: mdi:bed-clock
+        icon_url: https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/apple/325/bed_1f6cf-fe0f.png?raw=true
+        color: blue
+        actions:
+        - action: '{{ action_yes }}'
+          title: 'Yes'
+        - action: '{{ action_no }}'
+          title: 'No'
+  - wait_for_trigger:
+    - platform: event
+      event_type: mobile_app_notification_action
+      event_data:
+        action: '{{ action_yes }}'
+    - platform: event
+      event_type: mobile_app_notification_action
+      event_data:
+        action: '{{ action_no }}'
+    continue_on_timeout: true
+    timeout:
+      hours: 0
+      minutes: 10
+      seconds: 0
+      milliseconds: 0
+  - choose:
+    - conditions: '{{ wait.trigger.event.data.action == action_yes }}'
+      sequence:
+      - service: light.turn_off
+        data: {}
+        target:
+          entity_id: light.light
+    - conditions: '{{ wait.trigger.event.data.action == action_no }}'
+      sequence:
+      - stop: ''
+  - service: light.turn_off
+    data: {}
+    target:
+      entity_id: light.light
+  mode: single

@@ -348,9 +348,9 @@
       - condition: trigger
         id: start
       sequence:
-      - service: pyscript.f1constructorstandings
-        data: {}
       - service: pyscript.f1driverstandings
+        data: {}
+      - service: pyscript.f1constructorstandings
         data: {}
     default: []
   mode: single
@@ -505,8 +505,8 @@
     data: {}
   mode: single
 - id: '1670537821206'
-  alias: "\U0001F3F0Tag Desk is scanned"
-  description: ''
+  alias: "\U0001F3F0Den off"
+  description: Turns off all things in DEN when I exit.
   trigger:
   - platform: tag
     tag_id: 73a21e41-133b-484e-a5a7-e8a2a7df1085
@@ -521,6 +521,11 @@
     subtype: long
     discovery_id: 0x00124b001eaa8251 action_long
     id: hold
+  - platform: state
+    entity_id:
+    - input_boolean.den
+    from: 'on'
+    to: 'off'
   condition: []
   action:
   - choose:
@@ -535,6 +540,23 @@
           entity_id:
           - switch.monitor_1_socket_1
           - input_boolean.den_state
+      - service: media_player.play_media
+        target:
+          entity_id: media_player.friday
+        data:
+          media_content_id: media-source://tts/cloud?message=Welcome+Back+Sir.&language=en-IE&gender=male
+          media_content_type: provider
+        metadata:
+          title: Welcome Back Sir.
+          thumbnail: https://brands.home-assistant.io/_/cloud/logo.png
+          media_class: app
+          children_media_class:
+          navigateIds:
+          - {}
+          - media_content_type: app
+            media_content_id: media-source://tts
+          - media_content_type: provider
+            media_content_id: media-source://tts/cloud?message=Welcome+Back+Sir.&language=en-IE&gender=male
     - conditions:
       - condition: state
         entity_id: input_boolean.den_state
@@ -548,14 +570,18 @@
           - switch.monitor_2_socket_1
           - light.light
           - media_player.spotify
+          - light.shapes
+          - switch.heater_socket_1
       - service: homeassistant.turn_off
         data: {}
         target:
           entity_id:
           - switch.monitor_1_socket_1
           - switch.monitor_2_socket_1
-          - light.light
           - input_boolean.den_state
+          - light.shapes
+          - light.light
+          - switch.heater_socket_1
       - service: media_player.media_pause
         data: {}
         target:
@@ -662,6 +688,46 @@
     target:
       entity_id:
       - light.light
+    enabled: false
+  - service: notify.mobile_app_10pro
+    data:
+      message: Going to Bed?
+      title: Going to Bed?
+      data:
+        notification_icon: mdi:bed-clock
+        icon_url: https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/apple/325/bed_1f6cf-fe0f.png?raw=true
+        color: blue
+        actions:
+        - action: 'yes'
+          title: 'Yes'
+        - action: 'no'
+          title: 'No'
+    enabled: false
+  - wait_for_trigger:
+    - platform: event
+      event_type: mobile_app_notification_action
+      event_data:
+        action: 'no'
+      id: 'no'
+    - platform: event
+      event_type: mobile_app_notification_action
+      event_data:
+        action: 'yes'
+      id: 'yes'
+    continue_on_timeout: false
+    timeout:
+      hours: 0
+      minutes: 0
+      seconds: 0
+      milliseconds: 0
+    enabled: false
+  - if:
+    - condition: trigger
+      id: ''
+    then: []
+    enabled: false
+  - service: script.new_script
+    data: {}
   mode: single
 - id: '1670844577464'
   alias: ⚡Full charge notification
@@ -731,30 +797,29 @@
     entity_id: sensor.washing_machine_power
     for:
       hours: 0
-      minutes: 6
+      minutes: 5
       seconds: 0
     below: '1'
-  condition:
-  - condition: state
-    entity_id: switch.washing_machine_socket_1
-    state: 'on'
-    for:
-      hours: 0
-      minutes: 7
-      seconds: 0
+  condition: []
   action:
-  - service: notify.mobile_app_10pro
-    data:
-      title: Wash Cycle Complete
-      message: Washing Machine Turned Off
-      data:
-        notification_icon: mdi:washing-machine
-        icon_url: https://www.flaticon.com/free-icon/washing-machine_3003984
-  - service: switch.turn_off
-    data: {}
-    target:
-      entity_id: switch.washing_machine_socket_1
-    enabled: false
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: switch.washing_machine_socket_1
+        state: 'on'
+        for:
+          hours: 0
+          minutes: 4
+          seconds: 0
+      sequence:
+      - service: notify.mobile_app_10pro
+        data:
+          title: Wash Cycle Complete at {{ as_timestamp(now()) | timestamp_custom('%-H:%M     %p')
+            }}
+          data:
+            notification_icon: mdi:washing-machine
+            icon_url: https://www.flaticon.com/free-icon/washing-machine_3003984
+          message: Start your Dry Cycle
   mode: single
   max: 10
 - id: '1671637864679'
@@ -764,6 +829,11 @@
   - platform: state
     entity_id:
     - input_boolean.den_state
+    from: 'off'
+    to: 'on'
+  - platform: state
+    entity_id:
+    - input_boolean.den
     from: 'off'
     to: 'on'
   condition: []
@@ -781,7 +851,7 @@
   description: ''
   trigger:
   - platform: state
-    entity_id: binary_sensor.den_motion
+    entity_id: binary_sensor.den_motion_occupancy
     to: 'off'
     for: 00:04:00
     from: 'on'
@@ -838,6 +908,7 @@
     - thu
     - fri
     after: 00:00:00
+    enabled: false
   action:
   - choose:
     - conditions:
@@ -904,7 +975,7 @@
   description: ''
   trigger:
   - platform: state
-    entity_id: binary_sensor.den_motion
+    entity_id: binary_sensor.den_motion_occupancy
     from: 'off'
     to: 'on'
   condition: []
@@ -1024,3 +1095,97 @@
     service_template: '{{ trigger.event.data.service }}'
     data_template:
       entity_id: '{{ trigger.event.data.entity_id }}'
+- id: '1673376314894'
+  alias: "\U0001F3F0Turn off light when phone is wireless charging"
+  description: ''
+  trigger:
+  - type: plugged_in
+    platform: device
+    device_id: 9d22afdfaf70765bd616973f27d2b9e1
+    entity_id: binary_sensor.10pro_is_charging
+    domain: binary_sensor
+  condition:
+  - condition: state
+    entity_id: sensor.10pro_charger_type
+    state: wireless
+  action:
+  - service: light.turn_off
+    data: {}
+    target:
+      entity_id: light.light
+  mode: single
+- id: '1673799717377'
+  alias: Diffuser Scene
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - input_select.diffuser
+  condition:
+  - condition: template
+    value_template: '{{ trigger.to_state != trigger.from_state }}'
+  action:
+  - service: scene.turn_on
+    data: {}
+    target:
+      entity_id: '{{ states(''input_select.diffuser'') }}'
+  mode: single
+- id: '1673808104215'
+  alias: Living Room Lamp
+  description: ''
+  use_blueprint:
+    path: Marcos_Felipe/turn-light-on-and-off-based-on-detected-motion-with-sun-condition.yaml
+    input:
+      motion_entity: binary_sensor.living_room_motion_occupancy
+      light_target:
+        entity_id: light.living_room_lamp
+      no_motion_wait: 80
+- id: '1674332397259'
+  alias: Garbage Pickup Announcement
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.blue_bin
+    id: blue
+    to: '1'
+  - platform: state
+    entity_id:
+    - sensor.black_bin
+    id: black
+    to: '1'
+  condition:
+  - condition: and
+    conditions:
+    - condition: or
+      conditions:
+      - condition: time
+        before: 00:00:00
+        after: 09:00:00
+      - condition: time
+        before: '22:00:00'
+        after: '18:00:00'
+    - type: is_motion
+      condition: device
+      device_id: e3b35e06d97755a8e9e64c7ea82e8088
+      entity_id: binary_sensor.living_room_motion_occupancy
+      domain: binary_sensor
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: black
+      sequence:
+      - service: tts.cloud_say
+        data:
+          entity_id: media_player.jarvis
+          message: Black Bin collection is Tomorrow
+    - conditions:
+      - condition: trigger
+        id: blue
+      sequence:
+      - service: tts.cloud_say
+        data:
+          entity_id: media_player.jarvis
+          message: Blue Bin collection is Tomorrow
+  mode: single

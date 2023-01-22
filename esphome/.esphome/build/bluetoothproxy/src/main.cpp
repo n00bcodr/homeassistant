@@ -14,8 +14,11 @@ ota::OTAComponent *ota_otacomponent;
 api::APIServer *api_apiserver;
 using namespace api;
 preferences::IntervalSyncer *preferences_intervalsyncer;
-bluetooth_proxy::BluetoothProxy *bluetooth_proxy_bluetoothproxy;
 esp32_ble_tracker::ESP32BLETracker *esp32_ble_tracker_esp32bletracker;
+bluetooth_proxy::BluetoothProxy *bluetooth_proxy_bluetoothproxy;
+bluetooth_proxy::BluetoothConnection *bluetooth_proxy_bluetoothconnection;
+bluetooth_proxy::BluetoothConnection *bluetooth_proxy_bluetoothconnection_2;
+bluetooth_proxy::BluetoothConnection *bluetooth_proxy_bluetoothconnection_3;
 #define yield() esphome::yield()
 #define millis() esphome::millis()
 #define micros() esphome::micros()
@@ -81,8 +84,8 @@ void setup() {
   wifi_wificomponent->set_use_address("bluetoothproxy.local");
   {
   wifi::WiFiAP wifi_wifiap_2 = wifi::WiFiAP();
-  wifi_wifiap_2.set_ssid("Everyday I'm Buffering");
-  wifi_wifiap_2.set_password("notyourordinarywifi");
+  wifi_wifiap_2.set_ssid("Mad House");
+  wifi_wifiap_2.set_password("weareallmadhere");
   wifi_wifiap_2.set_priority(0.0f);
   wifi_wificomponent->add_sta(wifi_wifiap_2);
   }
@@ -141,35 +144,61 @@ void setup() {
   preferences_intervalsyncer->set_write_interval(60000);
   preferences_intervalsyncer->set_component_source("preferences");
   App.register_component(preferences_intervalsyncer);
-  // bluetooth_proxy:
-  //   id: bluetooth_proxy_bluetoothproxy
-  //   active: false
-  //   esp32_ble_id: esp32_ble_tracker_esp32bletracker
-  bluetooth_proxy_bluetoothproxy = new bluetooth_proxy::BluetoothProxy();
-  bluetooth_proxy_bluetoothproxy->set_component_source("bluetooth_proxy");
-  App.register_component(bluetooth_proxy_bluetoothproxy);
-  bluetooth_proxy_bluetoothproxy->set_active(false);
+  // dashboard_import:
+  //   package_import_url: github:esphome/bluetooth-proxies/esp32-generic.yaml@main
+  //   import_full_config: false
+  dashboard_import::set_package_import_url("github://esphome/bluetooth-proxies/esp32-generic.yaml@main");
   // esp32_ble_tracker:
-  //   id: esp32_ble_tracker_esp32bletracker
   //   scan_parameters:
-  //     duration: 5min
-  //     interval: 320ms
-  //     window: 30ms
+  //     interval: 100ms
+  //     window: 100ms
   //     active: true
+  //     duration: 5min
   //     continuous: true
+  //   id: esp32_ble_tracker_esp32bletracker
   esp32_ble_tracker_esp32bletracker = new esp32_ble_tracker::ESP32BLETracker();
   esp32_ble_tracker_esp32bletracker->set_component_source("esp32_ble_tracker");
   App.register_component(esp32_ble_tracker_esp32bletracker);
   esp32_ble_tracker_esp32bletracker->set_scan_duration(300);
-  esp32_ble_tracker_esp32bletracker->set_scan_interval(512);
-  esp32_ble_tracker_esp32bletracker->set_scan_window(48);
+  esp32_ble_tracker_esp32bletracker->set_scan_interval(160);
+  esp32_ble_tracker_esp32bletracker->set_scan_window(160);
   esp32_ble_tracker_esp32bletracker->set_scan_active(true);
   esp32_ble_tracker_esp32bletracker->set_scan_continuous(true);
+  // bluetooth_proxy:
+  //   active: true
+  //   id: bluetooth_proxy_bluetoothproxy
+  //   esp32_ble_id: esp32_ble_tracker_esp32bletracker
+  //   connections:
+  //   - esp32_ble_id: esp32_ble_tracker_esp32bletracker
+  //     id: bluetooth_proxy_bluetoothconnection
+  //   - esp32_ble_id: esp32_ble_tracker_esp32bletracker
+  //     id: bluetooth_proxy_bluetoothconnection_2
+  //   - esp32_ble_id: esp32_ble_tracker_esp32bletracker
+  //     id: bluetooth_proxy_bluetoothconnection_3
+  bluetooth_proxy_bluetoothproxy = new bluetooth_proxy::BluetoothProxy();
+  bluetooth_proxy_bluetoothproxy->set_component_source("bluetooth_proxy");
+  App.register_component(bluetooth_proxy_bluetoothproxy);
+  bluetooth_proxy_bluetoothproxy->set_active(true);
+  esp32_ble_tracker_esp32bletracker->register_listener(bluetooth_proxy_bluetoothproxy);
+  bluetooth_proxy_bluetoothconnection = new bluetooth_proxy::BluetoothConnection();
+  bluetooth_proxy_bluetoothconnection->set_component_source("bluetooth_proxy");
+  App.register_component(bluetooth_proxy_bluetoothconnection);
+  bluetooth_proxy_bluetoothproxy->register_connection(bluetooth_proxy_bluetoothconnection);
+  esp32_ble_tracker_esp32bletracker->register_client(bluetooth_proxy_bluetoothconnection);
+  bluetooth_proxy_bluetoothconnection_2 = new bluetooth_proxy::BluetoothConnection();
+  bluetooth_proxy_bluetoothconnection_2->set_component_source("bluetooth_proxy");
+  App.register_component(bluetooth_proxy_bluetoothconnection_2);
+  bluetooth_proxy_bluetoothproxy->register_connection(bluetooth_proxy_bluetoothconnection_2);
+  esp32_ble_tracker_esp32bletracker->register_client(bluetooth_proxy_bluetoothconnection_2);
+  bluetooth_proxy_bluetoothconnection_3 = new bluetooth_proxy::BluetoothConnection();
+  bluetooth_proxy_bluetoothconnection_3->set_component_source("bluetooth_proxy");
+  App.register_component(bluetooth_proxy_bluetoothconnection_3);
+  bluetooth_proxy_bluetoothproxy->register_connection(bluetooth_proxy_bluetoothconnection_3);
+  esp32_ble_tracker_esp32bletracker->register_client(bluetooth_proxy_bluetoothconnection_3);
   // socket:
   //   implementation: bsd_sockets
   // network:
   //   {}
-  esp32_ble_tracker_esp32bletracker->register_listener(bluetooth_proxy_bluetoothproxy);
   // =========== AUTO GENERATED CODE END ============
   App.setup();
 }

@@ -128,9 +128,9 @@ void setup() {
   //       type_id: waituntilaction
   //     - logger.log:
   //         format: API is connected!
+  //         tag: main
   //         args: []
   //         level: DEBUG
-  //         tag: main
   //       type_id: lambdaaction
   //     - rtttl.play:
   //         rtttl: success:d=24,o=5,b=100:c,g,b
@@ -212,8 +212,8 @@ void setup() {
   wifi_wificomponent->set_use_address("tagreader.local");
   {
   wifi::WiFiAP wifi_wifiap_2 = wifi::WiFiAP();
-  wifi_wifiap_2.set_ssid("Everyday I'm Buffering");
-  wifi_wifiap_2.set_password("notyourordinarywifi");
+  wifi_wifiap_2.set_ssid("Mad House");
+  wifi_wifiap_2.set_password("weareallmadhere");
   wifi_wifiap_2.set_priority(0.0f);
   wifi_wificomponent->add_sta(wifi_wifiap_2);
   }

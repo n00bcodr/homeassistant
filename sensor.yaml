@@ -59,8 +59,8 @@
 
     chair_occupancy:
       friendly_name: "Chair Occupancy"
-      value_template: "{{ iif(is_state('binary_sensor.chair', 'on'), 'Away', 'At Desk') }}"
-      icon_template: "{{ iif(is_state('binary_sensor.chair', 'on'), 'mdi:account-off', 'mdi:table-chair') }}"
+      value_template: "{{ iif(is_state('binary_sensor.chair_contact', 'on'), 'Away', 'At Desk') }}"
+      icon_template: "{{ iif(is_state('binary_sensor.chair_contact', 'on'), 'mdi:account-off', 'mdi:table-chair') }}"
 
     server_last_boot:
       value_template: >
@@ -109,6 +109,26 @@
             unknown
           {% endif %}
 
+    black_bin:
+      friendly_name: Black Bin Pickup
+      value_template: >
+        {{ as_timestamp(state_attr("calendar.allied_recycling_black_bin", "start_time")) | timestamp_custom('%B %-d') }}
+      attribute_templates:
+        next_collection: >
+          {{ ((as_timestamp(state_attr("calendar.allied_recycling_black_bin", "start_time")) | as_datetime | as_local).date() - now().date()).days }}
+        icon: >
+          mdi:numeric-{{ ((as_timestamp(state_attr("calendar.allied_recycling_black_bin", "start_time")) | as_datetime | as_local).date() - now().date()).days }}
+
+    blue_bin:
+      friendly_name: Blue Bin Pickup
+      value_template: >
+        {{ as_timestamp(state_attr("calendar.allied_recycling_blue_bin", "start_time")) | timestamp_custom('%B %-d') }}
+      attribute_templates:
+        next_collection: >
+          {{ ((as_timestamp(state_attr("calendar.allied_recycling_blue_bin", "start_time")) | as_datetime | as_local).date() - now().date()).days }}
+        icon: >
+          mdi:numeric-{{ ((as_timestamp(state_attr("calendar.allied_recycling_blue_bin", "start_time")) | as_datetime | as_local).date() - now().date()).days }}
+
 - platform: command_line
   name: Supervisor Updates
   command: 'curl -sS -X GET http://supervisor/supervisor/info -H "Authorization: Bearer $(printenv SUPERVISOR_TOKEN)" | jq ''{"newest_version":.data.version_latest,"current_version":.data.version,"update_available":.data.update_available,"addons":[.data.addons[] | select(.update_available)]}'''
@@ -140,7 +160,7 @@
 
 - platform: ics
   name: Formula1
-  url: https://f1calendar.com/download/f1-calendar_q_gp_alarm-30.ics?t=1645890313291
+  url: https://files-f1.motorsportcalendars.com/f1-calendar_qualifying_sprint_gp.ics?t=1674387381463
   id: 1
   timeformat: "%A, %-d.%b.%y"
   icon: mdi:keyboard-f1

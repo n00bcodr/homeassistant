@@ -14,6 +14,7 @@
     "async_tcp",
     "bluetooth_proxy",
     "captive_portal",
+    "dashboard_import",
     "esp32",
     "esp32_ble_client",
     "esp32_ble_tracker",
