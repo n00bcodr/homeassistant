@@ -21,7 +21,7 @@ from .const import DEFAULT_CONSIDER_HOME
 from .const import DEFAULT_SCAN_INTERVAL
 from .const import DOMAIN
 
-_LOGGER: logging.Logger = logging.getLogger(__package__)
+_LOGGER: logging.Logger = logging.getLogger(__name__)
 
 
 def _get_auth_schema(data: dict[str:Any]):
@@ -67,7 +67,7 @@ async def _async_test_credentials(hass: HomeAssistant, data: dict[str:Any]):
     except ConfigEntryAuthFailed as err:
         _LOGGER.warning("Error authenticating credentials: %s", err)
         return {"base": "invalid_auth"}
-    except Exception as err:  # pylint: disable=broad-except
+    except Exception as err:
         _LOGGER.warning("Error testing credentials: %s", err)
         return {"base": "unknown"}
 

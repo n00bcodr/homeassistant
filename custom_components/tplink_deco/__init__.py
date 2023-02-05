@@ -47,7 +47,7 @@ from .coordinator import TplinkDecoClientUpdateCoordinator
 from .coordinator import TpLinkDecoData
 from .coordinator import TplinkDecoUpdateCoordinator
 
-_LOGGER: logging.Logger = logging.getLogger(__package__)
+_LOGGER: logging.Logger = logging.getLogger(__name__)
 
 
 async def async_create_and_refresh_coordinators(
@@ -239,7 +239,6 @@ async def async_migrate_entry(hass, config_entry: ConfigEntry):
     _LOGGER.debug("Migrating from version %s", config_entry.version)
 
     if config_entry.version == 1:
-
         new = {**config_entry.data}
         # TODO: modify Config Entry data
 

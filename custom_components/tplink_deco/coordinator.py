@@ -19,9 +19,8 @@ from .api import TplinkDecoApi
 from .const import DOMAIN
 from .const import SIGNAL_CLIENT_ADDED
 from .const import SIGNAL_DECO_ADDED
-from .exceptions import AuthException
 
-_LOGGER: logging.Logger = logging.getLogger(__package__)
+_LOGGER: logging.Logger = logging.getLogger(__name__)
 
 
 def bytes_to_bits(bytes_count):
@@ -41,17 +40,15 @@ def snake_case_to_title_space(str):
     return " ".join([w.title() for w in str.split("_")])
 
 
-async def async_call_with_retry(api, func, args=[]):
+async def async_call_with_retry(api, func, *args):
     try:
         return await func(*args)
-    except AuthException:
-        api.clear_auth()
+    except ConfigEntryAuthFailed as err:
+        _LOGGER.debug("Retrying auth error %s", err)
         # Retry for auth exception in case is a token expired case
         return await func(*args)
-    except ConfigEntryAuthFailed:
-        api.clear_auth()
-        raise
-    except (asyncio.TimeoutError):
+    except asyncio.TimeoutError as err:
+        _LOGGER.debug("Retrying timeout error %s", err)
         # Retry for timeouts
         return await func(*args)
 
@@ -182,6 +179,7 @@ class TplinkDecoUpdateCoordinator(DataUpdateCoordinator):
                 deco_added = True
                 deco = TpLinkDeco(mac)
                 deco.update(new_deco)
+                _LOGGER.debug("_async_update_data: Found new deco mac=%s", deco.mac)
             else:
                 deco.update(new_deco)
             decos[mac] = deco
@@ -249,7 +247,7 @@ class TplinkDecoClientUpdateCoordinator(DataUpdateCoordinator):
         # Send list client requests in parallel for each deco
         deco_client_responses = await asyncio.gather(
             *[
-                async_call_with_retry(self.api, self.api.async_list_clients, [deco_mac])
+                async_call_with_retry(self.api, self.api.async_list_clients, deco_mac)
                 for deco_mac in deco_macs
             ]
         )
@@ -261,6 +259,9 @@ class TplinkDecoClientUpdateCoordinator(DataUpdateCoordinator):
                 if client is None:
                     client_added = True
                     client = TpLinkDecoClient(client_mac)
+                    _LOGGER.debug(
+                        "_async_update_data: Found new client mac=%s", client.mac
+                    )
                 client.update(deco_client, deco_mac, utc_point_in_time)
                 clients[client_mac] = client
 
