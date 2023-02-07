@@ -60,7 +60,7 @@ void setup() {
   //   includes: []
   //   libraries: []
   //   name_add_mac_suffix: false
-  //   min_version: 2022.12.3
+  //   min_version: 2022.12.8
   App.pre_setup("multisensor-2", __DATE__ ", " __TIME__, false);
   // binary_sensor:
   // text_sensor:
@@ -179,8 +179,8 @@ void setup() {
   //       open_drain: false
   //       pullup: false
   //       pulldown: false
-  //     inverted: false
   //     id: esphome_esp8266_esp8266gpiopin
+  //     inverted: false
   //   model: DHT22
   //   update_interval: 30s
   //   temperature:
@@ -243,8 +243,8 @@ void setup() {
   //       open_drain: false
   //       pullup: false
   //       pulldown: false
-  //     inverted: false
   //     id: esphome_esp8266_esp8266gpiopin_2
+  //     inverted: false
   //   name: Multisensor 2 Light
   //   device_class: illuminance
   //   update_interval: 2s
@@ -293,8 +293,8 @@ void setup() {
   //       open_drain: false
   //       pullup: false
   //       pulldown: false
-  //     inverted: false
   //     id: esphome_esp8266_esp8266gpiopin_3
+  //     inverted: false
   //   name: Multisensor 2 Motion
   //   device_class: motion
   //   disabled_by_default: false

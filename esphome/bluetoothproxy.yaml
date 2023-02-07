@@ -1,18 +1,22 @@
 esphome:
   name: bluetoothproxy
+  name_add_mac_suffix: true
+  project:
+    name: esphome.bluetooth-proxy
+    version: "1.0"
 
 esp32:
   board: esp32dev
   framework:
-    type: arduino
+    type: esp-idf
 
 # Enable logging
 logger:
   level: VERY_VERBOSE
 
 api:
-
 ota:
+improv_serial:
 
 wifi:
   ssid: !secret wifi_ssid
@@ -21,8 +25,6 @@ wifi:
   ap:
     ssid: "Bluetoothproxy Fallback Hotspot"
     password: "123456789"
-
-captive_portal:
 
 dashboard_import:
   package_import_url: github://esphome/bluetooth-proxies/esp32-generic.yaml@main

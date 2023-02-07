@@ -1,7 +1,7 @@
 default_config:
 
 homeassistant:
-  external_url: "https://rikyyzsoof3ue1istdmuad66ktuvlkxl.ui.nabu.casa"
+  external_url: !secret external_url
   internal_url: "http://192.168.68.168:8123"
   allowlist_external_dirs:
     - /config/.storage

@@ -10,7 +10,7 @@
     chair_occupancy:
       friendly_name: "Chair Occupancy"
       device_class: occupancy
-      value_template: "{{ is_state('binary_sensor.chair_contact', 'off') or is_state('binary_sensor.vibration_vibration', 'on') }}"
+      value_template: "{{ is_state('binary_sensor.vibration_vibration', 'on') or not is_state('sensor.vibration_action', 'None') }}"
       icon_template: "{{ iif(is_state('binary_sensor.chair_occupancy', 'on'), 'mdi:table-chair', 'mdi:account-off') }}"
 
     # True if there's an update available for supervisor

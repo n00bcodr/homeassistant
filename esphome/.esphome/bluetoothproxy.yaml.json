@@ -2,7 +2,7 @@
   "storage_version": 1,
   "name": "bluetoothproxy",
   "comment": null,
-  "esphome_version": "2022.12.3",
+  "esphome_version": "2022.12.8",
   "src_version": 1,
   "address": "bluetoothproxy.local",
   "web_port": null,
@@ -11,14 +11,13 @@
   "firmware_bin_path": "/data/bluetoothproxy/.pioenvs/bluetoothproxy/firmware.bin",
   "loaded_integrations": [
     "api",
-    "async_tcp",
     "bluetooth_proxy",
-    "captive_portal",
     "dashboard_import",
     "esp32",
     "esp32_ble_client",
     "esp32_ble_tracker",
     "esphome",
+    "improv_serial",
     "logger",
     "md5",
     "mdns",
@@ -26,7 +25,6 @@
     "ota",
     "preferences",
     "socket",
-    "web_server_base",
     "wifi"
   ]
 }

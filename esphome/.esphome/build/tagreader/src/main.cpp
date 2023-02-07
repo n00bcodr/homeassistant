@@ -158,7 +158,7 @@ void setup() {
   //   includes: []
   //   libraries: []
   //   name_add_mac_suffix: false
-  //   min_version: 2022.12.3
+  //   min_version: 2022.12.8
   App.pre_setup("tagreader", __DATE__ ", " __TIME__, false);
   // switch:
   // button:

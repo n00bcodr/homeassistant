@@ -6,11 +6,14 @@
       - binary_sensor.den_door_contact
       - sensor.den_temperature
       - sensor.den_humidity
-      - sensor.multisensor_1_light
+      - sensor.living_room_light
       - light.light
       - switch.monitor_2_socket_1
       - switch.monitor_1_socket_1
       - switch.smart_plug_socket_1
+      - light.living_room_lamp
+      - light.chandelier_light
+      - switch.backyard_light_socket_1
 
   #Configure Each Entity
   entity_config:
@@ -22,5 +25,7 @@
     sensor.den_temperature:
       name: Den Temperature
       linked_battery_sensor: sensor.temperature_and_humidity_battery
-    sensor.multisensor_1_light:
-      name: Den Illumination
+    sensor.living_room_light:
+      name: Living Room Illumination
+    switch.backyard_light_socket_1:
+      name: Back Garden Lights

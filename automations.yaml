@@ -23,7 +23,8 @@
           }}, the latest\n    version is {{ states.update.home_assistant_core_update.attributes.latest_version
           }}."
         clickAction: /config/dashboard
-        icon_url: https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/313/partying-face_1f973.png
+        icon_url: /local/images/party.png
+        sticky: 'true'
   mode: single
 - id: spotify_playback
   alias: "\U0001F3B5Spotify Selected Device Force playback"
@@ -367,6 +368,7 @@
           data:
             notification_icon: mdi:battery-alert
             color: red
+            sticky: 'true'
       threshold: 15
 - id: '1654855874344'
   alias: ⚙️Convert Lovelace configuration to yaml
@@ -398,7 +400,7 @@
       title: Home Assistant Core Updated!
       data:
         notification_icon: mdi:git
-        icon_url: https://github.com/home-assistant/assets/blob/master/logo/logo-small.png?raw=true
+        icon_url: /local/images/HA_logo.png
         color: red
         actions:
         - action: tag_update
@@ -616,24 +618,22 @@
       - choose:
         - conditions:
           - condition: state
-            entity_id: light.light
+            entity_id: switch.backyard_light_socket_1
             state: 'on'
           sequence:
-          - service: light.turn_off
-            target:
-              entity_id: light.light
+          - service: homeassistant.turn_off
             data: {}
+            target:
+              entity_id: switch.backyard_light_socket_1
         - conditions:
           - condition: state
-            entity_id: light.light
+            entity_id: switch.backyard_light_socket_1
             state: 'off'
           sequence:
-          - service: light.turn_on
+          - service: homeassistant.turn_on
+            data: {}
             target:
-              entity_id: light.light
-            data:
-              color_temp: 500
-              brightness: 255
+              entity_id: switch.backyard_light_socket_1
         default: []
     - conditions:
       - condition: trigger
@@ -642,24 +642,22 @@
       - choose:
         - conditions:
           - condition: state
-            entity_id: light.light
+            entity_id: switch.backyard_light_socket_1
             state: 'on'
           sequence:
-          - service: light.turn_off
+          - service: homeassistant.turn_off
             target:
-              entity_id: light.light
+              entity_id: switch.backyard_light_socket_1
             data: {}
         - conditions:
           - condition: state
-            entity_id: light.light
+            entity_id: switch.backyard_light_socket_1
             state: 'off'
           sequence:
-          - service: light.turn_on
+          - service: homeassistant.turn_on
+            data: {}
             target:
-              entity_id: light.light
-            data:
-              brightness: 255
-              color_temp: 153
+              entity_id: switch.backyard_light_socket_1
         default: []
     default: []
   mode: single
@@ -695,7 +693,7 @@
       title: Going to Bed?
       data:
         notification_icon: mdi:bed-clock
-        icon_url: https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/apple/325/bed_1f6cf-fe0f.png?raw=true
+        icon_url: /local/images/bed.png
         color: blue
         actions:
         - action: 'yes'
@@ -789,39 +787,6 @@
         data: {}
         target:
           entity_id: light.light
-- id: '1671543827137'
-  alias: "\U0001F9FA Wash Cycle"
-  description: ''
-  trigger:
-  - platform: numeric_state
-    entity_id: sensor.washing_machine_power
-    for:
-      hours: 0
-      minutes: 5
-      seconds: 0
-    below: '1'
-  condition: []
-  action:
-  - choose:
-    - conditions:
-      - condition: state
-        entity_id: switch.washing_machine_socket_1
-        state: 'on'
-        for:
-          hours: 0
-          minutes: 4
-          seconds: 0
-      sequence:
-      - service: notify.mobile_app_10pro
-        data:
-          title: Wash Cycle Complete at {{ as_timestamp(now()) | timestamp_custom('%-H:%M     %p')
-            }}
-          data:
-            notification_icon: mdi:washing-machine
-            icon_url: https://www.flaticon.com/free-icon/washing-machine_3003984
-          message: Start your Dry Cycle
-  mode: single
-  max: 10
 - id: '1671637864679'
   alias: "\U0001F3F0Den as it was"
   description: Returns Den State to back what it was when Den OFF was triggered.
@@ -861,6 +826,7 @@
     - condition: time
       after: 09:00:00
       before: '21:00:00'
+      enabled: false
     - condition: or
       conditions:
       - condition: state
@@ -869,18 +835,24 @@
     - condition: state
       entity_id: binary_sensor.chair_occupancy
       state: 'off'
+      enabled: true
+      for:
+        hours: 0
+        minutes: 5
+        seconds: 0
   action:
   - service: notify.mobile_app_10pro
     data:
       title: Are you there?
-      message: No motion detected in Den in the last 5 minutes.
+      message: 'No motion detected in Den in the last 5 minutes. '
       data:
         actions:
         - action: Den_OFF
           title: 'NO'
         notification_icon: mdi:motion-sensor-off
         tag: den_off
-        icon_url: https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/apple/325/ninja_light-skin-tone_1f977-1f3fb_1f3fb.png
+        icon_url: /local/images/ninja.png
+        sticky: 'true'
   mode: single
 - id: '1671638172636'
   alias: "\U0001F3F0Replicate Monitor State"
@@ -984,6 +956,7 @@
     data:
       data:
         tag: den_off
+        sticky: 'true'
       message: clear_notification
   mode: single
 - id: '1672388963171'
@@ -1115,7 +1088,7 @@
       entity_id: light.light
   mode: single
 - id: '1673799717377'
-  alias: Diffuser Scene
+  alias: "\U0001F3F0Diffuser Scene"
   description: ''
   trigger:
   - platform: state
@@ -1130,62 +1103,182 @@
     target:
       entity_id: '{{ states(''input_select.diffuser'') }}'
   mode: single
-- id: '1673808104215'
-  alias: Living Room Lamp
-  description: ''
-  use_blueprint:
-    path: Marcos_Felipe/turn-light-on-and-off-based-on-detected-motion-with-sun-condition.yaml
-    input:
-      motion_entity: binary_sensor.living_room_motion_occupancy
-      light_target:
-        entity_id: light.living_room_lamp
-      no_motion_wait: 80
-- id: '1674332397259'
-  alias: Garbage Pickup Announcement
+- id: '1674595968013'
+  alias: "\U0001F4A1Turn off Chandelier if brightness is < 40%"
   description: ''
   trigger:
   - platform: state
     entity_id:
-    - sensor.blue_bin
-    id: blue
-    to: '1'
+    - light.chandelier_light
+    attribute: brightness
+  condition:
+  - condition: template
+    value_template: '{{ state_attr("light.chandelier_light", "brightness") < 104 }}'
+  action:
+  - service: light.turn_on
+    data:
+      brightness: 255
+    target:
+      entity_id: light.chandelier_light
+  - service: light.turn_off
+    data: {}
+    target:
+      entity_id: light.chandelier_light
+  mode: single
+- id: '1674758476057'
+  alias: "\U0001F4A1Living Room Light Motion"
+  description: ''
+  trigger:
   - platform: state
     entity_id:
-    - sensor.black_bin
-    id: black
-    to: '1'
+    - binary_sensor.living_room_motion_occupancy
+    to: 'on'
+    from: 'off'
   condition:
-  - condition: and
-    conditions:
-    - condition: or
-      conditions:
-      - condition: time
-        before: 00:00:00
-        after: 09:00:00
-      - condition: time
-        before: '22:00:00'
-        after: '18:00:00'
-    - type: is_motion
-      condition: device
-      device_id: e3b35e06d97755a8e9e64c7ea82e8088
-      entity_id: binary_sensor.living_room_motion_occupancy
-      domain: binary_sensor
+  - condition: sun
+    before: sunrise
+    after: sunset
+  - condition: state
+    entity_id: light.chandelier_light
+    state: 'off'
+  action:
+  - service: homeassistant.turn_on
+    data: {}
+    target:
+      entity_id: light.living_room_lamp
+  - wait_for_trigger:
+    - platform: state
+      entity_id:
+      - binary_sensor.living_room_motion_occupancy
+      from: 'on'
+      to: 'off'
+    continue_on_timeout: false
+  - delay:
+      hours: 0
+      minutes: 3
+      seconds: 0
+      milliseconds: 0
+  - service: homeassistant.turn_off
+    data: {}
+    target:
+      entity_id: light.living_room_lamp
+  mode: single
+- id: '1675093554282'
+  alias: "\U0001F9FA Wash Cycle"
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.washing_machine_state
+    from: Spinning
+    to: Idle
+    id: wash
+  - platform: state
+    entity_id:
+    - sensor.washing_machine_state
+    from: Drying
+    to: Idle
+    id: dry
+  condition: []
   action:
   - choose:
     - conditions:
       - condition: trigger
-        id: black
+        id: wash
       sequence:
-      - service: tts.cloud_say
+      - wait_for_trigger:
+        - platform: state
+          entity_id:
+          - sensor.washing_machine_state
+          to: Cycle Complete
+        continue_on_timeout: false
+      - service: notify.all_phones
         data:
-          entity_id: media_player.jarvis
-          message: Black Bin collection is Tomorrow
+          message: at {{ as_timestamp(now()) | timestamp_custom('%-I:%M:%S %p')}}
+          data:
+            notification_icon: mdi:washing-machine
+            icon_url: /local/images/washing_machine.png
+            sticky: 'true'
+          title: "\U0001F9FA Wash Cycle Complete"
     - conditions:
       - condition: trigger
-        id: blue
+        id: dry
       sequence:
-      - service: tts.cloud_say
+      - wait_for_trigger:
+        - platform: state
+          entity_id:
+          - sensor.washing_machine_state
+          to: Cycle Complete
+        continue_on_timeout: false
+      - service: notify.all_phones
         data:
-          entity_id: media_player.jarvis
-          message: Blue Bin collection is Tomorrow
+          message: at {{ as_timestamp(now()) | timestamp_custom('%-I:%M:%S %p')}}
+          data:
+            notification_icon: mdi:washing-machine
+            icon_url: /local/images/washing_machine.png
+            sticky: 'true'
+          title: "\U0001F9FA Dry Cycle Complete"
+  mode: single
+- id: '1675437001659'
+  alias: "\U0001F6AEBin Pickup Notification"
+  description: ''
+  trigger:
+  - platform: time
+    at: 08:00:00
+  - platform: time
+    at: '15:30:00'
+  - platform: time
+    at: '20:00:00'
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{(state_attr("sensor.black_bin", "next_collection")) ==
+          2 }}'
+      sequence:
+      - service: notify.all_phones
+        data:
+          data:
+            notification_icon: mdi:trash-can-outline
+            icon_url: /local/images/black_bin.png
+            sticky: 'true'
+          message: Pickup is in two days on {{ states.sensor.black_bin.state}}
+          title: Black Bin
+    - conditions:
+      - condition: template
+        value_template: '{{(state_attr("sensor.black_bin", "next_collection")) ==
+          1 }}'
+      sequence:
+      - service: notify.all_phones
+        data:
+          data:
+            notification_icon: mdi:trash-can-outline
+            icon_url: /local/images/black_bin.png
+          message: Pickup is tomorrow on {{ states.sensor.black_bin.state}}
+          title: Black Bin
+    - conditions:
+      - condition: template
+        value_template: '{{(state_attr("sensor.blue_bin", "next_collection")) == 2
+          }}'
+      sequence:
+      - service: notify.all_phones
+        data:
+          data:
+            notification_icon: mdi:trash-can
+            icon_url: /local/images/blue_bin.png
+          message: Pickup is in two days on {{ states.sensor.blue_bin.state}}
+          title: Blue Bin
+    - conditions:
+      - condition: template
+        value_template: '{{(state_attr("sensor.blue_bin", "next_collection")) == 1
+          }}'
+      sequence:
+      - service: notify.all_phones
+        data:
+          data:
+            notification_icon: mdi:trash-can
+            icon_url: /local/images/blue_bin.png
+          message: Pickup is tomorrow on {{ states.sensor.blue_bin.state}}
+          title: Blue Bin
   mode: single

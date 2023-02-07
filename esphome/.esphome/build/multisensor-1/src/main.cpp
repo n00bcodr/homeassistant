@@ -60,7 +60,7 @@ void setup() {
   //   includes: []
   //   libraries: []
   //   name_add_mac_suffix: false
-  //   min_version: 2022.12.3
+  //   min_version: 2022.12.8
   App.pre_setup("multisensor-1", __DATE__ ", " __TIME__, false);
   // binary_sensor:
   // text_sensor:
@@ -160,7 +160,7 @@ void setup() {
   // sensor:
   // substitutions:
   //   name: multisensor-1
-  //   friendly_name: Multisensor 1
+  //   friendly_name: Living Room
   // preferences:
   //   id: preferences_intervalsyncer
   //   flash_write_interval: 60s
@@ -179,12 +179,12 @@ void setup() {
   //       open_drain: false
   //       pullup: false
   //       pulldown: false
-  //     inverted: false
   //     id: esphome_esp8266_esp8266gpiopin
+  //     inverted: false
   //   model: DHT11
   //   update_interval: 30s
   //   temperature:
-  //     name: Multisensor 1 Temperature
+  //     name: Living Room Temperature
   //     disabled_by_default: false
   //     id: sensor_sensor
   //     force_update: false
@@ -193,7 +193,7 @@ void setup() {
   //     device_class: temperature
   //     state_class: measurement
   //   humidity:
-  //     name: Multisensor 1 Humidity
+  //     name: Living Room Humidity
   //     disabled_by_default: false
   //     id: sensor_sensor_2
   //     force_update: false
@@ -213,7 +213,7 @@ void setup() {
   dht_dht->set_pin(esphome_esp8266_esp8266gpiopin);
   sensor_sensor = new sensor::Sensor();
   App.register_sensor(sensor_sensor);
-  sensor_sensor->set_name("Multisensor 1 Temperature");
+  sensor_sensor->set_name("Living Room Temperature");
   sensor_sensor->set_disabled_by_default(false);
   sensor_sensor->set_device_class("temperature");
   sensor_sensor->set_state_class(sensor::STATE_CLASS_MEASUREMENT);
@@ -223,7 +223,7 @@ void setup() {
   dht_dht->set_temperature_sensor(sensor_sensor);
   sensor_sensor_2 = new sensor::Sensor();
   App.register_sensor(sensor_sensor_2);
-  sensor_sensor_2->set_name("Multisensor 1 Humidity");
+  sensor_sensor_2->set_name("Living Room Humidity");
   sensor_sensor_2->set_disabled_by_default(false);
   sensor_sensor_2->set_device_class("humidity");
   sensor_sensor_2->set_state_class(sensor::STATE_CLASS_MEASUREMENT);
@@ -243,9 +243,9 @@ void setup() {
   //       open_drain: false
   //       pullup: false
   //       pulldown: false
-  //     inverted: false
   //     id: esphome_esp8266_esp8266gpiopin_2
-  //   name: Multisensor 1 Light
+  //     inverted: false
+  //   name: Living Room Light
   //   device_class: illuminance
   //   update_interval: 2s
   //   unit_of_measurement: lx
@@ -264,7 +264,7 @@ void setup() {
   adc_adcsensor->set_component_source("adc.sensor");
   App.register_component(adc_adcsensor);
   App.register_sensor(adc_adcsensor);
-  adc_adcsensor->set_name("Multisensor 1 Light");
+  adc_adcsensor->set_name("Living Room Light");
   adc_adcsensor->set_disabled_by_default(false);
   adc_adcsensor->set_device_class("illuminance");
   adc_adcsensor->set_state_class(sensor::STATE_CLASS_MEASUREMENT);
@@ -293,15 +293,15 @@ void setup() {
   //       open_drain: false
   //       pullup: false
   //       pulldown: false
-  //     inverted: false
   //     id: esphome_esp8266_esp8266gpiopin_3
-  //   name: Multisensor 1 Motion
+  //     inverted: false
+  //   name: Living Room Motion
   //   device_class: motion
   //   disabled_by_default: false
   //   id: gpio_gpiobinarysensor
   gpio_gpiobinarysensor = new gpio::GPIOBinarySensor();
   App.register_binary_sensor(gpio_gpiobinarysensor);
-  gpio_gpiobinarysensor->set_name("Multisensor 1 Motion");
+  gpio_gpiobinarysensor->set_name("Living Room Motion");
   gpio_gpiobinarysensor->set_disabled_by_default(false);
   gpio_gpiobinarysensor->set_device_class("motion");
   gpio_gpiobinarysensor->set_component_source("gpio.binary_sensor");
@@ -313,14 +313,14 @@ void setup() {
   gpio_gpiobinarysensor->set_pin(esphome_esp8266_esp8266gpiopin_3);
   // binary_sensor.status:
   //   platform: status
-  //   name: Multisensor 1 Status
+  //   name: Living Room Status
   //   entity_category: diagnostic
   //   disabled_by_default: false
   //   id: status_statusbinarysensor
   //   device_class: connectivity
   status_statusbinarysensor = new status::StatusBinarySensor();
   App.register_binary_sensor(status_statusbinarysensor);
-  status_statusbinarysensor->set_name("Multisensor 1 Status");
+  status_statusbinarysensor->set_name("Living Room Status");
   status_statusbinarysensor->set_disabled_by_default(false);
   status_statusbinarysensor->set_entity_category(::ENTITY_CATEGORY_DIAGNOSTIC);
   status_statusbinarysensor->set_device_class("connectivity");
@@ -329,14 +329,14 @@ void setup() {
   // text_sensor.version:
   //   platform: version
   //   hide_timestamp: true
-  //   name: Multisensor 1 ESPHome Version
+  //   name: Living Room ESPHome Version
   //   entity_category: diagnostic
   //   disabled_by_default: false
   //   icon: mdi:new-box
   //   id: version_versiontextsensor
   version_versiontextsensor = new version::VersionTextSensor();
   App.register_text_sensor(version_versiontextsensor);
-  version_versiontextsensor->set_name("Multisensor 1 ESPHome Version");
+  version_versiontextsensor->set_name("Living Room ESPHome Version");
   version_versiontextsensor->set_disabled_by_default(false);
   version_versiontextsensor->set_icon("mdi:new-box");
   version_versiontextsensor->set_entity_category(::ENTITY_CATEGORY_DIAGNOSTIC);
@@ -346,14 +346,14 @@ void setup() {
   // text_sensor.wifi_info:
   //   platform: wifi_info
   //   ip_address:
-  //     name: Multisensor 1 IP Address
+  //     name: Living Room IP Address
   //     icon: mdi:ip
   //     entity_category: diagnostic
   //     disabled_by_default: false
   //     id: wifi_info_ipaddresswifiinfo
   //     update_interval: 1s
   //   ssid:
-  //     name: Multisensor 1 Connected SSID
+  //     name: Living Room Connected SSID
   //     icon: mdi:wifi
   //     entity_category: diagnostic
   //     disabled_by_default: false
@@ -361,7 +361,7 @@ void setup() {
   //     update_interval: 1s
   wifi_info_ipaddresswifiinfo = new wifi_info::IPAddressWiFiInfo();
   App.register_text_sensor(wifi_info_ipaddresswifiinfo);
-  wifi_info_ipaddresswifiinfo->set_name("Multisensor 1 IP Address");
+  wifi_info_ipaddresswifiinfo->set_name("Living Room IP Address");
   wifi_info_ipaddresswifiinfo->set_disabled_by_default(false);
   wifi_info_ipaddresswifiinfo->set_icon("mdi:ip");
   wifi_info_ipaddresswifiinfo->set_entity_category(::ENTITY_CATEGORY_DIAGNOSTIC);
@@ -370,7 +370,7 @@ void setup() {
   App.register_component(wifi_info_ipaddresswifiinfo);
   wifi_info_ssidwifiinfo = new wifi_info::SSIDWiFiInfo();
   App.register_text_sensor(wifi_info_ssidwifiinfo);
-  wifi_info_ssidwifiinfo->set_name("Multisensor 1 Connected SSID");
+  wifi_info_ssidwifiinfo->set_name("Living Room Connected SSID");
   wifi_info_ssidwifiinfo->set_disabled_by_default(false);
   wifi_info_ssidwifiinfo->set_icon("mdi:wifi");
   wifi_info_ssidwifiinfo->set_entity_category(::ENTITY_CATEGORY_DIAGNOSTIC);

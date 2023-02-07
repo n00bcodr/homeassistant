@@ -7,6 +7,45 @@
 
 - platform: template
   sensors:
+    washing_machine_state:
+      friendly_name: "Washing Machine State"
+      value_template: >
+        {%if (states.sensor.bob_sub_state.state == 'WASHER_SUBSTATE_PROGRAM_STARTED') %}
+            {{ "Idle" }}
+        {%elif (states.sensor.bob_sub_state.state == 'unavailable') %}
+            {{ "Idle" }}
+        {%elif (states.sensor.bob_sub_state.state == 'WASHER_SUBSTATE_WASHING') %}
+            {{ "Washing" }}
+        {%elif (states.sensor.bob_sub_state.state == 'WASHER_SUBSTATE_DRYING') %}
+            {{ "Drying" }}
+        {%elif (states.sensor.bob_sub_state.state == 'WASHER_SUBSTATE_RINSING') %}
+            {{ "Rinsing" }}
+        {%elif (states.sensor.bob_sub_state.state == 'WASHER_SUBSTATE_SPIN') %}
+            {{ "Spinning" }}
+        {%elif (states.sensor.bob_sub_state.state == 'WASHER_SUBSTATE_REMOVE_LAUNDRY') %}
+            {{ "Cycle Complete" }}
+        {%else%}
+            {{ "states.sensor.bob_sub_state.state" }}
+        {% endif %}
+      icon_template: >
+        {%if (states.sensor.bob_sub_state.state == 'WASHER_SUBSTATE_PROGRAM_STARTED') %}
+            {{ "mdi:washing-machine-off" }}
+        {%elif (states.sensor.bob_sub_state.state == 'unavailable') %}
+            {{ "mdi:washing-machine-alert" }}
+        {%elif (states.sensor.bob_sub_state.state == 'WASHER_SUBSTATE_DRYING') %}
+            {{ "mdi:tumble-dryer" }}
+        {%elif (states.sensor.bob_sub_state.state == 'WASHER_SUBSTATE_WASHING') %}
+            {{ "mdi:water" }}            
+        {%elif (states.sensor.bob_sub_state.state == 'WASHER_SUBSTATE_RINSING') %}
+            {{ "mdi:water-circle" }}
+        {%elif (states.sensor.bob_sub_state.state == 'WASHER_SUBSTATE_SPIN') %}
+            {{ "fas:spinner" }}
+        {%elif (states.sensor.bob_sub_state.state == 'WASHER_SUBSTATE_REMOVE_LAUNDRY') %}
+            {{ "mdi:washing-machine" }}
+        {%else%}
+            {{ "mdi:washing-machine-alert" }}
+        {% endif %}
+
     magic_cube_active_face:
       friendly_name: "Magic Cube Active Face"
       value_template: "{{states.sensor.magic_cube_action.attributes.side}}"
@@ -59,8 +98,8 @@
 
     chair_occupancy:
       friendly_name: "Chair Occupancy"
-      value_template: "{{ iif(is_state('binary_sensor.chair_contact', 'on'), 'Away', 'At Desk') }}"
-      icon_template: "{{ iif(is_state('binary_sensor.chair_contact', 'on'), 'mdi:account-off', 'mdi:table-chair') }}"
+      value_template: "{{ iif(is_state('binary_sensor.vibration_vibration', 'on'), 'Away', 'At Desk') }}"
+      icon_template: "{{ iif(is_state('binary_sensor.vibration_vibration', 'on'), 'mdi:account-off', 'mdi:table-chair') }}"
 
     server_last_boot:
       value_template: >

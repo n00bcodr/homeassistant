@@ -6,39 +6,34 @@ using std::isnan;
 using std::min;
 using std::max;
 logger::Logger *logger_logger;
-web_server_base::WebServerBase *web_server_base_webserverbase;
-captive_portal::CaptivePortal *captive_portal_captiveportal;
 wifi::WiFiComponent *wifi_wificomponent;
 mdns::MDNSComponent *mdns_mdnscomponent;
 ota::OTAComponent *ota_otacomponent;
 api::APIServer *api_apiserver;
 using namespace api;
 preferences::IntervalSyncer *preferences_intervalsyncer;
+improv_serial::ImprovSerialComponent *improv_serial_improvserialcomponent;
 esp32_ble_tracker::ESP32BLETracker *esp32_ble_tracker_esp32bletracker;
 bluetooth_proxy::BluetoothProxy *bluetooth_proxy_bluetoothproxy;
 bluetooth_proxy::BluetoothConnection *bluetooth_proxy_bluetoothconnection;
 bluetooth_proxy::BluetoothConnection *bluetooth_proxy_bluetoothconnection_2;
 bluetooth_proxy::BluetoothConnection *bluetooth_proxy_bluetoothconnection_3;
-#define yield() esphome::yield()
-#define millis() esphome::millis()
-#define micros() esphome::micros()
-#define delay(x) esphome::delay(x)
-#define delayMicroseconds(x) esphome::delayMicroseconds(x)
 // ========== AUTO GENERATED INCLUDE BLOCK END ==========="
 
 void setup() {
   // ========== AUTO GENERATED CODE BEGIN ===========
-  // async_tcp:
-  //   {}
   // esphome:
   //   name: bluetoothproxy
+  //   name_add_mac_suffix: true
+  //   project:
+  //     name: esphome.bluetooth-proxy
+  //     version: '1.0'
   //   build_path: .esphome/build/bluetoothproxy
   //   platformio_options: {}
   //   includes: []
   //   libraries: []
-  //   name_add_mac_suffix: false
-  //   min_version: 2022.12.3
-  App.pre_setup("bluetoothproxy", __DATE__ ", " __TIME__, false);
+  //   min_version: 2022.12.8
+  App.pre_setup("bluetoothproxy", __DATE__ ", " __TIME__, true);
   // logger:
   //   level: VERY_VERBOSE
   //   id: logger_logger
@@ -52,17 +47,6 @@ void setup() {
   logger_logger->pre_setup();
   logger_logger->set_component_source("logger");
   App.register_component(logger_logger);
-  // web_server_base:
-  //   id: web_server_base_webserverbase
-  web_server_base_webserverbase = new web_server_base::WebServerBase();
-  web_server_base_webserverbase->set_component_source("web_server_base");
-  App.register_component(web_server_base_webserverbase);
-  // captive_portal:
-  //   id: captive_portal_captiveportal
-  //   web_server_base_id: web_server_base_webserverbase
-  captive_portal_captiveportal = new captive_portal::CaptivePortal(web_server_base_webserverbase);
-  captive_portal_captiveportal->set_component_source("captive_portal");
-  App.register_component(captive_portal_captiveportal);
   // wifi:
   //   ap:
   //     ssid: Bluetoothproxy Fallback Hotspot
@@ -74,6 +58,8 @@ void setup() {
   //   reboot_timeout: 15min
   //   power_save_mode: LIGHT
   //   fast_connect: false
+  //   enable_btm: false
+  //   enable_rrm: false
   //   networks:
   //   - ssid: !secret 'wifi_ssid'
   //     password: !secret 'wifi_password'
@@ -132,10 +118,13 @@ void setup() {
   // esp32:
   //   board: esp32dev
   //   framework:
-  //     version: 2.0.5
-  //     source: ~3.20005.0
+  //     version: 4.4.2
+  //     sdkconfig_options: {}
+  //     advanced:
+  //       ignore_efuse_mac_crc: false
+  //     source: ~3.40402.0
   //     platform_version: platformio/espressif32 @ 5.2.0
-  //     type: arduino
+  //     type: esp-idf
   //   variant: ESP32
   // preferences:
   //   id: preferences_intervalsyncer
@@ -144,6 +133,11 @@ void setup() {
   preferences_intervalsyncer->set_write_interval(60000);
   preferences_intervalsyncer->set_component_source("preferences");
   App.register_component(preferences_intervalsyncer);
+  // improv_serial:
+  //   id: improv_serial_improvserialcomponent
+  improv_serial_improvserialcomponent = new improv_serial::ImprovSerialComponent();
+  improv_serial_improvserialcomponent->set_component_source("improv_serial");
+  App.register_component(improv_serial_improvserialcomponent);
   // dashboard_import:
   //   package_import_url: github:esphome/bluetooth-proxies/esp32-generic.yaml@main
   //   import_full_config: false
@@ -167,6 +161,7 @@ void setup() {
   // bluetooth_proxy:
   //   active: true
   //   id: bluetooth_proxy_bluetoothproxy
+  //   cache_services: true
   //   esp32_ble_id: esp32_ble_tracker_esp32bletracker
   //   connections:
   //   - esp32_ble_id: esp32_ble_tracker_esp32bletracker
@@ -198,7 +193,7 @@ void setup() {
   // socket:
   //   implementation: bsd_sockets
   // network:
-  //   {}
+  //   enable_ipv6: false
   // =========== AUTO GENERATED CODE END ============
   App.setup();
 }
