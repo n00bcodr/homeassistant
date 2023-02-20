@@ -1,0 +1,10 @@
+{
+    "domain": "plex_recently_added",
+    "name": "Plex Recently Added",
+    "version": "0.3.8",
+    "documentation": "https://github.com/NemesisRE/sensor.plex_recently_added",
+    "issue_tracker": "https://github.com/NemesisRE/sensor.plex_recently_added",
+    "dependencies": [],
+    "codeowners": ["@maykar", "@NemesisRE"],
+    "requirements": []
+  }
