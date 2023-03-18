@@ -128,9 +128,9 @@ void setup() {
   //       type_id: waituntilaction
   //     - logger.log:
   //         format: API is connected!
-  //         tag: main
   //         args: []
   //         level: DEBUG
+  //         tag: main
   //       type_id: lambdaaction
   //     - rtttl.play:
   //         rtttl: success:d=24,o=5,b=100:c,g,b
@@ -154,12 +154,13 @@ void setup() {
   //     automation_id: automation
   //     trigger_id: startuptrigger
   //   build_path: .esphome/build/tagreader
+  //   friendly_name: ''
   //   platformio_options: {}
   //   includes: []
   //   libraries: []
   //   name_add_mac_suffix: false
-  //   min_version: 2022.12.8
-  App.pre_setup("tagreader", __DATE__ ", " __TIME__, false);
+  //   min_version: 2023.2.2
+  App.pre_setup("tagreader", "", "", __DATE__ ", " __TIME__, false);
   // switch:
   // button:
   // binary_sensor:
@@ -233,6 +234,7 @@ void setup() {
   // mdns:
   //   id: mdns_mdnscomponent
   //   disabled: false
+  //   services: []
   mdns_mdnscomponent = new mdns::MDNSComponent();
   mdns_mdnscomponent->set_component_source("mdns");
   App.register_component(mdns_mdnscomponent);
@@ -636,8 +638,8 @@ void setup() {
   //       open_drain: false
   //       pullup: false
   //       pulldown: false
-  //     id: esphome_esp8266_esp8266gpiopin
   //     inverted: false
+  //     id: esphome_esp8266_esp8266gpiopin
   //   id: buzzer
   //   zero_means_zero: false
   //   frequency: 1000.0

@@ -2,18 +2,26 @@
     #include_entity_globs:
     include_entities:
       - binary_sensor.den_motion_occupancy
+      - binary_sensor.living_room_motion_occupancy
       - binary_sensor.chair_occupancy
       - binary_sensor.den_door_contact
       - sensor.den_temperature
       - sensor.den_humidity
       - sensor.living_room_light
+      - sensor.living_room_humidity
       - light.light
       - switch.monitor_2_socket_1
       - switch.monitor_1_socket_1
       - switch.smart_plug_socket_1
+      - switch.heating
       - light.living_room_lamp
-      - light.chandelier_light
+      - light.chandelier
       - switch.backyard_light_socket_1
+      - media_player.google_tv
+      - light.shapes
+      - cover.curtain_right
+      - cover.curtain_left
+      - light.main_door_light
 
   #Configure Each Entity
   entity_config:
@@ -22,6 +30,9 @@
     sensor.den_humidity:
       name: Den Humidity
       linked_battery_sensor: sensor.temperature_and_humidity_battery
+    binary_sensor.living_room_motion_occupancy:
+      name: Living Room Motion
+      linked_battery_sensor: sensor.living_room_motion_battery
     sensor.den_temperature:
       name: Den Temperature
       linked_battery_sensor: sensor.temperature_and_humidity_battery
@@ -29,3 +40,15 @@
       name: Living Room Illumination
     switch.backyard_light_socket_1:
       name: Back Garden Lights
+    switch.heating:
+      name: Heating
+    light.shapes:
+      name: Shapes
+    light.main_door_light:
+      name: Entrance Light
+    media_player.google_tv:
+      feature_list:
+        - feature: on_off
+        - feature: play_pause
+        - feature: play_stop
+        - feature: toggle_mute

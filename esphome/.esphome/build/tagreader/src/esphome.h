@@ -27,6 +27,7 @@
 #include "esphome/components/i2c/i2c_bus.h"
 #include "esphome/components/i2c/i2c_bus_arduino.h"
 #include "esphome/components/i2c/i2c_bus_esp_idf.h"
+#include "esphome/components/improv_base/improv_base.h"
 #include "esphome/components/improv_serial/improv_serial_component.h"
 #include "esphome/components/light/addressable_light.h"
 #include "esphome/components/light/addressable_light_effect.h"

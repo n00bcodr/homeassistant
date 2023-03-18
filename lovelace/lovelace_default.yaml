@@ -379,7 +379,7 @@ views:
         icon_color: '{{ iif(is_state(''switch.monitor_1_socket_1'', ''on''), ''blue'',
           ''disabled'')}}'
         primary: Monitor 1
-        secondary: '{{ iif(is_state(''switch.monitor_1_socket_1'', ''on''), (states.sensor.smart_plug_power.state
+        secondary: '{{ iif(is_state(''switch.monitor_1_socket_1'', ''on''), (states.sensor.monitor_1_power.state
           + " W"), ''Off'')}}'
         type: custom:mushroom-template-card
       - badge_color: ''
@@ -390,7 +390,7 @@ views:
         icon_color: '{{ iif(is_state(''switch.monitor_2_socket_1'', ''on''), ''purple'',
           ''disabled'')}}'
         primary: Monitor 2
-        secondary: '{{ iif(is_state(''switch.monitor_2_socket_1'', ''on''), (states.sensor.smart_plug_power.state
+        secondary: '{{ iif(is_state(''switch.monitor_2_socket_1'', ''on''), (states.sensor.monitor_2_power.state
           + " W"), ''Off'')}}'
         type: custom:mushroom-template-card
       columns: 2
@@ -720,11 +720,29 @@ views:
     type: custom:state-switch
     view_layout:
       column: 1
+  - camera_view: auto
+    entity: camera.google_photos_favorites_media
+    show_name: false
+    show_state: false
+    tap_action:
+      action: call-service
+      data:
+        mode: Album order
+      service: google_photos.next_media
+      target:
+        entity_id: camera.google_photos_favorites_media
+    type: picture-entity
+    view_layout:
+      column: 3
+  - entities:
+    - entity: binary_sensor.0x00124b0022659345_contact
+      name: Contact
+    title: Door
+    type: entities
   icon: mdi:castle
   layout:
     max_cols: 3
   path: den
-  theme: Backend-selected
   title: Den
   type: custom:vertical-layout
   visible:
@@ -732,178 +750,176 @@ views:
   - user: 5e94cdd892054937b560071ed6662cb8
 - badges: []
   cards:
-  - badges:
-    - entity: sensor.download_speed
-      hold_action:
-        action: more-info
-      name: Internet Speed
-      style: ':host {
+  - entity: user
+    states:
+      Darragh Clerkin:
+        badges:
+        - entity: sensor.download_speed
+          hold_action:
+            action: more-info
+          name: Internet Speed
+          style: ':host {
 
-        --label-badge-red: teal;
+            --label-badge-red: teal;
 
-        }
+            }
 
-        '
-      tap_action:
-        action: call-service
-        service: homeassistant.update_entity
-        service_data:
-          entity_id: sensor.speedtest_download
-      unit_of_measurement: Mbps
+            '
+          tap_action:
+            action: call-service
+            service: homeassistant.update_entity
+            service_data:
+              entity_id: sensor.speedtest_download
+          unit_of_measurement: Mbps
+        - entity: binary_sensor.living_room_motion_occupancy
+          name: Living Room Motion
+          style: ":host {\n  --label-badge-blue:\n    {% if is_state('binary_sensor.living_room_motion_occupancy','on')\
+            \ %}\n      red\n    {% else %}\n      green\n    {% endif %}\n    ;\n\
+            }\n"
+        - entity: sensor.living_room_temperature
+          name: Temperature
+          style: ":host {\n  --label-badge-red:\n    {% if states('sensor.living_room_temperature')\
+            \ | float <= 15 %}\n      blue\n    {% else %}\n      yellow\n    {% endif\
+            \ %}\n    ;\n}\n"
+        type: custom:badge-card
+    type: custom:state-switch
+    view_layout:
+      column: 1
+  - entity: user
+    states:
+      Darragh Clerkin:
+        backdrop: true
+        entity: weather.home
+        name: ' '
+        secondary_info:
+        - humidity
+        - precipitation_probability
+        type: custom:simple-weather-card
+    type: custom:state-switch
+    view_layout:
+      column: 1
+  - alignment: center
+    chips:
     - entity: binary_sensor.living_room_motion_occupancy
-      name: Living Room Motion
-      style: ":host {\n  --label-badge-blue:\n    {% if is_state('binary_sensor.living_room_motion_occupancy','on')\
-        \ %}\n      red\n    {% else %}\n      green\n    {% endif %}\n    ;\n}\n"
+      type: entity
     - entity: sensor.living_room_temperature
-      name: Temperature
-      style: ":host {\n  --label-badge-red:\n    {% if states('sensor.living_room_temperature')\
-        \ | float <= 15 %}\n      blue\n    {% else %}\n      yellow\n    {% endif\
-        \ %}\n    ;\n}\n"
-    type: custom:badge-card
-    view_layout:
-      column: 2
-  - backdrop: true
-    entity: weather.home
-    name: ' '
-    secondary_info:
-    - humidity
-    - precipitation_probability
-    type: custom:simple-weather-card
-    view_layout:
-      column: 1
-  - content: '{{ states("sensor.random_joke") }}'
-    type: markdown
-    view_layout:
-      column: 1
+      icon_color: blue
+      type: entity
+      use_entity_picture: false
+    type: custom:mushroom-chips-card
   - cards:
-    - entity: light.living_room_lamp
-      tap_action:
-        action: toggle
-      type: custom:mushroom-entity-card
-      view_layout:
-        column: 2
-    - entity: light.chandelier_light
+    - badge_icon: ''
+      entity: light.living_room_lamp
+      icon: '{{ iif(is_state(''light.living_room_lamp'', ''on''), ''mdi:lamp'', ''mdi:lamp-outline'')}}'
+      icon_color: '{{ iif(is_state(''light.living_room_lamp'', ''on''), ''orange'',
+        ''disabled'')}}'
+      primary: Lamp
+      secondary: '{{ states.light.living_room_lamp.state}}'
+      type: custom:mushroom-template-card
+    - entity: light.chandelier
+      icon: mdi:chandelier
       name: Chandelier
       show_brightness_control: true
       type: custom:mushroom-light-card
-    - entity: switch.backyard_light_socket_1
-      icon_color: orange
+    - badge_icon: ''
+      entity: switch.backyard_light_socket_1
+      icon: '{{ iif(is_state(''switch.backyard_light_socket_1'', ''on''), ''mdi:string-lights'',
+        ''mdi:string-lights-off'')}}'
+      icon_color: '{{ iif(is_state(''switch.backyard_light_socket_1'', ''on''), ''deep-orange'',
+        ''disabled'')}}'
+      primary: Backyard Lights
+      secondary: '{{ states.switch.backyard_light_socket_1.state}}'
+      type: custom:mushroom-template-card
+    - custom_fields:
+        switch:
+          card:
+            badge_color: ''
+            badge_icon: ''
+            entity: switch.heating
+            icon: '{{ iif(is_state(''switch.heating'', ''on''), ''mdi:radiator'',
+              ''mdi:radiator-off'')}}'
+            icon_color: '{{ iif(is_state(''switch.heating'', ''on''), ''red'', ''disabled'')}}'
+            multiline_secondary: false
+            primary: Heating
+            secondary: Turned {{states.switch.heating.state}} at {{(as_timestamp(states.switch.heating.last_updated)
+              | timestamp_custom('%-I:%M %p'))}}
+            type: custom:mushroom-template-card
+        time:
+          card:
+            card:
+              entity: timer.heating
+              layout: icon_name_state2nd
+              name: Turns off in
+              show_icon: true
+              show_name: true
+              show_state: true
+              styles:
+                icon:
+                - width: 20px
+                - height: 20px
+                - color: grey
+                name:
+                - font-size: 12px
+                - justify-self: start
+                state:
+                - font-size: 14px
+                - font-weight: bold
+                - justify-self: start
+              type: custom:button-card
+            conditions:
+            - entity: timer.heating
+              state_not: idle
+            type: conditional
+      styles:
+        card:
+        - border: none
+        grid:
+        - grid-template-areas: '''switch time'''
+        - grid-template-columns: 70% 25%
+        - grid-template-rows: 25px
+        - text-align: left
+      tap_action:
+        action: call-service
+        service: homeassistant.toggle
+        service_data:
+          entity_id: switch.heating
+      type: custom:button-card
+    - entity: script.led_strip
+      icon: mdi:led-strip-variant
+      icon_color: purple
+      picture: ''
+      primary: LED Strip
+      secondary: ''
+      tap_action:
+        action: toggle
+      type: custom:mushroom-template-card
+    - entity: switch.dragon
+      icon: fas:dragon
+      icon_color: teal
       icon_type: icon
-      name: Backyard Lights
+      name: Fountain
       secondary_info: last-changed
       tap_action:
         action: toggle
       type: custom:mushroom-entity-card
     type: vertical-stack
     view_layout:
-      column: 2
-  - entity: template
+      column: 1
+  - entity: user
     states:
-      pickup:
-        cards:
-        - color_type: card
-          custom_fields:
-            collection: '[[[ return "on " + states[''sensor.black_bin''].state ]]]
-
-              '
-            date: "[[[ if (states['sensor.black_bin'].attributes.next_collection >\
-              \ 1)\n    return 'Next Pickup in ' +\n    states['sensor.black_bin'].attributes.next_collection\
-              \ + ' days'; \n    else return 'Next Pickup in ' + states['sensor.black_bin'].attributes.next_collection\
-              \ + ' day';\n]]]\n"
-            picture:
-              card:
-                color_type: card
-                custom_fields:
-                  notification: '[[[ return states[''sensor.black_bin''].attributes.next_collection]]]
-
-                    '
-                entity_picture: /local/images/black_bin.png
-                show_entity_picture: true
-                size: 60%
-                styles:
-                  card:
-                  - border: none
-                  custom_fields:
-                    notification:
-                    - background-color: "[[[\n  if (states['sensor.black_bin'].attributes.next_collection\
-                        \ >= 5)\n    return \"green\";\n  if (states['sensor.black_bin'].attributes.next_collection\
-                        \ >= 2)\n  return \"orange\";\n  else return \"red\";\n]]]\n"
-                    - border-radius: 50%
-                    - position: absolute
-                    - left: 60%
-                    - top: 0px
-                    - height: 30px
-                    - width: 30px
-                    - font-size: 15px
-                    - font-weight: bold
-                    - color: white
-                    - line-height: 30px
-                type: custom:button-card
-          styles:
-            card:
-            - border: none
-            - font-size: 150%
-            - font-weight: bold
-            - justify-self: start
-            grid:
-            - grid-template-areas: '"picture date" "picture collection"'
-            - grid-template-columns: 30% 70%
-            - grid-template-rows: 3fr 3fr
-          type: custom:button-card
-        - color_type: card
-          custom_fields:
-            collection: '[[[ return "on " + states[''sensor.blue_bin''].state ]]]
-
-              '
-            date: "[[[ if (states['sensor.blue_bin'].attributes.next_collection >\
-              \ 1)\n    return 'Next Pickup in ' +\n    states['sensor.blue_bin'].attributes.next_collection\
-              \ + ' days'; \n    else return 'Next Pickup in ' + states['sensor.blue_bin'].attributes.next_collection\
-              \ + ' day';\n]]]\n"
-            picture:
-              card:
-                color_type: card
-                custom_fields:
-                  notification: '[[[ return states[''sensor.blue_bin''].attributes.next_collection]]]
-
-                    '
-                entity_picture: /local/images/blue_bin.png
-                show_entity_picture: true
-                size: 60%
-                styles:
-                  card:
-                  - border: none
-                  custom_fields:
-                    notification:
-                    - background-color: "[[[\n  if (states['sensor.blue_bin'].attributes.next_collection\
-                        \ >= 5)\n    return \"green\";\n  if (states['sensor.blue_bin'].attributes.next_collection\
-                        \ >= 2)\n  return \"orange\";\n  else return \"red\";\n]]]\n"
-                    - border-radius: 50%
-                    - position: absolute
-                    - left: 60%
-                    - top: 0px
-                    - height: 30px
-                    - width: 30px
-                    - font-size: 15px
-                    - font-weight: bold
-                    - color: white
-                    - line-height: 30px
-                type: custom:button-card
-          styles:
-            card:
-            - border: none
-            - font-size: 150%
-            - font-weight: bold
-            - justify-self: start
-            grid:
-            - grid-template-areas: '"picture date" "picture collection"'
-            - grid-template-columns: 30% 70%
-            - grid-template-rows: 3fr 3fr
-          type: custom:button-card
-        type: vertical-stack
-    template: '{% if state_attr(''sensor.black_bin'', ''next_collection'') < 2 or
-      state_attr(''sensor.blue_bin'', ''next_collection'') < 2  %} pickup {% else
-      %} no_pickup {% endif %}'
+      Darragh Clerkin:
+        content: '{{ states("sensor.random_joke") }}'
+        type: markdown
     type: custom:state-switch
+    view_layout:
+      column: 1
+  - entity: light.main_door_light
+    fill_container: false
+    icon: hue:bulb-classic-hung
+    type: custom:mushroom-light-card
+    use_light_color: true
+    view_layout:
+      column: 1
   - cards:
     - collapsible_controls: true
       entity: media_player.google_tv
@@ -914,6 +930,8 @@ views:
       - on_off
       name: Google TV
       show_volume_level: true
+      tap_action:
+        action: toggle
       type: custom:mushroom-media-player-card
       use_media_info: true
       volume_controls:
@@ -1148,8 +1166,115 @@ views:
       type: custom:collapsable-cards
     type: vertical-stack
     view_layout:
-      column: 3
-  - entity: media_player.jarvis
+      column: 2
+  - entity: template
+    states:
+      pickup:
+        cards:
+        - color_type: card
+          custom_fields:
+            collection: '[[[ return "on " + states[''sensor.black_bin''].state ]]]
+
+              '
+            date: "[[[ if (states['sensor.black_bin'].attributes.next_collection >\
+              \ 1)\n    return 'Next Pickup in ' +\n    states['sensor.black_bin'].attributes.next_collection\
+              \ + ' days'; \n    else return 'Next Pickup in ' + states['sensor.black_bin'].attributes.next_collection\
+              \ + ' day';\n]]]\n"
+            picture:
+              card:
+                color_type: card
+                custom_fields:
+                  notification: '[[[ return states[''sensor.black_bin''].attributes.next_collection]]]
+
+                    '
+                entity_picture: /local/images/black_bin.png
+                show_entity_picture: true
+                size: 60%
+                styles:
+                  card:
+                  - border: none
+                  custom_fields:
+                    notification:
+                    - background-color: "[[[\n  if (states['sensor.black_bin'].attributes.next_collection\
+                        \ >= 5)\n    return \"green\";\n  if (states['sensor.black_bin'].attributes.next_collection\
+                        \ >= 2)\n  return \"orange\";\n  else return \"red\";\n]]]\n"
+                    - border-radius: 50%
+                    - position: absolute
+                    - left: 60%
+                    - top: 0px
+                    - height: 30px
+                    - width: 30px
+                    - font-size: 15px
+                    - font-weight: bold
+                    - color: white
+                    - line-height: 30px
+                type: custom:button-card
+          styles:
+            card:
+            - border: none
+            - font-size: 150%
+            - font-weight: bold
+            - justify-self: start
+            grid:
+            - grid-template-areas: '"picture date" "picture collection"'
+            - grid-template-columns: 30% 70%
+            - grid-template-rows: 3fr 3fr
+          type: custom:button-card
+        - color_type: card
+          custom_fields:
+            collection: '[[[ return "on " + states[''sensor.blue_bin''].state ]]]
+
+              '
+            date: "[[[ if (states['sensor.blue_bin'].attributes.next_collection >\
+              \ 1)\n    return 'Next Pickup in ' +\n    states['sensor.blue_bin'].attributes.next_collection\
+              \ + ' days'; \n    else return 'Next Pickup in ' + states['sensor.blue_bin'].attributes.next_collection\
+              \ + ' day';\n]]]\n"
+            picture:
+              card:
+                color_type: card
+                custom_fields:
+                  notification: '[[[ return states[''sensor.blue_bin''].attributes.next_collection]]]
+
+                    '
+                entity_picture: /local/images/blue_bin.png
+                show_entity_picture: true
+                size: 60%
+                styles:
+                  card:
+                  - border: none
+                  custom_fields:
+                    notification:
+                    - background-color: "[[[\n  if (states['sensor.blue_bin'].attributes.next_collection\
+                        \ >= 5)\n    return \"green\";\n  if (states['sensor.blue_bin'].attributes.next_collection\
+                        \ >= 2)\n  return \"orange\";\n  else return \"red\";\n]]]\n"
+                    - border-radius: 50%
+                    - position: absolute
+                    - left: 60%
+                    - top: 0px
+                    - height: 30px
+                    - width: 30px
+                    - font-size: 15px
+                    - font-weight: bold
+                    - color: white
+                    - line-height: 30px
+                type: custom:button-card
+          styles:
+            card:
+            - border: none
+            - font-size: 150%
+            - font-weight: bold
+            - justify-self: start
+            grid:
+            - grid-template-areas: '"picture date" "picture collection"'
+            - grid-template-columns: 30% 70%
+            - grid-template-rows: 3fr 3fr
+          type: custom:button-card
+        type: vertical-stack
+    template: '{% if state_attr(''sensor.black_bin'', ''next_collection'') < 2 or
+      state_attr(''sensor.blue_bin'', ''next_collection'') < 2  %} pickup {% else
+      %} no_pickup {% endif %}'
+    type: custom:state-switch
+  - entity: media_player.nest_mini
     fill_container: false
     media_controls:
     - play_pause_stop
@@ -1161,23 +1286,15 @@ views:
     type: custom:mushroom-media-player-card
     use_media_info: true
     view_layout:
-      column: 3
+      column: 2
     volume_controls:
     - volume_mute
     - volume_set
     - volume_buttons
-  - entity: light.main_door_light
-    fill_container: false
-    icon: hue:bulb-classic-hung
-    type: custom:mushroom-light-card
-    use_light_color: true
-    view_layout:
-      column: 2
   icon: mdi:sofa
   layout:
     max_cols: 3
   path: living-room
-  theme: Backend-selected
   title: Living Room
   type: custom:vertical-layout
 - badges: []
@@ -1216,8 +1333,8 @@ views:
             action: none
           type: custom:mushroom-entity-card
         conditions:
-        - entity: sensor.washing_machine_state
-          state_not: Cycle Complete
+        - entity: sensor.bob_remaining
+          state_not: '0'
         type: conditional
       type: horizontal-stack
     - cards:
@@ -1298,66 +1415,33 @@ views:
           action: none
         type: custom:mushroom-template-card
       type: horizontal-stack
+    - entities:
+      - entity: sensor.bob_duration
+        name: Duration
+      - entity: sensor.bob_remaining
+        name: Remaining
+      show_header_toggle: false
+      type: entities
     type: vertical-stack
-  - entities:
-    - entity: sensor.bob_duration
-      name: Duration
-    - entity: sensor.bob_remaining
-      name: Remaining
-    - entity: sensor.bob_programme_end_time
-      name: Programme End Time
-    - entity: binary_sensor.bob_warning_door_is_open
-      name: 'Warning: Door is open'
-    show_header_toggle: false
-    type: entities
   icon: mdi:washing-machine
   path: utilities
-  theme: macOS Theme
   title: Utilities
 - badges: []
   cards:
   - cards:
-    - entities:
-      - entity: input_select.speakers_spotify
-      type: entities
-    - cards:
-      - aspect_ratio: 5/2
-        entity: input_select.speakers_spotify
-        show_name: false
-        show_state: true
-        type: custom:button-card
-      - aspect_ratio: 5/2
-        icon: mdi:play-outline
-        tap_action:
-          action: call-service
-          service: script.spotify_start
-        type: custom:button-card
-      mode: horizontal
-      type: custom:stack-in-card
-    type: vertical-stack
-  - card:
-      show_header_toggle: false
-      state_color: true
-      type: entities
-    filter:
-      exclude:
-      - state: unavailable
-      - state: 'off'
-      - state: standby
-      - state: unknown
-      - entity_id: '*browser*'
-      - entity_id: '*plex*'
-      include:
-      - domain: media_player
-    show_empty: false
-    sort:
-      method: last_changed
-      reverse: true
-    type: custom:auto-entities
-  - cards:
-    - aspect_ratio: 21/2
-      name: Refresh Libraries
-      type: custom:button-card
+    - double_tap_action:
+        action: none
+      fill_container: true
+      hold_action:
+        action: none
+      icon: mdi:plex
+      icon_color: orange
+      picture: ''
+      primary: Refresh Libraries
+      secondary: ''
+      tap_action:
+        action: none
+      type: custom:mushroom-template-card
     - cards:
       - aspect_ratio: 1/1
         entity_picture: /local/icons/movie.png
@@ -1422,85 +1506,98 @@ views:
         reverse: false
       type: custom:auto-entities
     type: vertical-stack
+  - all_shadows: false
+    date: ddmm
+    entity: sensor.recently_added_movies
+    flag: false
+    image_style: fanart
+    max: 3
+    title: Recently Added Movies
+    type: custom:upcoming-media-card
+  - all_shadows: false
+    date: ddmm
+    entity: sensor.recently_added_tv
+    flag: false
+    image_style: fanart
+    max: 3
+    title: Recently Added TV
+    type: custom:upcoming-media-card
   - cards:
-    - artwork: material
-      entity: media_player.youtube_music
-      hide:
-        icon_state: false
-        shuffle: false
-      name: YouTube Music
-      type: custom:mini-media-player
-    - entities:
-      - entity: input_select.youtube_music_player_playlist
-      - entity: input_select.youtube_music_player_source
-      - entity: input_select.youtube_music_player_speakers
-      title: YouTube Music
+    - entity: input_select.speakers_spotify
+      fill_container: false
+      icon_color: green
+      layout: horizontal
+      secondary_info: none
+      type: custom:mushroom-select-card
+    - cards:
+      - entity: input_select.speakers_spotify
+        fill_container: true
+        icon: ''
+        layout: horizontal
+        picture: "{%if (states.input_select.speakers_spotify.state == 'Friday') %}\n\
+          \    {{ \"/local/images/nest_audio.png\" }}\n{%elif  (states.input_select.speakers_spotify.state\
+          \ == 'Nest Mini') %}\n    {{ \"/local/images/nest_mini.png\" }}\n{%elif\
+          \  (states.input_select.speakers_spotify.state == 'pavanthanuj')  %}\n \
+          \   {{ \"\" }}\n{% endif %}"
+        primary: '{{states.input_select.speakers_spotify.state}}'
+        secondary: ''
+        tap_action:
+          action: call-service
+          data: {}
+          service: script.spotify_start
+          target: {}
+        type: custom:mushroom-template-card
+      - fill_container: true
+        icon: mdi:play
+        layout: vertical
+        primary: ''
+        secondary: ''
+        tap_action:
+          action: call-service
+          data: {}
+          service: script.spotify_start
+          target: {}
+        type: custom:mushroom-template-card
+      type: horizontal-stack
+    type: vertical-stack
+  - card:
+      show_header_toggle: false
+      state_color: true
       type: entities
-    type: custom:stack-in-card
-  - entity: media_player.youtube_music
-    states:
-      playing:
-        content: '{% if is_state(''media_player.youtube_music'',''playing'') %}{{
-          state_attr("sensor.youtube_music_extra", "lyrics") }}{% else %}Player off{%
-          endif %}'
-        title: Lyrics
-        type: markdown
-    type: custom:state-switch
-  - entity: media_player.youtube_music
-    states:
-      playing:
-        cards:
-        - content: "\n**Media Type**: {{state_attr(\"media_player.youtube_music\"\
-            ,\"_media_type\")}} \n**Media ID**: {{state_attr(\"media_player.youtube_music\"\
-            , \"_media_id\")}}\n\n## **Current Track Info:**  \n**Artist:** {{state_attr(\"\
-            media_player.youtube_music\",\"media_artist\")}} \n**Track:** {{state_attr(\"\
-            media_player.youtube_music\",\"media_title\")}}\n**Video Link:** [{{state_attr(\"\
-            media_player.youtube_music\", \"videoId\")}}](https://www.youtube.com/watch?v={{state_attr(\"\
-            media_player.youtube_music\", \"videoId\")}})\n**Rating:** {{state_attr(\"\
-            media_player.youtube_music\",\"likeStatus\")}}\n**Playing on:** {{state_attr(\"\
-            media_player.youtube_music\",\"remote_player_id\")}}"
-          type: markdown
-        - cards:
-          - state:
-            - icon: mdi:thumb-up
-              operator: template
-              value: '[[[ return states[''media_player.youtube_music''].attributes.likeStatus
-                == "LIKE"]]]
-
-                '
-            - icon: mdi:thumb-up-outline
-              operator: template
-              value: '[[[ return states[''media_player.youtube_music''].attributes.likeStatus
-                == "INDIFFERENT"]]]
-
-                '
-            - icon: mdi:power-off
-              operator: default
-              value: false
-            tap_action:
-              action: call-service
-              service: ytube_music_player.call_method
-              service_data:
-                command: rate_track
-                entity_id: media_player.youtube_music
-                parameters: thumb_toggle_up_middle
-            type: custom:button-card
-          - content: '{% if is_state(''media_player.youtube_music'',''playing'') %}Currently
-              playing track {{ state_attr("media_player.youtube_music", "current_track")+1
-              }} of {{ state_attr("sensor.youtube_music_extra", "total_tracks") }}{%
-              else %}Player off{% endif %}     '
-            type: markdown
-          type: horizontal-stack
-        - content: "{% if is_state('media_player.youtube_music','playing') %}{% for\
-            \ i in range(0,state_attr(\"sensor.youtube_music_extra\", \"total_tracks\"\
-            )) %}\n {% if i == state_attr(\"sensor.youtube_music_extra\",\n\"current_track\"\
-            ) %}**{% endif %}\\[{{i+1}}] {{ state_attr(\"sensor.youtube_music_extra\"\
-            , \"tracks\")[i] }}{% if i == state_attr(\"media_player.youtube_music\"\
-            , \"current_track\") %} **{% endif %}\n{%- endfor %}{% else %}Player off{%\
-            \ endif %}\n    "
-          type: markdown
-        type: vertical-stack
-    type: custom:state-switch
+    filter:
+      exclude:
+      - state: unavailable
+      - state: 'off'
+      - state: standby
+      - state: unknown
+      - entity_id: '*browser*'
+      - entity_id: '*plex*'
+      include:
+      - domain: media_player
+    show_empty: false
+    sort:
+      method: last_changed
+      reverse: true
+    type: custom:auto-entities
+  - card:
+      show_header_toggle: false
+      state_color: true
+      title: Sonarr
+      type: entities
+    filter:
+      exclude:
+      - state: unavailable
+      include:
+      - name: Sonarr
+        type: weblink
+        url: http://homeassistant.local:8989/
+      - name: /[Ss]onarr/
+    show_empty: false
+    sort:
+      ignore_case: false
+      method: last_updated
+      reverse: false
+    type: custom:auto-entities
   icon: mdi:play-network
   path: media
   title: Media
@@ -1819,11 +1916,6 @@ views:
               tap_action:
                 action: call-service
                 service: shell_command.git_hacs_update
-            - icon: mdi:git
-              name: Git Status
-              tap_action:
-                action: call-service
-                service: shell_command.git_status
             type: custom:paper-buttons-row
           icon: fab:github
           title: Git
@@ -1862,195 +1954,6 @@ views:
     style: ":host {\n  --label-badge-blue:\n    {% if is_state('binary_sensor.living_room_motion_occupancy','on')\
       \ %}\n      red\n    {% else %}\n      green\n    {% endif %}\n    ;\n}\n"
   cards:
-  - cards:
-    - cards:
-      - align_icon: left
-        align_state: center
-        decimals: 1
-        entities:
-        - sensor.multisensor_humidity
-        font_size: 70
-        hours_to_show: 6
-        line_color: skyblue
-        line_width: 5
-        points_per_hour: 10
-        show:
-          name: false
-        type: custom:mini-graph-card
-        update_interval: 10
-      - align_icon: left
-        align_state: center
-        color_thresholds:
-        - color: '#f39c12'
-          value: 25
-        - color: '#d35400'
-          value: 28
-        - color: '#ff1800'
-          value: 30
-        decimals: 1
-        entities:
-        - sensor.multisensor_temperature
-        font_size: 70
-        hours_to_show: 6
-        line_color: '#e74c3c'
-        line_width: 5
-        points_per_hour: 10
-        show:
-          name: false
-        type: custom:mini-graph-card
-        update_interval: 10
-      title: Den
-      type: horizontal-stack
-    mode: vertical
-    type: custom:stack-in-card
-  - align_icon: left
-    align_state: center
-    entities:
-    - color: orange
-      entity: sensor.multisensor_light
-      name: Den
-    - color: aqua
-      entity: sensor.living_room_light
-      name: Living Room
-      show_state: true
-    font_size: 90
-    hours_to_show: 6
-    line_width: 1
-    points_per_hour: 10
-    show:
-      fill: fade
-    type: custom:mini-graph-card
-    update_interval: 30
-  - cards:
-    - cards:
-      - align_icon: left
-        align_state: center
-        decimals: 1
-        entities:
-        - sensor.living_room_humidity
-        font_size: 70
-        hours_to_show: 6
-        line_color: skyblue
-        line_width: 5
-        points_per_hour: 10
-        show:
-          name: false
-        type: custom:mini-graph-card
-        update_interval: 10
-      - align_icon: left
-        align_state: center
-        color_thresholds:
-        - color: '#f39c12'
-          value: 25
-        - color: '#d35400'
-          value: 28
-        - color: '#ff1800'
-          value: 30
-        decimals: 1
-        entities:
-        - sensor.living_room_temperature
-        font_size: 70
-        hours_to_show: 6
-        line_color: '#e74c3c'
-        line_width: 5
-        points_per_hour: 10
-        show:
-          name: false
-        type: custom:mini-graph-card
-        update_interval: 10
-      title: Living Room
-      type: horizontal-stack
-    mode: vertical
-    type: custom:stack-in-card
-  - cards:
-    - cards:
-      - align_icon: left
-        align_state: center
-        decimals: 1
-        entities:
-        - sensor.temperature_and_humidity_humidity
-        font_size: 70
-        hours_to_show: 6
-        line_color: skyblue
-        line_width: 5
-        points_per_hour: 10
-        show:
-          name: false
-        type: custom:mini-graph-card
-        update_interval: 10
-      - align_icon: left
-        align_state: center
-        color_thresholds:
-        - color: '#f39c12'
-          value: 25
-        - color: '#d35400'
-          value: 28
-        - color: '#ff1800'
-          value: 30
-        decimals: 1
-        entities:
-        - sensor.temperature_and_humidity_temperature
-        font_size: 70
-        hours_to_show: 6
-        line_color: '#e74c3c'
-        line_width: 5
-        points_per_hour: 10
-        show:
-          name: false
-        type: custom:mini-graph-card
-        update_interval: 10
-      title: Den - Sonoff
-      type: horizontal-stack
-    mode: vertical
-    type: custom:stack-in-card
-  - cards:
-    - card_mod:
-        style:
-          ha-markdown:
-            $: "ha-markdown-element:first-of-type hr{\n  border-color: #303030;\n\
-              }\n"
-      content: '<h2> <ha-icon icon=''mdi:shield-half-full''></ha-icon> Watchman report<h2>
-        <h3>Missing Entities: {{ states.sensor.watchman_missing_entities.state }}
-        </h3> {%- for item in state_attr("sensor.watchman_missing_entities", "entities")
-        %} <hr> <table><tr> <td> <ha-icon icon=''mdi: {%- if item.state=="missing"-%}cloud-alert''
-        {%- elif item.state=="unavail" -%}cloud-off-outline'' {%- else-%}cloud-question''
-        {%- endif -%} ></ha-icon> {{ item.id }} [{{item.state}}] <a title="{{item.occurrences}}">
-        {{item.occurrences.split(''/'')[-1].split('':'')[0]}}</a> </td></tr></table>
-        {%- endfor %}'
-      type: markdown
-    - card_mod:
-        style:
-          ha-markdown:
-            $: "ha-markdown-element:first-of-type hr{\n  border-color: #303030;\n\
-              }\n"
-      content: '<h2 class="some"> <ha-icon icon=''mdi:shield-half-full''></ha-icon>
-        Watchman report<h2> <h3> Missing Services: {{ states.sensor.watchman_missing_services.state
-        }} </h3> {%- for item in state_attr("sensor.watchman_missing_services", "entities")
-        %} <hr><table><tr> <td>  <ha-icon icon=''mdi:cloud-alert''></ha-icon> {{ item.id
-        }} <a title="{{item.occurrences}}">{{item.occurrences.split(''/'')[-1].split('':'')[0]}}</a>
-        </td></tr></table> {%- endfor %}'
-      type: markdown
-    - alignment: center
-      chips:
-      - double_tap_action:
-          action: call-service
-          service: watchman.report
-          service_data:
-            data:
-              data:
-                parse_mode: html
-              parse_config: true
-          target: {}
-        entity: sensor.watchman_last_updated
-        hold_action:
-          action: none
-        icon: mdi:camera-timer
-        name: 'Watchman Last Updated :'
-        tap_action:
-          action: none
-        type: entity
-      type: custom:mushroom-chips-card
-    type: custom:stack-in-card
   - styles:
       --mdc-icon-size: 25px
       --mdc-tab-color-default: white
@@ -2139,6 +2042,149 @@ views:
       styles:
         --mdc-theme-primary: yellow
     type: custom:tabbed-card
+  - cards:
+    - cards:
+      - cards:
+        - align_icon: left
+          align_state: center
+          decimals: 1
+          entities:
+          - sensor.multisensor_humidity
+          font_size: 70
+          hours_to_show: 6
+          line_color: skyblue
+          line_width: 5
+          points_per_hour: 10
+          show:
+            name: false
+          type: custom:mini-graph-card
+          update_interval: 10
+        - align_icon: left
+          align_state: center
+          color_thresholds:
+          - color: '#f39c12'
+            value: 25
+          - color: '#d35400'
+            value: 28
+          - color: '#ff1800'
+            value: 30
+          decimals: 1
+          entities:
+          - sensor.multisensor_temperature
+          font_size: 70
+          hours_to_show: 6
+          line_color: '#e74c3c'
+          line_width: 5
+          points_per_hour: 10
+          show:
+            name: false
+          type: custom:mini-graph-card
+          update_interval: 10
+        title: Den
+        type: horizontal-stack
+      mode: vertical
+      type: custom:stack-in-card
+    - cards:
+      - cards:
+        - align_icon: left
+          align_state: center
+          decimals: 1
+          entities:
+          - sensor.temperature_and_humidity_humidity
+          font_size: 70
+          hours_to_show: 6
+          line_color: skyblue
+          line_width: 5
+          points_per_hour: 10
+          show:
+            name: false
+          type: custom:mini-graph-card
+          update_interval: 10
+        - align_icon: left
+          align_state: center
+          color_thresholds:
+          - color: '#f39c12'
+            value: 25
+          - color: '#d35400'
+            value: 28
+          - color: '#ff1800'
+            value: 30
+          decimals: 1
+          entities:
+          - sensor.temperature_and_humidity_temperature
+          font_size: 70
+          hours_to_show: 6
+          line_color: '#e74c3c'
+          line_width: 5
+          points_per_hour: 10
+          show:
+            name: false
+          type: custom:mini-graph-card
+          update_interval: 10
+        title: Den - Sonoff
+        type: horizontal-stack
+      mode: vertical
+      type: custom:stack-in-card
+    - cards:
+      - cards:
+        - align_icon: left
+          align_state: center
+          decimals: 1
+          entities:
+          - sensor.living_room_humidity
+          font_size: 70
+          hours_to_show: 6
+          line_color: skyblue
+          line_width: 5
+          points_per_hour: 10
+          show:
+            name: false
+          type: custom:mini-graph-card
+          update_interval: 10
+        - align_icon: left
+          align_state: center
+          color_thresholds:
+          - color: '#f39c12'
+            value: 25
+          - color: '#d35400'
+            value: 28
+          - color: '#ff1800'
+            value: 30
+          decimals: 1
+          entities:
+          - sensor.living_room_temperature
+          font_size: 70
+          hours_to_show: 6
+          line_color: '#e74c3c'
+          line_width: 5
+          points_per_hour: 10
+          show:
+            name: false
+          type: custom:mini-graph-card
+          update_interval: 10
+        title: Living Room
+        type: horizontal-stack
+      mode: vertical
+      type: custom:stack-in-card
+    - align_icon: left
+      align_state: center
+      entities:
+      - color: orange
+        entity: sensor.multisensor_light
+        name: Den
+      - color: aqua
+        entity: sensor.living_room_light
+        name: Living Room
+        show_state: true
+      font_size: 90
+      hours_to_show: 6
+      line_width: 1
+      points_per_hour: 10
+      show:
+        fill: fade
+      type: custom:mini-graph-card
+      update_interval: 30
+    type: vertical-stack
   - styles:
       --mdc-icon-size: 25px
       --mdc-tab-color-default: white
@@ -2231,6 +2277,59 @@ views:
       styles:
         --mdc-theme-primary: lightgreen
     type: custom:tabbed-card
+  - card:
+      cards:
+      - card_mod:
+          style:
+            ha-markdown:
+              $: "ha-markdown-element:first-of-type hr{\n  border-color: #303030;\n\
+                }\n"
+        content: '<h2> <ha-icon icon=''mdi:shield-half-full''></ha-icon> Watchman
+          report<h2> <h3>Missing Entities: {{ states.sensor.watchman_missing_entities.state
+          }} </h3> {%- for item in state_attr("sensor.watchman_missing_entities",
+          "entities") %} <hr> <table><tr> <td> <ha-icon icon=''mdi: {%- if item.state=="missing"-%}cloud-alert''
+          {%- elif item.state=="unavail" -%}cloud-off-outline'' {%- else-%}cloud-question''
+          {%- endif -%} ></ha-icon> {{ item.id }} [{{item.state}}] <a title="{{item.occurrences}}">
+          {{item.occurrences.split(''/'')[-1].split('':'')[0]}}</a> </td></tr></table>
+          {%- endfor %}'
+        type: markdown
+      - card_mod:
+          style:
+            ha-markdown:
+              $: "ha-markdown-element:first-of-type hr{\n  border-color: #303030;\n\
+                }\n"
+        content: '<h2 class="some"> <ha-icon icon=''mdi:shield-half-full''></ha-icon>
+          Watchman report<h2> <h3> Missing Services: {{ states.sensor.watchman_missing_services.state
+          }} </h3> {%- for item in state_attr("sensor.watchman_missing_services",
+          "entities") %} <hr><table><tr> <td>  <ha-icon icon=''mdi:cloud-alert''></ha-icon>
+          {{ item.id }} <a title="{{item.occurrences}}">{{item.occurrences.split(''/'')[-1].split('':'')[0]}}</a>
+          </td></tr></table> {%- endfor %}'
+        type: markdown
+      - alignment: center
+        chips:
+        - double_tap_action:
+            action: call-service
+            service: watchman.report
+            service_data:
+              data:
+                data:
+                  parse_mode: html
+                parse_config: true
+            target: {}
+          entity: sensor.watchman_last_updated
+          hold_action:
+            action: none
+          icon: mdi:camera-timer
+          name: 'Watchman Last Updated :'
+          tap_action:
+            action: none
+          type: entity
+        type: custom:mushroom-chips-card
+      type: custom:stack-in-card
+    conditions:
+    - entity: sensor.watchman_missing_entities
+      state_not: '0'
+    type: conditional
   icon: mdi:devices
   path: network
   theme: ''
@@ -2239,68 +2338,181 @@ views:
   - user: 74f7e2ffd3594037b1a2fc4de82d9fea
 - badges: []
   cards:
-  - card_type: last_result
-    f1_font: true
-    sensor: sensor.formula_one_sensor_last_result
-    show_carnumber: true
-    standings:
-      show_flag: true
-      show_team: true
-    title: Last Race
-    type: custom:formulaone-card
+  - entity: mediaquery
+    states:
+      '(min-width: 800px)':
+        card_type: last_result
+        f1_font: true
+        hide_tracklayout: true
+        sensor: sensor.formula_one_sensor_last_result
+        show_carnumber: true
+        standings:
+          show_flag: true
+          show_team: true
+        title: Last Race
+        type: custom:formulaone-card
+    type: custom:state-switch
     view_layout:
       column: 1
-  - card_type: countdown
-    date_locale: in
-    f1_font: true
-    show_raceinfo: true
-    title: Next Race
-    type: custom:formulaone-card
+  - entity: mediaquery
+    states:
+      '(min-width: 800px)':
+        card_type: countdown
+        date_locale: in
+        f1_font: true
+        show_raceinfo: true
+        title: Next Race
+        type: custom:formulaone-card
+    type: custom:state-switch
     view_layout:
       column: 2
-  - cards:
-    - card_type: driver_standings
-      f1_font: true
-      show_carnumber: true
-      standings:
-        show_flag: true
-      title: Driver Standings
-      translations:
-        points: Points
-      type: custom:formulaone-card
-    - card_type: constructor_standings
-      f1_font: true
-      standings:
-        show_flag: true
-        show_team: true
-        show_teamlogo: true
-      title: Constructor Standings
-      translations:
-        points: Points
-      type: custom:formulaone-card
-    type: vertical-stack
+  - entity: mediaquery
+    states:
+      '(min-width: 800px)':
+        cards:
+        - card_type: driver_standings
+          f1_font: true
+          show_carnumber: true
+          standings:
+            show_flag: true
+          title: Driver Standings
+          translations:
+            points: Points
+          type: custom:formulaone-card
+        - card_type: constructor_standings
+          f1_font: true
+          standings:
+            show_flag: true
+            show_team: true
+            show_teamlogo: true
+          title: Constructor Standings
+          translations:
+            points: Points
+          type: custom:formulaone-card
+        type: vertical-stack
+    type: custom:state-switch
     view_layout:
       column: 4
-  - cards:
-    - card_type: results
-      f1_font: true
-      standings:
-        show_flag: true
-      title: Race Results
-      type: custom:formulaone-card
-    type: vertical-stack
+  - entity: mediaquery
+    states:
+      '(min-width: 800px)':
+        card_type: results
+        f1_font: true
+        hide_tracklayout: true
+        standings:
+          show_flag: true
+        title: Race Results
+        type: custom:formulaone-card
+    type: custom:state-switch
     view_layout:
       column: 5
-  - card_type: schedule
-    date_locale: in
-    f1_font: true
-    sensor: sensor.formula_one_sensor_races
-    standings:
-      show_flag: true
-    title: Schedule
-    type: custom:formulaone-card
+  - entity: mediaquery
+    states:
+      '(min-width: 800px)':
+        card_type: schedule
+        date_locale: in
+        f1_font: true
+        sensor: sensor.formula_one_sensor_races
+        standings:
+          show_flag: true
+        title: Schedule
+        type: custom:formulaone-card
+    type: custom:state-switch
     view_layout:
       column: 3
+  - entity: mediaquery
+    states:
+      '(max-width: 800px)':
+        options:
+          defaultTabIndex: 1
+        styles:
+          isFadingIndicator: true
+          isMinWidthIndicator: true
+          minWidth: true
+          stacked: true
+        tabs:
+        - attributes:
+            label: Last Race
+          card:
+            card_type: last_result
+            f1_font: true
+            hide_tracklayout: true
+            sensor: sensor.formula_one_sensor_last_result
+            show_carnumber: true
+            standings:
+              show_flag: true
+              show_team: true
+            title: Last Race
+            type: custom:formulaone-card
+          styles:
+            --mdc-theme-primary: yellow
+        - attributes:
+            label: Next Race
+          card:
+            card_type: countdown
+            date_locale: in
+            f1_font: true
+            show_raceinfo: true
+            title: Next Race
+            type: custom:formulaone-card
+          styles:
+            --mdc-theme-primary: red
+        - attributes:
+            label: Schedule
+          card:
+            card_type: schedule
+            date_locale: in
+            f1_font: true
+            sensor: sensor.formula_one_sensor_races
+            standings:
+              show_flag: true
+            title: Schedule
+            type: custom:formulaone-card
+          styles:
+            --mdc-theme-primary: cyan
+        - attributes:
+            label: Driver Standings
+          card:
+            card_type: driver_standings
+            f1_font: true
+            show_carnumber: true
+            standings:
+              show_flag: true
+            title: Driver Standings
+            translations:
+              points: Points
+            type: custom:formulaone-card
+          styles:
+            --mdc-theme-primary: orange
+        - attributes:
+            label: Constructor Standings
+          card:
+            card_type: constructor_standings
+            f1_font: true
+            standings:
+              show_flag: true
+              show_team: true
+              show_teamlogo: true
+            title: Constructor Standings
+            translations:
+              points: Points
+            type: custom:formulaone-card
+          styles:
+            --mdc-theme-primary: purple
+        - attributes:
+            label: Results
+          card:
+            card_type: results
+            f1_font: true
+            hide_tracklayout: true
+            standings:
+              show_flag: true
+            title: Race Results
+            type: custom:formulaone-card
+          styles:
+            --mdc-theme-primary: tomato
+        type: custom:tabbed-card
+    type: custom:state-switch
   icon: mdi:racing-helmet
   layout:
     max_cols: 5

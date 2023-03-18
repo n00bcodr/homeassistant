@@ -281,21 +281,6 @@
   - service: script.add_shopping_list
     data: {}
   mode: single
-- id: hacs_sensor_refresh
-  alias: ⚙️HACS Sensor Refresh
-  description: Refreshes the HACS sensor once an update is installed.
-  trigger:
-  - platform: event
-    event_type: hacs/repository
-    event_data:
-      action: install
-  action:
-  - delay:
-      seconds: 4
-  - service: homeassistant.update_entity
-    target:
-      entity_id: sensor.hacs
-  initial_state: true
 - id: '1636974013216'
   alias: ⚙️Lovelace Reload
   description: ''
@@ -512,6 +497,7 @@
   trigger:
   - platform: tag
     tag_id: 73a21e41-133b-484e-a5a7-e8a2a7df1085
+    enabled: false
   - platform: event
     event_type: mobile_app_notification_action
     event_data:
@@ -675,55 +661,24 @@
       minutes: 5
       seconds: 0
   condition:
-  - condition: device
-    type: is_on
-    device_id: d12db564ed70f93b24fe2e6cbca174b8
-    entity_id: light.light
-    domain: light
+  - condition: or
+    conditions:
+    - condition: device
+      type: is_on
+      device_id: e7927153f5bb66e41b55bdb929403d8a
+      entity_id: light.light
+      domain: light
+    - condition: device
+      type: is_on
+      device_id: 6d1dbea0f4601c12e1d4c9814c77d0f2
+      entity_id: light.main_door_light
+      domain: light
+    - condition: device
+      type: is_on
+      device_id: 22d3b83188e1ace9ced42e13d76ce319
+      entity_id: light.shapes
+      domain: light
   action:
-  - service: homeassistant.turn_off
-    data: {}
-    target:
-      entity_id:
-      - light.light
-    enabled: false
-  - service: notify.mobile_app_10pro
-    data:
-      message: Going to Bed?
-      title: Going to Bed?
-      data:
-        notification_icon: mdi:bed-clock
-        icon_url: /local/images/bed.png
-        color: blue
-        actions:
-        - action: 'yes'
-          title: 'Yes'
-        - action: 'no'
-          title: 'No'
-    enabled: false
-  - wait_for_trigger:
-    - platform: event
-      event_type: mobile_app_notification_action
-      event_data:
-        action: 'no'
-      id: 'no'
-    - platform: event
-      event_type: mobile_app_notification_action
-      event_data:
-        action: 'yes'
-      id: 'yes'
-    continue_on_timeout: false
-    timeout:
-      hours: 0
-      minutes: 0
-      seconds: 0
-      milliseconds: 0
-    enabled: false
-  - if:
-    - condition: trigger
-      id: ''
-    then: []
-    enabled: false
   - service: script.new_script
     data: {}
   mode: single
@@ -852,7 +807,6 @@
         notification_icon: mdi:motion-sensor-off
         tag: den_off
         icon_url: /local/images/ninja.png
-        sticky: 'true'
   mode: single
 - id: '1671638172636'
   alias: "\U0001F3F0Replicate Monitor State"
@@ -1103,28 +1057,6 @@
     target:
       entity_id: '{{ states(''input_select.diffuser'') }}'
   mode: single
-- id: '1674595968013'
-  alias: "\U0001F4A1Turn off Chandelier if brightness is < 40%"
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - light.chandelier_light
-    attribute: brightness
-  condition:
-  - condition: template
-    value_template: '{{ state_attr("light.chandelier_light", "brightness") < 104 }}'
-  action:
-  - service: light.turn_on
-    data:
-      brightness: 255
-    target:
-      entity_id: light.chandelier_light
-  - service: light.turn_off
-    data: {}
-    target:
-      entity_id: light.chandelier_light
-  mode: single
 - id: '1674758476057'
   alias: "\U0001F4A1Living Room Light Motion"
   description: ''
@@ -1139,8 +1071,11 @@
     before: sunrise
     after: sunset
   - condition: state
-    entity_id: light.chandelier_light
+    entity_id: light.chandelier
     state: 'off'
+  - condition: numeric_state
+    entity_id: sensor.living_room_light
+    below: 10
   action:
   - service: homeassistant.turn_on
     data: {}
@@ -1224,11 +1159,11 @@
   description: ''
   trigger:
   - platform: time
-    at: 08:00:00
-  - platform: time
-    at: '15:30:00'
+    at: '11:00:00'
+    id: morning
   - platform: time
     at: '20:00:00'
+    id: night
   condition: []
   action:
   - choose:
@@ -1242,7 +1177,6 @@
           data:
             notification_icon: mdi:trash-can-outline
             icon_url: /local/images/black_bin.png
-            sticky: 'true'
           message: Pickup is in two days on {{ states.sensor.black_bin.state}}
           title: Black Bin
     - conditions:
@@ -1281,4 +1215,70 @@
             icon_url: /local/images/blue_bin.png
           message: Pickup is tomorrow on {{ states.sensor.blue_bin.state}}
           title: Blue Bin
+  mode: single
+- id: '1677184691191'
+  alias: "\U0001F525Start/stop Timer when heating is turned on/off"
+  description: ''
+  trigger:
+  - platform: device
+    type: turned_on
+    device_id: 3d06ea4b9a5706c224b9bab4c5e5d012
+    entity_id: switch.heating
+    domain: switch
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 0
+    id: 'on'
+  - platform: device
+    type: turned_off
+    device_id: 3d06ea4b9a5706c224b9bab4c5e5d012
+    entity_id: switch.heating
+    domain: switch
+    id: 'off'
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: 'on'
+      sequence:
+      - service: timer.start
+        data:
+          duration: 01:30:00
+        target:
+          entity_id: timer.heating
+    - conditions:
+      - condition: trigger
+        id: 'off'
+      sequence:
+      - service: timer.cancel
+        data: {}
+        target:
+          entity_id: timer.heating
+  mode: single
+- id: '1677263065986'
+  alias: "\U0001F525Turn off heating after X minutes"
+  description: ''
+  trigger:
+  - platform: event
+    event_type: timer.finished
+    event_data:
+      entity_id: timer.heating
+  condition:
+  - condition: state
+    entity_id: switch.heating
+    state: 'on'
+  action:
+  - service: switch.turn_off
+    data: {}
+    target:
+      entity_id: switch.heating
+    enabled: true
+  - service: notify.all_phones
+    data:
+      message: at  {{ as_timestamp(now()) | timestamp_custom('%-I:%M %p')}}
+      title: "\U0001F525 Turned off"
+      data:
+        notification_icon: mdi:fire
   mode: single

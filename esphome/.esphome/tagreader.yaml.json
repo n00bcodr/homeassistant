@@ -1,8 +1,9 @@
 {
   "storage_version": 1,
   "name": "tagreader",
+  "friendly_name": null,
   "comment": null,
-  "esphome_version": "2022.12.8",
+  "esphome_version": "2023.2.2",
   "src_version": 1,
   "address": "tagreader.local",
   "web_port": null,
@@ -19,6 +20,7 @@
     "esp8266_pwm",
     "esphome",
     "i2c",
+    "improv_base",
     "improv_serial",
     "light",
     "logger",

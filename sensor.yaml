@@ -205,3 +205,19 @@
   icon: mdi:keyboard-f1
 
 - platform: formulaone_api
+
+- platform: plex_recently_added
+  name: Recently Added Movies # will create sensor.recently_added_movies
+  token: !secret plex_token
+  host: !secret plex_host
+  port: 32400
+  section_types:
+    - movie
+
+- platform: plex_recently_added
+  name: Recently Added TV  # will create sensor.recently_added_tv
+  token: !secret plex_token
+  host: !secret plex_host
+  port: 32400
+  section_types:
+    - show

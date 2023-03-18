@@ -18,6 +18,7 @@ bluetooth_proxy::BluetoothProxy *bluetooth_proxy_bluetoothproxy;
 bluetooth_proxy::BluetoothConnection *bluetooth_proxy_bluetoothconnection;
 bluetooth_proxy::BluetoothConnection *bluetooth_proxy_bluetoothconnection_2;
 bluetooth_proxy::BluetoothConnection *bluetooth_proxy_bluetoothconnection_3;
+esp32_ble::ESP32BLE *esp32_ble_esp32ble;
 // ========== AUTO GENERATED INCLUDE BLOCK END ==========="
 
 void setup() {
@@ -29,11 +30,12 @@ void setup() {
   //     name: esphome.bluetooth-proxy
   //     version: '1.0'
   //   build_path: .esphome/build/bluetoothproxy
+  //   friendly_name: ''
   //   platformio_options: {}
   //   includes: []
   //   libraries: []
-  //   min_version: 2022.12.8
-  App.pre_setup("bluetoothproxy", __DATE__ ", " __TIME__, true);
+  //   min_version: 2023.2.0
+  App.pre_setup("bluetoothproxy", "", "", __DATE__ ", " __TIME__, true);
   // logger:
   //   level: VERY_VERBOSE
   //   id: logger_logger
@@ -90,6 +92,7 @@ void setup() {
   // mdns:
   //   id: mdns_mdnscomponent
   //   disabled: false
+  //   services: []
   mdns_mdnscomponent = new mdns::MDNSComponent();
   mdns_mdnscomponent->set_component_source("mdns");
   App.register_component(mdns_mdnscomponent);
@@ -150,14 +153,10 @@ void setup() {
   //     duration: 5min
   //     continuous: true
   //   id: esp32_ble_tracker_esp32bletracker
+  //   ble_id: esp32_ble_esp32ble
   esp32_ble_tracker_esp32bletracker = new esp32_ble_tracker::ESP32BLETracker();
   esp32_ble_tracker_esp32bletracker->set_component_source("esp32_ble_tracker");
   App.register_component(esp32_ble_tracker_esp32bletracker);
-  esp32_ble_tracker_esp32bletracker->set_scan_duration(300);
-  esp32_ble_tracker_esp32bletracker->set_scan_interval(160);
-  esp32_ble_tracker_esp32bletracker->set_scan_window(160);
-  esp32_ble_tracker_esp32bletracker->set_scan_active(true);
-  esp32_ble_tracker_esp32bletracker->set_scan_continuous(true);
   // bluetooth_proxy:
   //   active: true
   //   id: bluetooth_proxy_bluetoothproxy
@@ -194,6 +193,19 @@ void setup() {
   //   implementation: bsd_sockets
   // network:
   //   enable_ipv6: false
+  // esp32_ble:
+  //   id: esp32_ble_esp32ble
+  esp32_ble_esp32ble = new esp32_ble::ESP32BLE();
+  esp32_ble_esp32ble->set_component_source("esp32_ble");
+  App.register_component(esp32_ble_esp32ble);
+  esp32_ble_esp32ble->register_gap_event_handler(esp32_ble_tracker_esp32bletracker);
+  esp32_ble_esp32ble->register_gattc_event_handler(esp32_ble_tracker_esp32bletracker);
+  esp32_ble_tracker_esp32bletracker->set_parent(esp32_ble_esp32ble);
+  esp32_ble_tracker_esp32bletracker->set_scan_duration(300);
+  esp32_ble_tracker_esp32bletracker->set_scan_interval(160);
+  esp32_ble_tracker_esp32bletracker->set_scan_window(160);
+  esp32_ble_tracker_esp32bletracker->set_scan_active(true);
+  esp32_ble_tracker_esp32bletracker->set_scan_continuous(true);
   // =========== AUTO GENERATED CODE END ============
   App.setup();
 }

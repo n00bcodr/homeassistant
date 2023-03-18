@@ -11,7 +11,7 @@ logger:
   default: critical
   logs:
     homeassistant.components.shell_command: debug
-    homeassistant.components.withings: debug
+    homeassistant.components.plex_recently_added: debug
 python_script:
 
 my:

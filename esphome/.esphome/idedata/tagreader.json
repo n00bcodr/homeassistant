@@ -147,8 +147,8 @@
     "toolchain": [
       "/data/cache/platformio/packages/toolchain-xtensa/xtensa-lx106-elf/include/c++/10.3.0",
       "/data/cache/platformio/packages/toolchain-xtensa/xtensa-lx106-elf/include/c++/10.3.0/xtensa-lx106-elf",
-      "/data/cache/platformio/packages/toolchain-xtensa/lib/gcc/xtensa-lx106-elf/10.3.0/include",
       "/data/cache/platformio/packages/toolchain-xtensa/lib/gcc/xtensa-lx106-elf/10.3.0/include-fixed",
+      "/data/cache/platformio/packages/toolchain-xtensa/lib/gcc/xtensa-lx106-elf/10.3.0/include",
       "/data/cache/platformio/packages/toolchain-xtensa/xtensa-lx106-elf/include"
     ]
   },

@@ -100,7 +100,7 @@ load_share_url_googletv:
   mode: single
   icon: mdi:monitor-share
 new_script:
-  alias: New Script
+  alias: Bed Routine Script
   sequence:
   - variables:
       action_yes: '{{ ''YES_'' ~ context.id }}'
@@ -129,21 +129,45 @@ new_script:
     continue_on_timeout: true
     timeout:
       hours: 0
-      minutes: 10
+      minutes: 15
       seconds: 0
       milliseconds: 0
   - choose:
     - conditions: '{{ wait.trigger.event.data.action == action_yes }}'
       sequence:
-      - service: light.turn_off
+      - service: homeassistant.turn_off
         data: {}
         target:
-          entity_id: light.light
+          entity_id:
+          - light.light
+          - light.main_door_light
+          - light.shapes
+          - light.chandelier
+          - switch.dragon
     - conditions: '{{ wait.trigger.event.data.action == action_no }}'
       sequence:
       - stop: ''
-  - service: light.turn_off
+  - service: homeassistant.turn_off
     data: {}
     target:
-      entity_id: light.light
+      entity_id:
+      - light.light
+      - light.main_door_light
+      - light.shapes
+      - light.chandelier
+      - switch.dragon
   mode: single
+  icon: mdi:bed-clock
+led_strip:
+  alias: LED Strip
+  sequence:
+  - service: remote.send_command
+    data:
+      num_repeats: 1
+      delay_secs: 0.4
+      hold_secs: 0
+      command: b64:JgBYAAABI5QSExMTEhMSExITExMSExITEjgSNxI4EjcTNxI3EzcSOBITEhMSExMSExMSExI3ExMSNxM3EjcTNxI3EzcSExM3EgAFGgABKkgSAAxQAAEmSxIADQU=
+    target:
+      entity_id: remote.rm3
+  mode: single
+  icon: mdi:led-strip-variant
