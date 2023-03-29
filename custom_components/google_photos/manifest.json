@@ -18,5 +18,5 @@
     "google-api-python-client>=2.71.0",
     "pillow>=9.1.1,<10.0.0"
   ],
-  "version": "v0.4.2"
+  "version": "v0.4.3"
 }
