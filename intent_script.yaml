@@ -10,9 +10,9 @@ work:
     service: homeassistant.turn_on
     data:
       entity_id:
-        - switch.monitor_1_socket_1
+        - switch.monitor_1
         - light.light
-        - switch.monitor_2_socket_1
+        - switch.monitor_2
 internetspeed:
   speech:
     text: Current Internet Speed is {{states.sensor.download_speed.state}}

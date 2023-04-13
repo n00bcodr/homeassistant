@@ -2,8 +2,7 @@ den:
   name: Den
   entities:
     - light.light
-    - switch.monitor_2_socket_1
-    - switch.monitor_1_socket_1
+    - switch.monitor_2
+    - switch.monitor_1
     - light.shapes
-    - switch.heater_socket_1
   icon: mdi:castle

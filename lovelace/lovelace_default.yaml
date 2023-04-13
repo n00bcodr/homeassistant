@@ -163,7 +163,7 @@ views:
           data:
             browser_id: THIS
             content:
-              type: custom:sun-card
+              type: custom:horizon-card
           service: browser_mod.popup
     - entity: sensor.moon_phase
       name: ''
@@ -373,24 +373,20 @@ views:
     - cards:
       - badge_color: ''
         badge_icon: ''
-        entity: switch.monitor_1_socket_1
-        icon: '{{ iif(is_state(''switch.monitor_1_socket_1'', ''on''), ''mdi:monitor'',
-          ''mdi:monitor-off'')}}'
-        icon_color: '{{ iif(is_state(''switch.monitor_1_socket_1'', ''on''), ''blue'',
-          ''disabled'')}}'
+        entity: switch.monitor_1
+        icon: '{{ iif(is_state(''switch.monitor_1'', ''on''), ''mdi:monitor'', ''mdi:monitor-off'')}}'
+        icon_color: '{{ iif(is_state(''switch.monitor_1'', ''on''), ''blue'', ''disabled'')}}'
         primary: Monitor 1
-        secondary: '{{ iif(is_state(''switch.monitor_1_socket_1'', ''on''), (states.sensor.monitor_1_power.state
+        secondary: '{{ iif(is_state(''switch.monitor_1'', ''on''), (states.sensor.monitor_1_power.state
           + " W"), ''Off'')}}'
         type: custom:mushroom-template-card
       - badge_color: ''
         badge_icon: ''
-        entity: switch.monitor_2_socket_1
-        icon: '{{ iif(is_state(''switch.monitor_2_socket_1'', ''on''), ''mdi:monitor'',
-          ''mdi:monitor-off'')}}'
-        icon_color: '{{ iif(is_state(''switch.monitor_2_socket_1'', ''on''), ''purple'',
-          ''disabled'')}}'
+        entity: switch.monitor_2
+        icon: '{{ iif(is_state(''switch.monitor_2'', ''on''), ''mdi:monitor'', ''mdi:monitor-off'')}}'
+        icon_color: '{{ iif(is_state(''switch.monitor_2'', ''on''), ''purple'', ''disabled'')}}'
         primary: Monitor 2
-        secondary: '{{ iif(is_state(''switch.monitor_2_socket_1'', ''on''), (states.sensor.monitor_2_power.state
+        secondary: '{{ iif(is_state(''switch.monitor_2'', ''on''), (states.sensor.monitor_2_power.state
           + " W"), ''Off'')}}'
         type: custom:mushroom-template-card
       columns: 2
@@ -398,23 +394,12 @@ views:
       type: grid
     - badge_color: ''
       badge_icon: ''
-      entity: switch.heater_socket_1
-      icon: '{{ iif(is_state(''switch.heater_socket_1'', ''on''), ''mdi:radiator'',
-        ''mdi:radiator-disabled'')}}'
-      icon_color: '{{ iif(is_state(''switch.heater_socket_1'', ''on''), ''red'', ''disabled'')}}'
-      primary: Heater
-      secondary: '{{ iif(is_state(''switch.heater_socket_1'', ''on''), (states.sensor.heater_power.state
-        + " W"), ''Off'')}}'
-      type: custom:mushroom-template-card
-    - badge_color: ''
-      badge_icon: ''
-      entity: switch.smart_plug_socket_1
-      icon: '{{ iif(is_state(''switch.smart_plug_socket_1'', ''on''), ''mdi:power-plug'',
-        ''mdi:power-plug-off-outline'')}}'
-      icon_color: '{{ iif(is_state(''switch.smart_plug_socket_1'', ''on''), iif(is_state(''sensor.smart_plug_power'',
+      entity: switch.charger
+      icon: '{{ iif(is_state(''switch.charger'', ''on''), ''mdi:power-plug'', ''mdi:power-plug-off-outline'')}}'
+      icon_color: '{{ iif(is_state(''switch.charger'', ''on''), iif(is_state(''sensor.charger_power'',
         ''0.0''), ''green'', ''yellow''), ''disabled'')}}'
       primary: Charger
-      secondary: '{{ iif(is_state(''switch.smart_plug_socket_1'', ''on''), (states.sensor.smart_plug_power.state
+      secondary: '{{ iif(is_state(''switch.charger'', ''on''), (states.sensor.charger_power.state
         + " W"), ''Off'')}}'
       type: custom:mushroom-template-card
     - collapsible_controls: true
@@ -720,25 +705,6 @@ views:
     type: custom:state-switch
     view_layout:
       column: 1
-  - camera_view: auto
-    entity: camera.google_photos_favorites_media
-    show_name: false
-    show_state: false
-    tap_action:
-      action: call-service
-      data:
-        mode: Album order
-      service: google_photos.next_media
-      target:
-        entity_id: camera.google_photos_favorites_media
-    type: picture-entity
-    view_layout:
-      column: 3
-  - entities:
-    - entity: binary_sensor.0x00124b0022659345_contact
-      name: Contact
-    title: Door
-    type: entities
   icon: mdi:castle
   layout:
     max_cols: 3
@@ -753,41 +719,6 @@ views:
   - entity: user
     states:
       Darragh Clerkin:
-        badges:
-        - entity: sensor.download_speed
-          hold_action:
-            action: more-info
-          name: Internet Speed
-          style: ':host {
-
-            --label-badge-red: teal;
-
-            }
-
-            '
-          tap_action:
-            action: call-service
-            service: homeassistant.update_entity
-            service_data:
-              entity_id: sensor.speedtest_download
-          unit_of_measurement: Mbps
-        - entity: binary_sensor.living_room_motion_occupancy
-          name: Living Room Motion
-          style: ":host {\n  --label-badge-blue:\n    {% if is_state('binary_sensor.living_room_motion_occupancy','on')\
-            \ %}\n      red\n    {% else %}\n      green\n    {% endif %}\n    ;\n\
-            }\n"
-        - entity: sensor.living_room_temperature
-          name: Temperature
-          style: ":host {\n  --label-badge-red:\n    {% if states('sensor.living_room_temperature')\
-            \ | float <= 15 %}\n      blue\n    {% else %}\n      yellow\n    {% endif\
-            \ %}\n    ;\n}\n"
-        type: custom:badge-card
-    type: custom:state-switch
-    view_layout:
-      column: 1
-  - entity: user
-    states:
-      Darragh Clerkin:
         backdrop: true
         entity: weather.home
         name: ' '
@@ -798,14 +729,35 @@ views:
     type: custom:state-switch
     view_layout:
       column: 1
+  - entity: user
+    states:
+      Darragh Clerkin:
+        content: '{{ states("sensor.random_joke") }}'
+        type: markdown
+    type: custom:state-switch
+    view_layout:
+      column: 1
   - alignment: center
     chips:
-    - entity: binary_sensor.living_room_motion_occupancy
-      type: entity
     - entity: sensor.living_room_temperature
       icon_color: blue
       type: entity
       use_entity_picture: false
+    - content_info: name
+      entity: binary_sensor.living_room_motion_occupancy
+      icon_color: deep-orange
+      name: Living Room
+      type: entity
+    - content_info: name
+      entity: binary_sensor.kitchen_motion_occupancy
+      icon_color: yellow
+      name: Kitchen
+      type: entity
+    - content_info: name
+      entity: binary_sensor.entrance_motion_occupancy
+      icon_color: teal
+      name: Entrance
+      type: entity
     type: custom:mushroom-chips-card
   - cards:
     - badge_icon: ''
@@ -884,15 +836,12 @@ views:
         service_data:
           entity_id: switch.heating
       type: custom:button-card
-    - entity: script.led_strip
+    - collapsible_controls: true
+      entity: light.led_strip
       icon: mdi:led-strip-variant
-      icon_color: purple
-      picture: ''
-      primary: LED Strip
-      secondary: ''
-      tap_action:
-        action: toggle
-      type: custom:mushroom-template-card
+      show_color_control: true
+      type: custom:mushroom-light-card
+      use_light_color: true
     - entity: switch.dragon
       icon: fas:dragon
       icon_color: teal
@@ -902,22 +851,38 @@ views:
       tap_action:
         action: toggle
       type: custom:mushroom-entity-card
+    - badge_icon: ''
+      entity: switch.kitchen_light
+      icon: mdi:dome-light
+      icon_color: '{{ iif(is_state(''switch.kitchen_light'', ''on''), ''brown'', ''disabled'')}}'
+      primary: Kitchen Light
+      secondary: '{{ states.switch.kitchen_light.state}}'
+      type: custom:mushroom-template-card
     type: vertical-stack
     view_layout:
       column: 1
-  - entity: user
-    states:
-      Darragh Clerkin:
-        content: '{{ states("sensor.random_joke") }}'
-        type: markdown
-    type: custom:state-switch
-    view_layout:
-      column: 1
-  - entity: light.main_door_light
-    fill_container: false
-    icon: hue:bulb-classic-hung
-    type: custom:mushroom-light-card
-    use_light_color: true
+  - cards:
+    - badge_color: ''
+      badge_icon: ''
+      entity: switch.string_lights_socket_1
+      icon: '{{ iif(is_state(''switch.string_lights_socket_1'', ''on''), ''mdi:string-lights'',
+        ''mdi:string-lights-off'')}}'
+      icon_color: '{{ iif(is_state(''switch.string_lights_socket_1'', ''on''), ''yellow'',
+        ''disabled'')}}'
+      picture: ''
+      primary: String Lights
+      secondary: 'Turned {{states.switch.string_lights_socket_1.state}} at
+
+        {{(as_timestamp(states.switch.string_lights_socket_1.last_updated) |
+
+        timestamp_custom(''%-I:%M %p''))}}'
+      type: custom:mushroom-template-card
+    - entity: light.entrance_light
+      fill_container: false
+      icon: hue:bulb-classic-hung
+      type: custom:mushroom-light-card
+      use_light_color: true
+    type: vertical-stack
     view_layout:
       column: 1
   - cards:
@@ -1291,6 +1256,26 @@ views:
     - volume_mute
     - volume_set
     - volume_buttons
+  - cards:
+    - entity: sensor.living_room_motion_illuminance_lux
+      fill_container: false
+      icon_color: purple
+      name: Living Room
+      primary_info: state
+      secondary_info: name
+      type: custom:mushroom-entity-card
+    - entity: sensor.kitchen_motion_illuminance
+      icon_color: amber
+      name: Kitchen
+      primary_info: state
+      secondary_info: name
+      type: custom:mushroom-entity-card
+    - entity: sensor.living_room_light
+      name: ESP
+      primary_info: state
+      secondary_info: name
+      type: custom:mushroom-entity-card
+    type: horizontal-stack
   icon: mdi:sofa
   layout:
     max_cols: 3
@@ -1884,6 +1869,7 @@ views:
           - icon: mdi:text
             name: Suggested Commit - files on {{ now().timestamp() | timestamp_custom('%b
               %d, %Y - %-I:%M %p') }}
+            state: ''
             tap_action: none
             type: custom:template-entity-row
           - entity: input_text.git_commit_message
@@ -2017,6 +2003,10 @@ views:
         - entity: sensor.den_motion_battery
           tap_action: more-info
         - entity: sensor.living_room_motion_battery
+          tap_action: more-info
+        - entity: sensor.entrance_motion_battery
+          tap_action: more-info
+        - entity: sensor.kitchen_motion_battery
           tap_action: more-info
         - entity: sensor.den_door_battery
           tap_action: more-info
@@ -2204,6 +2194,25 @@ views:
           exclude: []
           include:
           - name: "/\U0001F3F0/"
+          show_empty: true
+          sort:
+            ignore_case: false
+            method: last_triggered
+        type: custom:auto-entities
+      styles:
+        --mdc-theme-primary: cyan
+    - attributes:
+        icon: mdi:lightbulb
+        label: Light
+      card:
+        card:
+          show_header_toggle: false
+          state_color: false
+          type: entities
+        filter:
+          exclude: []
+          include:
+          - name: "/\U0001F4A1/"
           show_empty: true
           sort:
             ignore_case: false

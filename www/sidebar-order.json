@@ -1,65 +1,84 @@
 {
   "order": [
-    { "item": "Overview" },
-    { "item": "Wall Mount" },
-    { "item": "HACS" },
-    { "item": "Frigate" },
-    { "item": "Studio Code Server" },
-    { "item": "Media" },
-    { "item": "Calendar" },
+    { "item": "Overview",
+      "order": 0
+    },
+    { "item": "HACS",
+      "order": 1
+    },
+    { "item": "Studio Code Server",
+      "order": 2
+    },
+    { "item": "Media",
+      "order": 3
+    },
+    { "item": "Calendar",
+      "order": 4
+    },
     { 
       "item": "Browser Mod" ,
-      "icon": "mdi:web-box"
+      "icon": "mdi:web-box",
+      "order": 5
     },
     
     {
       "new_item": true,
       "item": "Automations",
       "href": "/config/automation/dashboard",
-      "icon": "mdi:robot-confused-outline"
+      "icon": "mdi:robot-confused-outline",
+      "order": 6
     },
     {
       "new_item": true,
       "item": "Integrations",
       "href": "/config/integrations",
       "icon": "fas:cogs",
-      "bottom": true
+      "bottom": true,
+      "order": 7
     },
     {
       "new_item": true,
       "item": "Supervisor",
       "href": "/hassio/dashboard",
       "icon": "mdi:home-assistant",
-      "bottom": true
+      "bottom": true,
+      "order": 8
     },
     {
       "new_item": true,
       "item": "Server Controls",
       "href": "/developer-tools/yaml",
       "icon": "mdi:server-network",
-      "bottom": true
+      "bottom": true,
+      "order": 9
     },
     {
       "new_item": true,
       "item": "Tools",
       "href": "/developer-tools/state",
       "icon": "mdi:hammer",
-      "bottom": true
+      "bottom": true,
+      "order": 10
     },
     {
       "item": "Settings",
-      "bottom": true
-    },
-    {
-      "item": "snapshots",
-      "bottom": true
-    },
-    {
-      "item": "backups",
-      "bottom": true
+      "bottom": true,
+      "order": 11
     },
     {
       "item": "map",
+      "hide": true
+    },
+    {
+      "item": "Logbook",
+      "hide": true
+    },
+    {
+      "item": "History",
+      "hide": true
+    },
+    {
+      "item": "Shopping List",
       "hide": true
     },
     {
@@ -67,4 +86,4 @@
       "hide": true
     }
   ]
- }
+}

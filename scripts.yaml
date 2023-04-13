@@ -110,6 +110,7 @@ new_script:
       message: Going to Bed?
       data:
         notification_icon: mdi:bed-clock
+        tag: bed
         icon_url: https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/apple/325/bed_1f6cf-fe0f.png?raw=true
         color: blue
         actions:
@@ -140,7 +141,7 @@ new_script:
         target:
           entity_id:
           - light.light
-          - light.main_door_light
+          - light.entrance_light
           - light.shapes
           - light.chandelier
           - switch.dragon
@@ -152,10 +153,15 @@ new_script:
     target:
       entity_id:
       - light.light
-      - light.main_door_light
+      - light.entrance_light
       - light.shapes
       - light.chandelier
       - switch.dragon
+  - service: notify.mobile_app_10pro
+    data:
+      message: clear_notification
+      data:
+        tag: bed
   mode: single
   icon: mdi:bed-clock
 led_strip:
