@@ -159,7 +159,7 @@ void setup() {
   //   includes: []
   //   libraries: []
   //   name_add_mac_suffix: false
-  //   min_version: 2023.2.2
+  //   min_version: 2023.4.2
   App.pre_setup("tagreader", "", "", __DATE__ ", " __TIME__, false);
   // switch:
   // button:
@@ -374,15 +374,16 @@ void setup() {
   //   restore_state: true
   //   entity_category: config
   //   disabled_by_default: false
-  //   restore_mode: RESTORE_DEFAULT_OFF
+  //   restore_mode: ALWAYS_OFF
   //   assumed_state: false
   buzzer_enabled = new template_::TemplateSwitch();
   App.register_switch(buzzer_enabled);
   buzzer_enabled->set_name("Tag Reader Buzzer Enabled");
+  buzzer_enabled->set_object_id("tag_reader_buzzer_enabled");
   buzzer_enabled->set_disabled_by_default(false);
   buzzer_enabled->set_icon("mdi:volume-high");
   buzzer_enabled->set_entity_category(::ENTITY_CATEGORY_CONFIG);
-  buzzer_enabled->set_restore_mode(switch_::SWITCH_RESTORE_DEFAULT_OFF);
+  buzzer_enabled->set_restore_mode(switch_::SWITCH_ALWAYS_OFF);
   buzzer_enabled->set_component_source("template.switch");
   App.register_component(buzzer_enabled);
   buzzer_enabled->set_optimistic(true);
@@ -397,15 +398,16 @@ void setup() {
   //   restore_state: true
   //   entity_category: config
   //   disabled_by_default: false
-  //   restore_mode: RESTORE_DEFAULT_OFF
+  //   restore_mode: ALWAYS_OFF
   //   assumed_state: false
   led_enabled = new template_::TemplateSwitch();
   App.register_switch(led_enabled);
   led_enabled->set_name("Tag Reader LED enabled");
+  led_enabled->set_object_id("tag_reader_led_enabled");
   led_enabled->set_disabled_by_default(false);
   led_enabled->set_icon("mdi:alarm-light-outline");
   led_enabled->set_entity_category(::ENTITY_CATEGORY_CONFIG);
-  led_enabled->set_restore_mode(switch_::SWITCH_RESTORE_DEFAULT_OFF);
+  led_enabled->set_restore_mode(switch_::SWITCH_ALWAYS_OFF);
   led_enabled->set_component_source("template.switch");
   App.register_component(led_enabled);
   led_enabled->set_optimistic(true);
@@ -462,6 +464,7 @@ void setup() {
   write_tag_random = new template_::TemplateButton();
   App.register_button(write_tag_random);
   write_tag_random->set_name("Write Tag Random");
+  write_tag_random->set_object_id("write_tag_random");
   write_tag_random->set_disabled_by_default(false);
   write_tag_random->set_icon("mdi:pencil-box");
   button_buttonpresstrigger = new button::ButtonPressTrigger(write_tag_random);
@@ -502,6 +505,7 @@ void setup() {
   clean_tag = new template_::TemplateButton();
   App.register_button(clean_tag);
   clean_tag->set_name("Clean Tag");
+  clean_tag->set_object_id("clean_tag");
   clean_tag->set_disabled_by_default(false);
   clean_tag->set_icon("mdi:nfc-variant-off");
   button_buttonpresstrigger_2 = new button::ButtonPressTrigger(clean_tag);
@@ -522,6 +526,7 @@ void setup() {
   cancel_writing = new template_::TemplateButton();
   App.register_button(cancel_writing);
   cancel_writing->set_name("Cancel writing");
+  cancel_writing->set_object_id("cancel_writing");
   cancel_writing->set_disabled_by_default(false);
   cancel_writing->set_icon("mdi:pencil-off");
   button_buttonpresstrigger_3 = new button::ButtonPressTrigger(cancel_writing);
@@ -531,13 +536,14 @@ void setup() {
   //   name: Tag Reader Restart
   //   entity_category: config
   //   disabled_by_default: false
-  //   device_class: restart
   //   id: restart_restartbutton
+  //   device_class: restart
   restart_restartbutton = new restart::RestartButton();
   restart_restartbutton->set_component_source("restart.button");
   App.register_component(restart_restartbutton);
   App.register_button(restart_restartbutton);
   restart_restartbutton->set_name("Tag Reader Restart");
+  restart_restartbutton->set_object_id("tag_reader_restart");
   restart_restartbutton->set_disabled_by_default(false);
   restart_restartbutton->set_entity_category(::ENTITY_CATEGORY_CONFIG);
   restart_restartbutton->set_device_class("restart");
@@ -663,6 +669,7 @@ void setup() {
   status_statusbinarysensor = new status::StatusBinarySensor();
   App.register_binary_sensor(status_statusbinarysensor);
   status_statusbinarysensor->set_name("Tag Reader Status");
+  status_statusbinarysensor->set_object_id("tag_reader_status");
   status_statusbinarysensor->set_disabled_by_default(false);
   status_statusbinarysensor->set_entity_category(::ENTITY_CATEGORY_DIAGNOSTIC);
   status_statusbinarysensor->set_device_class("connectivity");
@@ -679,6 +686,7 @@ void setup() {
   version_versiontextsensor = new version::VersionTextSensor();
   App.register_text_sensor(version_versiontextsensor);
   version_versiontextsensor->set_name("Tag Reader ESPHome Version");
+  version_versiontextsensor->set_object_id("tag_reader_esphome_version");
   version_versiontextsensor->set_disabled_by_default(false);
   version_versiontextsensor->set_icon("mdi:new-box");
   version_versiontextsensor->set_entity_category(::ENTITY_CATEGORY_DIAGNOSTIC);
@@ -704,6 +712,7 @@ void setup() {
   wifi_info_ipaddresswifiinfo = new wifi_info::IPAddressWiFiInfo();
   App.register_text_sensor(wifi_info_ipaddresswifiinfo);
   wifi_info_ipaddresswifiinfo->set_name("Tag Reader IP Address");
+  wifi_info_ipaddresswifiinfo->set_object_id("tag_reader_ip_address");
   wifi_info_ipaddresswifiinfo->set_disabled_by_default(false);
   wifi_info_ipaddresswifiinfo->set_icon("mdi:ip");
   wifi_info_ipaddresswifiinfo->set_entity_category(::ENTITY_CATEGORY_DIAGNOSTIC);
@@ -713,6 +722,7 @@ void setup() {
   wifi_info_ssidwifiinfo = new wifi_info::SSIDWiFiInfo();
   App.register_text_sensor(wifi_info_ssidwifiinfo);
   wifi_info_ssidwifiinfo->set_name("Tag Reader Connected SSID");
+  wifi_info_ssidwifiinfo->set_object_id("tag_reader_connected_ssid");
   wifi_info_ssidwifiinfo->set_disabled_by_default(false);
   wifi_info_ssidwifiinfo->set_icon("mdi:wifi");
   wifi_info_ssidwifiinfo->set_entity_category(::ENTITY_CATEGORY_DIAGNOSTIC);
@@ -749,6 +759,7 @@ void setup() {
   activity_led->set_component_source("light");
   App.register_component(activity_led);
   activity_led->set_name("Tag Reader LED");
+  activity_led->set_object_id("tag_reader_led");
   activity_led->set_disabled_by_default(false);
   activity_led->set_restore_mode(light::LIGHT_ALWAYS_OFF);
   activity_led->set_default_transition_length(1000);

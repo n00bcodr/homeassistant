@@ -30,6 +30,3 @@
   name: Updater Addons
   entity_id: sensor.supervisor_updates
   upper: 0.5
-
-- platform: workday
-  country: IE

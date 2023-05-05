@@ -1,179 +1,173 @@
 spotify_start:
-  alias: 'Spotify: Start Playback'
+  alias: "Spotify: Start Playback"
   sequence:
-  - service: spotcast.start
-    data:
-      device_name: '{{ states(''input_select.speakers_spotify'') }}'
-      force_playback: true
+    - service: spotcast.start
+      data:
+        device_name: "{{ states('input_select.speakers_spotify') }}"
+        force_playback: true
   mode: single
   icon: mdi:spotify
 add_shopping_list:
   alias: Add Shopping Item
   sequence:
-  - service: shopping_list.add_item
-    data:
-      name: '{{ states(''input_text.shopping_list'') }}'
+    - service: shopping_list.add_item
+      data:
+        name: "{{ states('input_text.shopping_list') }}"
   mode: single
 check_shopping_list:
   alias: Check all Shopping Item
   sequence:
-  - service: shopping_list.complete_all
-    data: {}
+    - service: shopping_list.complete_all
+      data: {}
   mode: single
 clear_shopping_list:
   alias: Clear all Shopping Item
   sequence:
-  - service: shopping_list.clear_completed_items
-    data: {}
+    - service: shopping_list.clear_completed_items
+      data: {}
   mode: single
 update_all_phone_sensors:
   alias: Update all phone sensors
   sequence:
-  - service: notify.all_phones
-    data:
-      message: command_update_sensors
+    - service: notify.all_phones
+      data:
+        message: command_update_sensors
   mode: single
   icon: mdi:cellphone-arrow-down
 git_push:
   alias: Git Push
   sequence:
-  - service: shell_command.git_commit_push
-    data: {}
+    - service: shell_command.git_commit_push
+      data: {}
   mode: single
   icon: mdi:git
 git_push_ha_version:
   alias: Git Push - Core Update
   sequence:
-  - service: shell_command.git_core_update_push
-    data: {}
+    - service: shell_command.git_core_update_push
+      data: {}
   mode: single
   icon: mdi:git
 git_commit_copy:
   alias: Git Commit Message Copy
   sequence:
-  - service: input_text.set_value
-    data:
-      value: "\U0001F4C1 files on {{ now().timestamp() | timestamp_custom('%b %d,
-        %Y - %-I:%M %p') }}"
-    target:
-      entity_id: input_text.git_commit_message
+    - service: input_text.set_value
+      data:
+        value:
+          "\U0001F4C1 files on {{ now().timestamp() | timestamp_custom('%b %d,
+          %Y - %-I:%M %p') }}"
+      target:
+        entity_id: input_text.git_commit_message
   mode: single
   icon: fas:paste
 load_share_url_googletv:
   alias: Load Content from Shared URL - Google TV
   sequence:
-  - choose:
-    - conditions:
-      - condition: template
-        value_template: '{{ states(''input_text.ccgtv_share_url'') is match(''http.*primevideo'',
-          ignorecase=False) }}'
-      sequence:
-      - service: androidtv.adb_command
-        data:
-          entity_id: media_player.google_tv
-          command: am start -a android.intent.action.VIEW -n com.amazon.amazonvideo.livingroom/com.amazon.ignition.IgnitionActivity
-            -d {{ states('input_text.ccgtv_share_url') }}
-    - conditions:
-      - condition: template
-        value_template: '{{ states(''input_text.ccgtv_share_url'') is match(''http.*netflix.com'',
-          ignorecase=False) }}'
-      sequence:
-      - service: androidtv.adb_command
-        data:
-          entity_id: media_player.google_tv
-          command: am start -n com.netflix.ninja/.MainActivity -a android.intent.action.VIEW
-            -d netflix://title/{{ states('input_text.ccgtv_share_url')|regex_findall_index(find='netflix.com(?:.*?)([0-9]+)',
-            index=0, ignorecase=False) }} -f 0x10000020 -e "amzn_deeplink_data" "{{
-            states('input_text.ccgtv_share_url')|regex_findall_index(find='netflix.com(?:.*?)([0-9]+)',
-            index=0, ignorecase=False) }}"
-    - conditions:
-      - condition: template
-        value_template: '{{ states(''input_text.ccgtv_share_url'') is match(''http.*youtu*'',
-          ignorecase=False) }}'
-      sequence:
-      - service: androidtv.adb_command
-        data:
-          entity_id: media_player.google_tv
-          command: am start -a android.intent.action.VIEW -d "{{states('input_text.ccgtv_share_url')
-            }}" com.google.android.youtube.tv
-    default: []
+    - choose:
+        - conditions:
+            - condition: template
+              value_template:
+                "{{ states('input_text.ccgtv_share_url') is match('http.*primevideo',
+                ignorecase=False) }}"
+          sequence:
+            - service: androidtv.adb_command
+              data:
+                entity_id: media_player.google_tv
+                command:
+                  am start -a android.intent.action.VIEW -n com.amazon.amazonvideo.livingroom/com.amazon.ignition.IgnitionActivity
+                  -d {{ states('input_text.ccgtv_share_url') }}
+        - conditions:
+            - condition: template
+              value_template:
+                "{{ states('input_text.ccgtv_share_url') is match('http.*netflix.com',
+                ignorecase=False) }}"
+          sequence:
+            - service: androidtv.adb_command
+              data:
+                entity_id: media_player.google_tv
+                command:
+                  am start -n com.netflix.ninja/.MainActivity -a android.intent.action.VIEW
+                  -d netflix://title/{{ states('input_text.ccgtv_share_url')|regex_findall_index(find='netflix.com(?:.*?)([0-9]+)',
+                  index=0, ignorecase=False) }} -f 0x10000020 -e "amzn_deeplink_data" "{{
+                  states('input_text.ccgtv_share_url')|regex_findall_index(find='netflix.com(?:.*?)([0-9]+)',
+                  index=0, ignorecase=False) }}"
+        - conditions:
+            - condition: template
+              value_template:
+                "{{ states('input_text.ccgtv_share_url') is match('http.*youtu*',
+                ignorecase=False) }}"
+          sequence:
+            - service: androidtv.adb_command
+              data:
+                entity_id: media_player.google_tv
+                command:
+                  am start -a android.intent.action.VIEW -d "{{states('input_text.ccgtv_share_url')
+                  }}" com.google.android.youtube.tv
+      default: []
   mode: single
   icon: mdi:monitor-share
 new_script:
   alias: Bed Routine Script
   sequence:
-  - variables:
-      action_yes: '{{ ''YES_'' ~ context.id }}'
-      action_no: '{{ ''NO_'' ~ context.id }}'
-  - service: notify.mobile_app_10pro
-    data:
-      message: Going to Bed?
+    - variables:
+        action_yes: "{{ 'YES_' ~ context.id }}"
+        action_no: "{{ 'NO_' ~ context.id }}"
+    - service: notify.mobile_app_10pro
       data:
-        notification_icon: mdi:bed-clock
-        tag: bed
-        icon_url: https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/apple/325/bed_1f6cf-fe0f.png?raw=true
-        color: blue
-        actions:
-        - action: '{{ action_yes }}'
-          title: 'Yes'
-        - action: '{{ action_no }}'
-          title: 'No'
-  - wait_for_trigger:
-    - platform: event
-      event_type: mobile_app_notification_action
-      event_data:
-        action: '{{ action_yes }}'
-    - platform: event
-      event_type: mobile_app_notification_action
-      event_data:
-        action: '{{ action_no }}'
-    continue_on_timeout: true
-    timeout:
-      hours: 0
-      minutes: 15
-      seconds: 0
-      milliseconds: 0
-  - choose:
-    - conditions: '{{ wait.trigger.event.data.action == action_yes }}'
-      sequence:
-      - service: homeassistant.turn_off
-        data: {}
-        target:
-          entity_id:
+        message: Going to Bed?
+        data:
+          notification_icon: mdi:bed-clock
+          tag: bed
+          icon_url: https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/apple/325/bed_1f6cf-fe0f.png?raw=true
+          color: blue
+          actions:
+            - action: "{{ action_yes }}"
+              title: "Yes"
+            - action: "{{ action_no }}"
+              title: "No"
+    - wait_for_trigger:
+        - platform: event
+          event_type: mobile_app_notification_action
+          event_data:
+            action: "{{ action_yes }}"
+        - platform: event
+          event_type: mobile_app_notification_action
+          event_data:
+            action: "{{ action_no }}"
+      continue_on_timeout: true
+      timeout:
+        hours: 0
+        minutes: 15
+        seconds: 0
+        milliseconds: 0
+    - choose:
+        - conditions: "{{ wait.trigger.event.data.action == action_yes }}"
+          sequence:
+            - service: homeassistant.turn_off
+              data: {}
+              target:
+                entity_id:
+                  - light.light
+                  - light.entrance_light
+                  - light.shapes
+                  - light.chandelier
+                  - switch.dragon
+        - conditions: "{{ wait.trigger.event.data.action == action_no }}"
+          sequence:
+            - stop: ""
+    - service: homeassistant.turn_off
+      data: {}
+      target:
+        entity_id:
           - light.light
           - light.entrance_light
           - light.shapes
           - light.chandelier
           - switch.dragon
-    - conditions: '{{ wait.trigger.event.data.action == action_no }}'
-      sequence:
-      - stop: ''
-  - service: homeassistant.turn_off
-    data: {}
-    target:
-      entity_id:
-      - light.light
-      - light.entrance_light
-      - light.shapes
-      - light.chandelier
-      - switch.dragon
-  - service: notify.mobile_app_10pro
-    data:
-      message: clear_notification
+    - service: notify.mobile_app_10pro
       data:
-        tag: bed
+        message: clear_notification
+        data:
+          tag: bed
   mode: single
   icon: mdi:bed-clock
-led_strip:
-  alias: LED Strip
-  sequence:
-  - service: remote.send_command
-    data:
-      num_repeats: 1
-      delay_secs: 0.4
-      hold_secs: 0
-      command: b64:JgBYAAABI5QSExMTEhMSExITExMSExITEjgSNxI4EjcTNxI3EzcSOBITEhMSExMSExMSExI3ExMSNxM3EjcTNxI3EzcSExM3EgAFGgABKkgSAAxQAAEmSxIADQU=
-    target:
-      entity_id: remote.rm3
-  mode: single
-  icon: mdi:led-strip-variant

@@ -5,4 +5,5 @@ den:
     - switch.monitor_2
     - switch.monitor_1
     - light.shapes
+    - binary_sensor.in_bed
   icon: mdi:castle

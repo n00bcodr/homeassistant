@@ -108,6 +108,7 @@
 #include "esphome/core/optional.h"
 #include "esphome/core/preferences.h"
 #include "esphome/core/scheduler.h"
+#include "esphome/core/string_ref.h"
 #include "esphome/core/util.h"
 #include "esphome/core/version.h"
 

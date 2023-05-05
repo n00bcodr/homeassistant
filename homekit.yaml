@@ -27,10 +27,12 @@
       - switch.monitor_1
       - switch.charger
       - switch.heating
+      - switch.dragon
 
   #Configure Each Entity
   entity_config:
     binary_sensor.den_motion_occupancy:
+      name: Den Motion
       linked_battery_sensor: sensor.den_motion_battery
 
     binary_sensor.living_room_motion_occupancy:
@@ -40,6 +42,10 @@
     binary_sensor.kitchen_motion_occupancy:
       name: Kitchen Motion
       linked_battery_sensor: sensor.kitchen_motion_battery
+
+    binary_sensor.entrance_motion_occupancy:
+      name: Entrance Motion
+      linked_battery_sensor: sensor.entrance_motion_battery
 
     binary_sensor.chair_occupancy:
       name: Chair Occupancy

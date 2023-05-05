@@ -202,16 +202,6 @@ views:
       name: ''
       style: ":host {\n  --label-badge-blue:\n    {% if is_state('binary_sensor.chair_occupancy','on')\
         \ %}\n      green\n    {% else %}\n      Grey\n    {% endif %}\n    ;\n}\n"
-    - entity: binary_sensor.in_bed
-      name: ''
-      style:
-        ha-state-label-badge:
-          $:
-            ha-label-badge:
-              $: ".label-badge {\n  {% if is_state('binary_sensor.in_bed','off') %}\n\
-                \    border-style: dashed dotted !important;\n    border-color: grey\
-                \ !important;\n  {% else %}\n    border-style: double !important;\n\
-                \    border-color: blue !important;\n  {% endif %}\n"
     - entities:
       - entity: sensor.hacs
         style:
@@ -303,7 +293,15 @@ views:
         fill_container: false
         hold_action:
           action: none
-        icon: mdi:home-account
+        icon: '{% if is_state(''group.den'', ''on'') %}
+
+          mdi:account
+
+          {% else %}
+
+          mdi:account-outline
+
+          {% endif %}'
         icon_color: '{% if is_state(''group.den'', ''on'') %}
 
           green
@@ -329,14 +327,22 @@ views:
         fill_container: false
         hold_action:
           action: none
-        icon: mdi:door-open
+        icon: '{% if is_state(''group.den'', ''on'') %}
+
+          mdi:account-off-outline
+
+          {% else %}
+
+          mdi:account-off
+
+          {% endif %}'
         icon_color: '{% if is_state(''group.den'', ''on'') %}
 
           grey
 
           {% else %}
 
-          blue
+          brown
 
           {% endif %}'
         layout: horizontal
@@ -347,11 +353,21 @@ views:
         type: custom:mushroom-template-card
       - double_tap_action:
           action: none
+        entity: binary_sensor.in_bed
         fill_container: false
         hold_action:
-          action: none
-        icon: mdi:sleep
-        icon_color: black
+          action: more-info
+        icon: '{{ iif(is_state(''binary_sensor.in_bed'', ''on''), ''mdi:bed'', ''mdi:bed-outline'')
+          }}'
+        icon_color: '{% if is_state(''binary_sensor.in_bed'', ''on'') %}
+
+          blue
+
+          {% else %}
+
+          grey
+
+          {% endif %}'
         layout: horizontal
         primary: Sleep
         secondary: ''
@@ -364,6 +380,7 @@ views:
     - collapsible_controls: true
       entity: light.light
       fill_container: false
+      icon: mdi:ceiling-light
       name: Lumos
       show_brightness_control: true
       show_color_control: true
@@ -760,28 +777,6 @@ views:
       type: entity
     type: custom:mushroom-chips-card
   - cards:
-    - badge_icon: ''
-      entity: light.living_room_lamp
-      icon: '{{ iif(is_state(''light.living_room_lamp'', ''on''), ''mdi:lamp'', ''mdi:lamp-outline'')}}'
-      icon_color: '{{ iif(is_state(''light.living_room_lamp'', ''on''), ''orange'',
-        ''disabled'')}}'
-      primary: Lamp
-      secondary: '{{ states.light.living_room_lamp.state}}'
-      type: custom:mushroom-template-card
-    - entity: light.chandelier
-      icon: mdi:chandelier
-      name: Chandelier
-      show_brightness_control: true
-      type: custom:mushroom-light-card
-    - badge_icon: ''
-      entity: switch.backyard_light_socket_1
-      icon: '{{ iif(is_state(''switch.backyard_light_socket_1'', ''on''), ''mdi:string-lights'',
-        ''mdi:string-lights-off'')}}'
-      icon_color: '{{ iif(is_state(''switch.backyard_light_socket_1'', ''on''), ''deep-orange'',
-        ''disabled'')}}'
-      primary: Backyard Lights
-      secondary: '{{ states.switch.backyard_light_socket_1.state}}'
-      type: custom:mushroom-template-card
     - custom_fields:
         switch:
           card:
@@ -832,10 +827,24 @@ views:
         - text-align: left
       tap_action:
         action: call-service
-        service: homeassistant.toggle
+        service: switch.toggle
         service_data:
           entity_id: switch.heating
       type: custom:button-card
+    - badge_icon: ''
+      entity: light.living_room_lamp
+      icon: '{{ iif(is_state(''light.living_room_lamp'', ''on''), ''mdi:lamp'', ''mdi:lamp-outline'')}}'
+      icon_color: '{{ iif(is_state(''light.living_room_lamp'', ''on''), ''orange'',
+        ''disabled'')}}'
+      primary: Lamp
+      secondary: '{{ states.light.living_room_lamp.state}}'
+      type: custom:mushroom-template-card
+    - collapsible_controls: true
+      entity: light.chandelier
+      icon: mdi:chandelier
+      name: Chandelier
+      show_brightness_control: true
+      type: custom:mushroom-light-card
     - collapsible_controls: true
       entity: light.led_strip
       icon: mdi:led-strip-variant
@@ -852,11 +861,28 @@ views:
         action: toggle
       type: custom:mushroom-entity-card
     - badge_icon: ''
+      entity: switch.backyard_light_socket_1
+      icon: '{{ iif(is_state(''switch.backyard_light_socket_1'', ''on''), ''mdi:string-lights'',
+        ''mdi:string-lights-off'')}}'
+      icon_color: '{{ iif(is_state(''switch.backyard_light_socket_1'', ''on''), ''deep-orange'',
+        ''disabled'')}}'
+      primary: Backyard Lights
+      secondary: '{{ states.switch.backyard_light_socket_1.state}}'
+      type: custom:mushroom-template-card
+    - badge_icon: ''
       entity: switch.kitchen_light
       icon: mdi:dome-light
-      icon_color: '{{ iif(is_state(''switch.kitchen_light'', ''on''), ''brown'', ''disabled'')}}'
+      icon_color: '{{ iif(is_state(''switch.kitchen_light'', ''on''), ''lime'', ''disabled'')}}'
       primary: Kitchen Light
       secondary: '{{ states.switch.kitchen_light.state}}'
+      type: custom:mushroom-template-card
+    - badge_icon: ''
+      entity: switch.alleyway_lights
+      icon: mdi:light-flood-down
+      icon_color: '{{ iif(is_state(''switch.alleyway_lights'', ''on''), ''yellow'',
+        ''disabled'')}}'
+      primary: Alleyway Lights
+      secondary: '{{ states.switch.alleyway_lights.state}}'
       type: custom:mushroom-template-card
     type: vertical-stack
     view_layout:
@@ -915,10 +941,9 @@ views:
 
                   '
             tap_action:
-              service: androidtv.adb_command
+              service: remote.toggle
               service_data:
-                command: POWER
-                entity_id: media_player.google_tv
+                entity_id: remote.google_tv
             template: icon_button
             type: custom:button-card
           - template: blank_button
@@ -1017,10 +1042,10 @@ views:
             icon: mdi:volume-off
             name: Mute
             tap_action:
-              service: androidtv.adb_command
+              service: remote.send_command
               service_data:
                 command: MUTE
-                entity_id: media_player.google_tv
+                entity_id: remote.google_tv
             template: menu_button
             type: custom:button-card
           - template: blank_button
@@ -1029,10 +1054,10 @@ views:
             icon: mdi:arrow-up-bold
             name: Up
             tap_action:
-              service: androidtv.adb_command
+              service: remote.send_command
               service_data:
-                command: UP
-                entity_id: media_player.google_tv
+                command: DPAD_UP
+                entity_id: remote.google_tv
             template: icon_button
             type: custom:button-card
           - template: blank_button
@@ -1041,10 +1066,10 @@ views:
             icon: mdi:cog
             name: Settings
             tap_action:
-              service: androidtv.adb_command
+              service: remote.turn_on
               service_data:
-                command: SETTINGS
-                entity_id: media_player.google_tv
+                activity: com.android.tv.settings
+                entity_id: remote.google_tv
             template: menu_button
             type: custom:button-card
           type: custom:hui-element
@@ -1056,10 +1081,10 @@ views:
             icon: mdi:arrow-left-bold
             name: Left
             tap_action:
-              service: androidtv.adb_command
+              service: remote.send_command
               service_data:
-                command: LEFT
-                entity_id: media_player.google_tv
+                command: DPAD_LEFT
+                entity_id: remote.google_tv
             template: icon_button
             type: custom:button-card
           - entity: media_player.google_tv
@@ -1067,22 +1092,22 @@ views:
             name: Ok
             styles:
               card:
-              - background: var(--secondary-background-color-alpha)
+              - background: var(--primary-background-color)
             tap_action:
-              service: androidtv.adb_command
+              service: remote.send_command
               service_data:
-                command: CENTER
-                entity_id: media_player.google_tv
+                command: DPAD_CENTER
+                entity_id: remote.google_tv
             template: icon_button
             type: custom:button-card
           - entity: media_player.google_tv
             icon: mdi:arrow-right-bold
             name: Right
             tap_action:
-              service: androidtv.adb_command
+              service: remote.send_command
               service_data:
-                command: RIGHT
-                entity_id: media_player.google_tv
+                command: DPAD_RIGHT
+                entity_id: remote.google_tv
             template: icon_button
             type: custom:button-card
           - template: blank_button
@@ -1094,10 +1119,10 @@ views:
             icon: mdi:keyboard-return
             name: Return
             tap_action:
-              service: androidtv.adb_command
+              service: remote.send_command
               service_data:
                 command: BACK
-                entity_id: media_player.google_tv
+                entity_id: remote.google_tv
             template: menu_button
             type: custom:button-card
           - template: blank_button
@@ -1106,10 +1131,10 @@ views:
             icon: mdi:arrow-down-bold
             name: Down
             tap_action:
-              service: androidtv.adb_command
+              service: remote.send_command
               service_data:
-                command: DOWN
-                entity_id: media_player.google_tv
+                command: DPAD_DOWN
+                entity_id: remote.google_tv
             template: icon_button
             type: custom:button-card
           - template: blank_button
@@ -1118,10 +1143,10 @@ views:
             icon: mdi:home
             name: Home
             tap_action:
-              service: androidtv.adb_command
+              service: remote.send_command
               service_data:
                 command: HOME
-                entity_id: media_player.google_tv
+                entity_id: remote.google_tv
             template: menu_button
             type: custom:button-card
           type: custom:hui-element
@@ -1239,7 +1264,8 @@ views:
       state_attr(''sensor.blue_bin'', ''next_collection'') < 2  %} pickup {% else
       %} no_pickup {% endif %}'
     type: custom:state-switch
-  - entity: media_player.nest_mini
+  - collapsible_controls: true
+    entity: media_player.nest_mini
     fill_container: false
     media_controls:
     - play_pause_stop
@@ -1894,7 +1920,8 @@ views:
             - entity: script.git_push
               icon: mdi:upload-multiple
             - entity: script.git_push_ha_version
-              icon: mdi:upload
+              icon: mdi:package-up
+              name: HA Version Update
             type: custom:paper-buttons-row
           - buttons:
             - icon: hacs:hacs
@@ -2071,47 +2098,6 @@ views:
           type: custom:mini-graph-card
           update_interval: 10
         title: Den
-        type: horizontal-stack
-      mode: vertical
-      type: custom:stack-in-card
-    - cards:
-      - cards:
-        - align_icon: left
-          align_state: center
-          decimals: 1
-          entities:
-          - sensor.temperature_and_humidity_humidity
-          font_size: 70
-          hours_to_show: 6
-          line_color: skyblue
-          line_width: 5
-          points_per_hour: 10
-          show:
-            name: false
-          type: custom:mini-graph-card
-          update_interval: 10
-        - align_icon: left
-          align_state: center
-          color_thresholds:
-          - color: '#f39c12'
-            value: 25
-          - color: '#d35400'
-            value: 28
-          - color: '#ff1800'
-            value: 30
-          decimals: 1
-          entities:
-          - sensor.temperature_and_humidity_temperature
-          font_size: 70
-          hours_to_show: 6
-          line_color: '#e74c3c'
-          line_width: 5
-          points_per_hour: 10
-          show:
-            name: false
-          type: custom:mini-graph-card
-          update_interval: 10
-        title: Den - Sonoff
         type: horizontal-stack
       mode: vertical
       type: custom:stack-in-card

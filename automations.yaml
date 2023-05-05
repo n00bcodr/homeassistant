@@ -1026,18 +1026,20 @@
     to: 'on'
     from: 'off'
   condition:
-  - condition: sun
-    before: sunrise
-    after: sunset
   - condition: state
     entity_id: light.chandelier
     state: 'off'
-  - condition: numeric_state
-    entity_id: sensor.living_room_motion_illuminance_lux
-    below: 50
   - condition: state
     entity_id: media_player.google_tv
     state: 'off'
+  - condition: or
+    conditions:
+    - condition: sun
+      before: sunrise
+      after: sunset
+    - condition: numeric_state
+      entity_id: sensor.living_room_motion_illuminance_lux
+      below: 60
   action:
   - service: homeassistant.turn_on
     data: {}
@@ -1318,6 +1320,7 @@
   - condition: sun
     before: sunrise
     after: sunset
+    after_offset: -01:00:00
   action:
   - service: homeassistant.turn_on
     data: {}
