@@ -15,4 +15,4 @@ work:
         - switch.monitor_2
 internetspeed:
   speech:
-    text: Current Internet Speed is {{states.sensor.download_speed.state}}
+    text: Current Internet Speed is {{states.sensor.download_speed.state}} Mbps

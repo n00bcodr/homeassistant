@@ -109,7 +109,7 @@ void setup() {
   //   framework:
   //     version: 3.0.2
   //     source: ~3.30002.0
-  //     platform_version: platformio/espressif8266 @ 3.2.0
+  //     platform_version: platformio/espressif8266@3.2.0
   //   restore_from_flash: false
   //   early_pin_init: true
   //   board_flash_mode: dout
@@ -159,7 +159,7 @@ void setup() {
   //   includes: []
   //   libraries: []
   //   name_add_mac_suffix: false
-  //   min_version: 2023.4.2
+  //   min_version: 2023.5.0
   App.pre_setup("tagreader", "", "", __DATE__ ", " __TIME__, false);
   // switch:
   // button:
@@ -203,6 +203,7 @@ void setup() {
   //   power_save_mode: NONE
   //   fast_connect: false
   //   output_power: 20.0
+  //   passive_scan: false
   //   networks:
   //   - ssid: !secret 'wifi_ssid'
   //     password: !secret 'wifi_password'
@@ -228,6 +229,7 @@ void setup() {
   wifi_wificomponent->set_reboot_timeout(900000);
   wifi_wificomponent->set_power_save_mode(wifi::WIFI_POWER_SAVE_NONE);
   wifi_wificomponent->set_fast_connect(false);
+  wifi_wificomponent->set_passive_scan(false);
   wifi_wificomponent->set_output_power(20.0f);
   wifi_wificomponent->set_component_source("wifi");
   App.register_component(wifi_wificomponent);

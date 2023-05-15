@@ -3,7 +3,7 @@
   "name": "tagreader",
   "friendly_name": null,
   "comment": null,
-  "esphome_version": "2023.4.2",
+  "esphome_version": "2023.5.0b3",
   "src_version": 1,
   "address": "tagreader.local",
   "web_port": null,

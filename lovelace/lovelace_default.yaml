@@ -146,13 +146,6 @@ title: ''
 views:
 - badges: []
   cards:
-  - entity: mediaquery
-    states:
-      '(min-width: 800px)':
-        entity: weather.home
-        number_of_forecasts: '5'
-        type: custom:weather-card
-    type: custom:state-switch
   - badges:
     - entity: sun.sun
       name: ''
@@ -264,19 +257,15 @@ views:
     type: custom:badge-card
     view_layout:
       column: 2
-  - entity: mediaquery
-    states:
-      '(max-width: 1000px)':
-        backdrop: true
-        entity: weather.home
-        name: ' '
-        secondary_info:
-        - humidity
-        - precipitation_probability
-        type: custom:simple-weather-card
-    type: custom:state-switch
+  - backdrop: true
+    entity: weather.home
+    name: ' '
+    secondary_info:
+    - humidity
+    - precipitation_probability
+    type: custom:simple-weather-card
     view_layout:
-      column: 2
+      column: 1
   - content: '{{ states("sensor.random_joke") }}'
     type: markdown
     view_layout:
@@ -387,6 +376,15 @@ views:
       show_color_temp_control: true
       type: custom:mushroom-light-card
       use_light_color: true
+    - collapsible_controls: true
+      entity: light.shapes
+      fill_container: false
+      icon: mdi:hexagon-multiple
+      show_brightness_control: true
+      show_color_control: true
+      show_color_temp_control: true
+      type: custom:mushroom-light-card
+      use_light_color: true
     - cards:
       - badge_color: ''
         badge_icon: ''
@@ -419,17 +417,27 @@ views:
       secondary: '{{ iif(is_state(''switch.charger'', ''on''), (states.sensor.charger_power.state
         + " W"), ''Off'')}}'
       type: custom:mushroom-template-card
-    - collapsible_controls: true
-      entity: light.shapes
+    - entity: cover.curtains
       fill_container: false
-      icon: mdi:hexagon-multiple
-      show_brightness_control: true
-      show_color_control: true
-      show_color_temp_control: true
-      type: custom:mushroom-light-card
-      use_light_color: true
-    - entity: cover.curtain_right
-      fill_container: false
+      hold_action:
+        action: fire-dom-event
+        browser_mod:
+          data:
+            browser_id: THIS
+            content:
+              cards:
+              - entity: cover.curtain_left
+                layout: vertical
+                name: Left
+                show_position_control: true
+                type: custom:mushroom-cover-card
+              - entity: cover.curtain_right
+                layout: vertical
+                name: Right
+                show_position_control: true
+                type: custom:mushroom-cover-card
+              type: horizontal-stack
+          service: browser_mod.popup
       name: Curtains
       primary_info: name
       secondary_info: state
@@ -776,6 +784,58 @@ views:
       name: Entrance
       type: entity
     type: custom:mushroom-chips-card
+  - custom_fields:
+      switch:
+        card:
+          badge_color: ''
+          badge_icon: ''
+          entity: switch.water_kettle
+          icon: '{{ iif(is_state(''switch.water_kettle'', ''on''), ''mdi:kettle-steam'',
+            ''mdi:kettle-off'')}}'
+          icon_color: '{{ iif(is_state(''switch.water_kettle'', ''on''), ''red'',
+            ''disabled'')}}'
+          multiline_secondary: false
+          primary: Kettle
+          secondary: Turned {{states.switch.water_kettle.state}} at {{(as_timestamp(states.switch.water_kettle.last_updated)
+            | timestamp_custom('%-I:%M %p'))}}
+          type: custom:mushroom-template-card
+      temp:
+        card:
+          entity: sensor.water_kettle_current_temperature
+          layout: icon_state
+          show_icon: true
+          show_name: false
+          show_state: true
+          styles:
+            icon:
+            - color: "[[[\n  if (states['sensor.water_kettle_current_temperature'].state\
+                \ >= 91.0)\n    return \"red\";\n  if (states['sensor.water_kettle_current_temperature'].state\
+                \ <= 90.0 && states['sensor.water_kettle_current_temperature'].state\
+                \ >= 81.0)\n    return \"green\";\n  if (states['sensor.water_kettle_current_temperature'].state\
+                \ <= 80.0 && states['sensor.water_kettle_current_temperature'].state\
+                \ >= 71.0)\n    return \"skyblue\";\n  if (states['sensor.water_kettle_current_temperature'].state\
+                \ <= 70.0 && states['sensor.water_kettle_current_temperature'].state\
+                \ >= 51.0)\n    return \"purple\";\n  if (states['sensor.water_kettle_current_temperature'].state\
+                \ <= 50.0)\n    return \"violet\";  \n]]]\n"
+            state:
+            - font-size: 14px
+            - font-weight: bold
+            - justify-self: start
+          type: custom:button-card
+    styles:
+      card:
+      - border: none
+      grid:
+      - grid-template-areas: '''switch temp'''
+      - grid-template-columns: 75% 25%
+      - grid-template-rows: 25px
+      - text-align: left
+    tap_action:
+      action: call-service
+      service: switch.toggle
+      service_data:
+        entity_id: switch.water_kettle
+    type: custom:button-card
   - cards:
     - custom_fields:
         switch:
@@ -861,32 +921,285 @@ views:
         action: toggle
       type: custom:mushroom-entity-card
     - badge_icon: ''
-      entity: switch.backyard_light_socket_1
-      icon: '{{ iif(is_state(''switch.backyard_light_socket_1'', ''on''), ''mdi:string-lights'',
-        ''mdi:string-lights-off'')}}'
-      icon_color: '{{ iif(is_state(''switch.backyard_light_socket_1'', ''on''), ''deep-orange'',
-        ''disabled'')}}'
-      primary: Backyard Lights
-      secondary: '{{ states.switch.backyard_light_socket_1.state}}'
-      type: custom:mushroom-template-card
-    - badge_icon: ''
       entity: switch.kitchen_light
       icon: mdi:dome-light
       icon_color: '{{ iif(is_state(''switch.kitchen_light'', ''on''), ''lime'', ''disabled'')}}'
       primary: Kitchen Light
       secondary: '{{ states.switch.kitchen_light.state}}'
       type: custom:mushroom-template-card
-    - badge_icon: ''
-      entity: switch.alleyway_lights
-      icon: mdi:light-flood-down
-      icon_color: '{{ iif(is_state(''switch.alleyway_lights'', ''on''), ''yellow'',
-        ''disabled'')}}'
-      primary: Alleyway Lights
-      secondary: '{{ states.switch.alleyway_lights.state}}'
-      type: custom:mushroom-template-card
+    - cards:
+      - badge_icon: ''
+        entity: switch.backyard_light_socket_1
+        icon: '{{ iif(is_state(''switch.backyard_light_socket_1'', ''on''), ''mdi:string-lights'',
+          ''mdi:string-lights-off'')}}'
+        icon_color: '{{ iif(is_state(''switch.backyard_light_socket_1'', ''on''),
+          ''deep-orange'', ''disabled'')}}'
+        primary: Backyard Lights
+        secondary: '{{ states.switch.backyard_light_socket_1.state}}'
+        type: custom:mushroom-template-card
+      - badge_icon: ''
+        entity: switch.alleyway_lights
+        icon: mdi:light-flood-down
+        icon_color: '{{ iif(is_state(''switch.alleyway_lights'', ''on''), ''yellow'',
+          ''disabled'')}}'
+        primary: Alleyway Lights
+        secondary: '{{ states.switch.alleyway_lights.state}}'
+        type: custom:mushroom-template-card
+      type: horizontal-stack
     type: vertical-stack
     view_layout:
       column: 1
+  - cards:
+    - collapsible_controls: true
+      entity: media_player.google_tv
+      fill_container: false
+      icon: ''
+      media_controls:
+      - play_pause_stop
+      - on_off
+      name: Google TV
+      show_volume_level: true
+      tap_action:
+        action: toggle
+      type: custom:mushroom-media-player-card
+      use_media_info: true
+      volume_controls:
+      - volume_set
+    - card:
+        cards:
+        - entities:
+          - card_type: horizontal-stack
+            cards:
+            - entity: media_player.google_tv
+              icon: mdi:power
+              name: "[[[ var pow = entity.state\n  return 'Power ' + (pow)\n]]]\n"
+              styles:
+                icon:
+                - color: '[[[ if (entity.state == ''off'' ) return "red"; else return
+                    "green"]]]
+
+                    '
+              tap_action:
+                service: remote.toggle
+                service_data:
+                  entity_id: remote.google_tv
+              template: icon_button
+              type: custom:button-card
+            - template: blank_button
+              type: custom:button-card
+            - template: blank_button
+              type: custom:button-card
+            - template: blank_button
+              type: custom:button-card
+            type: custom:hui-element
+          - row_type: section
+            type: custom:hui-element
+          - card_type: horizontal-stack
+            cards:
+            - entity: media_player.google_tv
+              entity_picture: /local/icons/netflix.png
+              show_entity_picture: true
+              tap_action:
+                service: media_player.select_source
+                service_data:
+                  entity_id: media_player.google_tv
+                  source: Netflix
+              template: logo_button
+              type: custom:button-card
+            - entity: media_player.google_tv
+              entity_picture: /local/icons/prime.png
+              show_entity_picture: true
+              tap_action:
+                service: media_player.select_source
+                service_data:
+                  entity_id: media_player.google_tv
+                  source: Prime Video
+              template: logo_button
+              type: custom:button-card
+            - entity: media_player.google_tv
+              entity_picture: /local/icons/youtube.png
+              show_entity_picture: true
+              tap_action:
+                service: media_player.select_source
+                service_data:
+                  entity_id: media_player.google_tv
+                  source: YouTube
+              template: logo_button
+              type: custom:button-card
+            type: custom:hui-element
+          - card_type: horizontal-stack
+            cards:
+            - entity: media_player.google_tv
+              entity_picture: /local/icons/plex.png
+              show_entity_picture: true
+              tap_action:
+                service: media_player.select_source
+                service_data:
+                  entity_id: media_player.google_tv
+                  source: Plex
+              template: logo_button
+              type: custom:button-card
+            - entity: media_player.google_tv
+              entity_picture: /local/icons/disney.png
+              show_entity_picture: true
+              tap_action:
+                service: media_player.select_source
+                service_data:
+                  entity_id: media_player.google_tv
+                  source: Hotstar
+              template: logo_button
+              type: custom:button-card
+            - entity: media_player.google_tv
+              entity_picture: /local/icons/spotify.png
+              show_entity_picture: true
+              tap_action:
+                service: media_player.select_source
+                service_data:
+                  entity_id: media_player.google_tv
+                  source: Spotify
+              template: logo_button
+              type: custom:button-card
+            type: custom:hui-element
+          - row_type: section
+            type: custom:hui-element
+          - entity: media_player.google_tv_1
+            fill_container: false
+            icon_type: none
+            primary_info: none
+            secondary_info: none
+            show_volume_level: true
+            type: custom:mushroom-media-player-card
+            use_media_info: false
+            volume_controls:
+            - volume_set
+            - volume_mute
+          - row_type: section
+            type: custom:hui-element
+          - card_type: horizontal-stack
+            cards:
+            - entity: media_player.google_tv
+              icon: mdi:volume-off
+              name: Mute
+              tap_action:
+                service: remote.send_command
+                service_data:
+                  command: MUTE
+                  entity_id: remote.google_tv
+              template: menu_button
+              type: custom:button-card
+            - template: blank_button
+              type: custom:button-card
+            - entity: media_player.google_tv
+              icon: mdi:arrow-up-bold
+              name: Up
+              tap_action:
+                service: remote.send_command
+                service_data:
+                  command: DPAD_UP
+                  entity_id: remote.google_tv
+              template: icon_button
+              type: custom:button-card
+            - template: blank_button
+              type: custom:button-card
+            - entity: media_player.google_tv
+              icon: mdi:cog
+              name: Settings
+              tap_action:
+                service: remote.turn_on
+                service_data:
+                  activity: com.android.tv.settings
+                  entity_id: remote.google_tv
+              template: menu_button
+              type: custom:button-card
+            type: custom:hui-element
+          - card_type: horizontal-stack
+            cards:
+            - template: blank_button
+              type: custom:button-card
+            - entity: media_player.google_tv
+              icon: mdi:arrow-left-bold
+              name: Left
+              tap_action:
+                service: remote.send_command
+                service_data:
+                  command: DPAD_LEFT
+                  entity_id: remote.google_tv
+              template: icon_button
+              type: custom:button-card
+            - entity: media_player.google_tv
+              icon: mdi:circle
+              name: Ok
+              styles:
+                card:
+                - background: var(--primary-background-color)
+              tap_action:
+                service: remote.send_command
+                service_data:
+                  command: DPAD_CENTER
+                  entity_id: remote.google_tv
+              template: icon_button
+              type: custom:button-card
+            - entity: media_player.google_tv
+              icon: mdi:arrow-right-bold
+              name: Right
+              tap_action:
+                service: remote.send_command
+                service_data:
+                  command: DPAD_RIGHT
+                  entity_id: remote.google_tv
+              template: icon_button
+              type: custom:button-card
+            - template: blank_button
+              type: custom:button-card
+            type: custom:hui-element
+          - card_type: horizontal-stack
+            cards:
+            - entity: media_player.google_tv
+              icon: mdi:keyboard-return
+              name: Return
+              tap_action:
+                service: remote.send_command
+                service_data:
+                  command: BACK
+                  entity_id: remote.google_tv
+              template: menu_button
+              type: custom:button-card
+            - template: blank_button
+              type: custom:button-card
+            - entity: media_player.google_tv
+              icon: mdi:arrow-down-bold
+              name: Down
+              tap_action:
+                service: remote.send_command
+                service_data:
+                  command: DPAD_DOWN
+                  entity_id: remote.google_tv
+              template: icon_button
+              type: custom:button-card
+            - template: blank_button
+              type: custom:button-card
+            - entity: media_player.google_tv
+              icon: mdi:home
+              name: Home
+              tap_action:
+                service: remote.send_command
+                service_data:
+                  command: HOME
+                  entity_id: remote.google_tv
+              template: menu_button
+              type: custom:button-card
+            type: custom:hui-element
+          show_header_toggle: false
+          type: entities
+        title: Remote
+        type: custom:collapsable-cards
+      conditions:
+      - entity: media_player.google_tv
+        state_not: 'off'
+      type: conditional
+    type: vertical-stack
+    view_layout:
+      column: 2
   - cards:
     - badge_color: ''
       badge_icon: ''
@@ -911,252 +1224,24 @@ views:
     type: vertical-stack
     view_layout:
       column: 1
-  - cards:
-    - collapsible_controls: true
-      entity: media_player.google_tv
-      fill_container: false
-      icon: ''
-      media_controls:
-      - play_pause_stop
-      - on_off
-      name: Google TV
-      show_volume_level: true
-      tap_action:
-        action: toggle
-      type: custom:mushroom-media-player-card
-      use_media_info: true
-      volume_controls:
-      - volume_set
-    - cards:
-      - entities:
-        - card_type: horizontal-stack
-          cards:
-          - entity: media_player.google_tv
-            icon: mdi:power
-            name: "[[[ var pow = entity.state\n  return 'Power ' + (pow)\n]]]\n"
-            styles:
-              icon:
-              - color: '[[[ if (entity.state == ''off'' ) return "red"; else return
-                  "green"]]]
-
-                  '
-            tap_action:
-              service: remote.toggle
-              service_data:
-                entity_id: remote.google_tv
-            template: icon_button
-            type: custom:button-card
-          - template: blank_button
-            type: custom:button-card
-          - template: blank_button
-            type: custom:button-card
-          - template: blank_button
-            type: custom:button-card
-          type: custom:hui-element
-        - row_type: section
-          type: custom:hui-element
-        - card_type: horizontal-stack
-          cards:
-          - entity: media_player.google_tv
-            entity_picture: /local/icons/netflix.png
-            show_entity_picture: true
-            tap_action:
-              service: media_player.select_source
-              service_data:
-                entity_id: media_player.google_tv
-                source: Netflix
-            template: logo_button
-            type: custom:button-card
-          - entity: media_player.google_tv
-            entity_picture: /local/icons/prime.png
-            show_entity_picture: true
-            tap_action:
-              service: media_player.select_source
-              service_data:
-                entity_id: media_player.google_tv
-                source: Prime Video
-            template: logo_button
-            type: custom:button-card
-          - entity: media_player.google_tv
-            entity_picture: /local/icons/youtube.png
-            show_entity_picture: true
-            tap_action:
-              service: media_player.select_source
-              service_data:
-                entity_id: media_player.google_tv
-                source: YouTube
-            template: logo_button
-            type: custom:button-card
-          type: custom:hui-element
-        - card_type: horizontal-stack
-          cards:
-          - entity: media_player.google_tv
-            entity_picture: /local/icons/plex.png
-            show_entity_picture: true
-            tap_action:
-              service: media_player.select_source
-              service_data:
-                entity_id: media_player.google_tv
-                source: Plex
-            template: logo_button
-            type: custom:button-card
-          - entity: media_player.google_tv
-            entity_picture: /local/icons/disney.png
-            show_entity_picture: true
-            tap_action:
-              service: media_player.select_source
-              service_data:
-                entity_id: media_player.google_tv
-                source: Hotstar
-            template: logo_button
-            type: custom:button-card
-          - entity: media_player.google_tv
-            entity_picture: /local/icons/spotify.png
-            show_entity_picture: true
-            tap_action:
-              service: media_player.select_source
-              service_data:
-                entity_id: media_player.google_tv
-                source: Spotify
-            template: logo_button
-            type: custom:button-card
-          type: custom:hui-element
-        - row_type: section
-          type: custom:hui-element
-        - entity: media_player.google_tv_1
-          fill_container: false
-          icon_type: none
-          primary_info: none
-          secondary_info: none
-          show_volume_level: true
-          type: custom:mushroom-media-player-card
-          use_media_info: false
-          volume_controls:
-          - volume_set
-          - volume_mute
-        - row_type: section
-          type: custom:hui-element
-        - card_type: horizontal-stack
-          cards:
-          - entity: media_player.google_tv
-            icon: mdi:volume-off
-            name: Mute
-            tap_action:
-              service: remote.send_command
-              service_data:
-                command: MUTE
-                entity_id: remote.google_tv
-            template: menu_button
-            type: custom:button-card
-          - template: blank_button
-            type: custom:button-card
-          - entity: media_player.google_tv
-            icon: mdi:arrow-up-bold
-            name: Up
-            tap_action:
-              service: remote.send_command
-              service_data:
-                command: DPAD_UP
-                entity_id: remote.google_tv
-            template: icon_button
-            type: custom:button-card
-          - template: blank_button
-            type: custom:button-card
-          - entity: media_player.google_tv
-            icon: mdi:cog
-            name: Settings
-            tap_action:
-              service: remote.turn_on
-              service_data:
-                activity: com.android.tv.settings
-                entity_id: remote.google_tv
-            template: menu_button
-            type: custom:button-card
-          type: custom:hui-element
-        - card_type: horizontal-stack
-          cards:
-          - template: blank_button
-            type: custom:button-card
-          - entity: media_player.google_tv
-            icon: mdi:arrow-left-bold
-            name: Left
-            tap_action:
-              service: remote.send_command
-              service_data:
-                command: DPAD_LEFT
-                entity_id: remote.google_tv
-            template: icon_button
-            type: custom:button-card
-          - entity: media_player.google_tv
-            icon: mdi:circle
-            name: Ok
-            styles:
-              card:
-              - background: var(--primary-background-color)
-            tap_action:
-              service: remote.send_command
-              service_data:
-                command: DPAD_CENTER
-                entity_id: remote.google_tv
-            template: icon_button
-            type: custom:button-card
-          - entity: media_player.google_tv
-            icon: mdi:arrow-right-bold
-            name: Right
-            tap_action:
-              service: remote.send_command
-              service_data:
-                command: DPAD_RIGHT
-                entity_id: remote.google_tv
-            template: icon_button
-            type: custom:button-card
-          - template: blank_button
-            type: custom:button-card
-          type: custom:hui-element
-        - card_type: horizontal-stack
-          cards:
-          - entity: media_player.google_tv
-            icon: mdi:keyboard-return
-            name: Return
-            tap_action:
-              service: remote.send_command
-              service_data:
-                command: BACK
-                entity_id: remote.google_tv
-            template: menu_button
-            type: custom:button-card
-          - template: blank_button
-            type: custom:button-card
-          - entity: media_player.google_tv
-            icon: mdi:arrow-down-bold
-            name: Down
-            tap_action:
-              service: remote.send_command
-              service_data:
-                command: DPAD_DOWN
-                entity_id: remote.google_tv
-            template: icon_button
-            type: custom:button-card
-          - template: blank_button
-            type: custom:button-card
-          - entity: media_player.google_tv
-            icon: mdi:home
-            name: Home
-            tap_action:
-              service: remote.send_command
-              service_data:
-                command: HOME
-                entity_id: remote.google_tv
-            template: menu_button
-            type: custom:button-card
-          type: custom:hui-element
-        show_header_toggle: false
-        type: entities
-      title: Remote
-      type: custom:collapsable-cards
-    type: vertical-stack
+  - collapsible_controls: true
+    entity: media_player.nest_mini
+    fill_container: false
+    media_controls:
+    - play_pause_stop
+    - next
+    - previous
+    - shuffle
+    - repeat
+    show_volume_level: true
+    type: custom:mushroom-media-player-card
+    use_media_info: true
     view_layout:
       column: 2
+    volume_controls:
+    - volume_mute
+    - volume_set
+    - volume_buttons
   - entity: template
     states:
       pickup:
@@ -1264,24 +1349,6 @@ views:
       state_attr(''sensor.blue_bin'', ''next_collection'') < 2  %} pickup {% else
       %} no_pickup {% endif %}'
     type: custom:state-switch
-  - collapsible_controls: true
-    entity: media_player.nest_mini
-    fill_container: false
-    media_controls:
-    - play_pause_stop
-    - next
-    - previous
-    - shuffle
-    - repeat
-    show_volume_level: true
-    type: custom:mushroom-media-player-card
-    use_media_info: true
-    view_layout:
-      column: 2
-    volume_controls:
-    - volume_mute
-    - volume_set
-    - volume_buttons
   - cards:
     - entity: sensor.living_room_motion_illuminance_lux
       fill_container: false
@@ -1517,22 +1584,6 @@ views:
         reverse: false
       type: custom:auto-entities
     type: vertical-stack
-  - all_shadows: false
-    date: ddmm
-    entity: sensor.recently_added_movies
-    flag: false
-    image_style: fanart
-    max: 3
-    title: Recently Added Movies
-    type: custom:upcoming-media-card
-  - all_shadows: false
-    date: ddmm
-    entity: sensor.recently_added_tv
-    flag: false
-    image_style: fanart
-    max: 3
-    title: Recently Added TV
-    type: custom:upcoming-media-card
   - cards:
     - entity: input_select.speakers_spotify
       fill_container: false
@@ -1609,6 +1660,22 @@ views:
       method: last_updated
       reverse: false
     type: custom:auto-entities
+  - all_shadows: false
+    date: ddmm
+    entity: sensor.recently_added_movies
+    flag: false
+    image_style: fanart
+    max: 3
+    title: Recently Added Movies
+    type: custom:upcoming-media-card
+  - all_shadows: false
+    date: ddmm
+    entity: sensor.recently_added_tv
+    flag: false
+    image_style: fanart
+    max: 5
+    title: Recently Added TV
+    type: custom:upcoming-media-card
   icon: mdi:play-network
   path: media
   title: Media

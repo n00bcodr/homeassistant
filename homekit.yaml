@@ -14,11 +14,11 @@
       - light.light
       - light.living_room_lamp
       - light.chandelier
+      - light.led_strip
       - light.shapes
       - light.entrance_light
       - media_player.google_tv
-      - cover.curtain_right
-      - cover.curtain_left
+      - cover.curtains
       - switch.string_lights_socket_1
       - switch.kitchen_light
       - switch.alleyway_lights
@@ -28,6 +28,7 @@
       - switch.charger
       - switch.heating
       - switch.dragon
+      - switch.water_kettle
 
   #Configure Each Entity
   entity_config:

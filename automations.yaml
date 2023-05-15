@@ -1344,3 +1344,54 @@
     target:
       entity_id: switch.string_lights_socket_1
   mode: single
+- id: '1684017771758'
+  alias: Refresh Plex Library
+  description: Refreshes the plex libraries when a download from sonarr or radarr
+    finishes.
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.transmission_active_torrents
+    to: '0'
+    from: '1'
+  - platform: state
+    entity_id:
+    - switch.transmission_switch
+    from: 'on'
+    to: 'off'
+  condition: []
+  action:
+  - service: plex.refresh_library
+    data:
+      server_name: Plex Media Server
+      library_name: Movies
+  - service: plex.refresh_library
+    data:
+      server_name: Plex Media Server
+      library_name: TV Shows
+  mode: queued
+  max: 10
+- id: '1684020991108'
+  alias: "\U0001F3ACNotify Sonarr downloads "
+  description: Notifies when Sonarr downloads a new episode
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.sonarr_queue
+    to: '0'
+  condition: []
+  action:
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 40
+      milliseconds: 0
+  - service: notify.mobile_app_10pro
+    data:
+      message: '{{ state_attr( "sensor.recently_added_tv", "data")[1].title }} {{
+        state_attr( "sensor.recently_added_tv", "data")[1].number }} is downloaded
+        and now available on Plex.'
+      data:
+        notification_icon: mdi:television-box
+        image: '{{ state_attr( "sensor.recently_added_tv", "data")[1].fanart }}'
+  mode: restart
