@@ -783,39 +783,41 @@ views:
       icon_color: teal
       name: Entrance
       type: entity
+    - entity: binary_sensor.door_contact
+      icon_color: red
+      type: entity
     type: custom:mushroom-chips-card
   - custom_fields:
       switch:
         card:
           badge_color: ''
           badge_icon: ''
-          entity: switch.water_kettle
-          icon: '{{ iif(is_state(''switch.water_kettle'', ''on''), ''mdi:kettle-steam'',
+          entity: switch.kettle
+          icon: '{{ iif(is_state(''switch.kettle'', ''on''), ''mdi:kettle-steam'',
             ''mdi:kettle-off'')}}'
-          icon_color: '{{ iif(is_state(''switch.water_kettle'', ''on''), ''red'',
-            ''disabled'')}}'
+          icon_color: '{{ iif(is_state(''switch.kettle'', ''on''), ''red'', ''disabled'')}}'
           multiline_secondary: false
           primary: Kettle
-          secondary: Turned {{states.switch.water_kettle.state}} at {{(as_timestamp(states.switch.water_kettle.last_updated)
+          secondary: Turned {{states.switch.kettle.state}} at {{(as_timestamp(states.switch.kettle.last_updated)
             | timestamp_custom('%-I:%M %p'))}}
           type: custom:mushroom-template-card
       temp:
         card:
-          entity: sensor.water_kettle_current_temperature
+          entity: sensor.kettle_temperature
           layout: icon_state
           show_icon: true
           show_name: false
           show_state: true
           styles:
             icon:
-            - color: "[[[\n  if (states['sensor.water_kettle_current_temperature'].state\
-                \ >= 91.0)\n    return \"red\";\n  if (states['sensor.water_kettle_current_temperature'].state\
-                \ <= 90.0 && states['sensor.water_kettle_current_temperature'].state\
-                \ >= 81.0)\n    return \"green\";\n  if (states['sensor.water_kettle_current_temperature'].state\
-                \ <= 80.0 && states['sensor.water_kettle_current_temperature'].state\
-                \ >= 71.0)\n    return \"skyblue\";\n  if (states['sensor.water_kettle_current_temperature'].state\
-                \ <= 70.0 && states['sensor.water_kettle_current_temperature'].state\
-                \ >= 51.0)\n    return \"purple\";\n  if (states['sensor.water_kettle_current_temperature'].state\
+            - color: "[[[\n  if (states['sensor.kettle_temperature'].state >= 91.0)\n\
+                \    return \"red\";\n  if (states['sensor.kettle_temperature'].state\
+                \ <= 90.0 && states['sensor.kettle_temperature'].state >= 81.0)\n\
+                \    return \"green\";\n  if (states['sensor.kettle_temperature'].state\
+                \ <= 80.0 && states['sensor.kettle_temperature'].state >= 71.0)\n\
+                \    return \"skyblue\";\n  if (states['sensor.kettle_temperature'].state\
+                \ <= 70.0 && states['sensor.kettle_temperature'].state >= 51.0)\n\
+                \    return \"purple\";\n  if (states['sensor.kettle_temperature'].state\
                 \ <= 50.0)\n    return \"violet\";  \n]]]\n"
             state:
             - font-size: 14px
@@ -834,7 +836,7 @@ views:
       action: call-service
       service: switch.toggle
       service_data:
-        entity_id: switch.water_kettle
+        entity_id: switch.kettle
     type: custom:button-card
   - cards:
     - custom_fields:
@@ -908,6 +910,7 @@ views:
     - collapsible_controls: true
       entity: light.led_strip
       icon: mdi:led-strip-variant
+      show_brightness_control: true
       show_color_control: true
       type: custom:mushroom-light-card
       use_light_color: true
@@ -949,6 +952,55 @@ views:
     type: vertical-stack
     view_layout:
       column: 1
+  - cards:
+    - badge_color: ''
+      badge_icon: ''
+      entity: switch.string_lights_socket_1
+      icon: '{{ iif(is_state(''switch.string_lights_socket_1'', ''on''), ''mdi:string-lights'',
+        ''mdi:string-lights-off'')}}'
+      icon_color: '{{ iif(is_state(''switch.string_lights_socket_1'', ''on''), ''yellow'',
+        ''disabled'')}}'
+      picture: ''
+      primary: String Lights
+      secondary: 'Turned {{states.switch.string_lights_socket_1.state}} at
+
+        {{(as_timestamp(states.switch.string_lights_socket_1.last_updated) |
+
+        timestamp_custom(''%-I:%M %p''))}}'
+      type: custom:mushroom-template-card
+    - badge_color: ''
+      badge_icon: ''
+      entity: switch.hallway_chandelier
+      icon: '{{ iif(is_state(''switch.hallway_chandelier'', ''on''), ''mdi:chandelier'',
+        ''mdi:chandelier'')}}'
+      icon_color: '{{ iif(is_state(''switch.hallway_chandelier'', ''on''), ''yellow'',
+        ''disabled'')}}'
+      picture: ''
+      primary: Chandelier
+      secondary: 'Turned {{states.switch.hallway_chandelier.state}} at
+
+        {{(as_timestamp(states.switch.hallway_chandelier.last_updated) |
+
+        timestamp_custom(''%-I:%M %p''))}}'
+      type: custom:mushroom-template-card
+    - badge_color: ''
+      badge_icon: ''
+      entity: switch.entrance_light
+      icon: '{{ iif(is_state(''switch.entrance_light'', ''on''), ''mdi:lightbulb-on'',
+        ''mdi:lightbulb-off-outline'')}}'
+      icon_color: '{{ iif(is_state(''switch.entrance_light'', ''on''), ''yellow'',
+        ''disabled'')}}'
+      picture: ''
+      primary: Entrance Light
+      secondary: 'Turned {{states.switch.entrance_light.state}} at
+
+        {{(as_timestamp(states.switch.entrance_light.last_updated) |
+
+        timestamp_custom(''%-I:%M %p''))}}'
+      type: custom:mushroom-template-card
+    type: vertical-stack
+    view_layout:
+      column: 3
   - cards:
     - collapsible_controls: true
       entity: media_player.google_tv
@@ -1200,30 +1252,6 @@ views:
     type: vertical-stack
     view_layout:
       column: 2
-  - cards:
-    - badge_color: ''
-      badge_icon: ''
-      entity: switch.string_lights_socket_1
-      icon: '{{ iif(is_state(''switch.string_lights_socket_1'', ''on''), ''mdi:string-lights'',
-        ''mdi:string-lights-off'')}}'
-      icon_color: '{{ iif(is_state(''switch.string_lights_socket_1'', ''on''), ''yellow'',
-        ''disabled'')}}'
-      picture: ''
-      primary: String Lights
-      secondary: 'Turned {{states.switch.string_lights_socket_1.state}} at
-
-        {{(as_timestamp(states.switch.string_lights_socket_1.last_updated) |
-
-        timestamp_custom(''%-I:%M %p''))}}'
-      type: custom:mushroom-template-card
-    - entity: light.entrance_light
-      fill_container: false
-      icon: hue:bulb-classic-hung
-      type: custom:mushroom-light-card
-      use_light_color: true
-    type: vertical-stack
-    view_layout:
-      column: 1
   - collapsible_controls: true
     entity: media_player.nest_mini
     fill_container: false
@@ -1584,6 +1612,8 @@ views:
         reverse: false
       type: custom:auto-entities
     type: vertical-stack
+    view_layout:
+      column: 1
   - cards:
     - entity: input_select.speakers_spotify
       fill_container: false
@@ -1622,6 +1652,8 @@ views:
         type: custom:mushroom-template-card
       type: horizontal-stack
     type: vertical-stack
+    view_layout:
+      column: 2
   - card:
       show_header_toggle: false
       state_color: true
@@ -1660,6 +1692,8 @@ views:
       method: last_updated
       reverse: false
     type: custom:auto-entities
+    view_layout:
+      column: 3
   - all_shadows: false
     date: ddmm
     entity: sensor.recently_added_movies
@@ -1668,18 +1702,24 @@ views:
     max: 3
     title: Recently Added Movies
     type: custom:upcoming-media-card
+    view_layout:
+      column: 4
   - all_shadows: false
     date: ddmm
     entity: sensor.recently_added_tv
     flag: false
     image_style: fanart
-    max: 5
+    max: 3
     title: Recently Added TV
     type: custom:upcoming-media-card
+    view_layout:
+      column: 4
   icon: mdi:play-network
+  layout:
+    max_cols: 4
   path: media
   title: Media
-  type: custom:masonry-layout
+  type: custom:vertical-layout
   visible:
   - user: 74f7e2ffd3594037b1a2fc4de82d9fea
 - badges: []

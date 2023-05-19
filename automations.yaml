@@ -1395,3 +1395,62 @@
         notification_icon: mdi:television-box
         image: '{{ state_attr( "sensor.recently_added_tv", "data")[1].fanart }}'
   mode: restart
+- id: '1684414856257'
+  alias: Backyard Lights
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.door_contact
+  - platform: state
+    entity_id:
+    - binary_sensor.kitchen_motion_occupancy
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: binary_sensor.kitchen_motion_occupancy
+        state: 'on'
+      sequence:
+      - wait_for_trigger:
+        - platform: state
+          entity_id:
+          - binary_sensor.door_contact
+          from: 'off'
+          to: 'on'
+        continue_on_timeout: false
+        timeout:
+          hours: 0
+          minutes: 0
+          seconds: 30
+          milliseconds: 0
+      - service: switch.turn_on
+        data: {}
+        target:
+          entity_id: switch.backyard_lights
+    - conditions:
+      - condition: state
+        entity_id: binary_sensor.door_contact
+        state: 'on'
+      sequence:
+      - wait_for_trigger:
+        - platform: state
+          entity_id:
+          - binary_sensor.kitchen_motion_occupancy
+          from: 'off'
+          to: 'on'
+        continue_on_timeout: false
+      - service: switch.turn_off
+        data: {}
+        target:
+          entity_id: switch.backyard_lights
+  mode: single
+- id: '1684417211214'
+  alias: Synchronize states - String Lights
+  description: ''
+  use_blueprint:
+    path: adchevrier/synchronize-the-on-off-state-of-2-entities.yaml
+    input:
+      entity_1: switch.string_lights_socket_1
+      entity_2: switch.string_lights

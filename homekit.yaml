@@ -6,6 +6,7 @@
       - binary_sensor.entrance_motion_occupancy
       - binary_sensor.chair_occupancy
       - binary_sensor.den_door_contact
+      - binary_sensor.door_contact
       - sensor.living_room_temperature
       - sensor.den_temperature
       - sensor.den_humidity
@@ -16,7 +17,6 @@
       - light.chandelier
       - light.led_strip
       - light.shapes
-      - light.entrance_light
       - media_player.google_tv
       - cover.curtains
       - switch.string_lights_socket_1
@@ -28,7 +28,9 @@
       - switch.charger
       - switch.heating
       - switch.dragon
-      - switch.water_kettle
+      - switch.kettle
+      - switch.entrance_light
+      - switch.hallway_chandelier
 
   #Configure Each Entity
   entity_config:
@@ -51,6 +53,10 @@
     binary_sensor.chair_occupancy:
       name: Chair Occupancy
       linked_battery_sensor: sensor.vibration_battery
+
+    binary_sensor.door_contact:
+      name: Backyard Door
+      linked_battery_sensor: sensor.door_battery
 
     sensor.den_humidity:
       name: Den Humidity
@@ -78,8 +84,11 @@
     light.shapes:
       name: Shapes
 
-    light.entrance_light:
+    switch.entrance_light:
       name: Entrance Light
+
+    switch.hallway_chandelier:
+      name: Chandelier
 
     media_player.google_tv:
       feature_list:
