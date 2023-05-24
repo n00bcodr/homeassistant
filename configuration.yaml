@@ -12,7 +12,7 @@ logger:
   default: critical
   logs:
     homeassistant.components.shell_command: debug
-    homeassistant.components.plex_recently_added: debug
+
 python_script:
 
 my:
@@ -59,12 +59,8 @@ monitor_docker:
       portainer: Portainer
       addon_core_samba: Samba
     monitored_conditions:
-      - version
       - containers_running
       - containers_total
-      - state
-      - status
-      - image
       - memory
 
 #mariadb config
@@ -88,10 +84,8 @@ telegram_bot:
 
 shell_command:
   lovelace_default_convert: python /config/tools/lovelace_default_convert.py
-  lovelace_wallmount_convert: python /config/tools/lovelace_wallmount_convert.py
   git_core_update_push: bash /config/tools/git_core_update_push.sh
   git_commit_push: bash /config/tools/ha_gitpush.sh "{{states.input_text.git_commit_message.state}}"
-  git_status: echo -e -n "$(git status)" >/config/www/git_status.txt
   git_hacs_update: bash /config/tools/hacs_updates_push.sh
 
 withings:

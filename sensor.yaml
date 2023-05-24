@@ -10,40 +10,40 @@
     washing_machine_state:
       friendly_name: "Washing Machine State"
       value_template: >
-        {%if (states.sensor.bob_sub_state.state == 'WASHER_SUBSTATE_PROGRAM_STARTED') %}
-            {{ "Idle" }}
-        {%elif (states.sensor.bob_sub_state.state == 'unavailable') %}
-            {{ "Idle" }}
-        {%elif (states.sensor.bob_sub_state.state == 'WASHER_SUBSTATE_WASHING') %}
-            {{ "Washing" }}
-        {%elif (states.sensor.bob_sub_state.state == 'WASHER_SUBSTATE_DRYING') %}
-            {{ "Drying" }}
-        {%elif (states.sensor.bob_sub_state.state == 'WASHER_SUBSTATE_RINSING') %}
-            {{ "Rinsing" }}
-        {%elif (states.sensor.bob_sub_state.state == 'WASHER_SUBSTATE_SPIN') %}
-            {{ "Spinning" }}
-        {%elif (states.sensor.bob_sub_state.state == 'WASHER_SUBSTATE_REMOVE_LAUNDRY') %}
-            {{ "Cycle Complete" }}
-        {%else%}
-            {{ "states.sensor.bob_sub_state.state" }}
+        {% set state = states.sensor.bob_sub_state.state %}
+        {% if state == 'WASHER_SUBSTATE_PROGRAM_STARTED' or state == 'unavailable' %}
+          Idle
+        {% elif state == 'WASHER_SUBSTATE_WASHING' %}
+          Washing
+        {% elif state == 'WASHER_SUBSTATE_DRYING' %}
+          Drying
+        {% elif state == 'WASHER_SUBSTATE_RINSING' %}
+          Rinsing
+        {% elif state == 'WASHER_SUBSTATE_SPIN' %}
+          Spinning
+        {% elif state == 'WASHER_SUBSTATE_REMOVE_LAUNDRY' %}
+          Cycle Complete
+        {% else %}
+          {{ state }}
         {% endif %}
       icon_template: >
-        {%if (states.sensor.bob_sub_state.state == 'WASHER_SUBSTATE_PROGRAM_STARTED') %}
-            {{ "mdi:washing-machine-off" }}
-        {%elif (states.sensor.bob_sub_state.state == 'unavailable') %}
-            {{ "mdi:washing-machine-alert" }}
-        {%elif (states.sensor.bob_sub_state.state == 'WASHER_SUBSTATE_DRYING') %}
-            {{ "mdi:tumble-dryer" }}
-        {%elif (states.sensor.bob_sub_state.state == 'WASHER_SUBSTATE_WASHING') %}
-            {{ "mdi:water" }}            
-        {%elif (states.sensor.bob_sub_state.state == 'WASHER_SUBSTATE_RINSING') %}
-            {{ "mdi:water-circle" }}
-        {%elif (states.sensor.bob_sub_state.state == 'WASHER_SUBSTATE_SPIN') %}
-            {{ "fas:spinner" }}
-        {%elif (states.sensor.bob_sub_state.state == 'WASHER_SUBSTATE_REMOVE_LAUNDRY') %}
-            {{ "mdi:washing-machine" }}
-        {%else%}
-            {{ "mdi:washing-machine-alert" }}
+        {% set state = states.sensor.bob_sub_state.state %}
+        {% if state == 'WASHER_SUBSTATE_PROGRAM_STARTED' %}
+          mdi:washing-machine-off
+        {% elif state == 'unavailable' %}
+          mdi:washing-machine-alert
+        {% elif state == 'WASHER_SUBSTATE_DRYING' %}
+          mdi:tumble-dryer
+        {% elif state == 'WASHER_SUBSTATE_WASHING' %}
+          mdi:water
+        {% elif state == 'WASHER_SUBSTATE_RINSING' %}
+          mdi:water-circle
+        {% elif state == 'WASHER_SUBSTATE_SPIN' %}
+          fas:spinner
+        {% elif state == 'WASHER_SUBSTATE_REMOVE_LAUNDRY' %}
+          mdi:washing-machine
+        {% else %}
+          mdi:washing-machine-alert
         {% endif %}
 
     magic_cube_active_face:
@@ -93,13 +93,84 @@
 
     moon_phase:
       friendly_name: "Moon Phase"
-      value_template: "{{ states.sensor.moon.state }}"
+      value_template: "{{ states.sensor.moon.state | replace ('_', ' ') | title}}"
       entity_picture_template: /local/moon_phases/{{ states.sensor.moon.state }}.png
 
     chair_occupancy:
       friendly_name: "Chair Occupancy"
       value_template: "{{ iif(is_state('binary_sensor.vibration_vibration', 'on'), 'Away', 'At Desk') }}"
       icon_template: "{{ iif(is_state('binary_sensor.vibration_vibration', 'on'), 'mdi:account-off', 'mdi:table-chair') }}"
+
+    harddisk_total_space:
+      friendly_name: "Hard Disk Total Space"
+      unique_id: harddisk_total_space
+      unit_of_measurement: "GB"
+      icon_template: mdi:harddisk
+      value_template: >
+        {{ state_attr('sensor.sonarr_disk_space', '/')|regex_findall_index(find='(/.*G)') | replace ("G", "")| replace ("/", "")}}
+
+    harddisk_free_space:
+      friendly_name: "Hard Disk Free Space"
+      unique_id: harddisk_free_space
+      unit_of_measurement: "GB"
+      icon_template: mdi:harddisk
+      value_template: >
+        {{ state_attr('sensor.sonarr_disk_space', '/')|regex_findall_index(find='(.*/)')  | replace ("G", "")| replace ("/", "")}}
+
+    harddisk_used_space:
+      friendly_name: "Hard Disk Used Space"
+      unique_id: harddisk_used_space
+      unit_of_measurement: "GB"
+      icon_template: mdi:harddisk
+      value_template: >
+        {{ ((states('sensor.harddisk_total_space') | float) - (states('sensor.harddisk_free_space') | float) | round(2))}}
+
+    1tb_total_space:
+      friendly_name: "1TB Hard Disk Total Space"
+      unique_id: 1tb_harddisk_total_space
+      unit_of_measurement: "GB"
+      icon_template: mdi:harddisk
+      value_template: >
+        {{ state_attr('sensor.sonarr_disk_space', '/home/pt/media/1TB') |regex_findall_index(find='(/.*G)') | replace ("G", "")| replace ("/", "")}}
+
+    1tb_free_space:
+      friendly_name: "1TB Hard Disk Free Space"
+      unique_id: 1tb_harddisk_free_space
+      unit_of_measurement: "GB"
+      icon_template: mdi:harddisk
+      value_template: >
+        {{ state_attr('sensor.sonarr_disk_space', '/home/pt/media/1TB') |regex_findall_index(find='(.*/)') | replace ("G", "")| replace ("/", "")}}
+    1tb_used_space:
+      friendly_name: "1TB Hard Disk Used Space"
+      unique_id: 1tb_harddisk_used_space
+      unit_of_measurement: "GB"
+      icon_template: mdi:harddisk
+      value_template: >
+        {{ ((states('sensor.1tb_total_space') | float) - ( states('sensor.1tb_free_space') | float ) | round(2)) }}
+
+    5tb_total_space:
+      friendly_name: "5TB Hard Disk Total Space"
+      unique_id: 5tb_harddisk_total_space
+      unit_of_measurement: "GB"
+      icon_template: mdi:harddisk
+      value_template: >
+        {{ state_attr('sensor.sonarr_disk_space', '/home/pt/media/5TB') |regex_findall_index(find='(/.*G)') | replace ("G", "")| replace ("/", "")}}
+
+    5tb_free_space:
+      friendly_name: "5TB Hard Disk Free Space"
+      unique_id: 5tb_harddisk_free_space
+      unit_of_measurement: "GB"
+      icon_template: mdi:harddisk
+      value_template: >
+        {{ state_attr('sensor.sonarr_disk_space', '/home/pt/media/5TB') |regex_findall_index(find='(.*/)') | replace ("G", "")| replace ("/", "")}}
+
+    5tb_used_space:
+      friendly_name: "5TB Hard Disk Used Space"
+      unique_id: 5tb_harddisk_used_space
+      unit_of_measurement: "GB"
+      icon_template: mdi:harddisk
+      value_template: >
+        {{ ((states('sensor.5tb_total_space') | float) - ( states('sensor.5tb_free_space') | float) | round(2)) }}
 
     server_last_boot:
       value_template: >
@@ -215,7 +286,7 @@
     - movie
 
 - platform: plex_recently_added
-  name: Recently Added TV  # will create sensor.recently_added_tv
+  name: Recently Added TV # will create sensor.recently_added_tv
   token: !secret plex_token
   host: !secret plex_host
   port: 32400

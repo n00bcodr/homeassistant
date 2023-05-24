@@ -8,8 +8,8 @@
       - binary_sensor.den_door_contact
       - binary_sensor.door_contact
       - sensor.living_room_temperature
-      - sensor.den_temperature
-      - sensor.den_humidity
+      - sensor.den_temperature_2
+      - sensor.den_humidity_2
       - sensor.kitchen_motion_illuminance
       - sensor.living_room_humidity
       - light.light
@@ -58,11 +58,11 @@
       name: Backyard Door
       linked_battery_sensor: sensor.door_battery
 
-    sensor.den_humidity:
+    sensor.den_humidity_2:
       name: Den Humidity
       linked_battery_sensor: sensor.temperature_and_humidity_battery
 
-    sensor.den_temperature:
+    sensor.den_temperature_2:
       name: Den Temperature
       linked_battery_sensor: sensor.temperature_and_humidity_battery
 
