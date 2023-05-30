@@ -1010,22 +1010,6 @@
     target:
       entity_id: light.light
   mode: single
-- id: '1673799717377'
-  alias: "\U0001F3F0Diffuser Scene"
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - input_select.diffuser
-  condition:
-  - condition: template
-    value_template: '{{ trigger.to_state != trigger.from_state }}'
-  action:
-  - service: scene.turn_on
-    data: {}
-    target:
-      entity_id: '{{ states(''input_select.diffuser'') }}'
-  mode: single
 - id: '1674758476057'
   alias: "\U0001F4A1Living Room Light Motion"
   description: ''
@@ -1262,7 +1246,7 @@
   use_blueprint:
     path: adchevrier/synchronize-the-on-off-state-of-2-entities.yaml
     input:
-      entity_1: switch.backyard_light_socket_1
+      entity_1: switch.backyard_lights_socket_1
       entity_2: switch.backyard_lights
 - id: '1679939486740'
   alias: "\U0001F4A1Kitchen Light Motion"
@@ -1575,4 +1559,35 @@
       command: HOME
   - service: script.load_share_url_googletv
     data: {}
+  mode: single
+- id: '1685201261360'
+  alias: Entrance Light Motion
+  description: ''
+  trigger:
+  - platform: device
+    device_id: 88946d0ffcf369169d9dc690798047c2
+    domain: nest
+    type: camera_motion
+  - platform: device
+    device_id: 88946d0ffcf369169d9dc690798047c2
+    domain: nest
+    type: camera_person
+  condition:
+  - condition: sun
+    before: sunrise
+    after: sunset
+  action:
+  - service: homeassistant.turn_on
+    data: {}
+    target:
+      entity_id: switch.entrance_light
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 50
+      milliseconds: 0
+  - service: homeassistant.turn_off
+    data: {}
+    target:
+      entity_id: switch.entrance_light
   mode: single

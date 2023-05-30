@@ -1,0 +1,25 @@
+# Door Person
+- trigger:
+    - platform: event
+      event_type: nest_event
+      event_data:
+        device_id: 88946d0ffcf369169d9dc690798047c2
+        type: camera_person
+  binary_sensor:
+    - name: "Door Person"
+      device_class: motion
+      auto_off: 30
+      state: "on"
+
+# Door Bell
+- trigger:
+    - platform: event
+      event_type: nest_event
+      event_data:
+        device_id: 88946d0ffcf369169d9dc690798047c2
+        type: doorbell_chime
+  binary_sensor:
+    - name: "Door Bell"
+      device_class: sound
+      auto_off: 10
+      state: "on"

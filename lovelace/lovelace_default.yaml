@@ -218,6 +218,7 @@ views:
         entity: sensor.hacs
         hold_action:
           action: more-info
+        icon_color: blue
         tap_action:
           action: navigate
           navigation_path: /hacs/entry
@@ -231,6 +232,7 @@ views:
         hold_action:
           action: more-info
         icon: mdi:home-assistant
+        icon_color: light-blue
         tap_action:
           action: navigate
           navigation_path: /config/dashboard
@@ -244,6 +246,7 @@ views:
         entity: update.home_assistant_core_update
         hold_action:
           action: more-info
+        icon_color: light-blue
         tap_action:
           action: navigate
           navigation_path: /config/dashboard
@@ -536,152 +539,63 @@ views:
       show_tilt_position_control: false
       type: custom:mushroom-cover-card
     - cards:
-      - cards:
-        - aspect_ratio: 4/3
-          background-color: white
-          entity: scene.diffuser_power_off
-          entity_picture: /local/diffuser/diffuser_off.png
-          show_entity_picture: true
-          show_icon: true
-          show_name: false
-          size: 50px
+      - entity: switch.diffuser
+        icon_color: blue-grey
+        name: Diffuser
+        tap_action:
+          action: toggle
+        type: custom:mushroom-entity-card
+      - buttons:
+        - entity: select.mist_mode
+          icon: mdi:weather-windy
+          name: High
+          styles:
+            button:
+              color: '{{ iif(is_state(''select.mist_mode'', ''High''), ''Green'',
+                ''Gray'') }}'
           tap_action:
             action: call-service
-            service: input_select.select_option
+            service: select.select_option
             service_data:
-              entity_id: input_select.diffuser
-              option: scene.diffuser_power_off
-          type: custom:button-card
-        - aspect_ratio: 16/1
-          color_type: card
-          entity: input_select.diffuser
-          icon: mdi:air-humidifier
-          show_name: false
+              entity_id: select.mist_mode
+              option: High
+        - entity: select.mist_mode
+          icon: mdi:weather-windy
+          name: Low
           styles:
-            card:
-            - background-color: "[[[\n  if (states['input_select.diffuser'].state\
-                \ == \"scene.diffuser_power_off\")\n    return \"var(--paper-item-icon-active-color)\"\
-                ;\n  return \"var(--paper-card-background-color)\";\n]]]\n"
-          type: custom:button-card
-        mode: vertical
-        type: custom:stack-in-card
-      - cards:
-        - aspect_ratio: 4/3
-          background-color: white
-          entity: input_select.diffuser
-          entity_picture: /local/diffuser/diffuser_on.png
-          show_entity_picture: true
-          show_name: false
-          size: 50px
+            button:
+              color: '{{ iif(is_state(''select.mist_mode'', ''Low''), ''Green'', ''Gray'')
+                }}'
           tap_action:
             action: call-service
-            service: input_select.select_option
+            service: select.select_option
             service_data:
-              entity_id: input_select.diffuser
-              option: scene.diffuser_power_on
-          type: custom:button-card
-        - aspect_ratio: 16/1
-          color_type: card
-          entity: input_select.diffuser
-          icon: mdi:air-humidifier
-          show_name: false
-          styles:
-            card:
-            - background-color: "[[[\n  if (states['input_select.diffuser'].state\
-                \ == \"scene.diffuser_power_on\")\n    return \"var(--paper-item-icon-active-color)\"\
-                ;\n  return \"var(--paper-card-background-color)\";\n]]]\n"
-          type: custom:button-card
-        mode: vertical
-        type: custom:stack-in-card
-      - cards:
-        - aspect_ratio: 4/3
-          background-color: white
-          entity: scene.diffuser_light_spray
-          entity_picture: /local/diffuser/diffuser_low.png
-          show_entity_picture: true
-          show_icon: true
-          show_name: false
-          size: 50px
+              entity_id: select.mist_mode
+              option: Low
+        - entity: light.diffuser_light
+          name: false
+        - entity: light.diffuser_light
+          icon: false
+          name: Gradient
           tap_action:
             action: call-service
-            service: input_select.select_option
+            service: select.select_option
             service_data:
-              entity_id: input_select.diffuser
-              option: scene.diffuser_light_spray
-          type: custom:button-card
-        - aspect_ratio: 16/1
-          color_type: card
-          entity: input_select.diffuser
-          icon: mdi:air-humidifier
-          show_name: false
-          styles:
-            card:
-            - background-color: "[[[\n  if (states['input_select.diffuser'].state\
-                \ == \"scene.diffuser_light_spray\")\n    return \"var(--paper-item-icon-active-color)\"\
-                ;\n  return \"var(--paper-card-background-color)\";\n]]]\n"
-          type: custom:button-card
-        mode: vertical
-        type: custom:stack-in-card
-      - cards:
-        - aspect_ratio: 4/3
-          background-color: white
-          entity: scene.diffuser_strong_spray
-          entity_picture: /local/diffuser/diffuser_high.png
-          show_entity_picture: true
-          show_icon: true
-          show_name: false
-          size: 50px
+              entity_id: select.light_mode
+              option: Gradient
+        - entity: light.diffuser_light
+          icon: false
+          name: Fixed
           tap_action:
             action: call-service
-            service: input_select.select_option
+            service: select.select_option
             service_data:
-              entity_id: input_select.diffuser
-              option: scene.diffuser_strong_spray
-          type: custom:button-card
-        - aspect_ratio: 16/1
-          color_type: card
-          entity: input_select.diffuser
-          icon: mdi:air-humidifier
-          show_name: false
-          styles:
-            card:
-            - background-color: "[[[\n  if (states['input_select.diffuser'].state\
-                \ == \"scene.diffuser_strong_spray\")\n    return \"var(--paper-item-icon-active-color)\"\
-                ;\n  return \"var(--paper-card-background-color)\";\n]]]\n"
-          type: custom:button-card
-        mode: vertical
-        type: custom:stack-in-card
-      - cards:
-        - aspect_ratio: 4/3
-          background-color: white
-          entity: scene.diffuser_strong_spray
-          entity_picture: /local/diffuser/diffuser_light_only.png
-          show_entity_picture: true
-          show_icon: true
-          show_name: false
-          size: 50px
-          tap_action:
-            action: call-service
-            service: input_select.select_option
-            service_data:
-              entity_id: input_select.diffuser
-              option: scene.diffuser_light_only
-          type: custom:button-card
-        - aspect_ratio: 16/1
-          color_type: card
-          entity: light.diffuser_light
-          icon: mdi:air-humidifier
-          show_name: false
-          styles:
-            card:
-            - background-color: "[[[\n  if (states['light.diffuser_light'].state ==\
-                \ \"on\")\n    return \"var(--paper-item-icon-active-color)\";\n \
-                \ return \"var(--paper-card-background-color)\";\n]]]\n"
-          type: custom:button-card
-        mode: vertical
-        type: custom:stack-in-card
-      mode: horizontal
-      type: custom:stack-in-card
+              entity_id: select.light_mode
+              option: Fixed
+        position: right
+        preset: mushroom
+        type: custom:paper-buttons-row
+      type: vertical-stack
     type: vertical-stack
     view_layout:
       column: 2
@@ -753,11 +667,6 @@ views:
     type: custom:tabbed-card
     view_layout:
       column: 3
-  - entity: switch.diffuser
-    name: Diffuser
-    tap_action:
-      action: toggle
-    type: custom:mushroom-entity-card
   icon: mdi:castle
   layout:
     max_cols: 3
@@ -867,55 +776,6 @@ views:
         entity_id: switch.kettle
     type: custom:button-card
   - cards:
-    - badge_color: ''
-      badge_icon: ''
-      entity: switch.string_lights_socket_1
-      icon: '{{ iif(is_state(''switch.string_lights_socket_1'', ''on''), ''mdi:string-lights'',
-        ''mdi:string-lights-off'')}}'
-      icon_color: '{{ iif(is_state(''switch.string_lights_socket_1'', ''on''), ''yellow'',
-        ''disabled'')}}'
-      picture: ''
-      primary: String Lights
-      secondary: 'Turned {{states.switch.string_lights_socket_1.state}} at
-
-        {{(as_timestamp(states.switch.string_lights_socket_1.last_updated) |
-
-        timestamp_custom(''%-I:%M %p''))}}'
-      type: custom:mushroom-template-card
-    - badge_color: ''
-      badge_icon: ''
-      entity: switch.hallway_chandelier
-      icon: '{{ iif(is_state(''switch.hallway_chandelier'', ''on''), ''mdi:chandelier'',
-        ''mdi:chandelier'')}}'
-      icon_color: '{{ iif(is_state(''switch.hallway_chandelier'', ''on''), ''yellow'',
-        ''disabled'')}}'
-      picture: ''
-      primary: Chandelier
-      secondary: 'Turned {{states.switch.hallway_chandelier.state}} at
-
-        {{(as_timestamp(states.switch.hallway_chandelier.last_updated) |
-
-        timestamp_custom(''%-I:%M %p''))}}'
-      type: custom:mushroom-template-card
-    - badge_color: ''
-      badge_icon: ''
-      entity: switch.entrance_light
-      icon: '{{ iif(is_state(''switch.entrance_light'', ''on''), ''mdi:lightbulb-on'',
-        ''mdi:lightbulb-off-outline'')}}'
-      icon_color: '{{ iif(is_state(''switch.entrance_light'', ''on''), ''yellow'',
-        ''disabled'')}}'
-      picture: ''
-      primary: Entrance Light
-      secondary: 'Turned {{states.switch.entrance_light.state}} at
-
-        {{(as_timestamp(states.switch.entrance_light.last_updated) |
-
-        timestamp_custom(''%-I:%M %p''))}}'
-      type: custom:mushroom-template-card
-    type: vertical-stack
-    view_layout:
-      column: 3
-  - cards:
     - custom_fields:
         switch:
           card:
@@ -1024,13 +884,13 @@ views:
       type: custom:mushroom-template-card
     - cards:
       - badge_icon: ''
-        entity: switch.backyard_light_socket_1
-        icon: '{{ iif(is_state(''switch.backyard_light_socket_1'', ''on''), ''mdi:string-lights'',
+        entity: switch.backyard_lights_socket_1
+        icon: '{{ iif(is_state(''switch.backyard_lights_socket_1'', ''on''), ''mdi:string-lights'',
           ''mdi:string-lights-off'')}}'
-        icon_color: '{{ iif(is_state(''switch.backyard_light_socket_1'', ''on''),
+        icon_color: '{{ iif(is_state(''switch.backyard_lights_socket_1'', ''on''),
           ''deep-orange'', ''grey'')}}'
         primary: Backyard Lights
-        secondary: '{{ states.switch.backyard_light_socket_1.state}}'
+        secondary: '{{ states.switch.backyard_lights_socket_1.state}}'
         type: custom:mushroom-template-card
       - badge_icon: ''
         entity: switch.alleyway_lights
@@ -1044,6 +904,55 @@ views:
     type: vertical-stack
     view_layout:
       column: 1
+  - cards:
+    - badge_color: ''
+      badge_icon: ''
+      entity: switch.string_lights
+      icon: '{{ iif(is_state(''switch.string_lights_socket_1'', ''on''), ''mdi:string-lights'',
+        ''mdi:string-lights-off'')}}'
+      icon_color: '{{ iif(is_state(''switch.string_lights_socket_1'', ''on''), ''yellow'',
+        ''disabled'')}}'
+      picture: ''
+      primary: String Lights
+      secondary: 'Turned {{states.switch.string_lights_socket_1.state}} at
+
+        {{(as_timestamp(states.switch.string_lights_socket_1.last_updated) |
+
+        timestamp_custom(''%-I:%M %p''))}}'
+      type: custom:mushroom-template-card
+    - badge_color: ''
+      badge_icon: ''
+      entity: switch.hallway_chandelier
+      icon: '{{ iif(is_state(''switch.hallway_chandelier'', ''on''), ''mdi:chandelier'',
+        ''mdi:chandelier'')}}'
+      icon_color: '{{ iif(is_state(''switch.hallway_chandelier'', ''on''), ''yellow'',
+        ''disabled'')}}'
+      picture: ''
+      primary: Chandelier
+      secondary: 'Turned {{states.switch.hallway_chandelier.state}} at
+
+        {{(as_timestamp(states.switch.hallway_chandelier.last_updated) |
+
+        timestamp_custom(''%-I:%M %p''))}}'
+      type: custom:mushroom-template-card
+    - badge_color: ''
+      badge_icon: ''
+      entity: switch.entrance_light
+      icon: '{{ iif(is_state(''switch.entrance_light'', ''on''), ''mdi:lightbulb-on'',
+        ''mdi:lightbulb-off-outline'')}}'
+      icon_color: '{{ iif(is_state(''switch.entrance_light'', ''on''), ''yellow'',
+        ''disabled'')}}'
+      picture: ''
+      primary: Entrance Light
+      secondary: 'Turned {{states.switch.entrance_light.state}} at
+
+        {{(as_timestamp(states.switch.entrance_light.last_updated) |
+
+        timestamp_custom(''%-I:%M %p''))}}'
+      type: custom:mushroom-template-card
+    type: vertical-stack
+    view_layout:
+      column: 3
   - cards:
     - collapsible_controls: true
       entity: media_player.google_tv
@@ -1444,6 +1353,15 @@ views:
     include:
     - switch.heating
     type: custom:scheduler-card
+  - camera_image: camera.doorbell
+    camera_view: live
+    entities:
+    - entity: binary_sensor.door_person
+    - entity: binary_sensor.door_bell
+    entity: camera.doorbell
+    type: picture-glance
+    view_layout:
+      column: 3
   icon: mdi:sofa
   layout:
     max_cols: 3
@@ -1568,13 +1486,24 @@ views:
           action: none
         type: custom:mushroom-template-card
       type: horizontal-stack
-    - entities:
+    - cards:
       - entity: sensor.bob_duration
+        icon: mdi:timer-play
+        icon_color: white
         name: Duration
+        primary_info: state
+        secondary_info: name
+        type: custom:mushroom-entity-card
       - entity: sensor.bob_remaining
+        fill_container: true
+        icon: mdi:timer-refresh
+        icon_color: white
+        layout: horizontal
         name: Remaining
-      show_header_toggle: false
-      type: entities
+        primary_info: state
+        secondary_info: name
+        type: custom:mushroom-entity-card
+      type: vertical-stack
     type: vertical-stack
   icon: mdi:washing-machine
   path: utilities

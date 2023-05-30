@@ -128,9 +128,9 @@ void setup() {
   //       type_id: waituntilaction
   //     - logger.log:
   //         format: API is connected!
+  //         args: []
   //         tag: main
   //         level: DEBUG
-  //         args: []
   //       type_id: lambdaaction
   //     - rtttl.play:
   //         rtttl: success:d=24,o=5,b=100:c,g,b
@@ -159,7 +159,7 @@ void setup() {
   //   includes: []
   //   libraries: []
   //   name_add_mac_suffix: false
-  //   min_version: 2023.5.0
+  //   min_version: 2023.5.4
   App.pre_setup("tagreader", "", "", __DATE__ ", " __TIME__, false);
   // switch:
   // button:
@@ -646,8 +646,8 @@ void setup() {
   //       open_drain: false
   //       pullup: false
   //       pulldown: false
-  //     inverted: false
   //     id: esphome_esp8266_esp8266gpiopin
+  //     inverted: false
   //   id: buzzer
   //   zero_means_zero: false
   //   frequency: 1000.0

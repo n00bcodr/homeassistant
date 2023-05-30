@@ -27,10 +27,13 @@
       - switch.monitor_1
       - switch.charger
       - switch.heating
+      - switch.boiler
       - switch.dragon
       - switch.kettle
       - switch.entrance_light
       - switch.hallway_chandelier
+      - camera.doorbell
+      - media_player.friday
 
   #Configure Each Entity
   entity_config:
@@ -96,3 +99,12 @@
         - feature: play_pause
         - feature: play_stop
         - feature: toggle_mute
+
+    media_player.friday:
+      feature_list:
+        - feature: on_off
+        - feature: play_pause
+        - feature: toggle_mute
+
+    camera.doorbell:
+      name: Doorbell Camera

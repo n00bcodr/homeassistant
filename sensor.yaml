@@ -140,6 +140,7 @@
       icon_template: mdi:harddisk
       value_template: >
         {{ state_attr('sensor.sonarr_disk_space', '/home/pt/media/1TB') |regex_findall_index(find='(.*/)') | replace ("G", "")| replace ("/", "")}}
+
     1tb_used_space:
       friendly_name: "1TB Hard Disk Used Space"
       unique_id: 1tb_harddisk_used_space
