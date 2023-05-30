@@ -5,7 +5,6 @@
 [![Last Commit](https://img.shields.io/github/last-commit/n00bcodr/homeassistant?color=purple)](https://github.com/n00bcodr/homeassistant-ireland/commits/master)
 
 ---
-
 [![Instagram](https://img.shields.io/badge/Instagram-%23E4405F.svg?style=for-the-badge&logo=Instagram&logoColor=white)](https://www.instagram.com/pavanthanuj/)
 [![Facebook](https://img.shields.io/badge/Facebook-%231877F2.svg?style=for-the-badge&logo=Facebook&logoColor=white)](https://www.facebook.com/thanuj.upadrasta)
 [![Reddit](https://img.shields.io/badge/Reddit-FF4500?style=for-the-badge&logo=reddit&logoColor=white)](https://www.reddit.com/user/pavanthanuj/)
@@ -55,7 +54,8 @@ I started my Home Assistant Journey with a Raspberry Pi 3, from which I have swi
 - [Antela Smart Plugs](https://www.amazon.co.uk/gp/product/B09VP5KNWM) x 4
 - [HBN Smart Switch](https://www.amazon.co.uk/gp/product/B07PYWFKDY) x 1
 - [Candeo Wifi Rotary Dimmer](https://www.amazon.co.uk/gp/product/B0BG83K3WZ) x 1
-- [MOES WiFi RF433 Smart -3 Gang](https://www.amazon.co.uk/dp/B08KST4KYJ) x 1
+- [MOES WiFi RF433 Smart -3 Gang](https://www.amazon.co.uk/dp/B08KST4KYJ) x 2
+- [Smart Immersion Heater Timer Switch](https://www.amazon.co.uk/dp/B0BTCPBQ7N) x 1
 
 
 ---
@@ -88,6 +88,7 @@ I started my Home Assistant Journey with a Raspberry Pi 3, from which I have swi
 ---
 ### <a name="cameras">Cameras</a> 
 | [Go to Menu](#menu) |
+- [Google Nest Doorbell Battery](https://store.google.com/ie/config/nest_doorbell_battery?hl=en-GB)
 
 
 ---
