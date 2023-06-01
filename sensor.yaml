@@ -1,10 +1,3 @@
-- platform: time_date
-  display_options:
-    - "time"
-    - "date"
-    - "date_time"
-    - "time_date"
-
 - platform: template
   sensors:
     washing_machine_state:
@@ -239,22 +232,6 @@
           {{ ((as_timestamp(state_attr("calendar.allied_recycling_blue_bin", "start_time")) | as_datetime | as_local).date() - now().date()).days }}
         icon: >
           mdi:numeric-{{ ((as_timestamp(state_attr("calendar.allied_recycling_blue_bin", "start_time")) | as_datetime | as_local).date() - now().date()).days }}
-
-- platform: command_line
-  name: Supervisor Updates
-  command: 'curl -sS -X GET http://supervisor/supervisor/info -H "Authorization: Bearer $(printenv SUPERVISOR_TOKEN)" | jq ''{"newest_version":.data.version_latest,"current_version":.data.version,"update_available":.data.update_available,"addons":[.data.addons[] | select(.update_available)]}'''
-  value_template: "{{ value_json.addons | length }}"
-  unit_of_measurement: "pending update(s)"
-  json_attributes:
-    - update_available
-    - newest_version
-    - current_version
-    - addons
-
-- platform: command_line
-  name: Shopping List
-  unique_id: shopping_list
-  command: python3 /config/tools/shopping_list.py
 
 - platform: systemmonitor
   resources:
