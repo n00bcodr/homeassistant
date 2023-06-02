@@ -37,7 +37,7 @@ I started my Home Assistant Journey with a Raspberry Pi 3, from which I have swi
 ## Devices I use
 
 ## <a name="menu">Menu</a>
- | [Lights](#lights) | [Outlets & Switches](#outlets) | [Voice Assistants & Displays](#smartspeakers) | [Media](#media) | [Sensors](#sensors) | [Cameras](#cameras) | [Appliances](#appliances) | [Network](#network) | [IR Blasters](#ir) | [Hubs](#hubs) | [Climate](#climate) | [Other Hardware](#other) | [Graveyard☠️](#graveyard) |
+ | [Lights](#lights) | [Outlets & Switches](#outlets) | [Voice Assistants & Displays](#smartspeakers) | [Media](#media) | [Sensors](#sensors) | [Cameras](#cameras) | [Appliances](#appliances) | [Network](#network) | [IR Blasters](#ir) | [Hubs](#hubs) | [Climate](#climate) | [Other Hardware](#other) [Screenshots](#screenshots) || [Graveyard☠️](#graveyard) |
 
 ---
 
@@ -128,6 +128,19 @@ I started my Home Assistant Journey with a Raspberry Pi 3, from which I have swi
 | [Go to Menu](#menu) |
 - [Tagreader](https://github.com/adonno/tagreader) x 1
 - [Multisensor](https://esphome.io/cookbook/bruh.html) x 2
+---
+### <a name="screenshots">Screenshots</a> 
+| [Go to Menu](#menu) |
+
+
+![Lovelace 1](https://github.com/n00bcodr/homeassistant-ireland/blob/master/screenshots/1.jpg?raw=true "Lovelace 1")
+![Lovelace 2](https://github.com/n00bcodr/homeassistant-ireland/blob/master/screenshots/2.jpg?raw=true "Lovelace 2")
+![Lovelace 3](https://github.com/n00bcodr/homeassistant-ireland/blob/master/screenshots/3.jpg?raw=true "Lovelace 3")
+![Lovelace 4](https://github.com/n00bcodr/homeassistant-ireland/blob/master/screenshots/4.jpg?raw=true "Lovelace 4")
+![Lovelace 5](https://github.com/n00bcodr/homeassistant-ireland/blob/master/screenshots/5.jpg?raw=true "Lovelace 5")
+![Lovelace 6](https://github.com/n00bcodr/homeassistant-ireland/blob/master/screenshots/6.jpg?raw=true "Lovelace 6")
+![Lovelace 7](https://github.com/n00bcodr/homeassistant-ireland/blob/master/screenshots/7.jpg?raw=true "Lovelace 7")
+
 ---
 
 ### <a name="graveyard">Graveyard☠️</a> 
