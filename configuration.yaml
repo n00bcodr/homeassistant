@@ -1,9 +1,6 @@
 default_config:
 
 homeassistant:
-  name: Mad House
-  external_url: !secret external_url
-  internal_url: "http://192.168.68.168:8123"
   allowlist_external_dirs:
     - /config/.storage
     - /config/
@@ -71,7 +68,6 @@ recorder:
   exclude:
     entity_globs:
       - sensor.weather_*
-      - sensor.time_date
 
 spotcast:
   sp_dc: !secret sp_dc

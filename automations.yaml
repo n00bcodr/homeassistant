@@ -475,37 +475,9 @@
   action:
   - choose:
     - conditions:
-      - condition: state
-        entity_id: input_boolean.den_state
-        state: 'off'
-      sequence:
-      - service: homeassistant.turn_on
-        data: {}
-        target:
-          entity_id:
-          - switch.monitor_1
-          - input_boolean.den_state
-      - service: media_player.play_media
-        target:
-          entity_id: media_player.friday
-        data:
-          media_content_id: media-source://tts/cloud?message=Welcome+Back+Sir.&language=en-IE&gender=male
-          media_content_type: provider
-        metadata:
-          title: Welcome Back Sir.
-          thumbnail: https://brands.home-assistant.io/_/cloud/logo.png
-          media_class: app
-          children_media_class:
-          navigateIds:
-          - {}
-          - media_content_type: app
-            media_content_id: media-source://tts
-          - media_content_type: provider
-            media_content_id: media-source://tts/cloud?message=Welcome+Back+Sir.&language=en-IE&gender=male
-    - conditions:
-      - condition: state
-        entity_id: input_boolean.den_state
-        state: 'on'
+      - condition: template
+        value_template: '{{(states.media_player.spotify.attributes.source) != ''Theater
+          of Dreams''}}'
       sequence:
       - service: scene.create
         data:
@@ -522,7 +494,6 @@
           entity_id:
           - switch.monitor_1
           - switch.monitor_2
-          - input_boolean.den_state
           - light.shapes
           - light.light
       - service: media_player.media_pause
@@ -530,6 +501,27 @@
         target:
           entity_id:
           - media_player.spotify
+    - conditions:
+      - condition: template
+        value_template: '{{(states.media_player.spotify.attributes.source) == ''Theater
+          of Dreams''}}'
+      sequence:
+      - service: scene.create
+        data:
+          scene_id: den_as_it_was
+          snapshot_entities:
+          - switch.monitor_1
+          - switch.monitor_2
+          - light.light
+          - light.shapes
+      - service: homeassistant.turn_off
+        data: {}
+        target:
+          entity_id:
+          - switch.monitor_1
+          - switch.monitor_2
+          - light.shapes
+          - light.light
   mode: single
 - id: '1670578939434'
   alias: "\U0001F3F0Button"
@@ -717,20 +709,11 @@
   trigger:
   - platform: state
     entity_id:
-    - input_boolean.den_state
-    from: 'off'
-    to: 'on'
-  - platform: state
-    entity_id:
     - input_boolean.den
     from: 'off'
     to: 'on'
   condition: []
   action:
-  - service: homeassistant.turn_on
-    target:
-      entity_id: input_boolean.den_state
-    data: {}
   - service: scene.turn_on
     data: {}
     entity_id: scene.den_as_it_was
@@ -847,7 +830,7 @@
   - choose:
     - conditions:
       - condition: state
-        entity_id: input_boolean.den_state
+        entity_id: input_boolean.den
         state: 'off'
       sequence:
       - service: automation.trigger
@@ -856,7 +839,7 @@
         data: {}
     - conditions:
       - condition: state
-        entity_id: input_boolean.den_state
+        entity_id: input_boolean.den
         state: 'on'
       sequence:
       - service: homeassistant.turn_on
@@ -873,13 +856,18 @@
     entity_id: binary_sensor.den_motion_occupancy
     from: 'off'
     to: 'on'
+    enabled: false
+  - platform: state
+    entity_id:
+    - binary_sensor.chair_occupancy
+    from: 'off'
+    to: 'on'
   condition: []
   action:
   - service: notify.mobile_app_10pro
     data:
       data:
         tag: den_off
-        sticky: 'true'
       message: clear_notification
   mode: single
 - id: '1672388963171'
@@ -1005,10 +993,8 @@
     entity_id: sensor.10pro_charger_type
     state: wireless
   action:
-  - service: light.turn_off
+  - service: script.new_script
     data: {}
-    target:
-      entity_id: light.light
   mode: single
 - id: '1674758476057'
   alias: "\U0001F4A1Living Room Light Motion"
@@ -1032,7 +1018,7 @@
       before: sunrise
       after: sunset
     - condition: numeric_state
-      entity_id: sensor.living_room_motion_illuminance_lux
+      entity_id: sensor.living_room_motion_illuminance
       below: 60
   action:
   - service: homeassistant.turn_on
@@ -1079,6 +1065,18 @@
       - condition: trigger
         id: wash
       sequence:
+      - service: notify.all_phones
+        data:
+          data:
+            tag: wash_cycle
+          message: clear_notification
+        alias: Clear Existing Notifications
+      - service: notify.all_phones_ios
+        data:
+          data:
+            tag: wash_cycle
+          message: clear_notification
+        alias: Clear Existing Notifications
       - wait_for_trigger:
         - platform: state
           entity_id:
@@ -1092,11 +1090,32 @@
             notification_icon: mdi:washing-machine
             icon_url: /local/images/washing_machine.png
             sticky: 'true'
+            tag: wash_cycle
+          title: "\U0001F9FA Wash Cycle Complete"
+      - service: notify.all_phones_ios
+        data:
+          message: at {{ as_timestamp(now()) | timestamp_custom('%-I:%M:%S %p')}}
+          data:
+            notification_icon: mdi:washing-machine
+            image: /local/images/washing_machine.png
+            tag: wash_cycle
           title: "\U0001F9FA Wash Cycle Complete"
     - conditions:
       - condition: trigger
         id: dry
       sequence:
+      - service: notify.all_phones
+        data:
+          data:
+            tag: wash_cycle
+          message: clear_notification
+        alias: Clear Existing Notifications
+      - service: notify.all_phones_ios
+        data:
+          data:
+            tag: wash_cycle
+          message: clear_notification
+        alias: Clear Existing Notifications
       - wait_for_trigger:
         - platform: state
           entity_id:
@@ -1108,8 +1127,17 @@
           message: at {{ as_timestamp(now()) | timestamp_custom('%-I:%M:%S %p')}}
           data:
             notification_icon: mdi:washing-machine
+            image: /local/images/washing_machine.png
+            tag: wash_cycle
+          title: "\U0001F9FA Dry Cycle Complete"
+      - service: notify.all_phones_ios
+        data:
+          message: at {{ as_timestamp(now()) | timestamp_custom('%-I:%M:%S %p')}}
+          data:
+            notification_icon: mdi:washing-machine
             icon_url: /local/images/washing_machine.png
             sticky: 'true'
+            tag: wash_cycle
           title: "\U0001F9FA Dry Cycle Complete"
   mode: single
 - id: '1675437001659'
@@ -1133,8 +1161,27 @@
       - service: notify.all_phones
         data:
           data:
+            tag: bin_pickup
+          message: clear_notification
+      - service: notify.all_phones_ios
+        data:
+          data:
+            tag: bin_pickup
+          message: clear_notification
+      - service: notify.all_phones
+        data:
+          data:
             notification_icon: mdi:trash-can-outline
             icon_url: /local/images/black_bin.png
+            tag: bin_pickup
+          message: Pickup is in two days on {{ states.sensor.black_bin.state}}
+          title: Black Bin
+      - service: notify.all_phones_ios
+        data:
+          data:
+            notification_icon: mdi:trash-can-outline
+            image: /local/images/black_bin.png
+            tag: bin_pickup
           message: Pickup is in two days on {{ states.sensor.black_bin.state}}
           title: Black Bin
     - conditions:
@@ -1145,8 +1192,27 @@
       - service: notify.all_phones
         data:
           data:
+            tag: bin_pickup
+          message: clear_notification
+      - service: notify.all_phones_ios
+        data:
+          data:
+            tag: bin_pickup
+          message: clear_notification
+      - service: notify.all_phones
+        data:
+          data:
             notification_icon: mdi:trash-can-outline
             icon_url: /local/images/black_bin.png
+            tag: bin_pickup
+          message: Pickup is tomorrow on {{ states.sensor.black_bin.state}}
+          title: Black Bin
+      - service: notify.all_phones_ios
+        data:
+          data:
+            notification_icon: mdi:trash-can-outline
+            image: /local/images/black_bin.png
+            tag: bin_pickup
           message: Pickup is tomorrow on {{ states.sensor.black_bin.state}}
           title: Black Bin
     - conditions:
@@ -1157,8 +1223,19 @@
       - service: notify.all_phones
         data:
           data:
+            tag: bin_pickup
+          message: clear_notification
+      - service: notify.all_phones_ios
+        data:
+          data:
+            tag: bin_pickup
+          message: clear_notification
+      - service: notify.all_phones
+        data:
+          data:
             notification_icon: mdi:trash-can
             icon_url: /local/images/blue_bin.png
+            tag: bin_pickup
           message: Pickup is in two days on {{ states.sensor.blue_bin.state}}
           title: Blue Bin
     - conditions:
@@ -1169,8 +1246,19 @@
       - service: notify.all_phones
         data:
           data:
+            tag: bin_pickup
+          message: clear_notification
+      - service: notify.all_phones_ios
+        data:
+          data:
+            tag: bin_pickup
+          message: clear_notification
+      - service: notify.all_phones
+        data:
+          data:
             notification_icon: mdi:trash-can
             icon_url: /local/images/blue_bin.png
+            tag: bin_pickup
           message: Pickup is tomorrow on {{ states.sensor.blue_bin.state}}
           title: Blue Bin
   mode: single
@@ -1495,73 +1583,8 @@
         target:
           entity_id: cover.curtains
   mode: single
-- id: '1684791959278'
-  alias: "\U0001F3AC\U0001F3F0 Capture Shared URL - Google TV 2"
-  description: Captures the URL shared and updates input_text ccgtv_share_url
-  trigger:
-  - platform: event
-    event_type: mobile_app.share
-  condition: []
-  action:
-  - variables:
-      share_url: '{{ trigger.event.data.url }}'
-  - choose:
-    - conditions:
-      - condition: template
-        value_template: '{{ share_url | regex_search(''com.netflix'', ignorecase=True)
-          }}'
-      sequence:
-      - service: input_text.set_value
-        data:
-          entity_id: input_text.ccgtv_share_url
-          value: '{{ share_url | regex_findall_index(find=''(http.*)'', ignorecase=True)
-            }}'
-    - conditions:
-      - condition: template
-        value_template: '{{ share_url | regex_search(''com.amazon'', ignorecase=True)
-          }}'
-      sequence:
-      - service: input_text.set_value
-        data:
-          entity_id: input_text.ccgtv_share_url
-          value: '{{ share_url | regex_findall_index(find=''(http.*)'', ignorecase=True)
-            | replace(''&ref_=atv_dp_share_seas&r=web'', '''') }}'
-    - conditions:
-      - condition: template
-        value_template: '{{ share_url | regex_search(''startv.hotstar'', ignorecase=True)
-          }}'
-      sequence:
-      - service: input_text.set_value
-        data:
-          entity_id: input_text.ccgtv_share_url
-          value: '{{ share_url | regex_findall_index(find=''(http.*)'', ignorecase=True)
-            }}'
-    - conditions:
-      - condition: template
-        value_template: '{{ share_url | regex_search(''youtu.be'', ignorecase=True)
-          }}'
-      sequence:
-      - service: input_text.set_value
-        data:
-          entity_id: input_text.ccgtv_share_url
-          value: '{{ share_url | regex_findall_index(find=''(http.*)'', ignorecase=True)
-            }}'
-    - conditions:
-      - condition: template
-        value_template: '{{ share_url | regex_search(''.*'', ignorecase=True) }}'
-      sequence:
-      - service: notify.persistent_notification
-        data:
-          message: '{{ states(''input_text.ccgtv_share_url'') }}'
-  - service: androidtv.adb_command
-    data:
-      entity_id: media_player.google_tv
-      command: HOME
-  - service: script.load_share_url_googletv
-    data: {}
-  mode: single
 - id: '1685201261360'
-  alias: Entrance Light Motion
+  alias: "\U0001F4A1Entrance Light Motion"
   description: ''
   trigger:
   - platform: device
@@ -1590,4 +1613,23 @@
     data: {}
     target:
       entity_id: switch.entrance_light
+  mode: single
+- id: '1686132028588'
+  alias: "\U0001F3B5Move Music to Nest Audio"
+  description: ''
+  trigger:
+  - platform: tag
+    tag_id: b7e48c34-d74d-4a6b-be87-491037aff87f
+  condition: []
+  action:
+  - service: spotcast.start
+    data:
+      limit: 20
+      force_playback: false
+      random_song: false
+      repeat: 'off'
+      shuffle: false
+      offset: 0
+      ignore_fully_played: false
+      device_name: Friday
   mode: single

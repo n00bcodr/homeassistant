@@ -97,6 +97,7 @@ button_card_templates:
     hold_action:
       action: none
     layout: vertical
+    show_entity_picture: true
     show_label: false
     show_name: false
     show_state: false
@@ -108,6 +109,8 @@ button_card_templates:
       - padding: 0px 0px
       - margin: 0px 0px
       - --paper-card-background-color: rgba(0, 0, 0, 0)
+      entity_picture:
+      - width: 60%
       icon:
       - width: 50px
     tap_action:
@@ -142,7 +145,7 @@ preload_rows:
 swipe_nav:
   animate: fade
   prevent_default: true
-title: ''
+title: Mad House
 views:
 - badges: []
   cards:
@@ -390,7 +393,7 @@ views:
 
           {% else %}
 
-          grey
+          disabled
 
           {% endif %}'
         layout: horizontal
@@ -420,7 +423,7 @@ views:
           {% endif %}'
         icon_color: '{% if is_state(''group.den'', ''on'') %}
 
-          grey
+          disabled
 
           {% else %}
 
@@ -447,7 +450,7 @@ views:
 
           {% else %}
 
-          grey
+          disabled
 
           {% endif %}'
         layout: horizontal
@@ -502,13 +505,21 @@ views:
       type: grid
     - badge_color: ''
       badge_icon: ''
-      entity: switch.charger
+      double_tap_action:
+        action: more-info
+      entity: sensor.charger_power
       icon: '{{ iif(is_state(''switch.charger'', ''on''), ''mdi:power-plug'', ''mdi:power-plug-off-outline'')}}'
       icon_color: '{{ iif(is_state(''switch.charger'', ''on''), iif(is_state(''sensor.charger_power'',
         ''0.0''), ''green'', ''yellow''), ''disabled'')}}'
       primary: Charger
       secondary: '{{ iif(is_state(''switch.charger'', ''on''), (states.sensor.charger_power.state
         + " W"), ''Off'')}}'
+      tap_action:
+        action: call-service
+        data: {}
+        service: homeassistant.toggle
+        target:
+          entity_id: switch.charger
       type: custom:mushroom-template-card
     - entity: cover.curtains
       fill_container: false
@@ -552,7 +563,7 @@ views:
           styles:
             button:
               color: '{{ iif(is_state(''select.mist_mode'', ''High''), ''Green'',
-                ''Gray'') }}'
+                ''disabled'') }}'
           tap_action:
             action: call-service
             service: select.select_option
@@ -564,7 +575,7 @@ views:
           name: Low
           styles:
             button:
-              color: '{{ iif(is_state(''select.mist_mode'', ''Low''), ''Green'', ''Gray'')
+              color: '{{ iif(is_state(''select.mist_mode'', ''Low''), ''Green'', ''disabled'')
                 }}'
           tap_action:
             action: call-service
@@ -601,9 +612,8 @@ views:
       column: 2
   - styles:
       --mdc-icon-size: 25px
-      --mdc-tab-color-default: white
-      --mdc-tab-text-label-color-default: white
-      --mdc-theme-secondary: blue
+      --mdc-tab-color-default: var(--primary-text-color)
+      --mdc-tab-text-label-color-default: var(--primary-text-color)
     tabs:
     - attributes:
         icon: mdi:spotify
@@ -688,12 +698,23 @@ views:
         - humidity
         - precipitation_probability
         type: custom:simple-weather-card
+      Hilary Harris:
+        backdrop: true
+        entity: weather.home
+        name: ' '
+        secondary_info:
+        - humidity
+        - precipitation_probability
+        type: custom:simple-weather-card
     type: custom:state-switch
     view_layout:
       column: 1
   - entity: user
     states:
       Darragh Clerkin:
+        content: '{{ states("sensor.random_joke") }}'
+        type: markdown
+      Hilary Harris:
         content: '{{ states("sensor.random_joke") }}'
         type: markdown
     type: custom:state-switch
@@ -724,58 +745,71 @@ views:
       icon_color: red
       type: entity
     type: custom:mushroom-chips-card
-  - custom_fields:
-      switch:
-        card:
-          badge_color: ''
-          badge_icon: ''
-          entity: switch.kettle
-          icon: '{{ iif(is_state(''switch.kettle'', ''on''), ''mdi:kettle-steam'',
-            ''mdi:kettle-off'')}}'
-          icon_color: '{{ iif(is_state(''switch.kettle'', ''on''), ''red'', ''grey'')}}'
-          multiline_secondary: false
-          primary: Kettle
-          secondary: Turned {{states.switch.kettle.state}} at {{(as_timestamp(states.switch.kettle.last_updated)
-            | timestamp_custom('%-I:%M %p'))}}
-          type: custom:mushroom-template-card
-      temp:
-        card:
-          entity: sensor.kettle_temperature
-          layout: icon_state
-          show_icon: true
-          show_name: false
-          show_state: true
-          styles:
-            icon:
-            - color: "[[[\n  if (states['sensor.kettle_temperature'].state >= 91.0)\n\
-                \    return \"red\";\n  if (states['sensor.kettle_temperature'].state\
-                \ <= 90.0 && states['sensor.kettle_temperature'].state >= 81.0)\n\
-                \    return \"green\";\n  if (states['sensor.kettle_temperature'].state\
-                \ <= 80.0 && states['sensor.kettle_temperature'].state >= 71.0)\n\
-                \    return \"skyblue\";\n  if (states['sensor.kettle_temperature'].state\
-                \ <= 70.0 && states['sensor.kettle_temperature'].state >= 51.0)\n\
-                \    return \"purple\";\n  if (states['sensor.kettle_temperature'].state\
-                \ <= 50.0)\n    return \"violet\";  \n]]]\n"
-            state:
-            - font-size: 14px
-            - font-weight: bold
-            - justify-self: start
-          type: custom:button-card
-    styles:
-      card:
-      - border: none
-      grid:
-      - grid-template-areas: '''switch temp'''
-      - grid-template-columns: 75% 25%
-      - grid-template-rows: 25px
-      - text-align: left
-    tap_action:
-      action: call-service
-      service: switch.toggle
-      service_data:
-        entity_id: switch.kettle
-    type: custom:button-card
   - cards:
+    - alignment: center
+      chips:
+      - content: Utilities
+        double_tap_action:
+          action: none
+        hold_action:
+          action: none
+        icon: mdi:power-plug
+        icon_color: red
+        tap_action:
+          action: none
+        type: template
+      type: custom:mushroom-chips-card
+    - custom_fields:
+        switch:
+          card:
+            badge_color: ''
+            badge_icon: ''
+            entity: switch.kettle
+            icon: '{{ iif(is_state(''switch.kettle'', ''on''), ''mdi:kettle-steam'',
+              ''mdi:kettle-off'')}}'
+            icon_color: '{{ iif(is_state(''switch.kettle'', ''on''), ''red'', ''disabled'')}}'
+            multiline_secondary: false
+            primary: Kettle
+            secondary: Turned {{states.switch.kettle.state}} at {{(as_timestamp(states.switch.kettle.last_updated)
+              | timestamp_custom('%-I:%M %p'))}}
+            type: custom:mushroom-template-card
+        temp:
+          card:
+            entity: sensor.kettle_temperature
+            layout: icon_state
+            show_icon: true
+            show_name: false
+            show_state: true
+            styles:
+              icon:
+              - color: "[[[\n  if (states['sensor.kettle_temperature'].state >= 91.0)\n\
+                  \    return \"red\";\n  if (states['sensor.kettle_temperature'].state\
+                  \ <= 90.0 && states['sensor.kettle_temperature'].state >= 81.0)\n\
+                  \    return \"green\";\n  if (states['sensor.kettle_temperature'].state\
+                  \ <= 80.0 && states['sensor.kettle_temperature'].state >= 71.0)\n\
+                  \    return \"skyblue\";\n  if (states['sensor.kettle_temperature'].state\
+                  \ <= 70.0 && states['sensor.kettle_temperature'].state >= 51.0)\n\
+                  \    return \"purple\";\n  if (states['sensor.kettle_temperature'].state\
+                  \ <= 50.0)\n    return \"violet\";  \n]]]\n"
+              state:
+              - font-size: 14px
+              - font-weight: bold
+              - justify-self: start
+            type: custom:button-card
+      styles:
+        card:
+        - border: none
+        grid:
+        - grid-template-areas: '''switch temp'''
+        - grid-template-columns: 75% 25%
+        - grid-template-rows: 25px
+        - text-align: left
+      tap_action:
+        action: call-service
+        service: switch.toggle
+        service_data:
+          entity_id: switch.kettle
+      type: custom:button-card
     - custom_fields:
         switch:
           card:
@@ -784,7 +818,7 @@ views:
             entity: switch.heating
             icon: '{{ iif(is_state(''switch.heating'', ''on''), ''mdi:radiator'',
               ''mdi:radiator-off'')}}'
-            icon_color: '{{ iif(is_state(''switch.heating'', ''on''), ''red'', ''grey'')}}'
+            icon_color: '{{ iif(is_state(''switch.heating'', ''on''), ''red'', ''disabled'')}}'
             multiline_secondary: false
             primary: Heating
             secondary: Turned {{states.switch.heating.state}} at {{(as_timestamp(states.switch.heating.last_updated)
@@ -821,7 +855,7 @@ views:
         - border: none
         grid:
         - grid-template-areas: '''switch time'''
-        - grid-template-columns: 70% 25%
+        - grid-template-columns: 75% 25%
         - grid-template-rows: 25px
         - text-align: left
       tap_action:
@@ -833,7 +867,7 @@ views:
     - badge_icon: ''
       entity: switch.boiler
       icon: '{{ iif(is_state(''switch.boiler'', ''on''), ''mdi:water-boiler'', ''mdi:water-boiler-off'')}}'
-      icon_color: '{{ iif(is_state(''switch.boiler'', ''on''), ''red'', ''grey'')}}'
+      icon_color: '{{ iif(is_state(''switch.boiler'', ''on''), ''red'', ''disabled'')}}'
       primary: Boiler
       secondary: 'Turned {{states.switch.boiler.state}} at
 
@@ -845,11 +879,24 @@ views:
     view_layout:
       column: 1
   - cards:
+    - alignment: center
+      chips:
+      - content: Living Room
+        double_tap_action:
+          action: none
+        hold_action:
+          action: none
+        icon: mdi:sofa
+        icon_color: blue
+        tap_action:
+          action: none
+        type: template
+      type: custom:mushroom-chips-card
     - badge_icon: ''
       entity: light.living_room_lamp
       icon: '{{ iif(is_state(''light.living_room_lamp'', ''on''), ''mdi:lamp'', ''mdi:lamp-outline'')}}'
       icon_color: '{{ iif(is_state(''light.living_room_lamp'', ''on''), ''orange'',
-        ''grey'')}}'
+        ''disabled'')}}'
       primary: Lamp
       secondary: '{{ states.light.living_room_lamp.state}}'
       type: custom:mushroom-template-card
@@ -875,10 +922,23 @@ views:
       tap_action:
         action: toggle
       type: custom:mushroom-entity-card
+    - alignment: center
+      chips:
+      - content: Kitchen
+        double_tap_action:
+          action: none
+        hold_action:
+          action: none
+        icon: mdi:fridge
+        icon_color: orange
+        tap_action:
+          action: none
+        type: template
+      type: custom:mushroom-chips-card
     - badge_icon: ''
       entity: switch.kitchen_light
       icon: mdi:dome-light
-      icon_color: '{{ iif(is_state(''switch.kitchen_light'', ''on''), ''lime'', ''grey'')}}'
+      icon_color: '{{ iif(is_state(''switch.kitchen_light'', ''on''), ''lime'', ''disabled'')}}'
       primary: Kitchen Light
       secondary: '{{ states.switch.kitchen_light.state}}'
       type: custom:mushroom-template-card
@@ -888,7 +948,7 @@ views:
         icon: '{{ iif(is_state(''switch.backyard_lights_socket_1'', ''on''), ''mdi:string-lights'',
           ''mdi:string-lights-off'')}}'
         icon_color: '{{ iif(is_state(''switch.backyard_lights_socket_1'', ''on''),
-          ''deep-orange'', ''grey'')}}'
+          ''deep-orange'', ''disabled'')}}'
         primary: Backyard Lights
         secondary: '{{ states.switch.backyard_lights_socket_1.state}}'
         type: custom:mushroom-template-card
@@ -896,7 +956,7 @@ views:
         entity: switch.alleyway_lights
         icon: mdi:light-flood-down
         icon_color: '{{ iif(is_state(''switch.alleyway_lights'', ''on''), ''yellow'',
-          ''grey'')}}'
+          ''disabled'')}}'
         primary: Alleyway Lights
         secondary: '{{ states.switch.alleyway_lights.state}}'
         type: custom:mushroom-template-card
@@ -905,6 +965,19 @@ views:
     view_layout:
       column: 1
   - cards:
+    - alignment: center
+      chips:
+      - content: Hallway
+        double_tap_action:
+          action: none
+        hold_action:
+          action: none
+        icon: hue:room-hallway
+        icon_color: cyan
+        tap_action:
+          action: none
+        type: template
+      type: custom:mushroom-chips-card
     - badge_color: ''
       badge_icon: ''
       entity: switch.string_lights
@@ -954,9 +1027,24 @@ views:
     view_layout:
       column: 3
   - cards:
+    - alignment: center
+      chips:
+      - content: Media
+        double_tap_action:
+          action: none
+        hold_action:
+          action: none
+        icon: mdi:television-classic
+        icon_color: green
+        tap_action:
+          action: none
+        type: template
+      type: custom:mushroom-chips-card
     - collapsible_controls: true
       entity: media_player.google_tv
       fill_container: false
+      hold_action:
+        action: toggle
       icon: ''
       media_controls:
       - play_pause_stop
@@ -964,7 +1052,7 @@ views:
       name: Google TV
       show_volume_level: true
       tap_action:
-        action: toggle
+        action: more-info
       type: custom:mushroom-media-player-card
       use_media_info: true
       volume_controls:
@@ -1002,7 +1090,6 @@ views:
             cards:
             - entity: media_player.google_tv
               entity_picture: /local/icons/netflix.png
-              show_entity_picture: true
               tap_action:
                 service: media_player.select_source
                 service_data:
@@ -1012,7 +1099,6 @@ views:
               type: custom:button-card
             - entity: media_player.google_tv
               entity_picture: /local/icons/prime.png
-              show_entity_picture: true
               tap_action:
                 service: media_player.select_source
                 service_data:
@@ -1022,7 +1108,6 @@ views:
               type: custom:button-card
             - entity: media_player.google_tv
               entity_picture: /local/icons/youtube.png
-              show_entity_picture: true
               tap_action:
                 service: media_player.select_source
                 service_data:
@@ -1035,7 +1120,6 @@ views:
             cards:
             - entity: media_player.google_tv
               entity_picture: /local/icons/plex.png
-              show_entity_picture: true
               tap_action:
                 service: media_player.select_source
                 service_data:
@@ -1045,7 +1129,6 @@ views:
               type: custom:button-card
             - entity: media_player.google_tv
               entity_picture: /local/icons/disney.png
-              show_entity_picture: true
               tap_action:
                 service: media_player.select_source
                 service_data:
@@ -1055,12 +1138,47 @@ views:
               type: custom:button-card
             - entity: media_player.google_tv
               entity_picture: /local/icons/spotify.png
-              show_entity_picture: true
               tap_action:
                 service: media_player.select_source
                 service_data:
                   entity_id: media_player.google_tv
                   source: Spotify
+              template: logo_button
+              type: custom:button-card
+            type: custom:hui-element
+          - card_type: horizontal-stack
+            cards:
+            - entity: media_player.google_tv
+              entity_picture: /local/icons/expressvpn.png
+              styles:
+                entity_picture:
+                - width: 70%
+              tap_action:
+                service: media_player.select_source
+                service_data:
+                  entity_id: media_player.google_tv
+                  source: Express VPN
+              template: logo_button
+              type: custom:button-card
+            - entity: media_player.google_tv
+              entity_picture: /local/f1/F1.png
+              tap_action:
+                service: media_player.select_source
+                service_data:
+                  entity_id: media_player.google_tv
+                  source: F1 TV
+              template: logo_button
+              type: custom:button-card
+            - entity: media_player.google_tv
+              entity_picture: /local/icons/sonyliv.png
+              styles:
+                entity_picture:
+                - width: 40%
+              tap_action:
+                service: media_player.select_source
+                service_data:
+                  entity_id: media_player.google_tv
+                  source: SonyLIV
               template: logo_button
               type: custom:button-card
             type: custom:hui-element
@@ -1201,27 +1319,25 @@ views:
       - entity: media_player.google_tv
         state_not: 'off'
       type: conditional
+    - collapsible_controls: true
+      entity: media_player.nest_mini
+      fill_container: false
+      media_controls:
+      - play_pause_stop
+      - next
+      - previous
+      - shuffle
+      - repeat
+      show_volume_level: true
+      type: custom:mushroom-media-player-card
+      use_media_info: true
+      volume_controls:
+      - volume_mute
+      - volume_set
+      - volume_buttons
     type: vertical-stack
     view_layout:
       column: 2
-  - collapsible_controls: true
-    entity: media_player.nest_mini
-    fill_container: false
-    media_controls:
-    - play_pause_stop
-    - next
-    - previous
-    - shuffle
-    - repeat
-    show_volume_level: true
-    type: custom:mushroom-media-player-card
-    use_media_info: true
-    view_layout:
-      column: 2
-    volume_controls:
-    - volume_mute
-    - volume_set
-    - volume_buttons
   - entity: template
     states:
       pickup:
@@ -1329,30 +1445,6 @@ views:
       state_attr(''sensor.blue_bin'', ''next_collection'') < 2  %} pickup {% else
       %} no_pickup {% endif %}'
     type: custom:state-switch
-  - cards:
-    - entity: sensor.living_room_motion_illuminance_lux
-      fill_container: false
-      icon_color: purple
-      name: Living Room
-      primary_info: state
-      secondary_info: name
-      type: custom:mushroom-entity-card
-    - entity: sensor.kitchen_motion_illuminance
-      icon_color: amber
-      name: Kitchen
-      primary_info: state
-      secondary_info: name
-      type: custom:mushroom-entity-card
-    - entity: sensor.living_room_light
-      name: ESP
-      primary_info: state
-      secondary_info: name
-      type: custom:mushroom-entity-card
-    type: horizontal-stack
-  - exclude: []
-    include:
-    - switch.heating
-    type: custom:scheduler-card
   - camera_image: camera.doorbell
     camera_view: live
     entities:
@@ -1362,6 +1454,50 @@ views:
     type: picture-glance
     view_layout:
       column: 3
+  - discover_existing: false
+    display_options:
+      icon: action
+      primary_info: '{entity}: {action}'
+      secondary_info:
+      - relative-time
+      - time
+    exclude: []
+    include:
+    - switch.boiler
+    sort_by:
+    - state
+    - relative-time
+    time_step: 5
+    title: false
+    type: custom:scheduler-card
+    view_layout:
+      column: 2
+  - entity: mediaquery
+    states:
+      '(min-width: 2000px)':
+        cards:
+        - entity: sensor.living_room_motion_illuminance
+          fill_container: false
+          icon_color: purple
+          name: Living Room
+          primary_info: state
+          secondary_info: name
+          type: custom:mushroom-entity-card
+        - entity: sensor.kitchen_motion_illuminance
+          icon_color: amber
+          name: Kitchen
+          primary_info: state
+          secondary_info: name
+          type: custom:mushroom-entity-card
+        - entity: sensor.living_room_light
+          name: ESP
+          primary_info: state
+          secondary_info: name
+          type: custom:mushroom-entity-card
+        type: horizontal-stack
+    type: custom:state-switch
+    view_layout:
+      column: 2
   icon: mdi:sofa
   layout:
     max_cols: 3
@@ -1371,43 +1507,21 @@ views:
 - badges: []
   cards:
   - cards:
-    - cards:
-      - double_tap_action:
-          action: none
-        entity: sensor.washing_machine_state
-        fill_container: true
-        hold_action:
-          action: none
-        icon_color: yellow
-        icon_type: icon
-        layout: vertical
-        name: ' '
-        primary_info: state
-        secondary_info: name
-        tap_action:
-          action: none
-        type: custom:mushroom-entity-card
-      - card:
-          double_tap_action:
-            action: none
-          entity: sensor.bob_remaining
-          fill_container: true
-          hold_action:
-            action: none
-          icon_color: purple
-          icon_type: icon
-          layout: vertical
-          name: Remaining
-          primary_info: state
-          secondary_info: name
-          tap_action:
-            action: none
-          type: custom:mushroom-entity-card
-        conditions:
-        - entity: sensor.bob_remaining
-          state_not: '0'
-        type: conditional
-      type: horizontal-stack
+    - double_tap_action:
+        action: none
+      entity: sensor.washing_machine_state
+      fill_container: true
+      hold_action:
+        action: none
+      icon_color: yellow
+      icon_type: icon
+      layout: vertical
+      name: ' '
+      primary_info: state
+      secondary_info: name
+      tap_action:
+        action: none
+      type: custom:mushroom-entity-card
     - cards:
       - double_tap_action:
           action: none
@@ -1489,7 +1603,7 @@ views:
     - cards:
       - entity: sensor.bob_duration
         icon: mdi:timer-play
-        icon_color: white
+        icon_color: deep-orange
         name: Duration
         primary_info: state
         secondary_info: name
@@ -1497,99 +1611,19 @@ views:
       - entity: sensor.bob_remaining
         fill_container: true
         icon: mdi:timer-refresh
-        icon_color: white
+        icon_color: purple
         layout: horizontal
         name: Remaining
         primary_info: state
         secondary_info: name
         type: custom:mushroom-entity-card
-      type: vertical-stack
+      type: horizontal-stack
     type: vertical-stack
   icon: mdi:washing-machine
   path: utilities
   title: Utilities
 - badges: []
   cards:
-  - cards:
-    - double_tap_action:
-        action: none
-      fill_container: true
-      hold_action:
-        action: none
-      icon: phu:plex
-      icon_color: orange
-      picture: ''
-      primary: Refresh Libraries
-      secondary: ''
-      tap_action:
-        action: none
-      type: custom:mushroom-template-card
-    - cards:
-      - aspect_ratio: 1/1
-        entity_picture: /local/icons/movie.png
-        show_entity_picture: true
-        size: 60%
-        tap_action:
-          action: call-service
-          service: plex.refresh_library
-          service_data:
-            library_name: Movies
-            server_name: Plex Media Server
-        type: custom:button-card
-      - aspect_ratio: 1/1
-        entity_picture: /local/icons/music.png
-        show_entity_picture: true
-        size: 60%
-        tap_action:
-          action: call-service
-          service: plex.refresh_library
-          service_data:
-            library_name: Music
-            server_name: Plex Media Server
-        type: custom:button-card
-      - aspect_ratio: 1/1
-        entity_picture: /local/icons/tvshow.png
-        show_entity_picture: true
-        size: 60%
-        tap_action:
-          action: call-service
-          service: plex.refresh_library
-          service_data:
-            library_name: TV Shows
-            server_name: Plex Media Server
-        type: custom:button-card
-      - aspect_ratio: 1/1
-        confirmation:
-          text: '[[[ return `Are you sure you want to toggle ${entity.attributes.friendly_name}?`
-            ]]]'
-        entity: switch.docker_plex
-        icon: mdi:docker
-        name: Docker
-        show_state: false
-        size: 60%
-        tap_action:
-          action: toggle
-        type: custom:button-card
-      type: horizontal-stack
-    - card:
-        type: entities
-      filter:
-        exclude:
-        - state: unavailable
-        include:
-        - name: Plex Media Server
-          type: weblink
-          url: http://homeassistant.local:32400/web/index.html#!/
-        - name: /[Pp]lex/
-      show_empty: false
-      sort:
-        ignore_case: false
-        method: domain
-        reverse: false
-      type: custom:auto-entities
-    type: vertical-stack
-    view_layout:
-      column: 2
   - cards:
     - entity: input_select.speakers_spotify
       fill_container: false
@@ -1645,6 +1679,7 @@ views:
       exclude:
       - state: unavailable
       - state: 'off'
+      - state: idle
       - state: standby
       - state: unknown
       - entity_id: '*browser*'
@@ -1658,6 +1693,87 @@ views:
     type: custom:auto-entities
     view_layout:
       column: 1
+  - cards:
+    - double_tap_action:
+        action: none
+      fill_container: true
+      hold_action:
+        action: none
+      icon: phu:plex
+      icon_color: orange
+      picture: ''
+      primary: Refresh Libraries
+      secondary: ''
+      tap_action:
+        action: none
+      type: custom:mushroom-template-card
+    - cards:
+      - aspect_ratio: 1/1
+        entity_picture: /local/icons/movie.png
+        show_entity_picture: true
+        size: 60%
+        tap_action:
+          action: call-service
+          service: plex.refresh_library
+          service_data:
+            library_name: Movies
+            server_name: Plex Media Server
+        type: custom:button-card
+      - aspect_ratio: 1/1
+        entity_picture: /local/icons/music.png
+        show_entity_picture: true
+        size: 60%
+        tap_action:
+          action: call-service
+          service: plex.refresh_library
+          service_data:
+            library_name: Music
+            server_name: Plex Media Server
+        type: custom:button-card
+      - aspect_ratio: 1/1
+        entity_picture: /local/icons/tvshow.png
+        show_entity_picture: true
+        size: 60%
+        tap_action:
+          action: call-service
+          service: plex.refresh_library
+          service_data:
+            library_name: TV Shows
+            server_name: Plex Media Server
+        type: custom:button-card
+      - aspect_ratio: 1/1
+        color: dodgerblue
+        confirmation:
+          text: '[[[ return `Are you sure you want to toggle ${entity.attributes.friendly_name}?`
+            ]]]'
+        entity: switch.docker_plex
+        icon: mdi:docker
+        name: Docker
+        show_state: false
+        size: 60%
+        tap_action:
+          action: toggle
+        type: custom:button-card
+      type: horizontal-stack
+    - card:
+        type: entities
+      filter:
+        exclude:
+        - state: unavailable
+        include:
+        - name: Plex Media Server
+          type: weblink
+          url: http://homeassistant.local:32400/web/index.html#!/
+        - name: /[Pp]lex/
+      show_empty: false
+      sort:
+        ignore_case: false
+        method: domain
+        reverse: false
+      type: custom:auto-entities
+    type: vertical-stack
+    view_layout:
+      column: 2
   - card:
       icon: phu:sonarr
       show_header_toggle: false
@@ -1971,11 +2087,11 @@ views:
 
         green
 
-        {% elif (percentage <= 50.0) and (percentage > 30.0) %}
+        {% elif (percentage <= 50.0) and (percentage > 40.0) %}
 
         orange
 
-        {% elif (percentage <= 30.0) and (percentage > 0.0) %}
+        {% elif (percentage <= 40.0) and (percentage > 0.0) %}
 
         red
 
@@ -2050,26 +2166,29 @@ views:
   path: system_monitor
   title: System Monitor
   type: custom:masonry-layout
-- badges:
-  - entity: person.pavanthanuj
-  - entity: person.darragh_clerkin
-  - entity: binary_sensor.vibration_vibration
-  - entity: script.update_all_phone_sensors
-    hold_action:
-      action: more-info
-    tap_action:
-      action: call-service
-      service: script.update_all_phone_sensors
-  - entity: binary_sensor.living_room_motion_occupancy
-    name: Living Room Motion
-    style: ":host {\n  --label-badge-blue:\n    {% if is_state('binary_sensor.living_room_motion_occupancy','on')\
-      \ %}\n      red\n    {% else %}\n      green\n    {% endif %}\n    ;\n}\n"
+  visible:
+  - user: fb77e2a2d4434c87b9e0816707d9584e
+  - user: 74f7e2ffd3594037b1a2fc4de82d9fea
+- badges: []
   cards:
+  - cards:
+    - entity: person.pavanthanuj
+      icon_type: entity-picture
+      name: Pavan
+      type: custom:mushroom-person-card
+    - entity: person.darragh_clerkin
+      icon_type: entity-picture
+      name: Darragh
+      type: custom:mushroom-person-card
+    - entity: person.hilary_harris
+      icon_type: entity-picture
+      name: Hilary
+      type: custom:mushroom-person-card
+    type: horizontal-stack
   - styles:
       --mdc-icon-size: 25px
-      --mdc-tab-color-default: white
-      --mdc-tab-text-label-color-default: white
-      --mdc-theme-secondary: blue
+      --mdc-tab-color-default: var(--primary-text-color)
+      --mdc-tab-text-label-color-default: var(--primary-text-color)
     tabs:
     - attributes:
         icon: mdi:cellphone
@@ -2115,7 +2234,7 @@ views:
           tap_action: more-info
         type: custom:battery-state-card
       styles:
-        --mdc-theme-primary: lightgreen
+        --mdc-theme-primary: green
     - attributes:
         icon: mdi:zigbee
         label: Zigbee Devices
@@ -2155,7 +2274,7 @@ views:
           tap_action: more-info
         type: custom:battery-state-card
       styles:
-        --mdc-theme-primary: yellow
+        --mdc-theme-primary: red
     type: custom:tabbed-card
   - cards:
     - cards:
@@ -2261,10 +2380,8 @@ views:
     type: vertical-stack
   - styles:
       --mdc-icon-size: 25px
-      --mdc-tab-color-default: white
-      --mdc-tab-text-label-color-default: white
-      --mdc-theme-secondary: blue
-      stacked: true
+      --mdc-tab-color-default: var(--primary-text-color)
+      --mdc-tab-text-label-color-default: var(--primary-text-color)
     tabs:
     - attributes:
         icon: mdi:castle

@@ -215,6 +215,7 @@
 
     black_bin:
       friendly_name: Black Bin Pickup
+      unique_id: black_bin_pickup
       value_template: >
         {{ as_timestamp(state_attr("calendar.allied_recycling_black_bin", "start_time")) | timestamp_custom('%B %-d') }}
       attribute_templates:
@@ -225,6 +226,7 @@
 
     blue_bin:
       friendly_name: Blue Bin Pickup
+      unique_id: blue_bin_pickup
       value_template: >
         {{ as_timestamp(state_attr("calendar.allied_recycling_blue_bin", "start_time")) | timestamp_custom('%B %-d') }}
       attribute_templates:

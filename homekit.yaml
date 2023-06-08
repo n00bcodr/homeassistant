@@ -26,6 +26,7 @@
       - switch.monitor_2
       - switch.monitor_1
       - switch.charger
+      - switch.diffuser
       - switch.heating
       - switch.boiler
       - switch.dragon

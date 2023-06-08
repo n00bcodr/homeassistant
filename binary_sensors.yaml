@@ -10,6 +10,7 @@
 
     chair_occupancy:
       friendly_name: "Chair Occupancy"
+      unique_id: chair_occupancy
       device_class: occupancy
       value_template: "{{ is_state('binary_sensor.vibration_vibration', 'on') or not is_state('sensor.vibration_action', 'None') }}"
       icon_template: "{{ iif(is_state('binary_sensor.chair_occupancy', 'on'), 'mdi:table-chair', 'mdi:account-off') }}"

@@ -8,3 +8,9 @@
     - service: mobile_app_10pro
     - service: mobile_app_oneplus7t
     - service: mobile_app_cph1937
+
+- name: all_phones_ios
+  platform: group
+  services:
+    - service: mobile_app_pavan_thanujs_ipad
+    - service: mobile_app_hilary_s_phone
