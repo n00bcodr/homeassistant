@@ -8,7 +8,7 @@
     "/data/cache/platformio/packages/framework-arduinoespressif8266/libraries"
   ],
   "defines": [
-    "PLATFORMIO=60106",
+    "PLATFORMIO=60107",
     "ESP8266",
     "ARDUINO_ARCH_ESP8266",
     "ARDUINO_ESP8266_WEMOS_D1MINI",

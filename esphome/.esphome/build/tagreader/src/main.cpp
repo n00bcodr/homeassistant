@@ -128,9 +128,9 @@ void setup() {
   //       type_id: waituntilaction
   //     - logger.log:
   //         format: API is connected!
-  //         args: []
   //         tag: main
   //         level: DEBUG
+  //         args: []
   //       type_id: lambdaaction
   //     - rtttl.play:
   //         rtttl: success:d=24,o=5,b=100:c,g,b
@@ -159,7 +159,7 @@ void setup() {
   //   includes: []
   //   libraries: []
   //   name_add_mac_suffix: false
-  //   min_version: 2023.5.4
+  //   min_version: 2023.6.3
   App.pre_setup("tagreader", "", "", __DATE__ ", " __TIME__, false);
   // switch:
   // button:
@@ -204,6 +204,7 @@ void setup() {
   //   fast_connect: false
   //   output_power: 20.0
   //   passive_scan: false
+  //   enable_on_boot: true
   //   networks:
   //   - ssid: !secret 'wifi_ssid'
   //     password: !secret 'wifi_password'
@@ -231,6 +232,7 @@ void setup() {
   wifi_wificomponent->set_fast_connect(false);
   wifi_wificomponent->set_passive_scan(false);
   wifi_wificomponent->set_output_power(20.0f);
+  wifi_wificomponent->set_enable_on_boot(true);
   wifi_wificomponent->set_component_source("wifi");
   App.register_component(wifi_wificomponent);
   // mdns:

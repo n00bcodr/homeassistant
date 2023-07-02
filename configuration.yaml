@@ -1,6 +1,7 @@
 default_config:
 
 homeassistant:
+  packages: !include_dir_named packages/
   allowlist_external_dirs:
     - /config/.storage
     - /config/
@@ -9,7 +10,7 @@ logger:
   default: critical
   logs:
     homeassistant.components.shell_command: debug
-    homeassistant.components.nest: debug
+    #homeassistant.components.nest: debug
 
 python_script:
 
@@ -84,6 +85,7 @@ shell_command:
   git_core_update_push: bash /config/tools/git_core_update_push.sh
   git_commit_push: bash /config/tools/ha_gitpush.sh "{{states.input_text.git_commit_message.state}}"
   git_hacs_update: bash /config/tools/hacs_updates_push.sh
+  network_tracker: bash /config/tools/network_tracker.sh >> /www/network_report.txt
 
 withings:
   use_webhook: true

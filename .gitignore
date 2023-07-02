@@ -37,6 +37,7 @@ aircast.xml
 addons_config
 custom_components/*
 www/community/*
+esphome/.esphome/*
 
 # Ensure these YAML files are ignored, otherwise your secret data/credentials will leak.
 frigate.yml

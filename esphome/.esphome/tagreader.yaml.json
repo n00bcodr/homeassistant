@@ -3,7 +3,7 @@
   "name": "tagreader",
   "friendly_name": null,
   "comment": null,
-  "esphome_version": "2023.5.4",
+  "esphome_version": "2023.6.3",
   "src_version": 1,
   "address": "tagreader.local",
   "web_port": null,
@@ -46,5 +46,6 @@
     "web_server_base",
     "wifi",
     "wifi_info"
-  ]
+  ],
+  "no_mdns": false
 }

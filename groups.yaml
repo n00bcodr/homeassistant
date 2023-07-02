@@ -2,8 +2,7 @@ den:
   name: Den
   entities:
     - light.light
-    - switch.monitor_2
-    - switch.monitor_1
+    - switch.workstation
     - light.shapes
     - binary_sensor.in_bed
   icon: mdi:castle

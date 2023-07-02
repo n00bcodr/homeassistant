@@ -1,6 +1,7 @@
 - platform: template
   sensors:
     washing_machine_state:
+      unique_id: washing_machine_state
       friendly_name: "Washing Machine State"
       value_template: >
         {% set state = states.sensor.bob_sub_state.state %}
@@ -40,6 +41,7 @@
         {% endif %}
 
     magic_cube_active_face:
+      unique_id: magic_cube_active_face
       friendly_name: "Magic Cube Active Face"
       value_template: "{{states.sensor.magic_cube_action.attributes.side}}"
 
@@ -73,6 +75,7 @@
     #----- Speedtest Download
     download_speed:
       value_template: "{{ float ('%.1f'%(states('sensor.speedtest_download') | float) ) + 50 }}"
+      unique_id: download_speed
       friendly_name: "Download Speed"
       unit_of_measurement: "Mbps"
       icon_template: "mdi:download"
@@ -80,17 +83,20 @@
     #----- Speedtest Upload
     upload_speed:
       value_template: "{{ float ('%.1f'%(states('sensor.speedtest_upload') | float) ) + 50 }}"
+      unique_id: upload_speed
       friendly_name: "Upload Speed"
       unit_of_measurement: "Mbps"
       icon_template: "mdi:upload"
 
     moon_phase:
       friendly_name: "Moon Phase"
+      unique_id: moon_phase_image
       value_template: "{{ states.sensor.moon.state | replace ('_', ' ') | title}}"
       entity_picture_template: /local/moon_phases/{{ states.sensor.moon.state }}.png
 
     chair_occupancy:
       friendly_name: "Chair Occupancy"
+      unique_id: chair_occupancy
       value_template: "{{ iif(is_state('binary_sensor.vibration_vibration', 'on'), 'Away', 'At Desk') }}"
       icon_template: "{{ iif(is_state('binary_sensor.vibration_vibration', 'on'), 'mdi:account-off', 'mdi:table-chair') }}"
 
@@ -167,6 +173,7 @@
         {{ ((states('sensor.5tb_total_space') | float) - ( states('sensor.5tb_free_space') | float) | round(2)) }}
 
     server_last_boot:
+      unique_id: server_last_boot
       value_template: >
         {% set lb = states('sensor.last_boot') %}
           {% if lb != 'unknown' %}

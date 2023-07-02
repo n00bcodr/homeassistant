@@ -323,6 +323,10 @@
             color: red
             sticky: 'true'
       threshold: 15
+      exclude:
+        entity_id:
+        - sensor.hilary_s_phone_battery_level
+        - sensor.7t_battery_level
 - id: '1654855874344'
   alias: ⚙️Convert Lovelace configuration to yaml
   description: ''
@@ -483,8 +487,7 @@
         data:
           scene_id: den_as_it_was
           snapshot_entities:
-          - switch.monitor_1
-          - switch.monitor_2
+          - switch.workstation
           - light.light
           - media_player.spotify
           - light.shapes
@@ -492,8 +495,7 @@
         data: {}
         target:
           entity_id:
-          - switch.monitor_1
-          - switch.monitor_2
+          - switch.workstation
           - light.shapes
           - light.light
       - service: media_player.media_pause
@@ -510,16 +512,14 @@
         data:
           scene_id: den_as_it_was
           snapshot_entities:
-          - switch.monitor_1
-          - switch.monitor_2
+          - switch.workstation
           - light.light
           - light.shapes
       - service: homeassistant.turn_off
         data: {}
         target:
           entity_id:
-          - switch.monitor_1
-          - switch.monitor_2
+          - switch.workstation
           - light.shapes
           - light.light
   mode: single
@@ -737,7 +737,7 @@
     - condition: or
       conditions:
       - condition: state
-        entity_id: switch.monitor_1
+        entity_id: switch.workstation
         state: 'on'
     - condition: state
       entity_id: binary_sensor.chair_occupancy
@@ -760,54 +760,6 @@
         tag: den_off
         icon_url: /local/images/ninja.png
   mode: single
-- id: '1671638172636'
-  alias: "\U0001F3F0Replicate Monitor State"
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - switch.monitor_1
-    id: 'on'
-    from: 'off'
-    to: 'on'
-  - platform: state
-    entity_id:
-    - switch.monitor_1
-    id: 'off'
-    from: 'on'
-    to: 'off'
-  condition:
-  - condition: time
-    before: 00:00:00
-    weekday:
-    - mon
-    - tue
-    - wed
-    - thu
-    - fri
-    after: 00:00:00
-    enabled: false
-  action:
-  - choose:
-    - conditions:
-      - condition: trigger
-        id: 'on'
-      sequence:
-      - service: switch.turn_on
-        data: {}
-        target:
-          entity_id:
-          - switch.monitor_2
-    - conditions:
-      - condition: trigger
-        id: 'off'
-      sequence:
-      - service: switch.turn_off
-        data: {}
-        target:
-          entity_id: switch.monitor_2
-    default: []
-  mode: single
 - id: '1671638403506'
   alias: "\U0001F3F0Desk Presence Detection"
   description: ''
@@ -815,7 +767,6 @@
   - platform: state
     entity_id:
     - binary_sensor.vibration_vibration
-    from: 'off'
     to: 'on'
   condition:
   - condition: or
@@ -824,7 +775,7 @@
       after: 08:00:00
       before: '10:00:00'
     - condition: state
-      entity_id: switch.monitor_1
+      entity_id: switch.workstation
       state: 'off'
   action:
   - choose:
@@ -845,7 +796,7 @@
       - service: homeassistant.turn_on
         data: {}
         target:
-          entity_id: switch.monitor_1
+          entity_id: switch.workstation
     default: []
   mode: single
 - id: '1672227190927'
@@ -1021,8 +972,10 @@
       entity_id: sensor.living_room_motion_illuminance
       below: 60
   action:
-  - service: homeassistant.turn_on
-    data: {}
+  - service: light.turn_on
+    data:
+      color_temp: 500
+      brightness: 255
     target:
       entity_id: light.living_room_lamp
   - wait_for_trigger:
@@ -1041,7 +994,8 @@
     data: {}
     target:
       entity_id: light.living_room_lamp
-  mode: single
+  mode: parallel
+  max: 10
 - id: '1675093554282'
   alias: "\U0001F9FA Wash Cycle"
   description: ''
@@ -1085,7 +1039,7 @@
         continue_on_timeout: false
       - service: notify.all_phones
         data:
-          message: at {{ as_timestamp(now()) | timestamp_custom('%-I:%M:%S %p')}}
+          message: at {{ as_timestamp(now()) | timestamp_custom('%-I:%M %p')}}
           data:
             notification_icon: mdi:washing-machine
             icon_url: /local/images/washing_machine.png
@@ -1094,7 +1048,7 @@
           title: "\U0001F9FA Wash Cycle Complete"
       - service: notify.all_phones_ios
         data:
-          message: at {{ as_timestamp(now()) | timestamp_custom('%-I:%M:%S %p')}}
+          message: at {{ as_timestamp(now()) | timestamp_custom('%-I:%M %p')}}
           data:
             notification_icon: mdi:washing-machine
             image: /local/images/washing_machine.png
@@ -1124,7 +1078,7 @@
         continue_on_timeout: false
       - service: notify.all_phones
         data:
-          message: at {{ as_timestamp(now()) | timestamp_custom('%-I:%M:%S %p')}}
+          message: at {{ as_timestamp(now()) | timestamp_custom('%-I:%M %p')}}
           data:
             notification_icon: mdi:washing-machine
             image: /local/images/washing_machine.png
@@ -1132,7 +1086,7 @@
           title: "\U0001F9FA Dry Cycle Complete"
       - service: notify.all_phones_ios
         data:
-          message: at {{ as_timestamp(now()) | timestamp_custom('%-I:%M:%S %p')}}
+          message: at {{ as_timestamp(now()) | timestamp_custom('%-I:%M %p')}}
           data:
             notification_icon: mdi:washing-machine
             icon_url: /local/images/washing_machine.png
@@ -1424,7 +1378,8 @@
     data: {}
     target:
       entity_id: switch.string_lights_socket_1
-  mode: single
+  mode: parallel
+  max: 10
 - id: '1684017771758'
   alias: "\U0001F4FARefresh Plex Library"
   description: Refreshes the plex libraries when a download from sonarr or radarr
@@ -1442,14 +1397,8 @@
     to: 'off'
   condition: []
   action:
-  - service: plex.refresh_library
-    data:
-      server_name: Plex Media Server
-      library_name: Movies
-  - service: plex.refresh_library
-    data:
-      server_name: Plex Media Server
-      library_name: TV Shows
+  - service: script.plex_library_refresh
+    data: {}
   mode: queued
   max: 10
 - id: '1684020991108'
@@ -1632,4 +1581,134 @@
       offset: 0
       ignore_fully_played: false
       device_name: Friday
+  mode: single
+- id: '1687359882327'
+  alias: ⚙Reload Unavailable Entities
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.speedtest_download
+    id: speedtest
+    to: unavailable
+  - platform: state
+    entity_id:
+    - sensor.bob_duration
+    id: homewhiz
+    to: unavailable
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: speedtest
+      sequence:
+      - service: homeassistant.update_entity
+        data: {}
+        target:
+          entity_id:
+          - sensor.speedtest_ping
+          - sensor.speedtest_download
+          - sensor.speedtest_upload
+    - conditions:
+      - condition: trigger
+        id: homewhiz
+      sequence:
+      - service: homeassistant.update_entity
+        data: {}
+        target:
+          entity_id:
+          - select.bob_state
+          - select.bob_programme
+          - select.bob_temperature
+          - select.bob_spin
+          - select.bob_fast
+          - select.bob_drying
+          - select.bob_custom_duration_level
+          - select.bob_rinse_count
+          - select.bob_volume
+          - sensor.bob_sub_state
+          - sensor.bob_programme_end_time
+          - sensor.bob_duration
+          - sensor.bob_remaining
+          - switch.bob_prewash
+          - switch.bob_extra_rinse
+          - switch.bob_smart_anti_crease
+          - switch.bob_steam
+          - switch.bob_extra_water
+          - switch.bob_soaking
+          - switch.bob_night_mode
+          - switch.bob_anticrease
+          - binary_sensor.bob_remote_control
+          - binary_sensor.bob_warning_door_is_open
+          - binary_sensor.bob_warning_no_water
+          - binary_sensor.bob_warning_safety
+  mode: single
+- id: '1687773419535'
+  alias: Dishwasher Cycle
+  description: ''
+  use_blueprint:
+    path: leofabri/appliance-status-monitor.yaml
+    input:
+      appliance_socket: switch.dishwasher
+      appliance_power_sensor: sensor.dishwasher_power
+      appliance_starting_power_threshold: 3
+      appliance_finishing_power_threshold: 0
+      appliance_state_machine: input_select.dishwasher_state_machine
+      appliance_job_cycle: input_boolean.dishwasher_job_cycle
+      delayed_job_completion_timer: timer.dishwasher_delayed_job_completion_timer
+      automation_self_trigger: input_boolean.dishwasher_automation_self_trigger
+      delayed_job_completion_duration: 59
+      actions_job_cycle_ends:
+      - service: notify.mobile_app_10pro
+        data:
+          message: at {{ as_timestamp(now()) | timestamp_custom('%-I:%M %p')}}
+          data:
+            notification_icon: mdi:dishwasher
+            sticky: 'true'
+          title: "\U0001F37D Dishwashing Completed"
+- id: '1687903979617'
+  alias: Door Alarm
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.door_contact
+    from: 'off'
+    to: 'on'
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: device_tracker.oneplus_7t
+      state: not_home
+    - condition: state
+      entity_id: device_tracker.oneplus_10pro
+      state: not_home
+    - condition: state
+      entity_id: device_tracker.hilary_s_phone_2
+      state: not_home
+  action:
+  - service: light.turn_on
+    data:
+      effect: Custom
+    target:
+      entity_id: light.led_strip
+  - service: media_player.volume_set
+    data:
+      volume_level: 1
+    target:
+      entity_id: media_player.nest_mini
+  - service: media_player.play_media
+    data:
+      media_content_type: audio/mp3
+      media_content_id: /local/alarm-sound.mp3
+    target:
+      entity_id: media_player.nest_mini
+  - service: media_player.play_media
+    data:
+      media_content_type: audio/mp3
+      media_content_id: /local/alarm-sound.mp3
+    target:
+      entity_id: media_player.nest_mini
   mode: single

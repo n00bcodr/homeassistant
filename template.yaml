@@ -20,7 +20,7 @@
         type: camera_motion
   binary_sensor:
     - name: "Door Motion"
-      device_class: sound
+      device_class: motion
       auto_off: 10
       state: "on"
 

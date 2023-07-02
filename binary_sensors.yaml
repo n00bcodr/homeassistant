@@ -14,6 +14,7 @@
       device_class: occupancy
       value_template: "{{ is_state('binary_sensor.vibration_vibration', 'on') or not is_state('sensor.vibration_action', 'None') }}"
       icon_template: "{{ iif(is_state('binary_sensor.chair_occupancy', 'on'), 'mdi:table-chair', 'mdi:account-off') }}"
+      delay_off: "00:01:00"
 
     # True if there's an update available for supervisor
     updater_supervisor:

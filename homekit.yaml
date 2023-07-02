@@ -23,8 +23,7 @@
       - switch.kitchen_light
       - switch.alleyway_lights
       - switch.backyard_lights
-      - switch.monitor_2
-      - switch.monitor_1
+      - switch.workstation
       - switch.charger
       - switch.diffuser
       - switch.heating
@@ -35,6 +34,7 @@
       - switch.hallway_chandelier
       - camera.doorbell
       - media_player.friday
+      - camera.google_photos_lenovo_clock_media
 
   #Configure Each Entity
   entity_config:

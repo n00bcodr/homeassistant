@@ -109,6 +109,7 @@
 #include "esphome/core/preferences.h"
 #include "esphome/core/scheduler.h"
 #include "esphome/core/string_ref.h"
+#include "esphome/core/time.h"
 #include "esphome/core/util.h"
 #include "esphome/core/version.h"
 
