@@ -56,7 +56,7 @@
       "new_item": true,
       "item": "Server Controls",
       "href": "/developer-tools/yaml",
-      "icon": "mdi:server-network",
+      "icon": "mdi:restart",
       "bottom": true,
       "order": 10
     },
