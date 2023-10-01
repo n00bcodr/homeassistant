@@ -49,44 +49,58 @@
 
     count_automations:
       value_template: "{{ states.automation | count }}"
+      icon_template: mdi:robot
+      unique_id: count_automations
+
     count_scripts:
       value_template: "{{ states.script | count }}"
+      icon_template: mdi:script-text-outline
+      unique_id: count_scripts
+
     count_device_trackers:
       value_template: "{{ states.device_tracker | count }}"
+      icon_template: mdi:lan-connect
+      unique_id: count_device_trackers
+
     count_binary_sensors:
       value_template: "{{ states.binary_sensor | count }}"
+      icon_template: mdi:checkbox-multiple-blank-outline
+      unique_id: count_binary_sensors
+
     count_sensors:
       value_template: "{{ states.sensor | count }}"
+      icon_template: mdi:eye
+      unique_id: count_sensors
+
     count_switches:
       value_template: "{{ states.switch | count }}"
+      icon_template: mdi:toggle-switch-outline
+      unique_id: count_switches
+
     count_lights:
       value_template: "{{ states.light | count }}"
-    count_fans:
-      value_template: "{{ states.fan | count }}"
+      icon_template: mdi:lightbulb-outline
+      unique_id: count_lights
+
     count_zones:
       value_template: "{{ states.zone | count }}"
+      icon_template: mdi:map-clock
+      unique_id: count_zones
+
     count_scenes:
       value_template: "{{ states.scene | count }}"
+      icon_template: mdi:palette-outline
+      unique_id: count_scenes
+
     count_media_players:
       value_template: "{{ states.media_player | count }}"
+      icon_template: mdi:cast-audio
+      unique_id: count_media_players
+
     count_input_booleans:
       value_template: "{{ states.input_boolean | count }}"
-
-    #----- Speedtest Download
-    download_speed:
-      value_template: "{{ float ('%.1f'%(states('sensor.speedtest_download') | float) ) + 50 }}"
-      unique_id: download_speed
-      friendly_name: "Download Speed"
-      unit_of_measurement: "Mbps"
-      icon_template: "mdi:download"
-
-    #----- Speedtest Upload
-    upload_speed:
-      value_template: "{{ float ('%.1f'%(states('sensor.speedtest_upload') | float) ) + 50 }}"
-      unique_id: upload_speed
-      friendly_name: "Upload Speed"
-      unit_of_measurement: "Mbps"
-      icon_template: "mdi:upload"
+      icon_template: mdi:toggle-switch-off-outline
+      unique_id: count_input_booleans
 
     moon_phase:
       friendly_name: "Moon Phase"
@@ -130,7 +144,7 @@
       unit_of_measurement: "GB"
       icon_template: mdi:harddisk
       value_template: >
-        {{ state_attr('sensor.sonarr_disk_space', '/home/pt/media/1TB') |regex_findall_index(find='(/.*G)') | replace ("G", "")| replace ("/", "")}}
+        {{ state_attr('sensor.sonarr_disk_space', '/media/pt/1TB') |regex_findall_index(find='(/.*G)') | replace ("G", "")| replace ("/", "")}}
 
     1tb_free_space:
       friendly_name: "1TB Hard Disk Free Space"
@@ -138,7 +152,7 @@
       unit_of_measurement: "GB"
       icon_template: mdi:harddisk
       value_template: >
-        {{ state_attr('sensor.sonarr_disk_space', '/home/pt/media/1TB') |regex_findall_index(find='(.*/)') | replace ("G", "")| replace ("/", "")}}
+        {{ state_attr('sensor.sonarr_disk_space', '/media/pt/1TB') |regex_findall_index(find='(.*/)') | replace ("G", "")| replace ("/", "")}}
 
     1tb_used_space:
       friendly_name: "1TB Hard Disk Used Space"
@@ -154,7 +168,7 @@
       unit_of_measurement: "GB"
       icon_template: mdi:harddisk
       value_template: >
-        {{ state_attr('sensor.sonarr_disk_space', '/home/pt/media/5TB') |regex_findall_index(find='(/.*G)') | replace ("G", "")| replace ("/", "")}}
+        {{ state_attr('sensor.sonarr_disk_space', '/media/pt/5TB') |regex_findall_index(find='(/.*G)') | replace ("G", "")| replace ("/", "")}}
 
     5tb_free_space:
       friendly_name: "5TB Hard Disk Free Space"
@@ -162,7 +176,7 @@
       unit_of_measurement: "GB"
       icon_template: mdi:harddisk
       value_template: >
-        {{ state_attr('sensor.sonarr_disk_space', '/home/pt/media/5TB') |regex_findall_index(find='(.*/)') | replace ("G", "")| replace ("/", "")}}
+        {{ state_attr('sensor.sonarr_disk_space', '/media/pt/5TB') |regex_findall_index(find='(.*/)') | replace ("G", "")| replace ("/", "")}}
 
     5tb_used_space:
       friendly_name: "5TB Hard Disk Used Space"

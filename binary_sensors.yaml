@@ -5,7 +5,7 @@
       unique_id: in_bed
       device_class: occupancy
       value_template: >-
-        {{ not (is_state('binary_sensor.withings_in_bed_homeassistant', 'off') or is_state('binary_sensor.withings_in_bed_homeassistant', 'unavailable')) or is_state('input_boolean.bed', 'on') }}
+        {{ not (is_state('binary_sensor.withings_in_bed', 'off') or is_state('binary_sensor.withings_in_bed', 'unknown') or is_state('binary_sensor.withings_in_bed', 'unavailable')) or is_state('input_boolean.bed', 'on') }}
       icon_template: "{{ iif(is_state('binary_sensor.in_bed', 'on'), 'mdi:bed', 'mdi:bed-outline') }}"
 
     chair_occupancy:

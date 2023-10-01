@@ -86,6 +86,3 @@ shell_command:
   git_commit_push: bash /config/tools/ha_gitpush.sh "{{states.input_text.git_commit_message.state}}"
   git_hacs_update: bash /config/tools/hacs_updates_push.sh
   network_tracker: bash /config/tools/network_tracker.sh >> /www/network_report.txt
-
-withings:
-  use_webhook: true
