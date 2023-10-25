@@ -1973,4 +1973,67 @@
           entity_id: switch.kitchen_light
   mode: parallel
   max: 10
+- id: '1698150976885'
+  alias: ⚙ Calvin and Hobbes
+  description: ''
+  trigger:
+  - platform: homeassistant
+    event: start
+  - platform: sun
+    event: sunrise
+    offset: 0
+    id: sunrise
+  - platform: sun
+    event: sunset
+    offset: 0
+  condition: []
+  action:
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 10
+      milliseconds: 0
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - sunrise
+      sequence:
+      - service: telegram_bot.send_message
+        data:
+          target:
+          - -1002143785244
+          message: 'Calvin and Hobbes - <a href="{{ states.sensor.calvin_and_hobbes.state}}">{{as_timestamp(strptime(states.sensor.calvin_and_hobbes.attributes.publishedDate,''%Y/%m/%d''))
+            | timestamp_custom(''%-d %b, %Y'') }}</a>
 
+
+            <a href= "https://www.gocomics.com/calvinandhobbes/{{states.sensor.calvin_and_hobbes.attributes.publishedDate}}">
+            GoComics URL</a>'
+          parse_mode: html
+    default:
+    - service: homeassistant.update_entity
+      target:
+        entity_id: sensor.calvin_and_hobbes
+      data: {}
+    - delay:
+        hours: 0
+        minutes: 0
+        seconds: 10
+        milliseconds: 0
+    - service: notify.mobile_app_10pro
+      data:
+        message: ''
+        data:
+          sticky: 'true'
+          color: '#2DF56D'
+          notification_icon: mdi:thought-bubble
+          image: '{{states.sensor.calvin_and_hobbes.state}}'
+          actions:
+          - action: URI
+            title: Open Image
+            uri: '{{states.sensor.calvin_and_hobbes.state}}'
+          - action: URI
+            title: '{{as_timestamp(strptime(states.sensor.calvin_and_hobbes.attributes.publishedDate,''%Y/%m/%d''))
+              | timestamp_custom(''%-d %b, %Y'') }}'
+            uri: /lovelace/calvinandhobbes
+  mode: single

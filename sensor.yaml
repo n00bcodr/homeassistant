@@ -1,5 +1,6 @@
 - platform: template
   sensors:
+    calvin_and_hobbes: !include calvin_and_hobbes.yaml
     washing_machine_state:
       unique_id: washing_machine_state
       friendly_name: "Washing Machine State"
