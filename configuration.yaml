@@ -5,16 +5,17 @@ homeassistant:
   allowlist_external_dirs:
     - /config/.storage
     - /config/
+
 browser:
+python_script:
+pyscript:
+my:
+
 logger:
   default: critical
-  logs:
-    homeassistant.components.shell_command: debug
-    #homeassistant.components.nest: debug
-
-python_script:
-
-my:
+  # logs:
+  # homeassistant.components.shell_command: debug
+  # homeassistant.components.pyscript: debug
 
 folder_watcher:
   - folder: /config/.storage
@@ -22,14 +23,11 @@ folder_watcher:
 tts:
   - platform: google_translate
 
-wake_on_lan:
-
 group: !include groups.yaml
 automation: !include automations.yaml
 script: !include scripts.yaml
 scene: !include scenes.yaml
 binary_sensor: !include binary_sensors.yaml
-input_select: !include input_select.yaml
 sensor: !include sensor.yaml
 notify: !include notify.yaml
 rest_command: !include rest_commands.yaml
@@ -75,14 +73,15 @@ spotcast:
   sp_key: !secret sp_key
 
 telegram_bot:
-  - platform: polling
+  - platform: broadcast
     api_key: !secret telegram_api
     allowed_chat_ids:
       - !secret telegram_chat_id
+      - !secret telegram_chat_id_atm
+      - !secret telegram_chat_id_ch
 
 shell_command:
   lovelace_default_convert: python /config/tools/lovelace_default_convert.py
   git_core_update_push: bash /config/tools/git_core_update_push.sh
   git_commit_push: bash /config/tools/ha_gitpush.sh "{{states.input_text.git_commit_message.state}}"
   git_hacs_update: bash /config/tools/hacs_updates_push.sh
-  network_tracker: bash /config/tools/network_tracker.sh >> /www/network_report.txt

@@ -1,12 +1,8 @@
-- platform: telegram
-  name: banthi
-  chat_id: !secret telegram_chat_id
-
 - name: all_phones
   platform: group
   services:
     - service: mobile_app_10pro
-    - service: mobile_app_oneplus7t
+    - service: mobile_app_op7t
 
 - name: all_phones_ios
   platform: group

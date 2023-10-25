@@ -1,8 +1,0 @@
-speakers_spotify:
-  name: Spotify Output
-  icon: mdi:spotify
-  options:
-    - "pavanthanuj"
-    - "Friday"
-    - "Clock"
-    - "Nest Mini"

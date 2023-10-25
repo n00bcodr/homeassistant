@@ -296,3 +296,28 @@ plex_library_refresh:
       library_name: TV Shows
   mode: single
   icon: mdi:plex
+play_spotify_on_phone:
+  alias: Play Spotify on phone
+  sequence:
+  - condition: template
+    value_template: '{{ state_attr(''sensor.10pro_bluetooth_connection'', ''connected_paired_devices'')
+      | regex_search(''Galaxy Buds'', ignorecase=TRUE)}}'
+  - service: notify.mobile_app_10pro
+    data:
+      message: command_launch_app
+      data:
+        package_name: com.spotify.music
+    alias: Open App
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 2
+      milliseconds: 0
+  - alias: Play Music
+    service: notify.mobile_app_10pro
+    data:
+      message: command_media
+      data:
+        media_package_name: com.spotify.music
+        media_command: play
+  mode: single
