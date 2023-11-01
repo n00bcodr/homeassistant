@@ -143,6 +143,9 @@ const e="undefined"!=typeof globalThis&&globalThis||"undefined"!=typeof self&&se
         --padding-y: var(--popup-padding-y, 20px);
       }
 
+      .content {
+        outline: none;
+      }
       .content .container {
         padding: 8px 24px 20px 24px;
       }
@@ -213,10 +216,8 @@ const e="undefined"!=typeof globalThis&&globalThis||"undefined"!=typeof self&&se
         ha-dialog {
           --mdc-dialog-min-width: 97vw;
           --mdc-dialog-max-width: 97vw;
-          --mdc-dialog-min-height: 100%;
-          --mdc-dialog-max-height: 100%;
-          --vertical-align-dialog: flex-end;
-          --ha-dialog-border-radius: 0;
+          --vertical-align-dialog: flex-start;
+          --ha-dialog-border-radius: var(--popup-border-radius, 28px);
         }
         :host([wide]) .content {
           width: 100vw;
