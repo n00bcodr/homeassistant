@@ -13,3 +13,14 @@
     name: Shopping List
     unique_id: shopping_list
     command: python3 /config/tools/shopping_list.py
+
+- sensor:
+    name: Calvin and Hobbes
+    unique_id: calvin_and_hobbes
+    icon: mdi:thought-bubble-outline
+    command: "shuf calvinandhobbes.json | head -1"
+    scan_interval: 21600
+    value_template: "{{ value_json.uri }}"
+    json_attributes:
+      - goComicsUrl
+      - publishedDate
