@@ -13,22 +13,27 @@
 [![Spotify](https://img.shields.io/badge/Spotify-1ED760?style=for-the-badge&logo=spotify&logoColor=white)](https://open.spotify.com/user/21eb7srfkhj4oefepym2q5cpq)
 [![Discord](https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/users/beardbaba#3387)
 ---
-# Home Assistant Configuraton
+# Home Assistant Configuration
 
 I started my Home Assistant Journey with a Raspberry Pi 3, from which I have switched to an old Dell Laptop that I had lying around, for a year. I then migrated my setup to a renewed [HP Mini PC](https://www.amazon.in/gp/product/B09RTMLB15) with Core i7, 16GB RAM which is now the [server back home](https://github.com/n00bcodr/homeassistant) in India. When I was moving to Ireland I bought a Dell OPTIPLEX 3060 Tiny with Core i3 and 20GB RAM and a few hard disks connected with my Movie and TV Show collections.
 
 
-## Things I use the server for
+## Things I have configured on the server
 
 * [Home Assistant](https://home-assistant.io/)
+* [Portainer](https://www.portainer.io/) to manage all the containers
 * [Plex](https://www.plex.tv/) Media Server to manage all my media
-* [Sonarr](https://sonarr.tv/) to download latest episodes of TV shows I watch and make them available on Plex
+* [Sonarr](https://sonarr.tv/) to download the latest episodes of TV shows I watch and make them available on Plex
 * [Radarr](https://radarr.video/) to download any movies I want to watch and make them available on Plex
+* [Prowlarr](https://prowlarr.com/) to manage indexes for all the *arr apps
 * [dockerproxy](https://github.com/Tecnativa/docker-socket-proxy) to monitor various docker containers through Home Assistant
 * [Broadlink Manager](https://hub.docker.com/r/techblog/broadlinkmanager) for reading IR codes
-* [Watchtower](https://github.com/containrrr/watchtower) to have all the containers up-to date. This will cause the homeassistant instance to "unhealthy". Hence I am using a [workaround](https://gist.github.com/HCanber/700b4a5c685b9b97fb4865de6eaff0f3) for the same
+* [Watchtower](https://github.com/containrrr/watchtower) to have all the containers up to date. This will cause the homeassistant instance to be "unhealthy". I am using this [workaround](https://gist.github.com/HCanber/700b4a5c685b9b97fb4865de6eaff0f3).
 * [Heimdall](https://hub.docker.com/r/linuxserver/heimdall) for browser start page
 * [Transmission](https://transmissionbt.com/) installed as an app in Debian
+* [EmulatorJS](https://emulatorjs.org/) to play retro games
+* [SyncThing](https://syncthing.net/) to keep my phone's photos backed up to the server
+* [HomeBridge](https://homebridge.io/) - I only use this to add my Govee Heater to HomeAssistant
 
 
 
@@ -36,7 +41,7 @@ I started my Home Assistant Journey with a Raspberry Pi 3, from which I have swi
 
 ## Devices I use
 
-## <a name="menu">Menu</a>
+## ****<a name="menu">Menu</a>
  | [Lights](#lights) | [Outlets & Switches](#outlets) | [Voice Assistants & Displays](#smartspeakers) | [Media](#media) | [Sensors](#sensors) | [Cameras](#cameras) | [Appliances](#appliances) | [Network](#network) | [IR Blasters](#ir) | [Hubs](#hubs) | [Climate](#climate) | [Other Hardware](#other) [Screenshots](#screenshots) || [Graveyard☠️](#graveyard) |
 
 ---
@@ -46,6 +51,7 @@ I started my Home Assistant Journey with a Raspberry Pi 3, from which I have swi
 - [Wipro 9W RGB Bulbs](https://amzn.to/3N3Es19) x 2
 - [Nanoleaf Shapes Hexagon Starter Kit](https://www.amazon.co.uk/gp/product/B08BYBP6LX) x 1
 - [Luxonic Smart LED Strip](https://www.amazon.co.uk/gp/product/B09JFYV9YV) x 1
+- IKEA TRÅDFRI bulb E14 CWS 600lm x 6
 ---
 
 ### <a name="outlets">Outlets & Switches</a> 
@@ -63,6 +69,7 @@ I started my Home Assistant Journey with a Raspberry Pi 3, from which I have swi
 | [Go to Menu](#menu) |
 - [Nest Audio](https://store.google.com/us/product/nest_audio) x 1
 - [Nest Mini](https://store.google.com/us/product/google_nest_mini) x 1
+- Google Home Mini x 1
 - [Lenovo Smart Clock](https://www.flipkart.com/lenovo-smart-clock-google-assistant-speaker/p/itm39f6a1348e45e) x 1
 ---
 ### <a name="media">Media</a> 
@@ -73,7 +80,7 @@ I started my Home Assistant Journey with a Raspberry Pi 3, from which I have swi
 ---
 ### <a name="sensors">Sensors</a> 
 | [Go to Menu](#menu) |
-- [SONOFF SNZB-04 ZigBee Wireless Door/Window Sensor](https://sonoff.tech/product/smart-home-security/snzb-04/) x 2
+- [SONOFF SNZB-04 ZigBee Wireless Door/Window Sensor](https://sonoff.tech/product/smart-home-security/snzb-04/) x 1
 - [SONOFF SNZB-03 ZigBee Motion Sensor](https://amzn.to/3xysUgE) x 2
 - [SONOFF SNZB-02 ZigBee Temperature & Humidity Sensor](https://amzn.to/3b31V4Z) x 1
 - [SONOFF SNZB-01 ZigBee Wireless Switch](https://amzn.to/3O5BYQW) x 1
@@ -81,7 +88,9 @@ I started my Home Assistant Journey with a Raspberry Pi 3, from which I have swi
 - [TRÅDFRI Wireless Dimmer](https://www.ikea.com/in/en/p/tradfri-wireless-dimmer-white-90408599) x 1
 - [Aqara Vibration Sensor](https://www.aqara.com/en/vibration_sensor.html) x 1
 - [Aqara Cube](https://www.aqara.com/en/cube.html) x 1
+- [Aqara Door and Window Sensor](https://www.aqara.com/eu/product/door-and-window-sensor/) x 1
 - [Aqara Motion Sensor P1](https://www.amazon.co.uk/dp/B0B9XZ1D51) x 2
+- [Aqara Presense Sensor FP2](https://www.aqara.com/eu/product/presence-sensor-fp2/) x 1
 - [Withings Sleep Mat](https://www.withings.com/us/en/sleep) x 1
 
 
@@ -94,8 +103,9 @@ I started my Home Assistant Journey with a Raspberry Pi 3, from which I have swi
 ---
 ### <a name="appliances">Appliances</a> 
 | [Go to Menu](#menu) |
-- Blomberg Washer & Dryer x 1
+- Blomberg Washer & Dryer with [HomeWhiz](https://www.homewhiz.com/) support x 1
 - [Silvercrest Smart Kettle](https://www.lidl.ie/p/lidl-smart-home/smart-kettle/p38007) x 1
+
 ---
 ### <a name="network">Network</a> 
 | [Go to Menu](#menu) |
@@ -106,6 +116,7 @@ I started my Home Assistant Journey with a Raspberry Pi 3, from which I have swi
 ### <a name="ir">IR Blasters</a> 
 | [Go to Menu](#menu) |
 - [Broadlink RM MINI-3](https://www.amazon.in/gp/product/B076NRKR4B)
+
 ---
 
 ### <a name="hubs">Hubs</a> 
@@ -122,11 +133,12 @@ I started my Home Assistant Journey with a Raspberry Pi 3, from which I have swi
 
 - [Switchbot Curtain Rod 2](https://eu.switch-bot.com/products/switchbot-curtain?variant=41666181464229) x2
 - [Asakuki Smart Diffuser](https://www.amazon.co.uk/gp/product/B07L847K9W) x 1
+- [Govee Smart Space Heater](https://www.amazon.co.uk/gp/product/B0C3HPG6JP) x 1
 
 ---
 ### <a name="other">Other Hardware</a> 
 | [Go to Menu](#menu) |
-- [Tagreader](https://github.com/adonno/tagreader) x 1
+- [Tagreader](https://github.com/adonno/tagreader) x 2
 - [Multisensor](https://esphome.io/cookbook/bruh.html) x 2
 ---
 ### <a name="screenshots">Screenshots</a> 
@@ -145,4 +157,6 @@ I started my Home Assistant Journey with a Raspberry Pi 3, from which I have swi
 
 ### <a name="graveyard">Graveyard☠️</a> 
 | [Go to Menu](#menu) |
+
+- [SONOFF SNZB-04 ZigBee Wireless Door/Window Sensor](https://sonoff.tech/product/smart-home-security/snzb-04/) x 1
 
