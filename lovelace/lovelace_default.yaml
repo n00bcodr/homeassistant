@@ -126,7 +126,7 @@ button_card_templates:
       action: call-service
 swipe_nav:
   animate: fade
-  prevent_default: true
+  enable_mouse_swipe: true
 title: Mad House
 views:
 - badges: []
@@ -270,78 +270,82 @@ views:
     type: markdown
     view_layout:
       column: 1
-  - entity: mediaquery
-    states:
-      '(min-width: 800px)':
-        alignment: center
-        chips:
-        - content: "{% if is_state('device_tracker.oneplus_10pro', 'home') %}\n  {{states.device_tracker.oneplus_10pro.attributes.deco_device\
-            \ | replace(\"living_room\",\" Living Room\") }} - {{ states.device_tracker.oneplus_10pro.attributes.connection_type\
-            \ | replace(\"band\",\"\") | replace(\"5\",\"5 GHz\")| replace(\"2_4\"\
-            ,\"2.4 GHz\")}} \n{% else %}\n  Not Connected\n{% endif %}"
-          double_tap_action:
-            action: none
-          hold_action:
-            action: none
-          icon: '{% if is_state(''device_tracker.oneplus_10pro'', ''home'') %}
+  - content: '{{states.input_text.joke.state}}'
+    type: markdown
+    view_layout:
+      column: 1
+  - card:
+      alignment: center
+      chips:
+      - content: "{% if is_state('device_tracker.oneplus_10pro', 'home') %}\n  {{states.device_tracker.oneplus_10pro.attributes.deco_device\
+          \ | replace(\"living_room\",\" Living Room\") }} - {{ states.device_tracker.oneplus_10pro.attributes.connection_type\
+          \ | replace(\"band\",\"\") | replace(\"5\",\"5 GHz\")| replace(\"2_4\",\"\
+          2.4 GHz\")}} \n{% else %}\n  Not Connected\n{% endif %}"
+        double_tap_action:
+          action: none
+        hold_action:
+          action: none
+        icon: '{% if is_state(''device_tracker.oneplus_10pro'', ''home'') %}
 
-            mdi:cellphone-wireless
+          mdi:cellphone-wireless
 
-            {% else %}
+          {% else %}
 
-            mdi:cellphone-off
+          mdi:cellphone-off
 
-            {% endif %}'
-          icon_color: '{% if is_state(''device_tracker.oneplus_10pro'', ''home'')
-            %}
+          {% endif %}'
+        icon_color: '{% if is_state(''device_tracker.oneplus_10pro'', ''home'') %}
 
-            blue
+          blue
 
-            {% else %}
+          {% else %}
 
-            white
+          white
 
-            {% endif %}
+          {% endif %}
 
-            '
-          tap_action:
-            action: none
-          type: template
-        - icon: mdi:update
-          icon_color: yellow
-          tap_action:
-            action: call-service
-            data: {}
-            service: script.update_all_phone_sensors
-            target: {}
-          type: action
-        - content_info: state
-          entity: sensor.10pro_battery_level
-          icon: si:oneplus
-          icon_color: blue
-          type: entity
-          use_entity_picture: false
-        - content_info: none
-          entity: binary_sensor.10pro_is_charging
-          icon_color: yellow
-          type: entity
-        - entity: sensor.galaxy_watch4_classic_battery_level
-          icon: phu:pixelwatch
-          icon_color: deep-orange
-          type: entity
-        - content_info: none
-          entity: binary_sensor.galaxy_watch4_classic_is_charging
-          icon_color: amber
-          type: entity
-        - icon: mdi:music
-          icon_color: purple
-          tap_action:
-            action: call-service
-            service: script.play_spotify_on_phone
-            target: {}
-          type: action
-        type: custom:mushroom-chips-card
-    type: custom:state-switch
+          '
+        tap_action:
+          action: none
+        type: template
+      - icon: mdi:update
+        icon_color: yellow
+        tap_action:
+          action: call-service
+          data: {}
+          service: script.update_all_phone_sensors
+          target: {}
+        type: action
+      - content_info: state
+        entity: sensor.10pro_battery_level
+        icon: si:oneplus
+        icon_color: blue
+        type: entity
+        use_entity_picture: false
+      - content_info: none
+        entity: binary_sensor.10pro_is_charging
+        icon_color: yellow
+        type: entity
+      - entity: sensor.galaxy_watch4_classic_battery_level
+        icon: phu:pixelwatch
+        icon_color: deep-orange
+        type: entity
+      - content_info: none
+        entity: binary_sensor.galaxy_watch4_classic_is_charging
+        icon_color: amber
+        type: entity
+      - icon: mdi:music
+        icon_color: purple
+        tap_action:
+          action: call-service
+          service: script.play_spotify_on_phone
+          target: {}
+        type: action
+      type: custom:mushroom-chips-card
+    conditions:
+    - condition: screen
+      media_query: '(min-width: 768px)'
+    type: conditional
     view_layout:
       column: 1
   - cards:
@@ -506,61 +510,63 @@ views:
       show_color_temp_control: true
       type: custom:mushroom-light-card
       use_light_color: true
-    - entity: light.shapes
-      states:
-        'on':
-          alignment: center
-          chips:
-          - content_info: name
-            entity: light.shapes
-            name: Nanoversary
-            tap_action:
-              action: call-service
-              data:
-                effect: Nanoversary
-              service: light.turn_on
-              target:
-                entity_id: light.shapes
-            type: light
-            use_light_color: true
-          - content_info: name
-            entity: light.shapes
-            name: Northern Lights
-            tap_action:
-              action: call-service
-              data:
-                effect: Northern Lights
-              service: light.turn_on
-              target:
-                entity_id: light.shapes
-            type: light
-            use_light_color: true
-          - content_info: name
-            entity: light.shapes
-            name: TV
-            tap_action:
-              action: call-service
-              data:
-                effect: TV Simulation
-              service: light.turn_on
-              target:
-                entity_id: light.shapes
-            type: light
-            use_light_color: true
-          - content_info: name
-            entity: light.shapes
-            name: Lightscape
-            tap_action:
-              action: call-service
-              data:
-                effect: Lightscape
-              service: light.turn_on
-              target:
-                entity_id: light.shapes
-            type: light
-            use_light_color: true
-          type: custom:mushroom-chips-card
-      type: custom:state-switch
+    - card:
+        alignment: center
+        chips:
+        - content_info: name
+          entity: light.shapes
+          name: Nanoversary
+          tap_action:
+            action: call-service
+            data:
+              effect: Nanoversary
+            service: light.turn_on
+            target:
+              entity_id: light.shapes
+          type: light
+          use_light_color: true
+        - content_info: name
+          entity: light.shapes
+          name: Northern Lights
+          tap_action:
+            action: call-service
+            data:
+              effect: Northern Lights
+            service: light.turn_on
+            target:
+              entity_id: light.shapes
+          type: light
+          use_light_color: true
+        - content_info: name
+          entity: light.shapes
+          name: TV
+          tap_action:
+            action: call-service
+            data:
+              effect: TV Simulation
+            service: light.turn_on
+            target:
+              entity_id: light.shapes
+          type: light
+          use_light_color: true
+        - content_info: name
+          entity: light.shapes
+          name: Lightscape
+          tap_action:
+            action: call-service
+            data:
+              effect: Lightscape
+            service: light.turn_on
+            target:
+              entity_id: light.shapes
+          type: light
+          use_light_color: true
+        type: custom:mushroom-chips-card
+      conditions:
+      - condition: state
+        entity: light.shapes
+        state: 'on'
+      type: conditional
     - badge_color: ''
       badge_icon: ''
       entity: switch.workstation
@@ -850,6 +856,10 @@ views:
   - badge_color: blue
     badge_icon: mdi:numeric-{{ ((as_timestamp(state_attr("calendar.birthdays", "start_time"))
       | as_datetime | as_local).date() - now().date()).days }}
+    double_tap_action:
+      action: none
+    hold_action:
+      action: none
     icon: mdi:party-popper
     icon_color: green
     primary: '{{states.calendar.birthdays.attributes.message}}'
@@ -857,6 +867,8 @@ views:
       timestamp_custom(''%-d %B'')}}
 
       '
+    tap_action:
+      action: none
     type: custom:mushroom-template-card
     view_layout:
       column: 1
@@ -882,8 +894,7 @@ views:
             hold_action:
               action: none
             tap_action:
-              action: navigate
-              navigation_path: /lovelace/calvinandhobbes
+              action: none
             type: template
           type: custom:mushroom-chips-card
       item:
@@ -904,7 +915,8 @@ views:
             - padding: 0px
             - border-radius: 0px
           tap_action:
-            action: none
+            action: navigate
+            navigation_path: /lovelace/calvinandhobbes
           type: custom:button-card
     entity: sensor.calvin_and_hobbes
     show_icon: false
@@ -916,6 +928,15 @@ views:
       grid:
       - grid-template-areas: '"item item" "date date"'
     type: custom:button-card
+  - card:
+      entity: todo.my_tasks
+      type: shopping-list
+    conditions:
+    - condition: screen
+      media_query: '(min-width: 768px)'
+    type: conditional
+    view_layout:
+      column: 3
   icon: mdi:castle
   layout:
     max_cols: 3
@@ -931,15 +952,15 @@ views:
     offset: -50
     strict_url_change: true
     type: custom:anchor-card
-  - entity: user
-    states:
-      Darragh Clerkin:
-        content: '{{ states("sensor.random_joke") }}'
-        type: markdown
-      Hilary Harris:
-        content: '{{ states("sensor.random_joke") }}'
-        type: markdown
-    type: custom:state-switch
+  - card:
+      content: '{{ states("sensor.random_joke") }}'
+      type: markdown
+    conditions:
+    - condition: user
+      users:
+      - 03fac29e97844166b40187a8b4c09ded
+      - e07f5c6a76fd4886ad5d945ed22f6d4b
+    type: conditional
     view_layout:
       column: 1
   - alignment: center
@@ -975,13 +996,31 @@ views:
     - entity: binary_sensor.door_contact
       icon_color: red
       type: entity
-    - entity: weather.home
-      show_conditions: true
-      show_temperature: true
-      type: weather
+    - chip:
+        entity: weather.home
+        show_conditions: true
+        show_temperature: true
+        type: weather
+      conditions:
+      - condition: user
+        users:
+        - 03fac29e97844166b40187a8b4c09ded
+        - e07f5c6a76fd4886ad5d945ed22f6d4b
+      type: conditional
     - entity: sensor.presence_sensor_light_level
       icon_color: blue-grey
       type: entity
+    - chip:
+        entity: light.guest_lamp
+        tap_action:
+          action: toggle
+        type: light
+        use_light_color: true
+      conditions:
+      - condition: user
+        users:
+        - 74f7e2ffd3594037b1a2fc4de82d9fea
+      type: conditional
     type: custom:mushroom-chips-card
   - cards:
     - color_type: blank-card
@@ -1003,7 +1042,7 @@ views:
         - filter: "[[[\n  if (entity.state === 'home') return 'none';\n  else return\
             \ 'blur(1px) grayscale(100%)';\n]]]\n"
         entity_picture:
-        - width: 100%
+        - width: 110%
       type: custom:button-card
     - color_type: card
       entity: device_tracker.oneplus_10pro
@@ -1018,7 +1057,7 @@ views:
         - filter: "[[[\n  if (entity.state === 'home') return 'none';\n  else return\
             \ 'blur(1px) grayscale(100%)';\n]]]\n"
         entity_picture:
-        - width: 100%
+        - width: 110%
       type: custom:button-card
     - color_type: card
       entity: device_tracker.hilary_s_phone_2
@@ -1033,7 +1072,7 @@ views:
         - filter: "[[[\n  if (entity.state === 'home') return 'none';\n  else return\
             \ 'blur(1px) grayscale(100%)';\n]]]\n"
         entity_picture:
-        - width: 100%
+        - width: 110%
       type: custom:button-card
     - color_type: blank-card
       styles:
@@ -1044,35 +1083,37 @@ views:
     type: horizontal-stack
     view_layout:
       column: 1
-  - entity: user
-    states:
-      Hilary Harris:
-        cards:
+  - card:
+      cards:
+      - collapsible_controls: true
+        entity: light.bed_lamp
+        show_brightness_control: true
+        show_color_control: true
+        show_color_temp_control: true
+        type: custom:mushroom-light-card
+        use_light_color: true
+      - cards:
         - collapsible_controls: true
-          entity: light.bed_lamp
+          entity: light.bed_lamp_1
           show_brightness_control: true
           show_color_control: true
           show_color_temp_control: true
           type: custom:mushroom-light-card
           use_light_color: true
-        - cards:
-          - collapsible_controls: true
-            entity: light.bed_lamp_1
-            show_brightness_control: true
-            show_color_control: true
-            show_color_temp_control: true
-            type: custom:mushroom-light-card
-            use_light_color: true
-          - collapsible_controls: true
-            entity: light.bed_lamp_2
-            show_brightness_control: true
-            show_color_control: true
-            show_color_temp_control: true
-            type: custom:mushroom-light-card
-            use_light_color: true
-          type: horizontal-stack
-        type: vertical-stack
-    type: custom:state-switch
+        - collapsible_controls: true
+          entity: light.bed_lamp_2
+          show_brightness_control: true
+          show_color_control: true
+          show_color_temp_control: true
+          type: custom:mushroom-light-card
+          use_light_color: true
+        type: horizontal-stack
+      type: vertical-stack
+    conditions:
+    - condition: user
+      users:
+      - e07f5c6a76fd4886ad5d945ed22f6d4b
+    type: conditional
     view_layout:
       column: 1
   - cards:
@@ -1253,26 +1294,30 @@ views:
 
         timestamp_custom(''%-I:%M %p''))}}'
       type: custom:mushroom-template-card
-    - entity: user
-      states:
-        Pavan Thanuj Upadrasta:
-          discover_existing: false
-          display_options:
-            icon: action
-            primary_info: '{entity}: {action}'
-            secondary_info:
-            - relative-time
-            - time
-          exclude: []
-          include:
-          - switch.boiler
-          sort_by:
-          - state
+    - card:
+        discover_existing: false
+        display_options:
+          icon: action
+          primary_info: '{entity}: {action}'
+          secondary_info:
           - relative-time
-          time_step: 5
-          title: false
-          type: custom:scheduler-card
-      type: custom:state-switch
+          - time
+        exclude: []
+        include:
+        - switch.boiler
+        sort_by:
+        - state
+        - relative-time
+        time_step: 5
+        title: false
+        type: custom:scheduler-card
+      conditions:
+      - condition: user
+        users:
+        - 74f7e2ffd3594037b1a2fc4de82d9fea
+      - condition: screen
+        media_query: '(min-width: 768px)'
+      type: conditional
     type: vertical-stack
     view_layout:
       column: 1
@@ -1381,14 +1426,14 @@ views:
         secondary: '{{ states.switch.alleyway_lights.state}}'
         type: custom:mushroom-template-card
       type: horizontal-stack
-    - entity: automation.kitchen_motion_blueprint
+    - entity: automation.kitchen_light_presence
       name: "\U0001F4A1Kitchen Motion Light Automation"
       tap_action:
         action: toggle
       type: custom:mushroom-entity-card
     type: vertical-stack
     view_layout:
-      column: 2
+      column: 1
   - cards:
     - anchor_id: livingroom
       offset: -50
@@ -1446,6 +1491,8 @@ views:
         action: toggle
       type: custom:mushroom-entity-card
     type: vertical-stack
+    view_layout:
+      column: 2
   - cards:
     - anchor_id: media
       offset: -50
@@ -1473,6 +1520,8 @@ views:
         type: template
       type: custom:mushroom-chips-card
     - collapsible_controls: true
+      double_tap_action:
+        action: toggle
       entity: media_player.google_tv
       fill_container: false
       hold_action:
@@ -1484,268 +1533,136 @@ views:
       name: Google TV
       show_volume_level: true
       tap_action:
-        action: more-info
+        action: none
       type: custom:mushroom-media-player-card
       use_media_info: true
       volume_controls:
       - volume_set
     - card:
-        entities:
-        - card_type: horizontal-stack
-          cards:
-          - entity: media_player.google_tv
-            icon: mdi:power
-            name: "[[[ var pow = entity.state\n  return 'Power ' + (pow)\n]]]\n"
-            styles:
-              icon:
-              - color: '[[[ if (entity.state == ''off'' ) return "red"; else return
-                  "green"]]]
-
-                  '
-            tap_action:
-              service: remote.toggle
-              service_data:
-                entity_id: remote.google_tv
-            template: icon_button
-            type: custom:button-card
-          - template: blank_button
-            type: custom:button-card
-          - template: blank_button
-            type: custom:button-card
-          - template: blank_button
-            type: custom:button-card
-          type: custom:hui-element
-        - row_type: section
-          type: custom:hui-element
-        - card_type: horizontal-stack
-          cards:
-          - entity: media_player.google_tv
-            entity_picture: /local/icons/netflix.png
-            tap_action:
-              service: media_player.select_source
-              service_data:
-                entity_id: media_player.google_tv
-                source: Netflix
-            template: logo_button
-            type: custom:button-card
-          - entity: media_player.google_tv
-            entity_picture: /local/icons/prime.png
-            tap_action:
-              service: media_player.select_source
-              service_data:
-                entity_id: media_player.google_tv
-                source: Prime Video
-            template: logo_button
-            type: custom:button-card
-          - entity: media_player.google_tv
-            entity_picture: /local/icons/youtube.png
-            tap_action:
-              service: media_player.select_source
-              service_data:
-                entity_id: media_player.google_tv
-                source: YouTube
-            template: logo_button
-            type: custom:button-card
-          type: custom:hui-element
-        - card_type: horizontal-stack
-          cards:
-          - entity: media_player.google_tv
-            entity_picture: /local/icons/plex.png
-            tap_action:
-              service: media_player.select_source
-              service_data:
-                entity_id: media_player.google_tv
-                source: Plex
-            template: logo_button
-            type: custom:button-card
-          - entity: media_player.google_tv
-            entity_picture: /local/icons/disney.png
-            tap_action:
-              service: media_player.select_source
-              service_data:
-                entity_id: media_player.google_tv
-                source: Hotstar
-            template: logo_button
-            type: custom:button-card
-          - entity: media_player.google_tv
-            entity_picture: /local/icons/spotify.png
-            tap_action:
-              service: media_player.select_source
-              service_data:
-                entity_id: media_player.google_tv
-                source: Spotify
-            template: logo_button
-            type: custom:button-card
-          type: custom:hui-element
-        - card_type: horizontal-stack
-          cards:
-          - entity: media_player.google_tv
-            entity_picture: /local/icons/expressvpn.png
-            styles:
-              entity_picture:
-              - width: 70%
-            tap_action:
-              service: media_player.select_source
-              service_data:
-                entity_id: media_player.google_tv
-                source: Express VPN
-            template: logo_button
-            type: custom:button-card
-          - entity: media_player.google_tv
-            entity_picture: /local/f1/F1.png
-            tap_action:
-              service: media_player.select_source
-              service_data:
-                entity_id: media_player.google_tv
-                source: F1 TV
-            template: logo_button
-            type: custom:button-card
-          - entity: media_player.google_tv
-            entity_picture: /local/icons/sonyliv.png
-            styles:
-              entity_picture:
-              - width: 40%
-            tap_action:
-              service: media_player.select_source
-              service_data:
-                entity_id: media_player.google_tv
-                source: SonyLIV
-            template: logo_button
-            type: custom:button-card
-          type: custom:hui-element
-        - row_type: section
-          type: custom:hui-element
-        - entity: media_player.google_tv_1
-          fill_container: false
-          icon_type: none
-          primary_info: none
-          secondary_info: none
-          show_volume_level: true
-          type: custom:mushroom-media-player-card
-          use_media_info: false
-          volume_controls:
-          - volume_set
-          - volume_mute
-        - row_type: section
-          type: custom:hui-element
-        - card_type: horizontal-stack
-          cards:
-          - entity: media_player.google_tv
-            icon: mdi:volume-off
-            name: Mute
-            tap_action:
-              service: remote.send_command
-              service_data:
-                command: MUTE
-                entity_id: remote.google_tv
-            template: menu_button
-            type: custom:button-card
-          - template: blank_button
-            type: custom:button-card
-          - entity: media_player.google_tv
-            icon: mdi:arrow-up-bold
-            name: Up
-            tap_action:
-              service: remote.send_command
-              service_data:
-                command: DPAD_UP
-                entity_id: remote.google_tv
-            template: icon_button
-            type: custom:button-card
-          - template: blank_button
-            type: custom:button-card
-          - entity: media_player.google_tv
-            icon: mdi:cog
-            name: Settings
-            tap_action:
-              service: remote.turn_on
-              service_data:
-                activity: com.android.tv.settings
-                entity_id: remote.google_tv
-            template: menu_button
-            type: custom:button-card
-          type: custom:hui-element
-        - card_type: horizontal-stack
-          cards:
-          - template: blank_button
-            type: custom:button-card
-          - entity: media_player.google_tv
-            icon: mdi:arrow-left-bold
-            name: Left
-            tap_action:
-              service: remote.send_command
-              service_data:
-                command: DPAD_LEFT
-                entity_id: remote.google_tv
-            template: icon_button
-            type: custom:button-card
-          - entity: media_player.google_tv
-            icon: mdi:circle
-            name: Ok
-            styles:
-              card:
-              - background: var(--primary-background-color)
-            tap_action:
-              service: remote.send_command
-              service_data:
-                command: DPAD_CENTER
-                entity_id: remote.google_tv
-            template: icon_button
-            type: custom:button-card
-          - entity: media_player.google_tv
-            icon: mdi:arrow-right-bold
-            name: Right
-            tap_action:
-              service: remote.send_command
-              service_data:
-                command: DPAD_RIGHT
-                entity_id: remote.google_tv
-            template: icon_button
-            type: custom:button-card
-          - template: blank_button
-            type: custom:button-card
-          type: custom:hui-element
-        - card_type: horizontal-stack
-          cards:
-          - entity: media_player.google_tv
-            icon: mdi:keyboard-return
-            name: Return
-            tap_action:
-              service: remote.send_command
-              service_data:
-                command: BACK
-                entity_id: remote.google_tv
-            template: menu_button
-            type: custom:button-card
-          - template: blank_button
-            type: custom:button-card
-          - entity: media_player.google_tv
-            icon: mdi:arrow-down-bold
-            name: Down
-            tap_action:
-              service: remote.send_command
-              service_data:
-                command: DPAD_DOWN
-                entity_id: remote.google_tv
-            template: icon_button
-            type: custom:button-card
-          - template: blank_button
-            type: custom:button-card
-          - entity: media_player.google_tv
-            icon: mdi:home
-            name: Home
-            tap_action:
-              service: remote.send_command
-              service_data:
-                command: HOME
-                entity_id: remote.google_tv
-            template: menu_button
-            type: custom:button-card
-          type: custom:hui-element
-        show_header_toggle: false
-        type: entities
+        cards:
+        - keyboard_id: media_player.google_tv
+          media_player_id: media_player.google_tv
+          remote_id: remote.google_tv
+          rows:
+          - - home
+            - settings
+          - - volume_slider
+            - volume_mute
+          type: custom:android-tv-card
+        - entities:
+          - card_type: horizontal-stack
+            cards:
+            - entity: media_player.google_tv
+              entity_picture: /local/icons/netflix.png
+              tap_action:
+                service: media_player.select_source
+                service_data:
+                  entity_id: media_player.google_tv
+                  source: Netflix
+              template: logo_button
+              type: custom:button-card
+            - entity: media_player.google_tv
+              entity_picture: /local/icons/prime.png
+              tap_action:
+                service: media_player.select_source
+                service_data:
+                  entity_id: media_player.google_tv
+                  source: Prime Video
+              template: logo_button
+              type: custom:button-card
+            - entity: media_player.google_tv
+              entity_picture: /local/icons/youtube.png
+              tap_action:
+                service: media_player.select_source
+                service_data:
+                  entity_id: media_player.google_tv
+                  source: YouTube
+              template: logo_button
+              type: custom:button-card
+            type: custom:hui-element
+          - card_type: horizontal-stack
+            cards:
+            - entity: media_player.google_tv
+              entity_picture: /local/icons/plex.png
+              tap_action:
+                service: media_player.select_source
+                service_data:
+                  entity_id: media_player.google_tv
+                  source: Plex
+              template: logo_button
+              type: custom:button-card
+            - entity: media_player.google_tv
+              entity_picture: /local/icons/disney.png
+              tap_action:
+                service: media_player.select_source
+                service_data:
+                  entity_id: media_player.google_tv
+                  source: Hotstar
+              template: logo_button
+              type: custom:button-card
+            - entity: media_player.google_tv
+              entity_picture: /local/icons/spotify.png
+              tap_action:
+                service: media_player.select_source
+                service_data:
+                  entity_id: media_player.google_tv
+                  source: Spotify
+              template: logo_button
+              type: custom:button-card
+            type: custom:hui-element
+          - card_type: horizontal-stack
+            cards:
+            - entity: media_player.google_tv
+              entity_picture: /local/icons/expressvpn.png
+              styles:
+                entity_picture:
+                - width: 70%
+              tap_action:
+                service: media_player.select_source
+                service_data:
+                  entity_id: media_player.google_tv
+                  source: Express VPN
+              template: logo_button
+              type: custom:button-card
+            - entity: media_player.google_tv
+              entity_picture: /local/f1/F1.png
+              tap_action:
+                service: media_player.select_source
+                service_data:
+                  entity_id: media_player.google_tv
+                  source: F1 TV
+              template: logo_button
+              type: custom:button-card
+            - entity: media_player.google_tv
+              entity_picture: /local/icons/sonyliv.png
+              styles:
+                entity_picture:
+                - width: 40%
+              tap_action:
+                service: media_player.select_source
+                service_data:
+                  entity_id: media_player.google_tv
+                  source: SonyLIV
+              template: logo_button
+              type: custom:button-card
+            type: custom:hui-element
+          show_header_toggle: false
+          type: entities
+        - keyboard_id: media_player.google_tv
+          media_player_id: media_player.google_tv
+          remote_id: remote.google_tv
+          rows:
+          - - back
+            - keyboard
+          - navigation_touchpad
+          - - previous
+            - play_pause
+            - next
+          type: custom:android-tv-card
+        type: custom:stack-in-card
       conditions:
-      - entity: media_player.google_tv
+      - condition: state
+        entity: media_player.google_tv
         state_not: 'off'
       type: conditional
     - collapsible_controls: true
@@ -1868,7 +1785,7 @@ views:
         type: template
       type: custom:mushroom-chips-card
     - camera_image: camera.doorbell
-      camera_view: auto
+      camera_view: live
       entities:
       - entity: binary_sensor.door_person
       - entity: binary_sensor.door_bell
@@ -1889,7 +1806,12 @@ views:
         double_tap_action:
           action: none
         hold_action:
-          action: none
+          action: call-service
+          service: homeassistant.reload_config_entry
+          target:
+            entity_id:
+            - calendar.allied_recycling_black_bin
+            - calendar.allied_recycling_blue_bin
         icon: mdi:trash-can
         icon_color: brown
         tap_action:
@@ -2155,6 +2077,7 @@ views:
     mode: vertical
     type: custom:stack-in-card
   icon: mdi:washing-machine
+  layout: {}
   path: utilities
   title: Utilities
   type: custom:horizontal-layout
@@ -2229,6 +2152,29 @@ views:
     sort:
       method: last_changed
       reverse: true
+    type: custom:auto-entities
+    view_layout:
+      column: 1
+  - card:
+      icon: phu:sonarr
+      show_header_toggle: false
+      state_color: false
+      title: Sonarr
+      type: entities
+    filter:
+      exclude:
+      - state: unavailable
+      include:
+      - name: Sonarr
+        type: weblink
+        url: http://homeassistant.local:8989/
+      - name: /[Ss]onarr/
+    show_empty: false
+    sort:
+      ignore_case: false
+      method: domain
+      numeric: false
+      reverse: false
     type: custom:auto-entities
     view_layout:
       column: 1
@@ -2317,29 +2263,6 @@ views:
     type: vertical-stack
     view_layout:
       column: 2
-  - card:
-      icon: phu:sonarr
-      show_header_toggle: false
-      state_color: false
-      title: Sonarr
-      type: entities
-    filter:
-      exclude:
-      - state: unavailable
-      include:
-      - name: Sonarr
-        type: weblink
-        url: http://homeassistant.local:8989/
-      - name: /[Ss]onarr/
-    show_empty: false
-    sort:
-      ignore_case: false
-      method: domain
-      numeric: false
-      reverse: false
-    type: custom:auto-entities
-    view_layout:
-      column: 3
   - entity: template
     states:
       'true':
@@ -2354,6 +2277,8 @@ views:
     template: '{% if (as_timestamp(now()) - as_timestamp(states.sensor.plex_media_server_library_movies.attributes.last_added_timestamp))
       < 864000 %} true {%else%} false {% endif%}'
     type: custom:state-switch
+    view_layout:
+      column: 3
   - entity: template
     states:
       'true':
@@ -2368,6 +2293,8 @@ views:
     template: '{% if (as_timestamp(now()) - as_timestamp(states.sensor.plex_media_server_library_tv_shows.attributes.last_added_timestamp))
       < 864000 %} true {%else%} false {% endif%}'
     type: custom:state-switch
+    view_layout:
+      column: 3
   icon: mdi:play-network
   layout:
     max_cols: 4
@@ -2737,6 +2664,90 @@ views:
   - cards:
     - aspect_ratio: 1/1
       camera_view: live
+      entity: person.darragh_clerkin
+      fill_container: true
+      icon_type: entity-picture
+      layout: vertical
+      name: Darragh
+      show_name: false
+      show_state: true
+      tap_action:
+        action: fire-dom-event
+        browser_mod:
+          data:
+            browser_id: THIS
+            content:
+              cards:
+              - card_mod:
+                  class: content
+                entities:
+                - entity: person.darragh_clerkin
+                  secondary_info: last-changed
+                type: entities
+              - entities:
+                - entity: person.darragh_clerkin
+                  name: ' '
+                type: history-graph
+              - cards:
+                - entity: sensor.op7t_battery_level
+                  fill_container: true
+                  icon_color: green
+                  layout: vertical
+                  name: Battery
+                  type: custom:mushroom-entity-card
+                - entity: binary_sensor.op7t_is_charging
+                  fill_container: true
+                  layout: vertical
+                  name: Charging
+                  type: custom:mushroom-entity-card
+                - entity: binary_sensor.op7t_wifi_state
+                  fill_container: true
+                  layout: vertical
+                  name: Wi-Fi
+                  type: custom:mushroom-entity-card
+                - entity: binary_sensor.op7t_bluetooth_state
+                  fill_container: true
+                  layout: vertical
+                  name: Bluetooth
+                  type: custom:mushroom-entity-card
+                - entity: binary_sensor.op7t_mobile_data
+                  fill_container: true
+                  layout: vertical
+                  name: Data
+                  type: custom:mushroom-entity-card
+                mode: horizontal
+                type: custom:stack-in-card
+              - dark_mode: true
+                default_zoom: 15
+                entities:
+                - entity: person.darragh_clerkin
+                hours_to_show: 24
+                type: map
+              type: vertical-stack
+            style:
+              hui-vertical-stack-card:
+                $: "button-card {\n  align-self: center;\n  padding: .2em 0 2em 0;\n\
+                  }\nhui-history-graph-card {\n  padding: 0 1em 0 1em;\n}\n"
+                $hui-entities-card$: "#states {\n  padding-left: 2em;\n  padding-bottom:\
+                  \ .9em;\n}\n"
+                $hui-glance-card$: ".entities {\n  padding: 12px 29px 4px 26px !important;\n\
+                  }\n"
+                $hui-map-card:
+                  $: "#root {\n  height: 25em;\n  padding-bottom: 0 !important;\n\
+                    }\nha-icon-button {\n  color: var(--primary-color);\n  zoom: 140%;\n\
+                    \  margin-left: -0.2em;\n}\nha-card {\n  border-top: 2px solid\
+                    \ #1a1a1a;\n  border-radius: 0;\n  transition: none;\n}\n"
+                  $ha-map$: "#map {\n  background-color: #191919 !important;\n}\n\
+                    .leaflet-control-attribution {\n  display: none;\n}\n.leaflet-bar\
+                    \ a {\n  background-color: rgba(115, 123, 124, 0.2) !important;\n\
+                    \  color: #9da0a2 !important;\n  backdrop-filter: blur(0.25em);\n\
+                    \  zoom: 140%;\n}\na.leaflet-control-zoom-in {\n  border-bottom:\
+                    \ 1px solid #181818 !important;\n}\n.leaflet-pane.leaflet-tile-pane\
+                    \ {\n  filter: invert(0.95) grayscale(0.95) contrast(95%);\n}\n"
+          service: browser_mod.popup
+      type: custom:mushroom-person-card
+    - aspect_ratio: 1/1
+      camera_view: live
       entity: person.pavanthanuj
       fill_container: true
       icon_type: entity-picture
@@ -2811,90 +2822,6 @@ views:
                 default_zoom: 15
                 entities:
                 - entity: person.pavanthanuj
-                hours_to_show: 24
-                type: map
-              type: vertical-stack
-            style:
-              hui-vertical-stack-card:
-                $: "button-card {\n  align-self: center;\n  padding: .2em 0 2em 0;\n\
-                  }\nhui-history-graph-card {\n  padding: 0 1em 0 1em;\n}\n"
-                $hui-entities-card$: "#states {\n  padding-left: 2em;\n  padding-bottom:\
-                  \ .9em;\n}\n"
-                $hui-glance-card$: ".entities {\n  padding: 12px 29px 4px 26px !important;\n\
-                  }\n"
-                $hui-map-card:
-                  $: "#root {\n  height: 25em;\n  padding-bottom: 0 !important;\n\
-                    }\nha-icon-button {\n  color: var(--primary-color);\n  zoom: 140%;\n\
-                    \  margin-left: -0.2em;\n}\nha-card {\n  border-top: 2px solid\
-                    \ #1a1a1a;\n  border-radius: 0;\n  transition: none;\n}\n"
-                  $ha-map$: "#map {\n  background-color: #191919 !important;\n}\n\
-                    .leaflet-control-attribution {\n  display: none;\n}\n.leaflet-bar\
-                    \ a {\n  background-color: rgba(115, 123, 124, 0.2) !important;\n\
-                    \  color: #9da0a2 !important;\n  backdrop-filter: blur(0.25em);\n\
-                    \  zoom: 140%;\n}\na.leaflet-control-zoom-in {\n  border-bottom:\
-                    \ 1px solid #181818 !important;\n}\n.leaflet-pane.leaflet-tile-pane\
-                    \ {\n  filter: invert(0.95) grayscale(0.95) contrast(95%);\n}\n"
-          service: browser_mod.popup
-      type: custom:mushroom-person-card
-    - aspect_ratio: 1/1
-      camera_view: live
-      entity: person.darragh_clerkin
-      fill_container: true
-      icon_type: entity-picture
-      layout: vertical
-      name: Darragh
-      show_name: false
-      show_state: true
-      tap_action:
-        action: fire-dom-event
-        browser_mod:
-          data:
-            browser_id: THIS
-            content:
-              cards:
-              - card_mod:
-                  class: content
-                entities:
-                - entity: person.darragh_clerkin
-                  secondary_info: last-changed
-                type: entities
-              - entities:
-                - entity: person.darragh_clerkin
-                  name: ' '
-                type: history-graph
-              - cards:
-                - entity: sensor.op7t_battery_level
-                  fill_container: true
-                  icon_color: green
-                  layout: vertical
-                  name: Battery
-                  type: custom:mushroom-entity-card
-                - entity: binary_sensor.op7t_is_charging
-                  fill_container: true
-                  layout: vertical
-                  name: Charging
-                  type: custom:mushroom-entity-card
-                - entity: binary_sensor.op7t_wifi_state
-                  fill_container: true
-                  layout: vertical
-                  name: Wi-Fi
-                  type: custom:mushroom-entity-card
-                - entity: binary_sensor.op7t_bluetooth_state
-                  fill_container: true
-                  layout: vertical
-                  name: Bluetooth
-                  type: custom:mushroom-entity-card
-                - entity: binary_sensor.op7t_mobile_data
-                  fill_container: true
-                  layout: vertical
-                  name: Data
-                  type: custom:mushroom-entity-card
-                mode: horizontal
-                type: custom:stack-in-card
-              - dark_mode: true
-                default_zoom: 15
-                entities:
-                - entity: person.darragh_clerkin
                 hours_to_show: 24
                 type: map
               type: vertical-stack
@@ -3397,6 +3324,14 @@ views:
         use_light_color: true
       type: horizontal-stack
     type: vertical-stack
+  icon: mdi:devices
+  path: network
+  theme: ''
+  title: Network and Devices
+  visible:
+  - user: 74f7e2ffd3594037b1a2fc4de82d9fea
+- badges: []
+  cards:
   - styles:
       --mdc-icon-size: 25px
       --mdc-tab-color-default: var(--primary-text-color)
@@ -3408,7 +3343,7 @@ views:
       card:
         card:
           show_header_toggle: false
-          state_color: false
+          state_color: true
           type: entities
         filter:
           exclude: []
@@ -3416,7 +3351,6 @@ views:
           - name: "/\U0001F3F0/"
           show_empty: true
           sort:
-            ignore_case: false
             method: last_triggered
         type: custom:auto-entities
       styles:
@@ -3427,7 +3361,7 @@ views:
       card:
         card:
           show_header_toggle: false
-          state_color: false
+          state_color: true
           type: entities
         filter:
           exclude: []
@@ -3435,7 +3369,6 @@ views:
           - name: "/\U0001F4A1/"
           show_empty: true
           sort:
-            ignore_case: false
             method: last_triggered
         type: custom:auto-entities
       styles:
@@ -3446,7 +3379,7 @@ views:
       card:
         card:
           show_header_toggle: false
-          state_color: false
+          state_color: true
           type: entities
         filter:
           exclude: []
@@ -3454,7 +3387,6 @@ views:
           - name: "/\u2699\uFE0F/"
           show_empty: true
           sort:
-            ignore_case: false
             method: last_triggered
         type: custom:auto-entities
       styles:
@@ -3465,7 +3397,7 @@ views:
       card:
         card:
           show_header_toggle: false
-          state_color: false
+          state_color: true
           type: entities
         filter:
           exclude: []
@@ -3475,18 +3407,34 @@ views:
           - name: "/\U0001F4FA/"
           show_empty: true
           sort:
-            ignore_case: false
             method: last_triggered
         type: custom:auto-entities
       styles:
         --mdc-theme-primary: skyblue
+    - attributes:
+        icon: mdi:publish
+        label: Notifiy
+      card:
+        card:
+          show_header_toggle: false
+          state_color: true
+          type: entities
+        filter:
+          include:
+          - name: /[Nn]otif/
+          show_empty: true
+          sort:
+            method: last_triggered
+        type: custom:auto-entities
+      styles:
+        --mdc-theme-primary: purple
     - attributes:
         icon: mdi:robot
         label: Others
       card:
         card:
           show_header_toggle: false
-          state_color: false
+          state_color: true
           type: entities
         filter:
           exclude:
@@ -3507,48 +3455,170 @@ views:
         type: custom:auto-entities
       styles:
         --mdc-theme-primary: lightgreen
+    - attributes:
+        icon: mdi:robot-confused-outline
+        label: Disabled
+      card:
+        card:
+          show_header_toggle: false
+          state_color: true
+          type: entities
+        filter:
+          include:
+          - domain: automation
+            state: 'off'
+          show_empty: true
+          sort:
+            ignore_case: false
+            method: last_triggered
+        type: custom:auto-entities
+      styles:
+        --mdc-theme-primary: grey
     type: custom:tabbed-card
-  icon: mdi:devices
-  path: network
-  theme: ''
-  title: Network and Devices
-  visible:
-  - user: 74f7e2ffd3594037b1a2fc4de82d9fea
+  icon: mdi:robot
+  path: automations
+  title: Automations
 - badges: []
   cards:
-  - entity: mediaquery
-    states:
-      '(min-width: 800px)':
-        card_type: last_result
+  - card:
+      card_type: last_result
+      f1_font: true
+      hide_tracklayout: true
+      sensor: sensor.formula_one_sensor_last_result
+      show_carnumber: true
+      standings:
+        show_flag: true
+        show_team: true
+      title: Last Race
+      type: custom:formulaone-card
+    conditions:
+    - condition: screen
+      media_query: '(min-width: 1024px)'
+    type: conditional
+    view_layout:
+      column: 1
+  - card:
+      card_type: countdown
+      date_locale: in
+      f1_font: true
+      show_raceinfo: true
+      title: Next Race
+      type: custom:formulaone-card
+    conditions:
+    - condition: screen
+      media_query: '(min-width: 1024px)'
+    type: conditional
+    view_layout:
+      column: 2
+  - card:
+      cards:
+      - card_type: driver_standings
         f1_font: true
-        hide_tracklayout: true
-        sensor: sensor.formula_one_sensor_last_result
         show_carnumber: true
         standings:
           show_flag: true
-          show_team: true
-        title: Last Race
+        title: Driver Standings
+        translations:
+          points: Points
         type: custom:formulaone-card
-    type: custom:state-switch
-    view_layout:
-      column: 1
-  - entity: mediaquery
-    states:
-      '(min-width: 800px)':
-        card_type: countdown
-        date_locale: in
+      - card_type: constructor_standings
         f1_font: true
-        show_raceinfo: true
-        title: Next Race
+        standings:
+          show_flag: true
+          show_team: true
+          show_teamlogo: true
+        title: Constructor Standings
+        translations:
+          points: Points
         type: custom:formulaone-card
-    type: custom:state-switch
+      type: vertical-stack
+    conditions:
+    - condition: screen
+      media_query: '(min-width: 1024px)'
+    type: conditional
     view_layout:
-      column: 2
-  - entity: mediaquery
-    states:
-      '(min-width: 800px)':
-        cards:
-        - card_type: driver_standings
+      column: 4
+  - card:
+      card_type: results
+      f1_font: true
+      hide_tracklayout: true
+      standings:
+        show_flag: true
+      title: Race Results
+      type: custom:formulaone-card
+    conditions:
+    - condition: screen
+      media_query: '(min-width: 1024px)'
+    type: conditional
+    view_layout:
+      column: 5
+  - card:
+      card_type: schedule
+      date_locale: in
+      f1_font: true
+      sensor: sensor.formula_one_sensor_races
+      standings:
+        show_flag: true
+      title: Schedule
+      type: custom:formulaone-card
+    conditions:
+    - condition: screen
+      media_query: '(min-width: 1024px)'
+    type: conditional
+    view_layout:
+      column: 3
+  - card:
+      options:
+        defaultTabIndex: 1
+      styles:
+        isFadingIndicator: true
+        isMinWidthIndicator: true
+        minWidth: true
+        stacked: true
+      tabs:
+      - attributes:
+          label: Last Race
+        card:
+          card_type: last_result
+          f1_font: true
+          hide_tracklayout: true
+          sensor: sensor.formula_one_sensor_last_result
+          show_carnumber: true
+          standings:
+            show_flag: true
+            show_team: true
+          title: Last Race
+          type: custom:formulaone-card
+        styles:
+          --mdc-theme-primary: yellow
+      - attributes:
+          label: Next Race
+        card:
+          card_type: countdown
+          date_locale: in
+          f1_font: true
+          show_raceinfo: true
+          title: Next Race
+          type: custom:formulaone-card
+        styles:
+          --mdc-theme-primary: red
+      - attributes:
+          label: Schedule
+        card:
+          card_type: schedule
+          date_locale: in
+          f1_font: true
+          sensor: sensor.formula_one_sensor_races
+          standings:
+            show_flag: true
+          title: Schedule
+          type: custom:formulaone-card
+        styles:
+          --mdc-theme-primary: cyan
+      - attributes:
+          label: Driver Standings
+        card:
+          card_type: driver_standings
           f1_font: true
           show_carnumber: true
           standings:
@@ -3557,7 +3627,12 @@ views:
           translations:
             points: Points
           type: custom:formulaone-card
-        - card_type: constructor_standings
+        styles:
+          --mdc-theme-primary: orange
+      - attributes:
+          label: Constructor Standings
+        card:
+          card_type: constructor_standings
           f1_font: true
           standings:
             show_flag: true
@@ -3567,130 +3642,25 @@ views:
           translations:
             points: Points
           type: custom:formulaone-card
-        type: vertical-stack
-    type: custom:state-switch
-    view_layout:
-      column: 4
-  - entity: mediaquery
-    states:
-      '(min-width: 800px)':
-        card_type: results
-        f1_font: true
-        hide_tracklayout: true
-        standings:
-          show_flag: true
-        title: Race Results
-        type: custom:formulaone-card
-    type: custom:state-switch
-    view_layout:
-      column: 5
-  - entity: mediaquery
-    states:
-      '(min-width: 800px)':
-        card_type: schedule
-        date_locale: in
-        f1_font: true
-        sensor: sensor.formula_one_sensor_races
-        standings:
-          show_flag: true
-        title: Schedule
-        type: custom:formulaone-card
-    type: custom:state-switch
-    view_layout:
-      column: 3
-  - entity: mediaquery
-    states:
-      '(max-width: 800px)':
-        options:
-          defaultTabIndex: 1
         styles:
-          isFadingIndicator: true
-          isMinWidthIndicator: true
-          minWidth: true
-          stacked: true
-        tabs:
-        - attributes:
-            label: Last Race
-          card:
-            card_type: last_result
-            f1_font: true
-            hide_tracklayout: true
-            sensor: sensor.formula_one_sensor_last_result
-            show_carnumber: true
-            standings:
-              show_flag: true
-              show_team: true
-            title: Last Race
-            type: custom:formulaone-card
-          styles:
-            --mdc-theme-primary: yellow
-        - attributes:
-            label: Next Race
-          card:
-            card_type: countdown
-            date_locale: in
-            f1_font: true
-            show_raceinfo: true
-            title: Next Race
-            type: custom:formulaone-card
-          styles:
-            --mdc-theme-primary: red
-        - attributes:
-            label: Schedule
-          card:
-            card_type: schedule
-            date_locale: in
-            f1_font: true
-            sensor: sensor.formula_one_sensor_races
-            standings:
-              show_flag: true
-            title: Schedule
-            type: custom:formulaone-card
-          styles:
-            --mdc-theme-primary: cyan
-        - attributes:
-            label: Driver Standings
-          card:
-            card_type: driver_standings
-            f1_font: true
-            show_carnumber: true
-            standings:
-              show_flag: true
-            title: Driver Standings
-            translations:
-              points: Points
-            type: custom:formulaone-card
-          styles:
-            --mdc-theme-primary: orange
-        - attributes:
-            label: Constructor Standings
-          card:
-            card_type: constructor_standings
-            f1_font: true
-            standings:
-              show_flag: true
-              show_team: true
-              show_teamlogo: true
-            title: Constructor Standings
-            translations:
-              points: Points
-            type: custom:formulaone-card
-          styles:
-            --mdc-theme-primary: purple
-        - attributes:
-            label: Results
-          card:
-            card_type: results
-            f1_font: true
-            hide_tracklayout: true
-            standings:
-              show_flag: true
-            title: Race Results
-            type: custom:formulaone-card
-          styles:
-            --mdc-theme-primary: tomato
-        type: custom:tabbed-card
-    type: custom:state-switch
+          --mdc-theme-primary: purple
+      - attributes:
+          label: Results
+        card:
+          card_type: results
+          f1_font: true
+          hide_tracklayout: true
+          standings:
+            show_flag: true
+          title: Race Results
+          type: custom:formulaone-card
+        styles:
+          --mdc-theme-primary: tomato
+      type: custom:tabbed-card
+    conditions:
+    - condition: screen
+      media_query: '(min-width: 0px) and (max-width: 1023px)'
+    type: conditional
   icon: mdi:racing-helmet
   layout:
     max_cols: 5
@@ -3702,247 +3672,139 @@ views:
   - user: 74f7e2ffd3594037b1a2fc4de82d9fea
 - badges: []
   cards:
-  - cards:
-    - cards:
-      - cards:
-        - icon: mdi:mail
-          tap_action:
-            action: call-service
-            service: telegram_bot.send_message
-            service_data:
-              message: '{{states("sensor.shopping_list")}}'
-              title: 'Shopping List:'
-          type: custom:button-card
-        - icon: mdi:check-all
-          tap_action:
-            action: call-service
-            service: script.check_shopping_list
-          type: custom:button-card
-        - icon: mdi:notification-clear-all
-          tap_action:
-            action: call-service
-            service: script.clear_shopping_list
-          type: custom:button-card
-        type: horizontal-stack
-      - type: shopping-list
-      type: vertical-stack
-    - cards:
-      - card_type: grid
-        cards:
-        - name: Coffee
-          tap_action:
-            service: input_text.set_value
-            service_data:
-              entity_id: input_text.shopping_list
-              value: Coffee
-          template: list_button
-          type: custom:button-card
-        - name: Tea
-          tap_action:
-            service: input_text.set_value
-            service_data:
-              entity_id: input_text.shopping_list
-              value: Tea
-          template: list_button
-          type: custom:button-card
-        - name: Sugar
-          tap_action:
-            service: input_text.set_value
-            service_data:
-              entity_id: input_text.shopping_list
-              value: Sugar
-          template: list_button
-          type: custom:button-card
-        - name: Salt
-          tap_action:
-            service: input_text.set_value
-            service_data:
-              entity_id: input_text.shopping_list
-              value: Salt
-          template: list_button
-          type: custom:button-card
-        - name: Surf
-          tap_action:
-            service: input_text.set_value
-            service_data:
-              entity_id: input_text.shopping_list
-              value: Surf
-          template: list_button
-          type: custom:button-card
-        - name: Comfort
-          tap_action:
-            service: input_text.set_value
-            service_data:
-              entity_id: input_text.shopping_list
-              value: Comfort
-          template: list_button
-          type: custom:button-card
-        square: false
-        type: custom:hui-element
-      - card_type: grid
-        cards:
-        - name: "\u0C2C\u0C3F\u0C2F\u0C4D\u0C2F\u0C02"
-          tap_action:
-            service: input_text.set_value
-            service_data:
-              entity_id: input_text.shopping_list
-              value: "\u0C2C\u0C3F\u0C2F\u0C4D\u0C2F\u0C02"
-          template: list_button
-          type: custom:button-card
-        - name: "\u0C2A\u0C32\u0C4D\u0C32\u0C3F\u0C32\u0C41"
-          tap_action:
-            service: input_text.set_value
-            service_data:
-              entity_id: input_text.shopping_list
-              value: "\u0C2A\u0C32\u0C4D\u0C32\u0C3F\u0C32\u0C41"
-          template: list_button
-          type: custom:button-card
-        - name: "\u0C36\u0C28\u0C17\u0C2A\u0C2A\u0C4D\u0C2A\u0C41"
-          tap_action:
-            service: input_text.set_value
-            service_data:
-              entity_id: input_text.shopping_list
-              value: "\u0C36\u0C28\u0C17\u0C2A\u0C2A\u0C4D\u0C2A\u0C41"
-          template: list_button
-          type: custom:button-card
-        - name: "\u0C15\u0C02\u0C26\u0C3F\u0C2A\u0C2A\u0C4D\u0C2A\u0C41"
-          tap_action:
-            service: input_text.set_value
-            service_data:
-              entity_id: input_text.shopping_list
-              value: "\u0C15\u0C02\u0C26\u0C3F\u0C2A\u0C2A\u0C4D\u0C2A\u0C41"
-          template: list_button
-          type: custom:button-card
-        - name: "\u0C2C\u0C02\u0C17\u0C3E\u0C33\u0C26\u0C41\u0C02\u0C2A"
-          tap_action:
-            service: input_text.set_value
-            service_data:
-              entity_id: input_text.shopping_list
-              value: "\u0C2C\u0C02\u0C17\u0C3E\u0C33\u0C26\u0C41\u0C02\u0C2A"
-          template: list_button
-          type: custom:button-card
-        - name: "\u0C1F\u0C2E\u0C3E\u0C1F\u0C4B"
-          tap_action:
-            service: input_text.set_value
-            service_data:
-              entity_id: input_text.shopping_list
-              value: "\u0C1F\u0C2E\u0C3E\u0C1F\u0C4B"
-          template: list_button
-          type: custom:button-card
-        - name: "\u0C15\u0C3E\u0C30\u0C46\u0C1F\u0C4D"
-          tap_action:
-            service: input_text.set_value
-            service_data:
-              entity_id: input_text.shopping_list
-              value: "\u0C15\u0C3E\u0C30\u0C46\u0C1F\u0C4D"
-          template: list_button
-          type: custom:button-card
-        - name: "\u0C2C\u0C02\u0C21\u0C15\u0C3E\u0C2F"
-          tap_action:
-            service: input_text.set_value
-            service_data:
-              entity_id: input_text.shopping_list
-              value: "\u0C2C\u0C02\u0C21\u0C15\u0C3E\u0C2F"
-          template: list_button
-          type: custom:button-card
-        - name: "\u0C26\u0C4A\u0C02\u0C21\u0C15\u0C3E\u0C2F"
-          tap_action:
-            service: input_text.set_value
-            service_data:
-              entity_id: input_text.shopping_list
-              value: "\u0C26\u0C4A\u0C02\u0C21\u0C15\u0C3E\u0C2F"
-          template: list_button
-          type: custom:button-card
-        - name: "\u0C35\u0C02\u0C15\u0C3E\u0C2F"
-          tap_action:
-            service: input_text.set_value
-            service_data:
-              entity_id: input_text.shopping_list
-              value: "\u0C35\u0C02\u0C15\u0C3E\u0C2F"
-          template: list_button
-          type: custom:button-card
-        - name: "\u0C15\u0C4D\u0C2F\u0C3E\u0C2C\u0C47\u0C1C\u0C40"
-          tap_action:
-            service: input_text.set_value
-            service_data:
-              entity_id: input_text.shopping_list
-              value: "\u0C15\u0C4D\u0C2F\u0C3E\u0C2C\u0C47\u0C1C\u0C40"
-          template: list_button
-          type: custom:button-card
-        - name: "\u0C15\u0C3E\u0C32\u0C40\u0C2B\u0C4D\u0C32\u0C35\u0C30\u0C41"
-          tap_action:
-            service: input_text.set_value
-            service_data:
-              entity_id: input_text.shopping_list
-              value: "\u0C15\u0C3E\u0C32\u0C40\u0C2B\u0C4D\u0C32\u0C35\u0C30\u0C41"
-          template: list_button
-          type: custom:button-card
-        - name: "\u0C17\u0C4B\u0C30\u0C41 \u0C1A\u0C3F\u0C15\u0C4D\u0C15\u0C41\u0C21\
-            \u0C41"
-          tap_action:
-            service: input_text.set_value
-            service_data:
-              entity_id: input_text.shopping_list
-              value: "\u0C17\u0C4B\u0C30\u0C41 \u0C1A\u0C3F\u0C15\u0C4D\u0C15\u0C41\
-                \u0C21\u0C41"
-          template: list_button
-          type: custom:button-card
-        - name: "\u0C2C\u0C4A\u0C2C\u0C4D\u0C2C\u0C30 \u0C1A\u0C3F\u0C15\u0C4D\u0C15\
-            \u0C41\u0C21\u0C41"
-          tap_action:
-            service: input_text.set_value
-            service_data:
-              entity_id: input_text.shopping_list
-              value: "\u0C2C\u0C4A\u0C2C\u0C4D\u0C2C\u0C30 \u0C1A\u0C3F\u0C15\u0C4D\
-                \u0C15\u0C41\u0C21\u0C41"
-          template: list_button
-          type: custom:button-card
-        - name: null
-          tap_action:
-            service: input_text.set_value
-            service_data:
-              entity_id: input_text.shopping_list
-              value: null
-          template: list_button
-          type: custom:button-card
-        - name: "\u0C35\u0C46\u0C32\u0C4D\u0C32\u0C41\u0C32\u0C4D\u0C32\u0C3F"
-          tap_action:
-            service: input_text.set_value
-            service_data:
-              entity_id: input_text.shopping_list
-              value: "\u0C35\u0C46\u0C32\u0C4D\u0C32\u0C41\u0C32\u0C4D\u0C32\u0C3F"
-          template: list_button
-          type: custom:button-card
-        - name: "\u0C09\u0C32\u0C4D\u0C32\u0C3F\u0C2A\u0C3E\u0C2F"
-          tap_action:
-            service: input_text.set_value
-            service_data:
-              entity_id: input_text.shopping_list
-              value: "\u0C09\u0C32\u0C4D\u0C32\u0C3F\u0C2A\u0C3E\u0C2F"
-          template: list_button
-          type: custom:button-card
-        - name: "\u0C2A\u0C1A\u0C4D\u0C1A\u0C3F \u0C2E\u0C3F\u0C30\u0C2A\u0C15\u0C3E\
-            \u0C2F"
-          tap_action:
-            service: input_text.set_value
-            service_data:
-              entity_id: input_text.shopping_list
-              value: "\u0C2A\u0C1A\u0C4D\u0C1A\u0C3F \u0C2E\u0C3F\u0C30\u0C2A\u0C15\
-                \u0C3E\u0C2F"
-          template: list_button
-          type: custom:button-card
-        - name: "\u0C05\u0C32\u0C4D\u0C32\u0C02"
-          tap_action:
-            service: input_text.set_value
-            service_data:
-              entity_id: input_text.shopping_list
-              value: "\u0C05\u0C32\u0C4D\u0C32\u0C02"
-          template: list_button
-          type: custom:button-card
-        square: false
-        type: custom:hui-element
-      type: vertical-stack
-    type: horizontal-stack
+  - double_tap_action:
+      action: navigate
+      navigation_path: /lovelace/den
+    entity: sensor.calvin_and_hobbes
+    entity_picture: '[[[ return entity.state ]]]'
+    hold_action:
+      action: navigate
+      navigation_path: /lovelace/den
+    show_entity_picture: true
+    show_name: false
+    size: 100%
+    styles:
+      card:
+      - padding: 0px
+      - border-radius: 0px
+    tap_action:
+      action: navigate
+      navigation_path: /lovelace/den
+    type: custom:button-card
+  icon: mdi:thought-bubble
+  path: calvinandhobbes
+  subview: true
+  theme: Google Theme
+  title: Calvin and Hobbes
+  type: panel
+- badges: []
+  cards:
+  - keyboard_id: media_player.google_tv
+    media_player_id: media_player.google_tv
+    remote_id: remote.google_tv
+    rows:
+    - - power
+      - volume_up
+      - volume_down
+      - volume_mute
+    - - back
+      - home
+      - up
+      - left
+      - center
+    - - right
+      - down
+      - play
+    - - pause
+      - play_pause
+      - stop
+    - - rewind
+      - fast_forward
+      - previous
+      - record
+      - next
+      - menu
+      - a
+    - - b
+      - x
+      - y
+      - n0
+      - n1
+    - - n2
+      - n3
+      - n4
+      - n5
+      - n6
+    - - n7
+      - n8
+      - n9
+      - channel_up
+    - - channel_down
+      - f1
+      - f2
+      - f3
+      - f4
+    - - f5
+      - f6
+      - f7
+      - f8
+      - f9
+      - f10
+      - f11
+      - f12
+    - - tv
+      - red
+      - green
+      - yellow
+      - blue
+    - - button_mode
+      - explorer
+      - info
+      - guide
+      - teletext
+      - captions
+    - - dvr
+      - audio_track
+      - settings
+      - delete
+      - forward_delete
+      - enter
+    - - keyboard
+      - search
+      - textbox
+    type: custom:android-tv-card
+  - color_type: card
+    custom_fields:
+      notification: "[[[\n  if (entity.state === 'home') return '<ha-icon icon=\"\
+        mdi:home\"  style=\"width: 22px; height: 22px;\">';\n  else return '<ha-icon\
+        \ icon=\"mdi:location-exit\"  style=\"width: 22px; height: 22px;\">';\n]]]\n"
+    entity: device_tracker.oneplus_7t
+    entity_picture: /local/darragh.png
+    show_entity_picture: true
+    show_name: false
+    styles:
+      card:
+      - border-radius: 10%
+      - width: 100px
+      - height: 100px
+      custom_fields:
+        notification:
+        - background-color: "[[[\n  if (entity.state === 'home') return 'purple';\n\
+            \  else return 'grey';\n]]]\n"
+        - border-radius: 100%
+        - position: absolute
+        - left: 1px
+        - top: 1px
+        - height: 25px
+        - width: 25px
+        - color: white
+        - line-height: 25px
+      entity_picture:
+      - width: 110px
+      - height: 110px
+      - filter: "[[[\n  if (entity.state === 'home') return 'none';\n  else return\
+          \ 'blur(1px) grayscale(100%)';\n]]]\n"
+    type: custom:button-card
   - cards:
     - double_tap_action:
         action: fire-dom-event
@@ -4020,257 +3882,8 @@ views:
     type: custom:stack-in-card
     view_layout:
       column: 1
-  - cards:
-    - badge_color: '{{ iif(is_state(''device_tracker.oneplus_7t'', ''home''), ''green'',
-        ''grey'')}}'
-      badge_icon: '{{ iif(is_state(''device_tracker.oneplus_7t'', ''home''), ''mdi:home'',
-        ''mdi:arrow-right'')}}'
-      double_tap_action:
-        action: none
-      entity: device_tracker.oneplus_7t
-      fill_container: true
-      hold_action:
-        action: none
-      icon: ''
-      icon_color: ''
-      layout: vertical
-      picture: /local/darragh.png
-      primary: '{{ iif(is_state(''device_tracker.oneplus_7t'', ''home''), ''Home'',
-        ''Away'')}}'
-      secondary: ''
-      tap_action:
-        action: none
-      type: custom:mushroom-template-card
-    - badge_color: '{{ iif(is_state(''device_tracker.oneplus_10pro'', ''home''), ''green'',
-        ''grey'')}}'
-      badge_icon: '{{ iif(is_state(''device_tracker.oneplus_10pro'', ''home''), ''mdi:home'',
-        ''mdi:arrow-right'')}}'
-      double_tap_action:
-        action: none
-      entity: device_tracker.oneplus_10pro
-      fill_container: true
-      hold_action:
-        action: none
-      icon: ''
-      layout: vertical
-      picture: /local/pavan.png
-      primary: '{{ iif(is_state(''device_tracker.oneplus_10pro'', ''home''), ''Home'',
-        ''Away'')}}'
-      secondary: ''
-      tap_action:
-        action: none
-      type: custom:mushroom-template-card
-    - badge_color: '{{ iif(is_state(''device_tracker.hilary_s_phone_2'', ''home''),
-        ''green'', ''grey'')}}'
-      badge_icon: '{{ iif(is_state(''device_tracker.hilary_s_phone_2'', ''home''),
-        ''mdi:home'', ''mdi:arrow-right'')}}'
-      double_tap_action:
-        action: none
-      entity: device_tracker.hilary_s_phone_2
-      fill_container: true
-      hold_action:
-        action: none
-      icon: ''
-      layout: vertical
-      picture: /local/hilary.png
-      primary: '{{ iif(is_state(''device_tracker.hilary_s_phone_2'', ''home''), ''Home'',
-        ''Away'')}}'
-      secondary: ''
-      tap_action:
-        action: none
-      type: custom:mushroom-template-card
-    type: horizontal-stack
-    view_layout:
-      column: 1
-  - alignment: center
-    chips:
-    - content: Utilities
-      double_tap_action:
-        action: none
-      hold_action:
-        action: none
-      icon: mdi:power-plug
-      icon_color: '{{ iif(is_state(''input_select.room_view'', ''utilities''), ''pink'',
-        ''disabled'')}}'
-      tap_action:
-        action: call-service
-        data:
-          option: utilities
-        service: input_select.select_option
-        target:
-          entity_id: input_select.room_view
-      type: template
-    - content: Kitchen
-      double_tap_action:
-        action: none
-      hold_action:
-        action: none
-      icon: mdi:fridge
-      icon_color: '{{ iif(is_state(''input_select.room_view'', ''kitchen''), ''orange'',
-        ''disabled'')}}'
-      tap_action:
-        action: call-service
-        data:
-          option: kitchen
-        service: input_select.select_option
-        target:
-          entity_id: input_select.room_view
-      type: template
-    - content: Living Room
-      double_tap_action:
-        action: none
-      hold_action:
-        action: none
-      icon: mdi:sofa
-      icon_color: '{{ iif(is_state(''input_select.room_view'', ''livingroom''), ''blue'',
-        ''disabled'')}}'
-      tap_action:
-        action: call-service
-        data:
-          option: livingroom
-        service: input_select.select_option
-        target:
-          entity_id: input_select.room_view
-      type: template
-    - content: Hallway
-      double_tap_action:
-        action: none
-      hold_action:
-        action: none
-      icon: hue:room-hallway
-      icon_color: '{{ iif(is_state(''input_select.room_view'', ''hallway''), ''purple'',
-        ''disabled'')}}'
-      tap_action:
-        action: call-service
-        data:
-          option: hallway
-        service: input_select.select_option
-        target:
-          entity_id: input_select.room_view
-      type: template
-    - content: Media
-      double_tap_action:
-        action: none
-      hold_action:
-        action: none
-      icon: mdi:television-classic
-      icon_color: '{{ iif(is_state(''input_select.room_view'', ''media''), ''green'',
-        ''disabled'')}}'
-      tap_action:
-        action: call-service
-        data:
-          option: media
-        service: input_select.select_option
-        target:
-          entity_id: input_select.room_view
-      type: template
-    type: custom:mushroom-chips-card
-  - cards:
-    - entity: sensor.count_automations
-      icon: mdi:robot
-      icon_color: red
-      name: '# Automations'
-      primary_info: state
-      secondary_info: name
-      type: custom:mushroom-entity-card
-    - entity: sensor.count_scripts
-      icon: mdi:script
-      icon_color: purple
-      name: '# Scripts'
-      primary_info: state
-      secondary_info: name
-      type: custom:mushroom-entity-card
-    - entity: sensor.count_scenes
-      icon: mdi:palette-outline
-      icon_color: indigo
-      name: '# Scenes'
-      primary_info: state
-      secondary_info: name
-      type: custom:mushroom-entity-card
-    - entity: sensor.count_sensors
-      icon: ''
-      icon_color: blue
-      name: '# Sensors'
-      primary_info: state
-      secondary_info: name
-      type: custom:mushroom-entity-card
-    - entity: sensor.count_binary_sensors
-      icon_color: green
-      name: '# Binary Sensors'
-      primary_info: state
-      secondary_info: name
-      type: custom:mushroom-entity-card
-    - entity: sensor.count_device_trackers
-      icon: mdi:lan-connect
-      icon_color: light-green
-      name: '# Device Trackers'
-      primary_info: state
-      secondary_info: name
-      type: custom:mushroom-entity-card
-    - entity: sensor.count_input_booleans
-      icon_color: yellow
-      name: '# Input Booleans'
-      primary_info: state
-      secondary_info: name
-      type: custom:mushroom-entity-card
-    - entity: sensor.count_switches
-      icon: mdi:light-switch
-      icon_color: brown
-      name: '# Switches'
-      primary_info: state
-      secondary_info: name
-      type: custom:mushroom-entity-card
-    - entity: sensor.count_lights
-      icon: mdi:lightbulb
-      icon_color: deep-orange
-      name: '# Lights'
-      primary_info: state
-      secondary_info: name
-      type: custom:mushroom-entity-card
-    - entity: sensor.count_media_players
-      icon: mdi:cast
-      icon_color: amber
-      name: '# Media Players'
-      primary_info: state
-      secondary_info: name
-      type: custom:mushroom-entity-card
-    - entity: sensor.count_zones
-      icon: mdi:map-clock
-      name: '# Zones'
-      primary_info: state
-      secondary_info: name
-      type: custom:mushroom-entity-card
-    mode: vertical
-    type: custom:stack-in-card
-  icon: mdi:cart
-  path: shopping
-  theme: null
-  title: Shopping
-  visible: []
-- badges: []
-  cards:
-  - double_tap_action:
-      action: navigate
-      navigation_path: /lovelace/den
-    entity: sensor.calvin_and_hobbes
-    entity_picture: '[[[ return entity.state ]]]'
-    hold_action:
-      action: navigate
-      navigation_path: /lovelace/den
-    show_entity_picture: true
-    show_name: false
-    size: 100%
-    styles:
-      card:
-      - padding: 0px
-      - border-radius: 0px
-    tap_action:
-      action: navigate
-      navigation_path: /lovelace/den
-    type: custom:button-card
-  icon: mdi:thought-bubble
-  path: calvinandhobbes
-  subview: true
-  theme: Google Theme
-  title: Calvin and Hobbes
-  type: panel
+  icon: mdi:test-tube
+  path: testing
+  title: testing
+  visible:
+  - user: 74f7e2ffd3594037b1a2fc4de82d9fea

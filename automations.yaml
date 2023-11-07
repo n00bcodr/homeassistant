@@ -348,7 +348,7 @@
     data: {}
   mode: single
 - id: '1655814095516'
-  alias: "\U0001F3AC\U0001F3F0Capture Shared URL - Google TV"
+  alias: "\U0001F3ACCapture Shared URL - Google TV"
   description: Captures the URL shared and updates input_text ccgtv_share_url
   trigger:
   - platform: event
@@ -472,6 +472,7 @@
           - light.light
           - media_player.spotify
           - light.shapes
+          - climate.heater
       - service: homeassistant.turn_off
         data: {}
         target:
@@ -479,6 +480,7 @@
           - switch.workstation
           - light.shapes
           - light.light
+          - climate.heater
       - service: media_player.media_pause
         data: {}
         target:
@@ -578,41 +580,6 @@
               entity_id: light.light
         default: []
     default: []
-  mode: single
-- id: '1670800244266'
-  alias: "\U0001F3F0 Bed Routine"
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - binary_sensor.in_bed
-    from: 'off'
-    to: 'on'
-    for:
-      hours: 0
-      minutes: 5
-      seconds: 0
-  condition:
-  - condition: or
-    conditions:
-    - condition: device
-      type: is_on
-      device_id: e7927153f5bb66e41b55bdb929403d8a
-      entity_id: light.light
-      domain: light
-    - condition: device
-      type: is_on
-      device_id: 6d1dbea0f4601c12e1d4c9814c77d0f2
-      entity_id: light.entrance_light
-      domain: light
-    - condition: device
-      type: is_on
-      device_id: 22d3b83188e1ace9ced42e13d76ce319
-      entity_id: light.shapes
-      domain: light
-  action:
-  - service: script.new_script
-    data: {}
   mode: single
 - id: '1670844577464'
   alias: ⚡Full charge notification
@@ -911,23 +878,6 @@
     service_template: '{{ trigger.event.data.service }}'
     data_template:
       entity_id: '{{ trigger.event.data.entity_id }}'
-- id: '1673376314894'
-  alias: "\U0001F3F0Turn off light when phone is wireless charging"
-  description: ''
-  trigger:
-  - type: plugged_in
-    platform: device
-    device_id: 9d22afdfaf70765bd616973f27d2b9e1
-    entity_id: binary_sensor.10pro_is_charging
-    domain: binary_sensor
-  condition:
-  - condition: state
-    entity_id: sensor.10pro_charger_type
-    state: wireless
-  action:
-  - service: script.new_script
-    data: {}
-  mode: single
 - id: '1674758476057'
   alias: "\U0001F4A1Living Room Light Presence"
   description: ''
@@ -1255,6 +1205,21 @@
           duration: 01:30:00
         target:
           entity_id: timer.heating
+      - service: notify.mobile_app_10pro
+        data:
+          message: "\U0001F525 Heating"
+          data:
+            chronometer: true
+            when: '{{ ((as_timestamp(now()) + 5400 ) - as_timestamp(''1970-01-01T00:00:00Z''))
+              | int }}'
+            notification_icon: mdi:heating-coil
+            sticky: true
+            persistant: true
+            tag: heat
+            actions:
+            - action: URI
+              title: "\U0001F525"
+              uri: entityId:switch.heating
     - conditions:
       - condition: trigger
         id: 'off'
@@ -1263,6 +1228,11 @@
         data: {}
         target:
           entity_id: timer.heating
+      - service: notify.mobile_app_10pro
+        data:
+          message: clear_notification
+          data:
+            tag: heat
   mode: single
 - id: '1677263065986'
   alias: "\U0001F525Turn off heating after X minutes"
@@ -1297,19 +1267,8 @@
     input:
       entity_1: switch.backyard_lights_socket_1
       entity_2: switch.backyard_lights
-- id: '1680023994781'
-  alias: "\U0001F4A1Kitchen Motion Blueprint"
-  description: ''
-  use_blueprint:
-    path: freakshock88/motion_illuminance_activated_entity.yaml
-    input:
-      motion_sensor: binary_sensor.kitchen_motion_occupancy
-      target_entity: switch.kitchen_light
-      illuminance_sensor: sensor.kitchen_motion_illuminance
-      illuminance_cutoff: input_number.kitchen_illuminance_cutoff
-      no_motion_wait: input_number.kitchen_light_turn_off
 - id: '1680037718271'
-  alias: "\U0001F4A1Entrance String Lights Motion"
+  alias: "\U0001F4A1Hallway String Lights Motion"
   description: ''
   trigger:
   - platform: state
@@ -1368,13 +1327,19 @@
   mode: queued
   max: 10
 - id: '1684020991108'
-  alias: "\U0001F4FANotify Sonarr downloads "
-  description: Notifies when Sonarr downloads a new episode
+  alias: "\U0001F4FANotify Downloads "
+  description: Notifies when downloads of a new episode or a movie complete
   trigger:
   - platform: state
     entity_id:
     - sensor.sonarr_queue
     to: '0'
+    id: sonarr
+  - platform: state
+    entity_id:
+    - sensor.radarr_queue
+    to: '0'
+    id: radarr
   condition: []
   action:
   - delay:
@@ -1382,69 +1347,42 @@
       minutes: 0
       seconds: 40
       milliseconds: 0
-  - service: notify.mobile_app_10pro
-    data:
-      message: '{{ state_attr( "sensor.recently_added_tv", "data")[1].title }} {{
-        state_attr( "sensor.recently_added_tv", "data")[1].number }} is downloaded
-        and now available on Plex.'
-      data:
-        notification_icon: mdi:television-box
-        image: '{{ state_attr( "sensor.recently_added_tv", "data")[1].fanart }}'
-  mode: restart
-- id: '1684414856257'
-  alias: "\U0001F4A1Backyard Lights"
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - binary_sensor.door_contact
-  - platform: state
-    entity_id:
-    - binary_sensor.kitchen_motion_occupancy
-  condition:
-  - condition: sun
-    after: sunset
-    before: sunrise
-  action:
   - choose:
     - conditions:
-      - condition: state
-        entity_id: binary_sensor.kitchen_motion_occupancy
-        state: 'on'
+      - condition: trigger
+        id:
+        - sonarr
       sequence:
-      - wait_for_trigger:
-        - platform: state
-          entity_id:
-          - binary_sensor.door_contact
-          from: 'off'
-          to: 'on'
-        continue_on_timeout: false
-        timeout:
-          hours: 0
-          minutes: 0
-          seconds: 30
-          milliseconds: 0
-      - service: switch.turn_on
-        data: {}
-        target:
-          entity_id: switch.backyard_lights
+      - service: notify.mobile_app_10pro
+        data:
+          message: '{{ state_attr( "sensor.recently_added_tv", "data")[1].title }}
+            - {{ state_attr( "sensor.recently_added_tv", "data")[1].number }} is downloaded
+            and now available on Plex.'
+          data:
+            notification_icon: mdi:television-box
+            image: '{{ state_attr( "sensor.recently_added_tv", "data")[1].fanart}}'
+      - service: notify.mobile_app_op7t
+        data:
+          message: '{{ state_attr( "sensor.recently_added_tv", "data")[1].title }}
+            - {{ state_attr( "sensor.recently_added_tv", "data")[1].number }} is downloaded
+            and now available on Plex.'
+          data:
+            notification_icon: mdi:television-box
+            image: '{{ state_attr( "sensor.recently_added_tv", "data")[1].fanart}}'
     - conditions:
-      - condition: state
-        entity_id: binary_sensor.door_contact
-        state: 'on'
+      - condition: trigger
+        id:
+        - radarr
       sequence:
-      - wait_for_trigger:
-        - platform: state
-          entity_id:
-          - binary_sensor.kitchen_motion_occupancy
-          from: 'off'
-          to: 'on'
-        continue_on_timeout: false
-      - service: switch.turn_off
-        data: {}
-        target:
-          entity_id: switch.backyard_lights
-  mode: single
+      - service: notify.mobile_app_10pro
+        data:
+          message: '{{ state_attr( "sensor.recently_added_movies", "data")[1].title
+            }} - {{ state_attr( "sensor.recently_added_movies", "data")[1].number
+            }} is downloaded and now available on Plex.'
+          data:
+            notification_icon: mdi:movie-check
+            image: '{{ state_attr( "sensor.recently_added_movies", "data")[1].fanart}}'
+  mode: restart
 - id: '1684417211214'
   alias: "\U0001F4A1Synchronize states - String Lights"
   description: ''
@@ -1557,11 +1495,19 @@
     - sensor.speedtest_download
     id: speedtest
     to: unavailable
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 30
   - platform: state
     entity_id:
     - sensor.bob_duration
     id: homewhiz
     to: unavailable
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 30
   condition: []
   action:
   - choose:
@@ -1609,50 +1555,6 @@
           - binary_sensor.bob_warning_door_is_open
           - binary_sensor.bob_warning_no_water
           - binary_sensor.bob_warning_safety
-  mode: single
-- id: '1687903979617'
-  alias: "\U0001F512Door Alarm"
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - binary_sensor.door_contact
-    from: 'off'
-    to: 'on'
-  condition:
-  - condition: and
-    conditions:
-    - condition: state
-      entity_id: device_tracker.oneplus_7t
-      state: not_home
-    - condition: state
-      entity_id: device_tracker.oneplus_10pro
-      state: not_home
-    - condition: state
-      entity_id: device_tracker.hilary_s_phone_2
-      state: not_home
-  action:
-  - service: scene.turn_on
-    data: {}
-    target:
-      entity_id: scene.flashing
-  - service: media_player.volume_set
-    data:
-      volume_level: 1
-    target:
-      entity_id: media_player.nest_mini
-  - service: media_player.play_media
-    data:
-      media_content_type: audio/mp3
-      media_content_id: /local/alarm-sound.mp3
-    target:
-      entity_id: media_player.nest_mini
-  - service: media_player.play_media
-    data:
-      media_content_type: audio/mp3
-      media_content_id: /local/alarm-sound.mp3
-    target:
-      entity_id: media_player.nest_mini
   mode: single
 - id: '1688497197460'
   alias: "\U0001F3B5Text Search and Play Music on Spotify"
@@ -1715,10 +1617,10 @@
               }}/thumbnail
       - service: notify.mobile_app_10pro
         data:
+          message: Motion
           data:
             image: /api/nest/event_media/{{ trigger.event.data.device_id }}/{{ trigger.event.data.nest_event_id
               }}/thumbnail
-          message: Motion
     - conditions:
       - condition: trigger
         id:
@@ -1764,7 +1666,7 @@
           message: Doorbell
   mode: single
 - id: '1689331566546'
-  alias: Launch Navigation when connected to Android Auto
+  alias: "\U0001F3F0Leaving and Arriving Home"
   description: ''
   trigger:
   - platform: state
@@ -1788,6 +1690,11 @@
           entity_id: person.pavanthanuj
           state: home
       sequence:
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 30
+          milliseconds: 0
       - service: notify.mobile_app_10pro
         data:
           message: command_activity
@@ -1795,6 +1702,11 @@
             intent_package_name: com.google.android.apps.maps
             intent_action: android.intent.action.VIEW
             intent_uri: google.navigation:q=Ericsson, Athlone
+      - service: automation.trigger
+        data:
+          skip_condition: true
+        target:
+          entity_id: automation.tag_desk_is_scanned
     - conditions:
       - condition: and
         conditions:
@@ -1812,6 +1724,16 @@
             intent_package_name: com.google.android.apps.maps
             intent_action: android.intent.action.VIEW
             intent_uri: google.navigation:q=Home
+      - wait_for_trigger:
+        - platform: zone
+          entity_id: device_tracker.10pro
+          zone: zone.home
+          event: enter
+      - service: automation.trigger
+        data:
+          skip_condition: true
+        target:
+          entity_id: automation.den_as_it_was
   mode: single
 - id: '1691418078168'
   alias: Doorbell - Notifications
@@ -1967,6 +1889,14 @@
         id:
         - clear
       sequence:
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 30
+          milliseconds: 0
+      - condition: state
+        entity_id: binary_sensor.kitchen_presence
+        state: 'off'
       - service: homeassistant.turn_off
         data: {}
         target:
@@ -2007,7 +1937,7 @@
             | timestamp_custom(''%-d %b, %Y'') }}</a>
 
 
-            <a href= "https://www.gocomics.com/calvinandhobbes/{{states.sensor.calvin_and_hobbes.attributes.publishedDate}}">
+            <a href= "{{states.sensor.calvin_and_hobbes.attributes.goComicsUrl}}">
             GoComics URL</a>'
           parse_mode: html
     default:
@@ -2036,4 +1966,102 @@
             title: '{{as_timestamp(strptime(states.sensor.calvin_and_hobbes.attributes.publishedDate,''%Y/%m/%d''))
               | timestamp_custom(''%-d %b, %Y'') }}'
             uri: /lovelace/calvinandhobbes
+  mode: single
+- id: '1698578351483'
+  alias: ⚙Reload Bin Calendars
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - calendar.allied_recycling_blue_bin
+    to: unavailable
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 30
+  - platform: state
+    entity_id:
+    - calendar.allied_recycling_black_bin
+    to: unavailable
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 30
+  condition: []
+  action:
+  - service: homeassistant.reload_config_entry
+    data: {}
+    target:
+      entity_id:
+      - calendar.allied_recycling_blue_bin
+      - calendar.allied_recycling_black_bin
+  mode: single
+- id: '1698580342658'
+  alias: "\U0001F4FAPause Media on TV when no one is watching"
+  description: ''
+  trigger:
+  - type: not_occupied
+    platform: device
+    device_id: 9e8e30f13e8d71a3c86779f8335cb6a4
+    entity_id: 9e8a3a6bdb500805e716666e46f77510
+    domain: binary_sensor
+  condition:
+  - condition: device
+    device_id: 69e4e0f562681b3da86a0c6291d0b11c
+    domain: media_player
+    entity_id: 2e20cbcfddc439650095c2519f3eff3e
+    type: is_playing
+  action:
+  - service: media_player.media_pause
+    data: {}
+    target:
+      entity_id: media_player.google_tv
+  mode: single
+- id: '1698595572726'
+  alias: ⚙️Joke from Google
+  description: ''
+  trigger:
+  - platform: time_pattern
+    minutes: '5'
+  condition: []
+  action:
+  - service: google_assistant_sdk.send_text_command
+    data:
+      command: tell me a joke
+    response_variable: response
+  - service: input_text.set_value
+    data:
+      value: '{{ response.responses[0].text }}'
+    target:
+      entity_id: input_text.joke
+  mode: single
+- id: '1698602804746'
+  alias: "\U0001F3F0 Bed Routine"
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.in_bed
+    from: 'off'
+    to: 'on'
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+  condition:
+  - condition: or
+    conditions:
+    - condition: device
+      type: is_on
+      device_id: dff84bd584c07eb8fe0319805d37fb40
+      entity_id: aae986f563864b62471636d435e625a3
+      domain: light
+    - condition: device
+      type: is_on
+      device_id: 22d3b83188e1ace9ced42e13d76ce319
+      entity_id: light.shapes
+      domain: light
+  action:
+  - service: script.bed_routine_script
+    data: {}
   mode: single

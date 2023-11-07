@@ -29,6 +29,10 @@
       "order": 6
     },
     {
+      "item": "To-do lists",
+      "order": 6
+    },    
+    {
       "new_item": true,
       "item": "Tags",
       "href": "/config/tags",

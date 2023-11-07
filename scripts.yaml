@@ -102,7 +102,7 @@ load_share_url_googletv:
     default: []
   mode: single
   icon: mdi:monitor-share
-new_script:
+bed_routine_script:
   alias: Bed Routine Script
   sequence:
   - variables:
