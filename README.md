@@ -41,8 +41,8 @@ I started my Home Assistant Journey with a Raspberry Pi 3, from which I have swi
 
 ## Devices I use
 
-## ****<a name="menu">Menu</a>
- | [Lights](#lights) | [Outlets & Switches](#outlets) | [Voice Assistants & Displays](#smartspeakers) | [Media](#media) | [Sensors](#sensors) | [Cameras](#cameras) | [Appliances](#appliances) | [Network](#network) | [IR Blasters](#ir) | [Hubs](#hubs) | [Climate](#climate) | [Other Hardware](#other) [Screenshots](#screenshots) || [Graveyard☠️](#graveyard) |
+## <a name="menu">Menu</a>
+ | [Lights](#lights) | [Outlets & Switches](#outlets) | [Voice Assistants & Displays](#smartspeakers) | [Media](#media) | [Sensors](#sensors) | [Cameras](#cameras) | [Appliances](#appliances) | [Network](#network) | [IR Blasters](#ir) | [Hubs](#hubs) | [Climate](#climate) | [Other Hardware](#other) [Screenshots](#screenshots) | [Graveyard☠️](#graveyard) |
 
 ---
 
@@ -71,6 +71,7 @@ I started my Home Assistant Journey with a Raspberry Pi 3, from which I have swi
 - [Nest Mini](https://store.google.com/us/product/google_nest_mini) x 1
 - Google Home Mini x 1
 - [Lenovo Smart Clock](https://www.flipkart.com/lenovo-smart-clock-google-assistant-speaker/p/itm39f6a1348e45e) x 1
+- [Google Nest Hub 2nd Gen](https://store.google.com/ie/product/nest_hub_2nd_gen?hl=en-GB)
 ---
 ### <a name="media">Media</a> 
 | [Go to Menu](#menu) |
