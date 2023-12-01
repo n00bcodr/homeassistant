@@ -2,6 +2,4871 @@
   {
     "MPRN": "10015088780",
     "Meter Serial Number": "22243613",
+    "Read Value": "0.372000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "17-11-2023 16:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.258000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "17-11-2023 16:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.456000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "17-11-2023 15:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.566000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "17-11-2023 15:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.414000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "17-11-2023 14:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.846000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "17-11-2023 14:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.320000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "17-11-2023 13:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.266000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "17-11-2023 13:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.218000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "17-11-2023 12:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.640000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "17-11-2023 12:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.360000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "17-11-2023 11:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.020000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "17-11-2023 11:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.242000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "17-11-2023 10:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.436000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "17-11-2023 10:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.728000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "17-11-2023 09:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.488000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "17-11-2023 09:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.676000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "17-11-2023 08:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.908000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "17-11-2023 08:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.552000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "17-11-2023 07:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.462000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 18:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.474000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 18:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.552000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 17:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.408000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 17:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.528000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 16:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.896000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 16:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.656000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 15:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.668000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 15:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "6.902000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 14:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.280000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 14:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.164000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 13:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.136000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 13:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.482000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 12:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.256000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 12:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.280000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 11:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.376000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 11:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.296000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 10:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.082000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 10:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.336000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 09:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.346000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 09:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.320000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 08:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.926000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 08:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.242000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 07:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.120000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 07:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.140000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 06:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.150000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 06:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.134000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 05:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.110000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 05:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.180000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 04:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.160000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 04:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.126000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 03:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.264000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 03:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.876000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 02:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.204000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 02:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.224000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 01:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.332000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 01:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.300000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 00:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.194000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "16-11-2023 00:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.258000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 23:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.310000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 23:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.260000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 22:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.334000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 22:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.310000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 21:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.334000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 21:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.442000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 20:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.502000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 20:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.444000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 19:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.280000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 19:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.490000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 18:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.364000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 18:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.374000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 17:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.276000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 17:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.150000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 16:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.642000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 16:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.082000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 15:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.482000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 15:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.632000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 14:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.436000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 14:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.144000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 13:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.176000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 13:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.152000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 12:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.118000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 12:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.092000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 11:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.126000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 11:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.196000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 10:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.106000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 10:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.106000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 09:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.144000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 09:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.124000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 08:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.262000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 08:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.880000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 07:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.370000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 07:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.160000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 06:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.144000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 06:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.112000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 05:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.092000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 05:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.146000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 04:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.204000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 04:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.102000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 03:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.104000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 03:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.140000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 02:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.154000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 02:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.130000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 01:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.172000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 01:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.442000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 00:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.830000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "15-11-2023 00:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.980000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 23:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "3.776000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 23:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.310000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 22:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.692000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 22:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.444000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 21:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.754000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 21:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.696000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 20:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.462000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 20:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.218000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 19:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.164000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 19:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.664000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 18:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.160000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 18:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.216000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 17:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.236000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 17:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.188000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 16:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.216000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 16:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.190000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 15:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.128000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 15:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.182000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 14:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.378000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 14:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.156000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 13:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.426000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 13:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.338000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 12:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.224000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 12:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.220000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 11:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.270000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 11:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.216000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 10:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.282000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 10:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.254000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 09:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.244000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 09:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.300000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 08:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "4.534000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 08:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.030000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 07:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.094000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 07:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.104000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 06:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.142000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 06:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.154000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 05:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.124000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 05:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.166000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 04:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.106000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 04:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.114000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 03:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.242000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 03:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.132000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 02:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.112000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 02:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.244000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 01:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.850000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 01:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.872000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 00:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.730000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "14-11-2023 00:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.288000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 23:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.402000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 23:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.428000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 22:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.844000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 22:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.450000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 21:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.390000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 21:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.510000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 20:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.768000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 20:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.396000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 19:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.578000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 19:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.350000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 18:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.584000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 18:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.538000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 17:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.384000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 17:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.116000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 16:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.138000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 16:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.142000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 15:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.346000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 15:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.144000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 14:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.524000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 14:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.308000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 13:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.188000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 13:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.220000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 12:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.108000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 12:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.106000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 11:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.164000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 11:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.148000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 10:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.130000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 10:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.884000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 09:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.146000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 09:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.100000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 08:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.362000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 08:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.318000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 07:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.674000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 07:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.124000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 06:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.144000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 06:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.138000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 05:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.114000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 05:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.148000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 04:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.106000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 04:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.178000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 03:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.196000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 03:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.106000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 02:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.104000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 02:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.176000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 01:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.176000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 01:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.092000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 00:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "6.398000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "13-11-2023 00:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.902000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 23:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.064000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 23:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.106000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 22:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.506000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 22:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.274000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 21:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.448000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 21:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.298000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 20:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.340000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 20:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.400000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 19:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.314000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 19:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.630000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 18:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.026000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 18:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.614000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 17:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "3.038000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 17:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.178000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 16:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.230000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 16:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.176000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 15:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.158000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 15:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.484000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 14:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.292000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 14:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.232000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 13:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.658000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 13:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.578000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 12:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.212000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 12:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.412000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 11:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.714000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 11:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.648000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 10:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.486000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 10:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.938000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 09:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.822000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 09:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.108000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 08:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.212000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 08:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.152000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 07:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.130000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 07:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.144000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 06:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.170000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 06:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.120000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 05:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.164000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 05:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.188000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 04:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.194000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 04:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.184000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 03:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.198000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 03:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.158000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 02:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.202000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 02:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.244000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 01:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.422000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 01:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.176000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 00:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.288000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "12-11-2023 00:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.180000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 23:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.168000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 23:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.222000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 22:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.232000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 22:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.248000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 21:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.208000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 21:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.068000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 20:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.824000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 20:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.926000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 19:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.312000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 19:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.238000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 18:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.206000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 18:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.262000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 17:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.146000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 17:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.190000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 16:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.208000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 16:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.144000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 15:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.220000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 15:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.314000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 14:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.560000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 14:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.424000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 13:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.340000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 13:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.664000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 12:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.500000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 12:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.268000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 11:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.802000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 11:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.160000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 10:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.164000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 10:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.228000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 09:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.102000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 09:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.108000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 08:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.190000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 08:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.138000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 07:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.104000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 07:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.166000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 06:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.152000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 06:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.112000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 05:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.144000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 05:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.126000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 04:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.154000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 04:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.128000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 03:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.140000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 03:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.106000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 02:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.772000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 02:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.966000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 01:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.710000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 01:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.656000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 00:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.314000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "11-11-2023 00:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.768000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 23:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.986000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 23:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.266000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 22:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.612000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 22:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "3.158000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 21:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.328000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 21:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.466000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 20:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.322000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 20:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.838000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 19:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.120000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 19:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.630000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 18:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.264000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 18:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.510000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 17:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.420000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 17:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.388000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 16:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.534000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 16:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.308000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 15:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.178000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 15:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.182000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 14:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.156000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 14:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.388000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 13:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.526000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 13:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.144000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 12:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.152000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 12:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.184000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 11:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.246000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 11:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.232000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 10:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.290000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 10:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.294000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 09:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.230000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 09:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.224000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 08:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.402000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 08:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.984000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 07:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.308000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 07:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.266000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 06:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.230000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 06:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.204000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 05:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.240000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 05:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.194000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 04:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.178000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 04:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.192000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 03:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.180000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 03:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.196000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 02:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.190000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 02:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.292000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 01:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.280000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 01:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.284000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 00:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.388000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "10-11-2023 00:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.286000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 23:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.582000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 23:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.354000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 22:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.336000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 22:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.314000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 21:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.434000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 21:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.464000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 20:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.744000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 20:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.022000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 19:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.322000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 19:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.270000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 18:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.266000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 18:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.364000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 17:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.274000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 17:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.240000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 16:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.274000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 16:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.428000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 15:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.294000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 15:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.052000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 14:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.228000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 14:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.206000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 13:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.328000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 13:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.694000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 12:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.780000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 12:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.080000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 11:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.002000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 11:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.146000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 10:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.590000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 10:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.558000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 09:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.578000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 09:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.008000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 08:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.724000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 08:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.352000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 07:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.284000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 07:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.286000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 06:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.218000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 06:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.188000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 05:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.248000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 05:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.204000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 04:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.242000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 04:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.262000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 03:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.204000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 03:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.212000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 02:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.314000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 02:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.232000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 01:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.218000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 01:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.328000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 00:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.424000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "09-11-2023 00:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.952000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 23:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.374000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 23:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.502000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 22:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.570000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 22:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.628000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 21:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.492000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 21:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.756000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 20:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.322000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 20:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "3.750000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 19:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.462000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 19:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.534000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 18:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.892000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 18:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.428000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 17:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.452000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 17:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.026000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 16:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.162000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 16:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.146000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 15:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.190000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 15:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.184000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 14:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.176000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 14:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.230000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 13:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.170000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 13:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.162000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 12:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.212000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 12:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.152000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 11:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.136000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 11:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.172000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 10:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.262000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 10:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.930000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 09:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.792000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 09:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.282000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 08:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.960000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 08:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.568000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 07:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.040000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 07:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.132000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 06:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.180000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 06:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.192000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 05:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.128000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 05:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.122000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 04:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.228000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 04:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.154000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 03:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.140000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 03:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.162000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 02:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.222000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 02:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.148000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 01:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.476000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 01:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.912000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 00:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.222000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "08-11-2023 00:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.960000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 23:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.780000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 23:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.256000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 22:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.300000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 22:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.392000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 21:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.340000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 21:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.190000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 20:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.522000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 20:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "7.032000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 19:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.406000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 19:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.296000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 18:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.048000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 18:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.224000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 17:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.736000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 17:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.796000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 16:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.740000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 16:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.882000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 15:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.246000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 15:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.602000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 14:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.504000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 14:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.264000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 13:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.266000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 13:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.256000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 12:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.236000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 12:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.306000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 11:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.272000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 11:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.244000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 10:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.200000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 10:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.246000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 09:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.298000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 09:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.308000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 08:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.346000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 08:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "3.920000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 07:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.030000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 07:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.116000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 06:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.194000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 06:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.130000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 05:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.100000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 05:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.140000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 04:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.172000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 04:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.116000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 03:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.122000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 03:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.132000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 02:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.132000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 02:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.128000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 01:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.142000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 01:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.102000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 00:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.148000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "07-11-2023 00:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.262000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 23:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.252000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 23:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.736000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 22:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.452000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 22:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.240000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 21:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.240000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 21:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.320000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 20:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.374000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 20:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.516000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 19:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.386000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 19:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.504000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 18:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.480000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 18:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.224000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 17:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.568000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 17:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.336000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 16:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.374000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 16:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.230000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 15:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.258000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 15:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.116000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 14:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.160000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 14:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.160000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 13:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.624000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 13:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.164000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 12:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.208000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 12:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.736000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 11:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.494000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 11:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.272000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 10:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.200000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 10:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.812000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 09:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.236000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 09:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.130000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 08:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.192000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 08:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.266000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 07:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.132000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 07:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.104000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 06:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.210000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 06:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.092000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 05:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.096000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 05:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.162000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 04:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.122000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 04:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.138000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 03:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.166000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 03:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.112000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 02:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.096000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 02:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.098000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 01:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "4.632000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 01:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "3.148000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 00:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.352000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "06-11-2023 00:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.370000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 23:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.464000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 23:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.330000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 22:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.336000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 22:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.430000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 21:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.436000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 21:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.478000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 20:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.788000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 20:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.638000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 19:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.690000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 19:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.194000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 18:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.834000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 18:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.516000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 17:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.370000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 17:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.250000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 16:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.350000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 16:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.468000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 15:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.256000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 15:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.558000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 14:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.202000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 14:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.122000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 13:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.152000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 13:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.148000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 12:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.180000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 12:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.182000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 11:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.642000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 11:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.376000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 10:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.448000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 10:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.184000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 09:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.114000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 09:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.132000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 08:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.212000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 08:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.112000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 07:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.116000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 07:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.182000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 06:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.162000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 06:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.112000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 05:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.154000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 05:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.172000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 04:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.158000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 04:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.136000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 03:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.150000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 03:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.126000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 02:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.204000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 02:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.294000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 01:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.244000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 01:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.394000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 00:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.334000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "05-11-2023 00:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.278000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 23:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.244000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 23:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.558000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 22:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.250000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 22:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.354000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 21:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.354000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 21:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.326000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 20:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.346000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 20:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.542000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 19:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.416000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 19:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.294000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 18:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.492000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 18:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.330000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 17:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.350000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 17:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.240000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 16:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.910000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 16:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.112000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 15:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.170000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 15:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.170000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 14:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.106000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 14:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.116000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 13:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.184000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 13:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.180000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 12:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.112000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 12:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.158000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 11:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.140000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 11:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.142000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 10:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.158000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 10:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.140000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 09:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.106000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 09:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.114000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 08:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.220000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 08:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.112000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 07:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.110000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 07:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.164000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 06:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.130000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 06:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.156000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 05:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.166000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 05:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.120000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 04:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.118000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 04:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.210000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 03:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.472000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 03:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.244000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 02:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.160000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 02:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.184000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 01:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.158000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 01:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.268000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 00:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.292000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "04-11-2023 00:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.454000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 23:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.292000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 23:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.346000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 22:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.734000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 22:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.424000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 21:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.436000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 21:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.474000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 20:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.262000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 20:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.700000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 19:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.386000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 19:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.440000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 18:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.500000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 18:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.644000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 17:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.312000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 17:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.798000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 16:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.196000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 16:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.176000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 15:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.168000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 15:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.194000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 14:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.142000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 14:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.172000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 13:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.206000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 13:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.842000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 12:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.314000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 12:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.300000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 11:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.194000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 11:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.186000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 10:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.256000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 10:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.992000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 09:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.346000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 09:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.172000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 08:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.352000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 08:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.776000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 07:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.116000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 07:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.156000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 06:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.106000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 06:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.114000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 05:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.210000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 05:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.108000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 04:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.098000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 04:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.168000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 03:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.166000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 03:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.142000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 02:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.240000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 02:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.298000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 01:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.304000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 01:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.364000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 00:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.342000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "03-11-2023 00:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.882000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "02-11-2023 23:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.370000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "02-11-2023 23:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.448000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "02-11-2023 22:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.368000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "02-11-2023 22:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.032000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "02-11-2023 21:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.608000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "02-11-2023 21:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.438000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "02-11-2023 20:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.136000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "02-11-2023 20:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.454000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "02-11-2023 19:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.708000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "02-11-2023 19:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.342000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "02-11-2023 18:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.712000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "02-11-2023 18:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.038000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "02-11-2023 17:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.600000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "02-11-2023 17:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
     "Read Value": "1.468000",
     "Read Type": "Active Import Interval (kW)",
     "Read Date and End Time": "02-11-2023 16:30"
@@ -145,6 +5010,167 @@
     "Read Value": "0.190000",
     "Read Type": "Active Import Interval (kW)",
     "Read Date and End Time": "02-11-2023 06:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.144000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "02-11-2023 06:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.172000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "02-11-2023 05:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.154000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "02-11-2023 05:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.154000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "02-11-2023 04:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.200000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "02-11-2023 04:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.166000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "02-11-2023 03:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.126000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "02-11-2023 03:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.152000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "02-11-2023 02:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.246000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "02-11-2023 02:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.132000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "02-11-2023 01:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.140000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "02-11-2023 01:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.254000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "02-11-2023 00:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.264000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "02-11-2023 00:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.254000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "01-11-2023 23:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.364000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "01-11-2023 23:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.484000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "01-11-2023 22:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.318000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "01-11-2023 22:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.358000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "01-11-2023 21:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.482000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "01-11-2023 21:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.520000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "01-11-2023 20:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.314000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "01-11-2023 20:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.418000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "01-11-2023 19:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.354000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "01-11-2023 19:00"
   },
   {
     "MPRN": "10015088780",
@@ -299,6 +5325,209 @@
     "Read Value": "0.384000",
     "Read Type": "Active Import Interval (kW)",
     "Read Date and End Time": "01-11-2023 08:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "3.686000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "01-11-2023 07:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.084000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "01-11-2023 07:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.120000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "01-11-2023 06:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.160000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "01-11-2023 06:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.206000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "01-11-2023 05:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.120000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "01-11-2023 05:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.130000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "01-11-2023 04:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.230000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "01-11-2023 04:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.136000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "01-11-2023 03:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.118000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "01-11-2023 03:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.184000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "01-11-2023 02:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.236000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "01-11-2023 02:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.254000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "01-11-2023 01:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.278000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "01-11-2023 01:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.346000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "01-11-2023 00:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.260000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "01-11-2023 00:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.260000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "31-10-2023 23:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.456000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "31-10-2023 23:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.316000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "31-10-2023 22:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.004000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "31-10-2023 22:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.540000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "31-10-2023 21:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.678000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "31-10-2023 21:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.884000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "31-10-2023 20:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.886000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "31-10-2023 20:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.128000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "31-10-2023 19:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.606000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "31-10-2023 19:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.300000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "31-10-2023 18:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.104000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "31-10-2023 18:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.702000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "31-10-2023 17:30"
   },
   {
     "MPRN": "10015088780",
@@ -1451,6 +6680,867 @@
   {
     "MPRN": "10015088780",
     "Meter Serial Number": "22243613",
+    "Read Value": "0.092000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "28-10-2023 08:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.142000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "28-10-2023 07:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.162000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "28-10-2023 07:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.092000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "28-10-2023 06:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.092000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "28-10-2023 06:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.194000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "28-10-2023 05:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.110000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "28-10-2023 05:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.092000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "28-10-2023 04:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.138000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "28-10-2023 04:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.174000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "28-10-2023 03:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.148000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "28-10-2023 03:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.130000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "28-10-2023 02:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.130000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "28-10-2023 02:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.146000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "28-10-2023 01:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.122000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "28-10-2023 01:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.204000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "28-10-2023 00:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.192000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "28-10-2023 00:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "6.474000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 23:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.430000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 23:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.378000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 22:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.538000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 22:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.426000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 21:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.408000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 21:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.676000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 20:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.544000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 20:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.744000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 19:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.798000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 19:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.166000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 18:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.038000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 18:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.354000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 17:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.628000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 17:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.566000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 16:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.480000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 16:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.718000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 15:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.354000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 15:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.234000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 14:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.662000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 14:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.756000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 13:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.652000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 13:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.874000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 12:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.626000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 12:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.692000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 11:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.472000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 11:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.360000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 10:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.782000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 10:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.836000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 09:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.190000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 09:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.122000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 08:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.672000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 08:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.134000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 07:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.110000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 07:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "3.240000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 06:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.184000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 06:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.132000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 05:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.094000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 05:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.118000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 04:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.138000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 04:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.152000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 03:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.280000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 03:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.192000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 02:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.486000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 02:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.176000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 01:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.148000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 01:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.104000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 00:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.112000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "27-10-2023 00:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.214000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 23:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.132000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 23:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.112000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 22:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.164000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 22:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.152000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 21:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.146000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 21:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.668000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 20:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.570000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 20:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.378000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 19:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.654000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 19:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.398000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 18:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.166000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 18:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.148000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 17:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.162000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 17:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.120000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 16:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.150000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 16:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.198000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 15:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.124000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 15:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.130000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 14:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.220000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 14:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.180000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 13:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.140000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 13:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.154000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 12:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.158000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 12:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.252000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 11:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.302000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 11:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.240000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 10:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.218000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 10:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.294000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 09:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.314000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 09:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.450000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 08:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.200000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 08:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.576000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 07:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.530000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 07:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "3.244000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 06:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.226000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 06:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.188000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 05:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.150000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 05:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.204000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 04:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.170000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 04:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.198000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 03:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.228000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 03:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.150000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 02:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.174000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 02:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.228000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 01:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.172000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 01:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.150000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 00:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.456000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "26-10-2023 00:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.454000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "25-10-2023 23:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.388000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "25-10-2023 23:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.404000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "25-10-2023 22:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.550000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "25-10-2023 22:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.556000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "25-10-2023 21:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.450000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "25-10-2023 21:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.566000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "25-10-2023 20:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.018000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "25-10-2023 20:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.468000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "25-10-2023 19:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.754000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "25-10-2023 19:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
     "Read Value": "0.980000",
     "Read Type": "Active Import Interval (kW)",
     "Read Date and End Time": "25-10-2023 18:30"
@@ -1580,6 +7670,195 @@
     "Read Value": "0.432000",
     "Read Type": "Active Import Interval (kW)",
     "Read Date and End Time": "25-10-2023 09:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.238000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "25-10-2023 09:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.354000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "25-10-2023 08:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.800000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "25-10-2023 08:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "3.100000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "25-10-2023 07:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.096000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "25-10-2023 07:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.208000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "25-10-2023 06:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.210000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "25-10-2023 06:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.154000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "25-10-2023 05:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.178000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "25-10-2023 05:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.254000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "25-10-2023 04:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.166000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "25-10-2023 04:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.170000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "25-10-2023 03:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.242000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "25-10-2023 03:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.200000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "25-10-2023 02:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.154000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "25-10-2023 02:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.564000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "25-10-2023 01:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.830000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "25-10-2023 01:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.836000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "25-10-2023 00:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "5.602000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "25-10-2023 00:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.118000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "24-10-2023 23:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.778000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "24-10-2023 23:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.424000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "24-10-2023 22:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.666000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "24-10-2023 22:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "1.582000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "24-10-2023 21:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "2.974000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "24-10-2023 21:00"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.686000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "24-10-2023 20:30"
+  },
+  {
+    "MPRN": "10015088780",
+    "Meter Serial Number": "22243613",
+    "Read Value": "0.470000",
+    "Read Type": "Active Import Interval (kW)",
+    "Read Date and End Time": "24-10-2023 20:00"
   },
   {
     "MPRN": "10015088780",

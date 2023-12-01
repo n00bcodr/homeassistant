@@ -39,7 +39,6 @@ command_line: !include command_line.yaml
 
 frontend:
   themes: !include_dir_merge_named themes
-  # extra_module_url:
 
 monitor_docker:
   - name: Docker
@@ -50,6 +49,13 @@ monitor_docker:
       - tautulli
       - portainer
       - addon_core_samba
+      - wud
+      - homebridge-homebridge-1
+      - homer
+      - Heimdall
+      - filebrowser
+      - flaresolverr
+      - Tautulli
     rename:
       plex: Plex
       tautulli: Tautulli
@@ -63,7 +69,7 @@ monitor_docker:
 #mariadb config
 recorder:
   db_url: !secret recorder_db_url
-  purge_keep_days: 10
+  purge_keep_days: 30
   exclude:
     entity_globs:
       - sensor.weather_*

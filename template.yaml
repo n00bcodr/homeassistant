@@ -36,3 +36,144 @@
       device_class: sound
       auto_off: 10
       state: "on"
+
+- select:
+    - name: "Pixel 8 Pro Ringer Mode Control"
+      unique_id: pixel_ringer_mode
+      icon: >
+        {% set state = states('sensor.pixel8pro_ringer_mode') %}
+        {% if state == 'normal' %} mdi:volume-high
+        {% elif state == 'vibrate' %} mdi:volume-vibrate
+        {% else %} mdi:volume-off
+        {% endif %}
+      state: "{{ states('sensor.pixel8pro_ringer_mode') }}"
+      select_option:
+        - service: notify.mobile_app_pixel8pro
+          data:
+            message: command_ringer_mode
+            data:
+              command: "{{ option }}"
+      options: "{{ ['normal','vibrate','silent'] }}"
+      availability: "{{ has_value('sensor.pixel8pro_ringer_mode') }}"
+
+- button:
+    - name: "Pixel 8 Pro Update Sensors"
+      unique_id: pixel_update_sensors
+      icon: mdi:cellphone-arrow-down-variant
+      press:
+        - service: notify.mobile_app_pixel8pro
+          data:
+            message: command_update_sensors
+
+    - name: "Pixel 8 Pro Update Location"
+      unique_id: pixel_update_location
+      icon: mdi:map-marker-down
+      press:
+        - service: notify.mobile_app_pixel8pro
+          data:
+            message: request_location_update
+
+    - name: "Pixel 8 Pro Open Mobile App"
+      unique_id: pixel_open_mobile_app
+      icon: mdi:home-assistant
+      press:
+        - service: notify.mobile_app_pixel8pro
+          data:
+            message: command_webview
+
+- number:
+    - name: "Pixel 8 Pro Alarm Volume Control"
+      unique_id: pixel_alarm_volume
+      icon: mdi:alarm
+      state: "{{ states('sensor.pixel8pro_volume_level_alarm')|int(0) }}"
+      step: 1
+      min: 0
+      max: 7
+      set_value:
+        - service: notify.mobile_app_pixel8pro
+          data:
+            message: command_volume_level
+            data:
+              media_stream: alarm_stream
+              command: "{{ value|int }}"
+      availability: "{{ has_value('sensor.pixel8pro_volume_level_alarm') }}"
+
+    - name: "Pixel 8 Pro Call Volume Control"
+      unique_id: pixel_call_volume
+      icon: mdi:phone
+      state: "{{ states('sensor.pixel8pro_volume_level_call')|int(0) }}"
+      step: 1
+      min: 0
+      max: 7
+      set_value:
+        - service: notify.mobile_app_pixel8pro
+          data:
+            message: command_volume_level
+            data:
+              media_stream: call_stream
+              command: "{{ value|int }}"
+      availability: "{{ has_value('sensor.pixel8pro_volume_level_call') }}"
+
+    - name: "Pixel 8 Pro Media Volume Control"
+      unique_id: pixel_media_volume
+      icon: mdi:music-note
+      state: "{{ states('sensor.pixel8pro_volume_level_music')|int(0) }}"
+      step: 1
+      min: 0
+      max: 25
+      set_value:
+        - service: notify.mobile_app_pixel8pro
+          data:
+            message: command_volume_level
+            data:
+              media_stream: music_stream
+              command: "{{ value|int }}"
+      availability: "{{ has_value('sensor.pixel8pro_volume_level_music') }}"
+
+    - name: "Pixel 8 Pro Notification Volume Control"
+      unique_id: pixel_notification_volume
+      icon: mdi:bell
+      state: "{{ states('sensor.pixel8pro_volume_level_notification')|int(0) }}"
+      step: 1
+      min: 0
+      max: 7
+      set_value:
+        - service: notify.mobile_app_pixel8pro
+          data:
+            message: command_volume_level
+            data:
+              media_stream: notification_stream
+              command: "{{ value|int }}"
+      availability: "{{ has_value('sensor.pixel8pro_volume_level_notification') }}"
+
+    - name: "Pixel 8 Pro Ringer Volume Control"
+      unique_id: pixel_ringer_volume
+      icon: mdi:phone-ring
+      state: "{{ states('sensor.pixel8pro_volume_level_ringer')|int(0) }}"
+      step: 1
+      min: 0
+      max: 7
+      set_value:
+        - service: notify.mobile_app_pixel8pro
+          data:
+            message: command_volume_level
+            data:
+              media_stream: ring_stream
+              command: "{{ value|int }}"
+      availability: "{{ has_value('sensor.pixel8pro_volume_level_ringer') }}"
+
+    - name: "Pixel 8 Pro System Volume Control"
+      unique_id: pixel_system_volume
+      icon: mdi:volume-medium
+      state: "{{ states('sensor.pixel8pro_volume_level_system')|int(0) }}"
+      step: 1
+      min: 0
+      max: 7
+      set_value:
+        - service: notify.mobile_app_pixel8pro
+          data:
+            message: command_volume_level
+            data:
+              media_stream: system_stream
+              command: "{{ value|int }}"
+      availability: "{{ has_value('sensor.pixel8pro_volume_level_system') }}"

@@ -5,36 +5,36 @@
       friendly_name: "Washing Machine State"
       value_template: >
         {% set state = states.sensor.bob_sub_state.state %}
-        {% if state == 'WASHER_SUBSTATE_PROGRAM_STARTED' or state == 'unavailable' %}
+        {% if state == 'washer_substate_program_started' or state == 'unavailable' %}
           Idle
-        {% elif state == 'WASHER_SUBSTATE_WASHING' %}
+        {% elif state == 'washer_substate_washing' %}
           Washing
-        {% elif state == 'WASHER_SUBSTATE_DRYING' %}
+        {% elif state == 'washer_substate_drying' %}
           Drying
-        {% elif state == 'WASHER_SUBSTATE_RINSING' %}
+        {% elif state == 'washer_substate_rinsing' %}
           Rinsing
-        {% elif state == 'WASHER_SUBSTATE_SPIN' %}
+        {% elif state == 'washer_substate_spin' %}
           Spinning
-        {% elif state == 'WASHER_SUBSTATE_REMOVE_LAUNDRY' %}
+        {% elif state == 'washer_substate_remove_laundry' %}
           Cycle Complete
         {% else %}
           {{ state }}
         {% endif %}
       icon_template: >
         {% set state = states.sensor.bob_sub_state.state %}
-        {% if state == 'WASHER_SUBSTATE_PROGRAM_STARTED' %}
+        {% if state == 'washer_substate_program_started' %}
           mdi:washing-machine-off
         {% elif state == 'unavailable' %}
           mdi:washing-machine-alert
-        {% elif state == 'WASHER_SUBSTATE_DRYING' %}
+        {% elif state == 'washer_substate_drying' %}
           mdi:tumble-dryer
-        {% elif state == 'WASHER_SUBSTATE_WASHING' %}
+        {% elif state == 'washer_substate_washing' %}
           mdi:water
-        {% elif state == 'WASHER_SUBSTATE_RINSING' %}
+        {% elif state == 'washer_substate_rinsing' %}
           mdi:water-circle
-        {% elif state == 'WASHER_SUBSTATE_SPIN' %}
+        {% elif state == 'washer_substate_spin' %}
           fas:spinner
-        {% elif state == 'WASHER_SUBSTATE_REMOVE_LAUNDRY' %}
+        {% elif state == 'washer_substate_remove_laundry' %}
           mdi:washing-machine
         {% else %}
           mdi:washing-machine-alert
@@ -44,8 +44,6 @@
       unique_id: magic_cube_active_face
       friendly_name: "Magic Cube Active Face"
       value_template: "{{states.sensor.magic_cube_action.attributes.side}}"
-
-    formula_1: !include formula1.yaml
 
     count_automations:
       friendly_name: "Automation Count"
@@ -274,13 +272,6 @@
     - type: memory_use_percent
     - type: processor_temperature
     - type: processor_use
-
-- platform: ics
-  name: Formula1
-  url: https://files-f1.motorsportcalendars.com/f1-calendar_qualifying_sprint_gp.ics?t=1674387381463
-  id: 1
-  timeformat: "%A, %-d.%b.%y"
-  icon: mdi:keyboard-f1
 
 - platform: formulaone_api
 

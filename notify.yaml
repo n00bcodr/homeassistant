@@ -1,8 +1,9 @@
 - name: all_phones
   platform: group
   services:
-    - service: mobile_app_10pro
+    - service: mobile_app_pixel8pro
     - service: mobile_app_op7t
+    - service: mobile_app_galaxy_watch4_classic
 
 - name: all_phones_ios
   platform: group

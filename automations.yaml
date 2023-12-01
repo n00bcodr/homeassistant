@@ -12,7 +12,7 @@
       seconds: 0
   condition: []
   action:
-  - service: notify.mobile_app_10pro
+  - service: notify.mobile_app_pixel8pro
     data:
       message: Home Assistant {{states.update.home_assistant_core_update.attributes.latest_version}}
         is available.
@@ -289,7 +289,7 @@
     path: sbyx/low-battery-level-detection-notification-for-all-battery-sensors.yaml
     input:
       actions:
-      - service: notify.mobile_app_10pro
+      - service: notify.mobile_app_pixel8pro
         data:
           message: '{{sensors}}'
           data:
@@ -324,7 +324,7 @@
   - condition: template
     value_template: '{{states.sensor.current_version.state > states.sensor.n00bcodr_homeassistant_ireland_latest_tag.state}}'
   action:
-  - service: notify.mobile_app_10pro
+  - service: notify.mobile_app_pixel8pro
     data:
       message: Update tag in GitHub?
       title: Home Assistant Core Updated!
@@ -586,9 +586,9 @@
   description: ''
   trigger:
   - platform: state
-    entity_id: binary_sensor.10pro_is_charging
+    entity_id: binary_sensor.pixel8pro_is_charging
     to: 'on'
-    id: 10pro
+    id: pixel8pro
   - platform: state
     entity_id:
     - sensor.pavan_thanujs_ipad_battery_state
@@ -599,12 +599,12 @@
   - choose:
     - conditions:
       - condition: state
-        entity_id: sensor.10pro_battery_level
+        entity_id: sensor.pixel8pro_battery_level
         state: '100'
       - condition: trigger
-        id: 10pro
+        id: pixel8pro
       sequence:
-      - service: notify.mobile_app_10pro
+      - service: notify.mobile_app_pixel8pro
         data:
           message: ⚡Charging Complete⚡
           data:
@@ -617,7 +617,7 @@
       - condition: trigger
         id: ipad
       sequence:
-      - service: notify.mobile_app_10pro
+      - service: notify.mobile_app_pixel8pro
         data:
           message: ⚡iPad Charging Complete⚡
           data:
@@ -696,7 +696,7 @@
         minutes: 5
         seconds: 0
   action:
-  - service: notify.mobile_app_10pro
+  - service: notify.mobile_app_pixel8pro
     data:
       title: Are you there?
       message: 'No motion detected in Den in the last 5 minutes. '
@@ -763,7 +763,7 @@
     to: 'on'
   condition: []
   action:
-  - service: notify.mobile_app_10pro
+  - service: notify.mobile_app_pixel8pro
     data:
       data:
         tag: den_off
@@ -1043,7 +1043,7 @@
     id: morning
     enabled: true
   - platform: time
-    at: '20:00:00'
+    at: '21:00:00'
     id: night
   condition: []
   action:
@@ -1084,6 +1084,44 @@
           message: Pickup is in two days on {{ states.sensor.black_bin.state}}
           title: Black Bin
     - conditions:
+      - alias: Black Bin Next Collection is tomorrow
+        condition: template
+        value_template: '{{(state_attr("sensor.black_bin", "next_collection")) ==
+          1 }}'
+      - condition: trigger
+        id:
+        - morning
+      sequence:
+      - service: notify.all_phones
+        data:
+          data:
+            tag: bin_pickup
+          message: clear_notification
+      - service: notify.all_phones_ios
+        data:
+          data:
+            tag: bin_pickup
+          message: clear_notification
+      - service: notify.all_phones
+        data:
+          data:
+            notification_icon: mdi:trash-can-outline
+            icon_url: /local/images/black_bin.png
+            color: black
+            tag: bin_pickup
+          message: Pickup is in two days on {{ states.sensor.black_bin.state}}
+          title: Black Bin
+      - service: notify.all_phones_ios
+        data:
+          data:
+            notification_icon: mdi:trash-can-outline
+            image: /local/images/black_bin.png
+            color: black
+            tag: bin_pickup
+          message: Pickup is in two days on {{ states.sensor.black_bin.state}}
+          title: Black Bin
+      alias: Black Bin collection is tomorrow and it is 11 AM
+    - conditions:
       - condition: template
         value_template: '{{(state_attr("sensor.black_bin", "next_collection")) ==
           1 }}'
@@ -1093,7 +1131,7 @@
           while:
           - condition: template
             value_template: '{{ states(''input_button.bin_outside'') | as_datetime
-              > (now() - timedelta(hours=1)) }}'
+              < (now() - timedelta(hours=1)) }}'
           sequence:
           - service: notify.all_phones
             data:
@@ -1110,17 +1148,28 @@
               data:
                 notification_icon: mdi:trash-can-outline
                 icon_url: /local/images/black_bin.png
+                color: black
                 tag: bin_pickup
-              message: Pickup is tomorrow on {{ states.sensor.black_bin.state}}
+                actions:
+                - action: BIN_OUT
+                  title: Yeah, the bin is out!
+              message: Put the Black Bin out.
               title: Black Bin
           - service: notify.all_phones_ios
             data:
               data:
                 notification_icon: mdi:trash-can-outline
                 image: /local/images/black_bin.png
+                color: black
                 tag: bin_pickup
-              message: Pickup is tomorrow on {{ states.sensor.black_bin.state}}
+              message: Put the Black Bin out.
               title: Black Bin
+          - delay:
+              hours: 0
+              minutes: 30
+              seconds: 0
+              milliseconds: 0
+      alias: Black Bin collection is tomorrow, is the bin out?
     - conditions:
       - condition: template
         value_template: '{{(state_attr("sensor.blue_bin", "next_collection")) == 2
@@ -1146,13 +1195,26 @@
             notification_icon: mdi:trash-can
             icon_url: /local/images/blue_bin.png
             tag: bin_pickup
+            color: blue
+          message: Pickup is in two days on {{ states.sensor.blue_bin.state}}
+          title: Blue Bin
+      - service: notify.all_phones_ios
+        data:
+          data:
+            notification_icon: mdi:trash-can
+            icon_url: /local/images/blue_bin.png
+            tag: bin_pickup
+            color: blue
           message: Pickup is in two days on {{ states.sensor.blue_bin.state}}
           title: Blue Bin
     - conditions:
-      - condition: template
+      - alias: Blue Bin Next Collection is tomorrow
+        condition: template
         value_template: '{{(state_attr("sensor.blue_bin", "next_collection")) == 1
           }}'
-        alias: Blue Bin Next Collection is in 1 Day
+      - condition: trigger
+        id:
+        - morning
       sequence:
       - service: notify.all_phones
         data:
@@ -1170,8 +1232,68 @@
             notification_icon: mdi:trash-can
             icon_url: /local/images/blue_bin.png
             tag: bin_pickup
+            color: blue
           message: Pickup is tomorrow on {{ states.sensor.blue_bin.state}}
           title: Blue Bin
+      - service: notify.all_phones_ios
+        data:
+          data:
+            notification_icon: mdi:trash-can
+            icon_url: /local/images/blue_bin.png
+            tag: bin_pickup
+            color: blue
+          message: Pickup is tomorrow on {{ states.sensor.blue_bin.state}}
+          title: Blue Bin
+      alias: Blue Bin Collection is tomorrow and it is 11 AM
+    - conditions:
+      - condition: template
+        value_template: '{{(state_attr("sensor.blue_bin", "next_collection")) == 1
+          }}'
+        alias: Blue Bin Next Collection is in 1 Day
+      sequence:
+      - repeat:
+          while:
+          - condition: template
+            value_template: '{{ states(''input_button.bin_outside'') | as_datetime
+              < (now() - timedelta(hours=1)) }}'
+          sequence:
+          - service: notify.all_phones
+            data:
+              data:
+                tag: bin_pickup
+              message: clear_notification
+          - service: notify.all_phones_ios
+            data:
+              data:
+                tag: bin_pickup
+              message: clear_notification
+          - service: notify.all_phones
+            data:
+              data:
+                notification_icon: mdi:trash-can
+                color: blue
+                icon_url: /local/images/blue_bin.png
+                tag: bin_pickup
+                actions:
+                - action: BIN_OUT
+                  title: Yeah, the bin is out!
+              message: Put the Blue Bin out.
+              title: Blue Bin
+          - service: notify.all_phones_ios
+            data:
+              data:
+                notification_icon: mdi:trash-can
+                icon_url: /local/images/blue_bin.png
+                tag: bin_pickup
+                color: blue
+              message: Put the Blue Bin out.
+              title: Blue Bin
+          - delay:
+              hours: 0
+              minutes: 30
+              seconds: 0
+              milliseconds: 0
+      alias: Blue Bin collection is tomorrow, is the bin out?
   mode: single
 - id: '1677184691191'
   alias: "\U0001F525Start/stop Timer when heating is turned on/off"
@@ -1205,7 +1327,7 @@
           duration: 01:30:00
         target:
           entity_id: timer.heating
-      - service: notify.mobile_app_10pro
+      - service: notify.mobile_app_pixel8pro
         data:
           message: "\U0001F525 Heating"
           data:
@@ -1218,8 +1340,10 @@
             tag: heat
             actions:
             - action: URI
-              title: "\U0001F525"
+              title: Switch
               uri: entityId:switch.heating
+            - service: switch.turn_off
+              entity_id: switch.heating
     - conditions:
       - condition: trigger
         id: 'off'
@@ -1228,7 +1352,7 @@
         data: {}
         target:
           entity_id: timer.heating
-      - service: notify.mobile_app_10pro
+      - service: notify.mobile_app_pixel8pro
         data:
           message: clear_notification
           data:
@@ -1286,7 +1410,7 @@
     data: {}
     target:
       entity_id:
-      - switch.string_lights_socket_1
+      - switch.string_lights
   - wait_for_trigger:
     - platform: state
       entity_id:
@@ -1302,7 +1426,7 @@
   - service: homeassistant.turn_off
     data: {}
     target:
-      entity_id: switch.string_lights_socket_1
+      entity_id: switch.string_lights
   mode: parallel
   max: 10
 - id: '1684017771758'
@@ -1353,7 +1477,7 @@
         id:
         - sonarr
       sequence:
-      - service: notify.mobile_app_10pro
+      - service: notify.mobile_app_pixel8pro
         data:
           message: '{{ state_attr( "sensor.recently_added_tv", "data")[1].title }}
             - {{ state_attr( "sensor.recently_added_tv", "data")[1].number }} is downloaded
@@ -1374,7 +1498,7 @@
         id:
         - radarr
       sequence:
-      - service: notify.mobile_app_10pro
+      - service: notify.mobile_app_pixel8pro
         data:
           message: '{{ state_attr( "sensor.recently_added_movies", "data")[1].title
             }} - {{ state_attr( "sensor.recently_added_movies", "data")[1].number
@@ -1389,7 +1513,7 @@
   use_blueprint:
     path: adchevrier/synchronize-the-on-off-state-of-2-entities.yaml
     input:
-      entity_1: switch.string_lights_socket_1
+      entity_1: switch.string_lights_1
       entity_2: switch.string_lights
 - id: '1684631799938'
   alias: "\U0001F3F0Bed Routine for curtains"
@@ -1467,25 +1591,6 @@
     target:
       entity_id: switch.entrance_light
   mode: single
-- id: '1686132028588'
-  alias: "\U0001F3B5Move Music to Nest Audio"
-  description: ''
-  trigger:
-  - platform: tag
-    tag_id: b7e48c34-d74d-4a6b-be87-491037aff87f
-  condition: []
-  action:
-  - service: spotcast.start
-    data:
-      limit: 20
-      force_playback: false
-      random_song: false
-      repeat: 'off'
-      shuffle: false
-      offset: 0
-      ignore_fully_played: false
-      device_name: Friday
-  mode: single
 - id: '1687359882327'
   alias: ⚙Reload Unavailable Entities
   description: ''
@@ -1508,6 +1613,28 @@
       hours: 0
       minutes: 0
       seconds: 30
+  - alias: When Bins change to Unavailable
+    platform: template
+    value_template: '{{ states.calendar.allied_recycling_blue_bin.state == unavailable
+      or states.calendar.allied_recycling_black_bin.state == unavailable }}
+
+      '
+    id: bins
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 30
+  - alias: When Tuya changes to Unavailable
+    platform: template
+    value_template: '{{ states.switch.heating.state == unavailable or states.light.light.state
+      == unavailable or states.switch.string_lights.state == unavailable }}
+
+      '
+    id: tuya
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 30
   condition: []
   action:
   - choose:
@@ -1515,19 +1642,20 @@
       - condition: trigger
         id: speedtest
       sequence:
-      - service: homeassistant.update_entity
-        data: {}
+      - service: homeassistant.reload_config_entry
         target:
           entity_id:
           - sensor.speedtest_ping
           - sensor.speedtest_download
           - sensor.speedtest_upload
+          device_id: []
+          area_id: []
+        data: {}
     - conditions:
       - condition: trigger
         id: homewhiz
       sequence:
-      - service: homeassistant.update_entity
-        data: {}
+      - service: homeassistant.reload_config_entry
         target:
           entity_id:
           - select.bob_state
@@ -1538,7 +1666,6 @@
           - select.bob_drying
           - select.bob_custom_duration_level
           - select.bob_rinse_count
-          - select.bob_volume
           - sensor.bob_sub_state
           - sensor.bob_programme_end_time
           - sensor.bob_duration
@@ -1552,9 +1679,32 @@
           - switch.bob_night_mode
           - switch.bob_anticrease
           - binary_sensor.bob_remote_control
-          - binary_sensor.bob_warning_door_is_open
-          - binary_sensor.bob_warning_no_water
-          - binary_sensor.bob_warning_safety
+          device_id: []
+          area_id: []
+        data: {}
+    - conditions:
+      - condition: trigger
+        id:
+        - bins
+      sequence:
+      - service: homeassistant.reload_config_entry
+        data: {}
+        target:
+          entity_id:
+          - calendar.allied_recycling_blue_bin
+          - calendar.allied_recycling_black_bin
+    - conditions:
+      - condition: trigger
+        id:
+        - tuya
+      sequence:
+      - service: homeassistant.reload_config_entry
+        data: {}
+        target:
+          entity_id:
+          - light.light
+          - switch.heating
+          - switch.string_lights
   mode: single
 - id: '1688497197460'
   alias: "\U0001F3B5Text Search and Play Music on Spotify"
@@ -1615,7 +1765,7 @@
             transparency: 50%
             image: /api/nest/event_media/{{ trigger.event.data.device_id }}/{{ trigger.event.data.nest_event_id
               }}/thumbnail
-      - service: notify.mobile_app_10pro
+      - service: notify.mobile_app_pixel8pro
         data:
           message: Motion
           data:
@@ -1636,7 +1786,7 @@
             image: /api/nest/event_media/{{ trigger.event.data.device_id }}/{{ trigger.event.data.nest_event_id
               }}/thumbnail
           message: Someone's at the front door
-      - service: notify.mobile_app_10pro
+      - service: notify.mobile_app_pixel8pro
         data:
           data:
             image: /api/nest/event_media/{{ trigger.event.data.device_id }}/{{ trigger.event.data.nest_event_id
@@ -1658,7 +1808,7 @@
             transparency: 90%
             image: /api/nest/event_media/{{ trigger.event.data.device_id }}/{{ trigger.event.data.nest_event_id
               }}/thumbnail
-      - service: notify.mobile_app_10pro
+      - service: notify.mobile_app_pixel8pro
         data:
           data:
             image: /api/nest/event_media/{{ trigger.event.data.device_id }}/{{ trigger.event.data.nest_event_id
@@ -1671,7 +1821,7 @@
   trigger:
   - platform: state
     entity_id:
-    - binary_sensor.10pro_android_auto
+    - binary_sensor.pixel8pro_android_auto
     to: 'on'
     from: 'off'
   condition:
@@ -1695,18 +1845,19 @@
           minutes: 0
           seconds: 30
           milliseconds: 0
-      - service: notify.mobile_app_10pro
+      - service: notify.mobile_app_pixel8pro
         data:
           message: command_activity
           data:
-            intent_package_name: com.google.android.apps.maps
+            intent_uri: https://waze.com/ul?favorite=work&navigate=yes
+            intent_package_name: com.waze
             intent_action: android.intent.action.VIEW
-            intent_uri: google.navigation:q=Ericsson, Athlone
       - service: automation.trigger
         data:
           skip_condition: true
         target:
           entity_id: automation.tag_desk_is_scanned
+        enabled: false
     - conditions:
       - condition: and
         conditions:
@@ -1717,23 +1868,26 @@
           entity_id: person.pavanthanuj
           state: Work
       sequence:
-      - service: notify.mobile_app_10pro
+      - service: notify.mobile_app_pixel8pro
         data:
           message: command_activity
           data:
-            intent_package_name: com.google.android.apps.maps
+            intent_uri: https://waze.com/ul?favorite=home&navigate=yes
+            intent_package_name: com.waze
             intent_action: android.intent.action.VIEW
-            intent_uri: google.navigation:q=Home
       - wait_for_trigger:
         - platform: zone
-          entity_id: device_tracker.10pro
+          entity_id: device_tracker.pixel8pro
           zone: zone.home
           event: enter
+        continue_on_timeout: true
+        enabled: false
       - service: automation.trigger
         data:
           skip_condition: true
         target:
           entity_id: automation.den_as_it_was
+        enabled: false
   mode: single
 - id: '1691418078168'
   alias: Doorbell - Notifications
@@ -1761,7 +1915,7 @@
       - condition: trigger
         id: motion
       sequence:
-      - service: notify.mobile_app_10pro
+      - service: notify.mobile_app_pixel8pro
         data:
           message: Doorbell Motion
           title: Doorbell Motion
@@ -1776,7 +1930,7 @@
       - condition: trigger
         id: person
       sequence:
-      - service: notify.mobile_app_10pro
+      - service: notify.mobile_app_pixel8pro
         data:
           message: Doorbell Person
           title: Doorbell Person
@@ -1791,7 +1945,7 @@
       - condition: trigger
         id: sound
       sequence:
-      - service: notify.mobile_app_10pro
+      - service: notify.mobile_app_pixel8pro
         data:
           message: Doorbell
           title: Doorbell
@@ -1838,15 +1992,6 @@
     tags:
       04-23-F3-F2-03-68-81:
         uri: spotify:playlist:37i9dQZF1EJva5huKCwRZ8
-- id: '1693250843736'
-  alias: Trash Reminder
-  description: ''
-  use_blueprint:
-    path: balloob/trash-pick-up-reminder.yaml
-    input:
-      bin_put_outside_button: input_button.bin_outside
-      trash_calendar: calendar.allied_recycling_black_bin
-      notify_device: 9d22afdfaf70765bd616973f27d2b9e1
 - id: '1697306029605'
   alias: "\U0001F4A1Kitchen Light Presence"
   description: ''
@@ -1907,8 +2052,6 @@
   alias: ⚙ Calvin and Hobbes
   description: ''
   trigger:
-  - platform: homeassistant
-    event: start
   - platform: sun
     event: sunrise
     offset: 0
@@ -1950,7 +2093,7 @@
         minutes: 0
         seconds: 10
         milliseconds: 0
-    - service: notify.mobile_app_10pro
+    - service: notify.mobile_app_pixel8pro
       data:
         message: ''
         data:
@@ -1966,35 +2109,6 @@
             title: '{{as_timestamp(strptime(states.sensor.calvin_and_hobbes.attributes.publishedDate,''%Y/%m/%d''))
               | timestamp_custom(''%-d %b, %Y'') }}'
             uri: /lovelace/calvinandhobbes
-  mode: single
-- id: '1698578351483'
-  alias: ⚙Reload Bin Calendars
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - calendar.allied_recycling_blue_bin
-    to: unavailable
-    for:
-      hours: 0
-      minutes: 0
-      seconds: 30
-  - platform: state
-    entity_id:
-    - calendar.allied_recycling_black_bin
-    to: unavailable
-    for:
-      hours: 0
-      minutes: 0
-      seconds: 30
-  condition: []
-  action:
-  - service: homeassistant.reload_config_entry
-    data: {}
-    target:
-      entity_id:
-      - calendar.allied_recycling_blue_bin
-      - calendar.allied_recycling_black_bin
   mode: single
 - id: '1698580342658'
   alias: "\U0001F4FAPause Media on TV when no one is watching"
@@ -2065,3 +2179,204 @@
   - service: script.bed_routine_script
     data: {}
   mode: single
+- id: '1699609843837'
+  alias: "\U0001F3F0Toggle Phone to Vibrate when at Work"
+  description: ''
+  trigger:
+  - platform: zone
+    entity_id: person.pavanthanuj
+    zone: zone.work
+    event: enter
+    id: work
+  - platform: state
+    entity_id:
+    - sensor.pixel8pro_wifi_connection
+    to: EWA@INTERNET
+    id: work
+  - platform: zone
+    entity_id: person.pavanthanuj
+    zone: zone.work
+    event: leave
+    id: leave work
+  - platform: state
+    entity_id:
+    - sensor.pixel8pro_wifi_connection
+    to: Mad House
+    id: leave work
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: and
+        conditions:
+        - condition: trigger
+          id:
+          - work
+        - condition: template
+          value_template: '{{ states(''sensor.pixel8pro_ringer_mode'') != ''vibrate''
+            }}'
+      sequence:
+      - service: notify.mobile_app_pixel8pro
+        data:
+          message: command_ringer_mode
+          data:
+            command: vibrate
+        alias: Silence Phone when at Work
+      - alias: Send Notification
+        service: notify.mobile_app_pixel8pro
+        data:
+          message: Shhh..
+          data:
+            notification_icon: mdi:vibrate
+            timeout: 60
+    - conditions:
+      - condition: and
+        conditions:
+        - condition: trigger
+          id:
+          - leave work
+        - condition: template
+          value_template: '{{ states(''sensor.pixel8pro_ringer_mode'') == ''vibrate''
+            }}'
+      sequence:
+      - alias: Ringer when leaving work
+        service: notify.mobile_app_pixel8pro
+        data:
+          message: command_ringer_mode
+          data:
+            command: normal
+      - alias: Send Notification
+        service: notify.mobile_app_pixel8pro
+        data:
+          data:
+            notification_icon: mdi:volume-high
+            timeout: 30
+          message: ' '
+  mode: restart
+- id: '1699724589577'
+  alias: Hilary Exit
+  description: ''
+  trigger:
+  - platform: tag
+    tag_id: c37fef6a-a97d-4b46-83a9-f563b9f9a61d
+  condition: []
+  action:
+  - service: homeassistant.turn_off
+    data: {}
+    target:
+      entity_id:
+      - light.bed_lamp
+      - switch.heater
+  mode: single
+- id: '1700567569365'
+  alias: "\U0001F6AEIs the Bin Outside?"
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.back_door_contact
+    from: 'off'
+    to: 'on'
+  - platform: event
+    event_type: mobile_app_notification_action
+    event_data:
+      action: BIN_OUT
+  condition: []
+  action:
+  - service: input_button.press
+    data: {}
+    target:
+      entity_id: input_button.bin_outside
+  - if:
+    - condition: and
+      conditions:
+      - condition: time
+        after: '21:00:00'
+        before: '12:00:00'
+      - condition: or
+        conditions:
+        - condition: template
+          value_template: '{{(state_attr("sensor.blue_bin", "next_collection")) ==
+            1 }}'
+        - condition: template
+          value_template: '{{(state_attr("sensor.black_bin", "next_collection")) ==
+            1 }}'
+    then:
+    - service: notify.all_phones
+      data:
+        data:
+          tag: bin_pickup
+        message: clear_notification
+    - service: notify.all_phones_ios
+      data:
+        data:
+          tag: bin_pickup
+        message: clear_notification
+    - service: notify.all_phones
+      data:
+        data:
+          notification_icon: mdi:delete-empty
+          color: green
+          timeout: 600
+        message: ' '
+        title: The bin is outside.
+  mode: single
+- id: '1701294630770'
+  alias: "\U0001F3B5Move Music to Friday"
+  description: ''
+  trigger:
+  - platform: tag
+    tag_id: b7e48c34-d74d-4a6b-be87-491037aff87f
+    id: tag
+  - platform: state
+    entity_id:
+    - sensor.pixel8pro_charger_type
+    to: wireless
+    id: phone
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - tag
+      sequence:
+      - service: spotcast.start
+        data:
+          limit: 20
+          force_playback: true
+          random_song: false
+          repeat: 'off'
+          shuffle: true
+          offset: 0
+          ignore_fully_played: false
+          device_name: Friday
+    - conditions:
+      - condition: and
+        conditions:
+        - condition: template
+          value_template: '{{ is_state_attr(''media_player.spotify'', ''source'',
+            ''Pixel 8 Pro'') }}'
+        - condition: trigger
+          id:
+          - phone
+      sequence:
+      - service: spotcast.start
+        data:
+          limit: 20
+          force_playback: false
+          random_song: false
+          repeat: 'off'
+          shuffle: false
+          offset: 0
+          ignore_fully_played: false
+          device_name: Friday
+  mode: single
+- id: '1701438113238'
+  alias: ⚙Google TV and LED Strip
+  description: ''
+  use_blueprint:
+    path: adchevrier/synchronize-the-on-off-state-of-2-entities.yaml
+    input:
+      entity_1: remote.google_tv
+      entity_2: light.tv_led_strip
