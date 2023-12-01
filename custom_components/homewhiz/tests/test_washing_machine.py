@@ -1,3 +1,4 @@
+import datetime
 import json
 import os
 from unittest import TestCase
@@ -26,37 +27,42 @@ def test_on(config: ApplianceConfiguration) -> None:
         "002f4a45a10100000000000000000000000000000000000000000200000000000000000a011e0c"
         "0000000080021102110000000000000000000000000000000100000000000001070000000000"
     )
-    controls = generate_controls_from_config(config)
+    controls = generate_controls_from_config("test_washing_machine_test_on", config)
     values = {control.key: control.get_value(data) for control in controls}
 
     test_case.assertDictEqual(
         values,
         {
-            "STATE": "DEVICE_STATE_ON",
-            "SUB_STATE": None,
-            "WASHER_EXTRARINSE": False,
-            "WASHER_FAST_PLUS": "FAST_PLUS_OFF",
-            "WASHER_HIDDEN_ANTI_CREASE": False,
-            "WASHER_PHR": False,
-            "WASHER_PREWASH": False,
-            "WASHER_PROGRAM": "PROGRAM_COTTONS",
-            "WASHER_SPIN": "1200 RPM",
-            "WASHER_TEMPERATURE": "TEMPERATURE_30",
-            "WASHER_STEAM": False,
-            "WASHER_DURATION": 137,
-            "WASHER_DELAY": 0,
-            "WASHER_REMAINING": 137,
-            "REMOTE_CONTROL": False,
-            "WASHER_WARNING_DOOR_IS_OPEN": False,
-            "WASHER_WARNING_NO_WATER": False,
-            "WASHER_WARNING_SECURITY": False,
-            "SETTINGS_VOLUME": "VOLUME_LOW",
-            "WASHER_SOAKING": False,
-            "WASHER_NIGHT": False,
-            "WASHER_EXTRA_RINSE_COUNT": 0,
-            "WASHER_ANTICREASE": False,
-            "WASHER_ADD_WATER": False,
-            "CUSTOM_DURATION_LEVEL": "DURATION_LEVEL_0",
+            "state": "device_state_on",
+            "sub_state": None,
+            "washer_extrarinse": False,
+            "washer_fast_plus": "fast_plus_off",
+            "washer_hidden_anti_crease": False,
+            "washer_phr": False,
+            "washer_prewash": False,
+            "washer_program": "program_cottons",
+            "washer_spin": "1200rpm",
+            "washer_temperature": "temperature_30",
+            "washer_steam": False,
+            "washer_duration": 137,
+            "washer_delay": datetime.datetime.now(tz=datetime.UTC).replace(
+                second=0, microsecond=0
+            )
+            + datetime.timedelta(minutes=137),
+            "washer_remaining": 137,
+            "remote_control": False,
+            "washer_warning_door_is_open": False,
+            "washer_warning_no_water": False,
+            "washer_warning_security": False,
+            "settings_volume": "volume_low",
+            "washer_soaking": False,
+            "washer_night": False,
+            "washer_extra_rinse_count": 0,
+            "washer_anticrease": False,
+            "washer_add_water": False,
+            "custom_duration_level": "duration_level_0",
+            "delay_start#0": 0,
+            "delay_start_time#0": None,
         },
     )
 
@@ -66,36 +72,43 @@ def test_running(config: ApplianceConfiguration) -> None:
         "002f4a45a10100000000000000000000000000000000000000000200000000000000001e819e0c"
         "0080000080021100398080010000000000000000000080808100800000008001078000808000"
     )
-    controls = generate_controls_from_config(config)
+    controls = generate_controls_from_config(
+        "test_washing_machine_test_running", config
+    )
     values = {control.key: control.get_value(data) for control in controls}
     test_case.assertDictEqual(
         values,
         {
-            "STATE": "DEVICE_STATE_RUNNING",
-            "SUB_STATE": "WASHER_SUBSTATE_WASHING",
-            "WASHER_EXTRARINSE": False,
-            "WASHER_FAST_PLUS": "FAST_PLUS_OFF",
-            "WASHER_HIDDEN_ANTI_CREASE": False,
-            "WASHER_PHR": False,
-            "WASHER_PREWASH": False,
-            "WASHER_PROGRAM": "PROGRAM_COTTONS",
-            "WASHER_SPIN": "1200 RPM",
-            "WASHER_TEMPERATURE": "TEMPERATURE_30",
-            "WASHER_STEAM": False,
-            "WASHER_DURATION": 137,
-            "WASHER_DELAY": 0,
-            "WASHER_REMAINING": 57,
-            "REMOTE_CONTROL": False,
-            "WASHER_WARNING_DOOR_IS_OPEN": False,
-            "WASHER_WARNING_NO_WATER": False,
-            "WASHER_WARNING_SECURITY": False,
-            "SETTINGS_VOLUME": "VOLUME_LOW",
-            "WASHER_SOAKING": False,
-            "WASHER_NIGHT": False,
-            "WASHER_EXTRA_RINSE_COUNT": 0,
-            "WASHER_ANTICREASE": False,
-            "WASHER_ADD_WATER": False,
-            "CUSTOM_DURATION_LEVEL": "DURATION_LEVEL_0",
+            "state": "device_state_running",
+            "sub_state": "washer_substate_washing",
+            "washer_extrarinse": False,
+            "washer_fast_plus": "fast_plus_off",
+            "washer_hidden_anti_crease": False,
+            "washer_phr": False,
+            "washer_prewash": False,
+            "washer_program": "program_cottons",
+            "washer_spin": "1200rpm",
+            "washer_temperature": "temperature_30",
+            "washer_steam": False,
+            "washer_duration": 137,
+            "washer_delay": datetime.datetime.now(tz=datetime.UTC).replace(
+                second=0, microsecond=0
+            )
+            + datetime.timedelta(minutes=57),
+            "washer_remaining": 57,
+            "remote_control": False,
+            "washer_warning_door_is_open": False,
+            "washer_warning_no_water": False,
+            "washer_warning_security": False,
+            "settings_volume": "volume_low",
+            "washer_soaking": False,
+            "washer_night": False,
+            "washer_extra_rinse_count": 0,
+            "washer_anticrease": False,
+            "washer_add_water": False,
+            "custom_duration_level": "duration_level_0",
+            "delay_start#0": 0,
+            "delay_start_time#0": None,
         },
     )
 
@@ -105,36 +118,43 @@ def test_spinning(config: ApplianceConfiguration) -> None:
         "002f4a45a10100000000000000000000000000000000000000000200000000000000001e819e8c"
         "00808080800211000a8080020000000000000000008080808180800000008081078000808000"
     )
-    controls = generate_controls_from_config(config)
+    controls = generate_controls_from_config(
+        "test_washing_machine_test_spinning", config
+    )
     values = {control.key: control.get_value(data) for control in controls}
     test_case.assertDictEqual(
         values,
         {
-            "STATE": "DEVICE_STATE_RUNNING",
-            "SUB_STATE": "WASHER_SUBSTATE_SPIN",
-            "WASHER_EXTRARINSE": False,
-            "WASHER_FAST_PLUS": "FAST_PLUS_OFF",
-            "WASHER_HIDDEN_ANTI_CREASE": False,
-            "WASHER_PHR": False,
-            "WASHER_PREWASH": False,
-            "WASHER_PROGRAM": "PROGRAM_COTTONS",
-            "WASHER_SPIN": "1200 RPM",
-            "WASHER_TEMPERATURE": "TEMPERATURE_30",
-            "WASHER_STEAM": False,
-            "WASHER_DURATION": 137,
-            "WASHER_DELAY": 0,
-            "WASHER_REMAINING": 10,
-            "REMOTE_CONTROL": False,
-            "WASHER_WARNING_DOOR_IS_OPEN": False,
-            "WASHER_WARNING_NO_WATER": False,
-            "WASHER_WARNING_SECURITY": False,
-            "SETTINGS_VOLUME": "VOLUME_LOW",
-            "WASHER_SOAKING": False,
-            "WASHER_NIGHT": False,
-            "WASHER_EXTRA_RINSE_COUNT": 0,
-            "WASHER_ANTICREASE": False,
-            "WASHER_ADD_WATER": False,
-            "CUSTOM_DURATION_LEVEL": "DURATION_LEVEL_0",
+            "state": "device_state_running",
+            "sub_state": "washer_substate_spin",
+            "washer_extrarinse": False,
+            "washer_fast_plus": "fast_plus_off",
+            "washer_hidden_anti_crease": False,
+            "washer_phr": False,
+            "washer_prewash": False,
+            "washer_program": "program_cottons",
+            "washer_spin": "1200rpm",
+            "washer_temperature": "temperature_30",
+            "washer_steam": False,
+            "washer_duration": 137,
+            "washer_delay": datetime.datetime.now(tz=datetime.UTC).replace(
+                second=0, microsecond=0
+            )
+            + datetime.timedelta(minutes=10),
+            "washer_remaining": 10,
+            "remote_control": False,
+            "washer_warning_door_is_open": False,
+            "washer_warning_no_water": False,
+            "washer_warning_security": False,
+            "settings_volume": "volume_low",
+            "washer_soaking": False,
+            "washer_night": False,
+            "washer_extra_rinse_count": 0,
+            "washer_anticrease": False,
+            "washer_add_water": False,
+            "custom_duration_level": "duration_level_0",
+            "delay_start#0": 0,
+            "delay_start_time#0": None,
         },
     )
 
@@ -144,36 +164,46 @@ def test_delay_defined(config: ApplianceConfiguration) -> None:
         "003853e0ab0100000000000000000000000000000000000000000300000000000000000a01280e"
         "000000008002100210012c000000000000000000010000000100000000000001078000000000"
     )
-    controls = generate_controls_from_config(config)
+    controls = generate_controls_from_config(
+        "test_washing_machine_test_delayed", config
+    )
     values = {control.key: control.get_value(data) for control in controls}
     test_case.assertDictEqual(
         values,
         {
-            "STATE": "DEVICE_STATE_ON",
-            "SUB_STATE": None,
-            "WASHER_EXTRARINSE": False,
-            "WASHER_FAST_PLUS": "FAST_PLUS_OFF",
-            "WASHER_HIDDEN_ANTI_CREASE": False,
-            "WASHER_PHR": False,
-            "WASHER_PREWASH": False,
-            "WASHER_PROGRAM": "PROGRAM_COTTONS",
-            "WASHER_SPIN": "1400 RPM",
-            "WASHER_TEMPERATURE": "TEMPERATURE_40",
-            "WASHER_STEAM": False,
-            "WASHER_REMAINING": 136,
-            "WASHER_DELAY": 104,
-            "WASHER_DURATION": 136,
-            "REMOTE_CONTROL": False,
-            "WASHER_WARNING_DOOR_IS_OPEN": True,
-            "WASHER_WARNING_NO_WATER": False,
-            "WASHER_WARNING_SECURITY": False,
-            "SETTINGS_VOLUME": "VOLUME_LOW",
-            "WASHER_SOAKING": False,
-            "WASHER_NIGHT": False,
-            "WASHER_EXTRA_RINSE_COUNT": 0,
-            "WASHER_ANTICREASE": False,
-            "WASHER_ADD_WATER": False,
-            "CUSTOM_DURATION_LEVEL": "DURATION_LEVEL_0",
+            "state": "device_state_on",
+            "sub_state": None,
+            "washer_extrarinse": False,
+            "washer_fast_plus": "fast_plus_off",
+            "washer_hidden_anti_crease": False,
+            "washer_phr": False,
+            "washer_prewash": False,
+            "washer_program": "program_cottons",
+            "washer_spin": "1400rpm",
+            "washer_temperature": "temperature_40",
+            "washer_steam": False,
+            "washer_remaining": 136,
+            "washer_delay": datetime.datetime.now(tz=datetime.UTC).replace(
+                second=0, microsecond=0
+            )
+            + datetime.timedelta(minutes=104 + 136),
+            "washer_duration": 136,
+            "remote_control": False,
+            "washer_warning_door_is_open": True,
+            "washer_warning_no_water": False,
+            "washer_warning_security": False,
+            "settings_volume": "volume_low",
+            "washer_soaking": False,
+            "washer_night": False,
+            "washer_extra_rinse_count": 0,
+            "washer_anticrease": False,
+            "washer_add_water": False,
+            "custom_duration_level": "duration_level_0",
+            "delay_start#0": 104,
+            "delay_start_time#0": datetime.datetime.now(tz=datetime.UTC).replace(
+                second=0, microsecond=0
+            )
+            + datetime.timedelta(minutes=104),
         },
     )
 
@@ -186,36 +216,43 @@ def test_warning(config: ApplianceConfiguration) -> None:
         b"\x81\x00\x00\x01\x80\x80\x00\x00\x00\x00\x01\x07\x00\x00\x00\x00\x00"
     )
 
-    controls = generate_controls_from_config(config)
+    controls = generate_controls_from_config(
+        "test_washing_machine_test_warning", config
+    )
     values = {control.key: control.get_value(data) for control in controls}
     test_case.assertDictEqual(
         values,
         {
-            "STATE": "DEVICE_STATE_PAUSED",
-            "SUB_STATE": None,
-            "WASHER_EXTRARINSE": False,
-            "WASHER_FAST_PLUS": "FAST_PLUS_OFF",
-            "WASHER_HIDDEN_ANTI_CREASE": False,
-            "WASHER_PHR": False,
-            "WASHER_PREWASH": False,
-            "WASHER_PROGRAM": "PROGRAM_MIX",
-            "WASHER_SPIN": "800 RPM",
-            "WASHER_TEMPERATURE": "TEMPERATURE_40",
-            "WASHER_STEAM": False,
-            "WASHER_REMAINING": 126,
-            "WASHER_DELAY": 0,
-            "WASHER_DURATION": 126,
-            "REMOTE_CONTROL": False,
-            "WASHER_WARNING_DOOR_IS_OPEN": True,
-            "WASHER_WARNING_NO_WATER": False,
-            "WASHER_WARNING_SECURITY": False,
-            "SETTINGS_VOLUME": "VOLUME_LOW",
-            "WASHER_SOAKING": False,
-            "WASHER_NIGHT": False,
-            "WASHER_EXTRA_RINSE_COUNT": 0,
-            "WASHER_ANTICREASE": False,
-            "WASHER_ADD_WATER": True,
-            "CUSTOM_DURATION_LEVEL": "DURATION_LEVEL_0",
+            "state": "device_state_paused",
+            "sub_state": None,
+            "washer_extrarinse": False,
+            "washer_fast_plus": "fast_plus_off",
+            "washer_hidden_anti_crease": False,
+            "washer_phr": False,
+            "washer_prewash": False,
+            "washer_program": "program_mix",
+            "washer_spin": "800rpm",
+            "washer_temperature": "temperature_40",
+            "washer_steam": False,
+            "washer_remaining": 126,
+            "washer_delay": datetime.datetime.now(tz=datetime.UTC).replace(
+                second=0, microsecond=0
+            )
+            + datetime.timedelta(minutes=126),
+            "washer_duration": 126,
+            "remote_control": False,
+            "washer_warning_door_is_open": True,
+            "washer_warning_no_water": False,
+            "washer_warning_security": False,
+            "settings_volume": "volume_low",
+            "washer_soaking": False,
+            "washer_night": False,
+            "washer_extra_rinse_count": 0,
+            "washer_anticrease": False,
+            "washer_add_water": True,
+            "custom_duration_level": "duration_level_0",
+            "delay_start#0": 0,
+            "delay_start_time#0": None,
         },
     )
 
@@ -229,35 +266,42 @@ def test_remote_control_custom_settings(config: ApplianceConfiguration) -> None:
         b"\x00\x01\x07\x00\x00\x00\x01\x00"
     )
 
-    controls = generate_controls_from_config(config)
+    controls = generate_controls_from_config(
+        "test_washing_machine_test_remote_control_custom_settings", config
+    )
     values = {control.key: control.get_value(data) for control in controls}
     test_case.assertDictEqual(
         values,
         {
-            "STATE": "DEVICE_STATE_ON",
-            "SUB_STATE": None,
-            "WASHER_EXTRARINSE": True,
-            "WASHER_FAST_PLUS": "FAST_PLUS_OFF",
-            "WASHER_HIDDEN_ANTI_CREASE": False,
-            "WASHER_PHR": False,
-            "WASHER_PREWASH": False,
-            "WASHER_PROGRAM": "PROGRAM_MIX",
-            "WASHER_SPIN": "SPIN_RINSE_HOLD",
-            "WASHER_TEMPERATURE": "TEMPERATURE_40",
-            "WASHER_STEAM": False,
-            "WASHER_DURATION": 113,
-            "WASHER_DELAY": 0,
-            "WASHER_REMAINING": 113,
-            "REMOTE_CONTROL": True,
-            "WASHER_WARNING_DOOR_IS_OPEN": False,
-            "WASHER_WARNING_NO_WATER": False,
-            "WASHER_WARNING_SECURITY": False,
-            "SETTINGS_VOLUME": "VOLUME_HIGH",
-            "WASHER_SOAKING": False,
-            "WASHER_NIGHT": True,
-            "WASHER_EXTRA_RINSE_COUNT": 1,
-            "WASHER_ANTICREASE": False,
-            "WASHER_ADD_WATER": True,
-            "CUSTOM_DURATION_LEVEL": "DURATION_LEVEL_0",
+            "state": "device_state_on",
+            "sub_state": None,
+            "washer_extrarinse": True,
+            "washer_fast_plus": "fast_plus_off",
+            "washer_hidden_anti_crease": False,
+            "washer_phr": False,
+            "washer_prewash": False,
+            "washer_program": "program_mix",
+            "washer_spin": "spin_rinse_hold",
+            "washer_temperature": "temperature_40",
+            "washer_steam": False,
+            "washer_duration": 113,
+            "washer_delay": datetime.datetime.now(tz=datetime.UTC).replace(
+                second=0, microsecond=0
+            )
+            + datetime.timedelta(minutes=113),
+            "washer_remaining": 113,
+            "remote_control": True,
+            "washer_warning_door_is_open": False,
+            "washer_warning_no_water": False,
+            "washer_warning_security": False,
+            "settings_volume": "volume_high",
+            "washer_soaking": False,
+            "washer_night": True,
+            "washer_extra_rinse_count": 1,
+            "washer_anticrease": False,
+            "washer_add_water": True,
+            "custom_duration_level": "duration_level_0",
+            "delay_start#0": 0,
+            "delay_start_time#0": None,
         },
     )

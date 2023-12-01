@@ -5,7 +5,7 @@ import json
 import logging
 from dataclasses import dataclass
 from functools import reduce
-from typing import Any, Optional
+from typing import Any
 
 import aiohttp
 from aiohttp import ContentTypeError
@@ -71,9 +71,9 @@ class ApplianceInfo:
     model: str
     applianceType: int
     platformType: str
-    applianceSerialNumber: str
+    applianceSerialNumber: str | None
     name: str
-    hsmId: Optional[str]
+    hsmId: str | None
     connectivity: str = "BT"
 
     def is_bt(self) -> bool:

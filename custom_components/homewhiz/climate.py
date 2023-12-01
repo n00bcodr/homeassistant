@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 
 from homeassistant.components.climate import (  # type: ignore[import]
     ClimateEntity,
@@ -80,7 +81,7 @@ class HomeWhizClimateEntity(HomeWhizEntity, ClimateEntity):
             return None
         return self._control.target_temperature.get_value(self.coordinator.data)
 
-    async def async_set_temperature(self, temperature: float) -> None:
+    async def async_set_temperature(self, temperature: float, **kwargs: Any) -> None:  # type: ignore[override] # noqa: E501
         _LOGGER.debug(f"Changing temperature {temperature}")
         await self.coordinator.send_command(
             self._control.target_temperature.set_value(temperature)
@@ -126,7 +127,7 @@ async def async_setup_entry(
 ) -> None:
     data = build_entry_data(entry)
     coordinator = hass.data[DOMAIN][entry.entry_id]
-    controls = generate_controls_from_config(data.contents.config)
+    controls = generate_controls_from_config(entry.entry_id, data.contents.config)
     climate_controls = [c for c in controls if isinstance(c, ClimateControl)]
     _LOGGER.debug(f"ACs: {[c.key for c in climate_controls]}")
     async_add_entities(

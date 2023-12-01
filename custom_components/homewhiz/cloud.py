@@ -1,14 +1,18 @@
 import json
 import logging
 import uuid
+from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import datetime
-from typing import Any, Optional
+from datetime import datetime, timedelta
+from typing import Any
 
 from dacite import from_dict
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers.event import async_track_point_in_time
+from homeassistant.helpers.event import (
+    async_track_point_in_time,
+    async_track_time_interval,
+)
 
 from .api import login
 from .config_flow import CloudConfig
@@ -20,7 +24,7 @@ _LOGGER: logging.Logger = logging.getLogger(__package__)
 
 @dataclass
 class Reported:
-    connected: Optional[bool]
+    connected: bool | None
     wfaStartOffset: str
     wfaSize: str
     brand: str
@@ -29,8 +33,8 @@ class Reported:
     applianceId: str
     macAddr: str
     wfa: list[int]
-    modifiedTime: Optional[int]
-    wfaSizeModifiedTime: Optional[int]
+    modifiedTime: int | None
+    wfaSizeModifiedTime: int | None
 
 
 @dataclass
@@ -56,6 +60,8 @@ class HomewhizCloudUpdateCoordinator(HomewhizCoordinator):
         cloud_config: CloudConfig,
         entry: ConfigEntry,
     ) -> None:
+        # Place awscrt imports within class
+        # (awscrt module can sometimes not be installed automatically)
         from awscrt import mqtt
 
         self._appliance_id = appliance_id
@@ -67,11 +73,13 @@ class HomewhizCloudUpdateCoordinator(HomewhizCoordinator):
         self._is_connected = False
         self._entry = entry
         self._is_tuya = self._appliance_id.startswith("T")
+        self._update_timer_task: Callable | None = None
 
         super().__init__(hass, _LOGGER, name=DOMAIN)
 
     async def connect(self) -> bool:
         from awscrt.auth import AwsCredentialsProvider
+        from awscrt.exceptions import AwsCrtError
         from awsiot import mqtt_connection_builder  # type: ignore[import]
 
         _LOGGER.info(f"Connecting to {self._appliance_id}")
@@ -95,7 +103,23 @@ class HomewhizCloudUpdateCoordinator(HomewhizCoordinator):
             on_connection_resumed=self.on_connection_resumed,
         )
         self._connection = connection
-        connection.connect().result()
+        try:
+            connection.connect().result()
+        # If exception occurs, retry in one minute
+        # (to be more resilient against e.g., DNS issues)
+        except AwsCrtError:
+            _LOGGER.exception(
+                "Exception during connection to AWS occurred. Will retry in one minute."
+            )
+            self._entry.async_on_unload(
+                async_track_point_in_time(
+                    hass=self.hass,
+                    action=self.refresh_connection,  # type: ignore[arg-type]
+                    point_in_time=datetime.today() + timedelta(minutes=1),
+                )
+            )
+            return False
+
         self._is_connected = True
         [subscribe_update, _] = connection.subscribe(
             f"$aws/things/{self._appliance_id}/shadow/update/accepted",
@@ -116,8 +140,8 @@ class HomewhizCloudUpdateCoordinator(HomewhizCoordinator):
         _LOGGER.debug(f"Subscribe to get result: {subscribe_get.result()}")
 
         self.force_read()
-        self.get_shadow()
 
+        # Trigger refresh connection when credentials expired
         self._entry.async_on_unload(
             async_track_point_in_time(
                 hass=self.hass,
@@ -125,6 +149,16 @@ class HomewhizCloudUpdateCoordinator(HomewhizCoordinator):
                 point_in_time=expiration,
             )
         )
+
+        if not self._update_timer_task:
+            # Set hass task to update the HomeWhiz device data periodically
+            # Returns a callable to remove the task
+            self._update_timer_task = async_track_time_interval(
+                hass=self.hass, action=self.force_read, interval=timedelta(minutes=1)
+            )
+            self.get_shadow()
+            _LOGGER.debug("Set hass time interval update")
+
         return True
 
     @callback
@@ -138,14 +172,14 @@ class HomewhizCloudUpdateCoordinator(HomewhizCoordinator):
         self._is_connected = True
 
     @callback
-    async def refresh_connection(self, **kwargs: Any) -> None:
+    async def refresh_connection(self, *args: Any) -> None:
         _LOGGER.debug("Refreshing connection")
         assert self._connection is not None
         old_connection = self._connection
         await self.connect()
         old_connection.disconnect()
 
-    def force_read(self) -> None:
+    def force_read(self, *args: Any) -> None:
         assert self._connection is not None
         suffix = "/tuyacommand" if self._is_tuya else "/command"
         force_read = {
@@ -160,7 +194,7 @@ class HomewhizCloudUpdateCoordinator(HomewhizCoordinator):
         )
         _LOGGER.debug(f"Force read result: {publish.result()}")
 
-    def get_shadow(self) -> None:
+    def get_shadow(self, *args: Any) -> None:
         assert self._connection is not None
         [publish, _] = self._connection.publish(
             f"$aws/things/{self._appliance_id}/shadow/get",
@@ -205,3 +239,7 @@ class HomewhizCloudUpdateCoordinator(HomewhizCoordinator):
         self.alive = False
         if self._connection is not None:
             self._connection.disconnect()
+        if self._update_timer_task:
+            # Remove update timer task
+            self._update_timer_task()
+            self._update_timer_task = None

@@ -1,6 +1,5 @@
 import asyncio
 import logging
-from typing import Optional
 
 from bleak import BleakClient, BLEDevice
 from bleak_retry_connector import establish_connection
@@ -51,14 +50,20 @@ class HomewhizBluetoothUpdateCoordinator(HomewhizCoordinator):
             bytearray.fromhex("02 04 00 04 00 1a 01 03"),
             response=False,
         )
-        _LOGGER.info(f"Successfully connected. RSSI: {self._device.rssi}")
+
+        # To retrieve RSSI value
+        # https://developers.home-assistant.io/docs/core/bluetooth/api/#fetching-the-latest-bluetoothserviceinfobleak-for-a-device
+        service_info = bluetooth.async_last_service_info(
+            self.hass, self.address, connectable=True
+        )
+        assert service_info is not None
+        _LOGGER.info(f"Successfully connected. RSSI: {service_info.rssi}")
 
         return True
 
     async def try_reconnect(self) -> None:
-        while self.alive and (
-            self._connection is None or not self._connection.is_connected
-        ):
+        _LOGGER.debug(f"[{self.address}] Trying to reconnect")
+        while self.alive and not self.is_connected:
             if not bluetooth.async_address_present(
                 self.hass, self.address, connectable=True
             ):
@@ -68,6 +73,7 @@ class HomewhizBluetoothUpdateCoordinator(HomewhizCoordinator):
                 )
                 return
             try:
+                _LOGGER.debug(f"[{self.address}] Establish connection from reconnect")
                 await self.connect()
             except Exception:
                 _LOGGER.info("Can't reconnect. Waiting a minute to try again")
@@ -102,22 +108,25 @@ class HomewhizBluetoothUpdateCoordinator(HomewhizCoordinator):
             "0000ac01-0000-1000-8000-00805F9B34FB",
             payload,
         )
+        _LOGGER.debug("Command sent")
 
     @property
     def is_connected(self) -> bool:
         return self._connection is not None and self._connection.is_connected
 
     async def kill(self) -> None:
+        _LOGGER.debug(f"[{self.address}] Killing connection")
         self.alive = False
         if self._connection is not None:
             await self._connection.disconnect()
+        _LOGGER.debug(f"[{self.address}] Connection killed")
 
 
 class MessageAccumulator:
     expected_index = 0
     accumulated: bytearray = bytearray()
 
-    def accumulate_message(self, message: bytearray) -> Optional[bytearray]:
+    def accumulate_message(self, message: bytearray) -> bytearray | None:
         message_index = message[4]
         _LOGGER.debug("Message index: %d", message_index)
         if message_index == 0:

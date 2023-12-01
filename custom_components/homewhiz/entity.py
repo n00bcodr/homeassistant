@@ -1,9 +1,13 @@
+import logging
+
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .config_flow import EntryData
 from .const import DOMAIN
 from .homewhiz import HomewhizCoordinator, brand_name_by_code
+
+_LOGGER: logging.Logger = logging.getLogger(__package__)
 
 
 def build_device_info(unique_name: str, data: EntryData) -> DeviceInfo:
@@ -41,21 +45,24 @@ class HomeWhizEntity(CoordinatorEntity[HomewhizCoordinator]):  # type: ignore[ty
         self._attr_device_class = f"{DOMAIN}__{entity_key}"
         self._localization = data.contents.localization
 
+    async def async_added_to_hass(self) -> None:
+        """Call when the entity is added to hass."""
+        # Provide an attribute to identify the origin of the data used
+        await super().async_added_to_hass()
+        if hasattr(self, "_control"):
+            if hasattr(self._control, "my_entity_ids"):
+                self._control.my_entity_ids.update({self.entity_id: self.name})
+            else:
+                setattr(self._control, "my_entity_ids", {self.entity_id: self.name})
+
     @property
     def available(self) -> bool:
         return self.coordinator.is_connected
 
     @property
-    def name(self) -> str | None:
-        key = self.entity_key
-        if key == "STATE":
-            return "State"
-        if key == "SUB_STATE":
-            return "Sub-state"
-        if key == "REMOTE_CONTROL":
-            return "Remote control"
-        if key == "SETTINGS_VOLUME":
-            return "Volume"
-        if "WARNING" in key:
-            return "Warning: " + self._localization.get(key, key)
-        return self._localization.get(key, key)
+    def translation_key(self) -> str:
+        """Translation key for this entity."""
+
+        _LOGGER.debug("Retrieving translation_key %s", self.entity_key.lower())
+
+        return self.entity_key.lower().split("#")[0]
