@@ -1,6 +1,6 @@
 intents:
   dentemperature:
-    - What is the temperature in Den
+    - What is the temperature in Den[?]
     - den temperature
     - home temperature
   work:
@@ -9,5 +9,5 @@ intents:
     - let's start working
     - work
   internetspeed:
-    - how fast is [the] internet
-    - what is [the] [current] internet speed
+    - how fast is [the] internet[?]
+    - what is [the] [current] internet speed[?]

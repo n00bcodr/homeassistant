@@ -1,0 +1,8 @@
+internet:
+  name: Internet is down
+  done_message: Internet is back up
+  entity_id: binary_sensor.8_8_8_8
+  state: "off"
+  repeat: 30
+  notifiers:
+    - mobile_app_pixel8pro

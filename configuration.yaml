@@ -23,6 +23,7 @@ folder_watcher:
 tts:
   - platform: google_translate
 
+alert: !include alert.yaml
 group: !include groups.yaml
 automation: !include automations.yaml
 script: !include scripts.yaml

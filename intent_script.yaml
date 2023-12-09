@@ -11,7 +11,7 @@ work:
     data:
       entity_id:
         - switch.workstation
-        - light.light
+        - light.shapes
 internetspeed:
   speech:
-    text: Current Internet Speed is {{states.sensor.download_speed.state}} Mbps
+    text: Current Internet Speed is {{states.sensor.speedtest_download.state}} Mbps
