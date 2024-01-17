@@ -2,7 +2,7 @@
 minimalist-mobile:
   # Journal
   state-icon-color: "rgb(var(--color-theme))"
-  border-radius: "20px"
+  border-radius: "25px"
   ha-card-border-radius: "var(--border-radius)"
   error-color: "var(--google-red)"
   warning-color: "var(--google-yellow)"
@@ -10,7 +10,7 @@ minimalist-mobile:
   info-color: "var(--google-blue)"
   divider-color: "rgba(var(--color-theme),.12)"
   accent-color: "var(--google-yellow)"
-  ha-dialog-border-radius: "10px"
+  ha-dialog-border-radius: "50px"
   # fix added border-lines in 2022.11
   ha-card-border-width: "0px"
 
@@ -117,7 +117,7 @@ minimalist-mobile:
       mdc-theme-on-secondary: "var(--card-background-color)"
       # background and sidebar
       card-background-color: "#1D1D1D"
-      primary-background-color: "#121212"
+      primary-background-color: "#000000"
       secondary-background-color: "#121212"
       # header
       app-header-text-color: "var(--primary-text-color)"
