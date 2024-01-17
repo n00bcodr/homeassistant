@@ -5,11 +5,18 @@
                 "description": "If you need help with the configuration have a look here: https://github.com/andrew-codechimp/ha-battery-notes",
                 "data": {
                     "device_id": "Device",
-                    "name": "Name",
-                    "battery_type": "Battery type"
+                    "name": "Name"
                 },
                 "data_description": {
                     "name": "Leaving blank will take the name from the source device"
+                }
+            },
+            "battery": {
+                "data": {
+                    "battery_type": "Battery type"
+                },
+                "data_description": {
+                    "battery_type": "Optionally add the battery quantity if more than 1 eg. 2x AAA"
                 }
             }
         },
@@ -38,10 +45,34 @@
         }
     },
     "entity": {
+        "button": {
+            "battery_replaced": {
+                "name": "Battery replaced"
+            }
+        },
         "sensor": {
             "battery_type": {
                 "name": "Battery type"
+            },
+            "battery_last_replaced": {
+                "name": "Battery last replaced"
             }
+        }
+    },
+    "services": {
+        "set_battery_replaced": {
+            "description": "Set the battery last replaced.",
+            "fields": {
+                "device_id": {
+                    "description": "Device that has had it's battery replaced.",
+                    "name": "Device"
+                },
+                "datetime_replaced": {
+                    "description": "Date replaced.",
+                    "name": "Date"
+                }
+            },
+            "name": "Set battery replaced"
         }
     }
 }
