@@ -10,33 +10,30 @@ browser:
 python_script:
 pyscript:
 my:
-
+battery_notes:
 logger:
   default: critical
   # logs:
   # homeassistant.components.shell_command: debug
   # homeassistant.components.pyscript: debug
 
-folder_watcher:
-  - folder: /config/.storage
-
 tts:
   - platform: google_translate
 
-alert: !include alert.yaml
-group: !include groups.yaml
 automation: !include automations.yaml
-script: !include scripts.yaml
-scene: !include scenes.yaml
 binary_sensor: !include binary_sensors.yaml
-sensor: !include sensor.yaml
+command_line: !include command_line.yaml
+conversation: !include conversation.yaml
+group: !include groups.yaml
+homekit: !include homekit.yaml
+intent_script: !include intent_script.yaml
 notify: !include notify.yaml
 rest_command: !include rest_commands.yaml
-homekit: !include homekit.yaml
-conversation: !include conversation.yaml
-intent_script: !include intent_script.yaml
+scene: !include scenes.yaml
+script: !include scripts.yaml
+shell_command: !include shell_command.yaml
+sensor: !include sensor.yaml
 template: !include template.yaml
-command_line: !include command_line.yaml
 
 frontend:
   themes: !include_dir_merge_named themes
@@ -50,10 +47,8 @@ monitor_docker:
       - tautulli
       - portainer
       - addon_core_samba
-      - wud
       - homebridge-homebridge-1
       - homer
-      - Heimdall
       - filebrowser
       - flaresolverr
       - Tautulli
@@ -72,8 +67,16 @@ recorder:
   db_url: !secret recorder_db_url
   purge_keep_days: 30
   exclude:
+    domains:
+      - update
     entity_globs:
-      - sensor.weather_*
+      - sensor.sun*
+      - sensor.moon*
+      - weather.*
+      - sensor.x60*
+    entities:
+      - sensor.homeassistant_boot_time
+      - sun.sun
 
 spotcast:
   sp_dc: !secret sp_dc
@@ -86,9 +89,3 @@ telegram_bot:
       - !secret telegram_chat_id
       - !secret telegram_chat_id_atm
       - !secret telegram_chat_id_ch
-
-shell_command:
-  lovelace_default_convert: python /config/tools/lovelace_default_convert.py
-  git_core_update_push: bash /config/tools/git_core_update_push.sh
-  git_commit_push: bash /config/tools/ha_gitpush.sh "{{states.input_text.git_commit_message.state}}"
-  git_hacs_update: bash /config/tools/hacs_updates_push.sh

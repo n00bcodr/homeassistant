@@ -352,3 +352,12 @@ play_thunderstorm_sounds:
       - media_player.pavan_s_nest_hub
   mode: single
   icon: mdi:lightning-bolt-outline
+restart_plex:
+  alias: Restart Plex
+  sequence:
+  - service: monitor_docker.restart
+    data:
+      name: plex
+    alias: Restart Docker Plex
+  mode: single
+  icon: mdi:plex

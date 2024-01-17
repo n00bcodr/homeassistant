@@ -74,49 +74,20 @@ views:
       entity: sun.sun
       icon_color: orange
       tap_action:
-        action: fire-dom-event
-        browser_mod:
-          data:
-            browser_id: THIS
-            content:
-              type: custom:horizon-card
-          service: browser_mod.popup
+        action: navigate
+        navigation_path: '#sun'
       type: entity
       use_entity_picture: false
     - content_info: none
       entity: sensor.moon_phase
       tap_action:
-        action: fire-dom-event
-        browser_mod:
-          data:
-            browser_id: THIS
-            content:
-              color_type: card
-              entity: sensor.moon_phase
-              layout: icon_state
-              show_entity_picture: true
-              show_name: false
-              show_state: true
-              size: 80%
-              styles:
-                card:
-                - border-radius: 200px
-                state:
-                - justify-self: center
-                - font-size: 20px
-                - font-weight: bold
-              type: custom:button-card
-          service: browser_mod.popup
+        action: navigate
+        navigation_path: '#moon'
       type: entity
       use_entity_picture: true
     - content_info: none
       entity: binary_sensor.den_motion_occupancy
       icon_color: teal
-      type: entity
-    - content_info: name
-      entity: binary_sensor.kitchen_motion_occupancy
-      icon_color: accent
-      name: Motion
       type: entity
     - content_info: none
       entity: binary_sensor.chair_occupancy
@@ -130,33 +101,73 @@ views:
       tap_action:
         action: more-info
       type: template
+    - double_tap_action:
+        action: call-service
+        service: homeassistant.update_entity
+        target:
+          entity_id: weather.home
+      entity: weather.home
+      show_conditions: true
+      show_temperature: true
+      tap_action:
+        action: navigate
+        navigation_path: '#weather'
+      type: weather
     - chip:
-        entity: sensor.hacs
-        hold_action:
-          action: more-info
-        icon_color: blue
+        content_info: none
+        entity: person.darragh_clerkin
         tap_action:
           action: navigate
-          navigation_path: /hacs/entry
+          navigation_path: /lovelace/darragh
         type: entity
+        use_entity_picture: true
       conditions:
-      - entity: sensor.hacs
-        state_not: '0'
+      - condition: state
+        entity: person.darragh_clerkin
+        state: home
       type: conditional
     - chip:
-        entity: sensor.supervisor_updates
-        hold_action:
-          action: more-info
-        icon: mdi:home-assistant
-        icon_color: light-blue
+        content_info: none
+        entity: person.hilary_harris
         tap_action:
           action: navigate
-          navigation_path: /config/dashboard
+          navigation_path: /lovelace/hilary
         type: entity
-        use_entity_picture: false
+        use_entity_picture: true
       conditions:
-      - entity: sensor.supervisor_updates
-        state_not: '0'
+      - condition: state
+        entity: device_tracker.deco_hilary_s_phone
+        state: home
+      type: conditional
+    - chip:
+        content_info: name
+        entity: binary_sensor.hacs_updates
+        icon: hacs:hacs
+        icon_color: blue
+        name: HACS
+        tap_action:
+          action: navigate
+          navigation_path: /lovelace/updates
+        type: entity
+      conditions:
+      - condition: state
+        entity: binary_sensor.hacs_updates
+        state: 'on'
+      type: conditional
+    - chip:
+        content_info: name
+        entity: binary_sensor.addon_updates
+        icon: ''
+        icon_color: light-blue
+        name: Addons
+        tap_action:
+          action: navigate
+          navigation_path: /lovelace/updates
+        type: entity
+      conditions:
+      - condition: state
+        entity: binary_sensor.addon_updates
+        state: 'on'
       type: conditional
     - chip:
         entity: update.home_assistant_core_update
@@ -165,7 +176,7 @@ views:
         icon_color: light-blue
         tap_action:
           action: navigate
-          navigation_path: /config/dashboard
+          navigation_path: /lovelace/updates
         type: entity
       conditions:
       - entity: update.home_assistant_core_update
@@ -179,32 +190,6 @@ views:
       - entity: binary_sensor.backups_stale
         state: 'on'
       type: conditional
-    - entity: weather.home
-      show_conditions: true
-      show_temperature: true
-      tap_action:
-        action: fire-dom-event
-        browser_mod:
-          data:
-            browser_id: THIS
-            content:
-              cards:
-              - backdrop: true
-                entity: weather.home
-                name: ' '
-                secondary_info:
-                - precipitation_probability
-                type: custom:simple-weather-card
-              - current: false
-                details: true
-                entity: weather.home_hourly
-                forecast: true
-                hourly_forecast: true
-                number_of_forecasts: '7'
-                type: custom:weather-card
-              type: vertical-stack
-          service: browser_mod.popup
-      type: weather
     type: custom:mushroom-chips-card
     view_layout:
       column: 2
@@ -220,126 +205,8 @@ views:
         icon: phu:google-pixel
         icon_color: blue
         tap_action:
-          action: fire-dom-event
-          browser_mod:
-            data:
-              browser_id: THIS
-              content:
-                cards:
-                - cards:
-                  - alignment: center
-                    chips:
-                    - content: "{% if is_state('device_tracker.pixel_8_pro', 'home')\
-                        \ %}\n  {{states.device_tracker.pixel_8_pro.attributes.deco_device\
-                        \ | replace(\"living_room\",\" Living Room\") }} - {{ states.device_tracker.pixel_8_pro.attributes.connection_type\
-                        \ | replace(\"band\",\"\") | replace(\"5\",\"5 GHz\")| replace(\"\
-                        2_4\",\"2.4 GHz\")}} \n{% else %}\n  Not Connected\n{% endif\
-                        \ %}"
-                      double_tap_action:
-                        action: none
-                      entity: device_tracker.pixel_8_pro
-                      hold_action:
-                        action: none
-                      icon: '{% if is_state(''device_tracker.pixel_8_pro'', ''home'')
-                        %}
-
-                        mdi:cellphone-wireless
-
-                        {% else %}
-
-                        mdi:cellphone-off
-
-                        {% endif %}'
-                      icon_color: '{% if is_state(''device_tracker.pixel_8_pro'',
-                        ''home'') %}
-
-                        blue
-
-                        {% else %}
-
-                        white
-
-                        {% endif %}
-
-                        '
-                      tap_action:
-                        action: none
-                      type: template
-                    - entity: button.pixel_8_pro_update_location
-                      icon_color: light-green
-                      tap_action:
-                        action: toggle
-                      type: entity
-                    - entity: button.pixel_8_pro_update_sensors
-                      icon_color: brown
-                      tap_action:
-                        action: toggle
-                      type: entity
-                    - content_info: none
-                      entity: button.pixel_8_pro_open_mobile_app
-                      icon_color: primary
-                      tap_action:
-                        action: toggle
-                      type: entity
-                    type: custom:mushroom-chips-card
-                  - alignment: center
-                    chips:
-                    - icon: mdi:volume-low
-                      icon_color: '{{ iif(is_state(''sensor.pixel8pro_ringer_mode'',
-                        ''silent''), ''red'', ''disabled'') }}'
-                      tap_action:
-                        action: call-service
-                        data:
-                          option: silent
-                        service: select.select_option
-                        target:
-                          entity_id: select.pixel_8_pro_ringer_mode
-                      type: template
-                    - icon: mdi:vibrate
-                      icon_color: '{{ iif(is_state(''sensor.pixel8pro_ringer_mode'',
-                        ''vibrate''), ''red'', ''disabled'') }}'
-                      tap_action:
-                        action: call-service
-                        data:
-                          option: vibrate
-                        service: select.select_option
-                        target:
-                          entity_id: select.pixel_8_pro_ringer_mode
-                      type: template
-                    - icon: mdi:volume-high
-                      icon_color: '{{ iif(is_state(''sensor.pixel8pro_ringer_mode'',
-                        ''normal''), ''red'', ''disabled'') }}'
-                      tap_action:
-                        action: call-service
-                        data:
-                          option: normal
-                        service: select.select_option
-                        target:
-                          entity_id: select.pixel_8_pro_ringer_mode
-                      type: template
-                    type: custom:mushroom-chips-card
-                  type: vertical-stack
-                - entities:
-                  - entity: number.pixel_8_pro_media_volume
-                    name: Media Volume
-                    secondary_info: last-updated
-                  - entity: number.pixel_8_pro_call_volume
-                    name: Call Volume
-                    secondary_info: last-updated
-                  - entity: number.pixel_8_pro_ringer_volume
-                    name: Ring Volume
-                    secondary_info: last-changed
-                  - entity: number.pixel_8_pro_notification_volume
-                    name: Notification Volume
-                    secondary_info: last-updated
-                  - entity: number.pixel_8_pro_alarm_volume
-                    name: Alarm Volume
-                    secondary_info: last-updated
-                  show_header_toggle: false
-                  state_color: true
-                  type: entities
-                type: vertical-stack
-            service: browser_mod.popup
+          action: navigate
+          navigation_path: '#phone'
         type: entity
         use_entity_picture: false
       - double_tap_action:
@@ -374,11 +241,14 @@ views:
         icon_color: amber
         type: entity
       - entity: sensor.hilary_s_phone_last_update_trigger
+        hold_action:
+          action: more-info
         tap_action:
           action: call-service
           service: script.update_all_phone_sensors
           target: {}
         type: entity
+        use_entity_picture: true
       type: custom:mushroom-chips-card
     conditions:
     - condition: screen
@@ -477,62 +347,8 @@ views:
         primary: Sleep
         secondary: ''
         tap_action:
-          action: fire-dom-event
-          browser_mod:
-            data:
-              browser_id: THIS
-              content:
-                cards:
-                - entity: script.play_ocean_sounds
-                  icon: mdi:beach
-                  icon_color: brown
-                  primary: Play Ocean Sounds
-                  secondary: ''
-                  tap_action:
-                    action: toggle
-                  type: custom:mushroom-template-card
-                - entity: script.play_thunder_sounds
-                  icon: mdi:lightning-bolt
-                  icon_color: yellow
-                  primary: Play Thunder Sounds
-                  secondary: ''
-                  tap_action:
-                    action: toggle
-                  type: custom:mushroom-template-card
-                - entity: script.play_night_sounds
-                  icon: mdi:weather-night
-                  icon_color: black
-                  primary: Play Night Sounds
-                  secondary: ''
-                  tap_action:
-                    action: toggle
-                  type: custom:mushroom-template-card
-                - entity: script.play_river_sounds
-                  icon: mdi:waves
-                  icon_color: light-blue
-                  primary: Play River Sounds
-                  secondary: ''
-                  tap_action:
-                    action: toggle
-                  type: custom:mushroom-template-card
-                - entity: script.play_forest_sounds
-                  icon: mdi:forest-outline
-                  icon_color: green
-                  primary: Play Forest Sounds
-                  secondary: ''
-                  tap_action:
-                    action: toggle
-                  type: custom:mushroom-template-card
-                - entity: script.play_white_noise
-                  icon: mdi:wave
-                  icon_color: grey
-                  primary: Play White Noise
-                  secondary: ''
-                  tap_action:
-                    action: toggle
-                  type: custom:mushroom-template-card
-                type: custom:stack-in-card
-            service: browser_mod.popup
+          action: navigate
+          navigation_path: '#sleep'
         type: custom:mushroom-template-card
       columns: 3
       square: false
@@ -602,6 +418,45 @@ views:
             action: call-service
             data:
               effect: Lightscape
+            service: light.turn_on
+            target:
+              entity_id: light.shapes
+          type: light
+          use_light_color: true
+        - content_info: name
+          entity: light.shapes
+          icon: mdi:music
+          name: Lightning
+          tap_action:
+            action: call-service
+            data:
+              effect: Lightning
+            service: light.turn_on
+            target:
+              entity_id: light.shapes
+          type: light
+          use_light_color: true
+        - content_info: name
+          entity: light.shapes
+          icon: mdi:puzzle
+          name: Hedgehog
+          tap_action:
+            action: call-service
+            data:
+              effect: Catch a Hedgehog
+            service: light.turn_on
+            target:
+              entity_id: light.shapes
+          type: light
+          use_light_color: true
+        - content_info: name
+          entity: light.shapes
+          icon: mdi:puzzle
+          name: Memory
+          tap_action:
+            action: call-service
+            data:
+              effect: Memory
             service: light.turn_on
             target:
               entity_id: light.shapes
@@ -690,16 +545,6 @@ views:
       show_tilt_position_control: false
       type: custom:mushroom-cover-card
     - collapsible_controls: true
-      double_tap_action:
-        action: fire-dom-event
-        browser_mod:
-          data:
-            browser_id: THIS
-            content:
-              entity: light.heater
-              title: Light
-              type: custom:more-info-card
-          service: browser_mod.popup
       entity: climate.heater
       fill_container: false
       hvac_modes:
@@ -896,9 +741,9 @@ views:
     view_layout:
       column: 3
   - cards:
-    - badge_color: '{{ ''deep-orange'' if (now() + timedelta(hours=4, minutes=30)).strftime(''%p'')
+    - badge_color: '{{ ''deep-orange'' if (now() + timedelta(hours=5, minutes=30)).strftime(''%p'')
         == ''AM'' else ''black'' }}'
-      badge_icon: '{{ ''mdi:weather-sunny'' if (now() + timedelta(hours=4, minutes=30)).strftime(''%p'')
+      badge_icon: '{{ ''mdi:weather-sunny'' if (now() + timedelta(hours=5, minutes=30)).strftime(''%p'')
         == ''AM'' else ''mdi:weather-night'' }}'
       double_tap_action:
         action: none
@@ -908,9 +753,9 @@ views:
       icon: ''
       multiline_secondary: true
       picture: https://i.ebayimg.com/images/g/cSoAAOSwDLVjjxOt/s-l1600.jpg
-      primary: '{{ (now() + timedelta(hours=4, minutes=30)).strftime(''%-I:%M %p'')
+      primary: '{{ (now() + timedelta(hours=5, minutes=30)).strftime(''%-I:%M %p'')
         }}'
-      secondary: '{{ (now() + timedelta(hours=4, minutes=30)).strftime(''%A, %d %B'')
+      secondary: '{{ (now() + timedelta(hours=5, minutes=30)).strftime(''%A, %d %B'')
         }}'
       tap_action:
         action: none
@@ -1036,6 +881,251 @@ views:
     type: conditional
     view_layout:
       column: 3
+  - cards:
+    - back_open: true
+      bg_blur: 50
+      card_type: pop-up
+      close_on_click: true
+      hash: '#sun'
+      margin: 18px
+      margin_top_mobile: 00px
+      type: custom:bubble-card
+    - type: custom:horizon-card
+    type: vertical-stack
+  - cards:
+    - back_open: true
+      bg_blur: 80
+      bg_opacity: 100
+      card_type: pop-up
+      close_on_click: false
+      hash: '#phone'
+      icon: mdi:google
+      margin_top_mobile: 10px
+      name: Phone Controls
+      shadow_opacity: 80
+      type: custom:bubble-card
+    - cards:
+      - cards:
+        - alignment: center
+          chips:
+          - content: "{% if is_state('device_tracker.deco_pixel_8_pro', 'home') %}\n\
+              \  {{states.device_tracker.deco_pixel_8_pro.attributes.deco_device |\
+              \ replace(\"living_room\",\" Living Room\") }} - {{ states.device_tracker.deco_pixel_8_pro.attributes.connection_type\
+              \ | replace(\"band\",\"\") | replace(\"5\",\"5 GHz\")| replace(\"2_4\"\
+              ,\"2.4 GHz\")}} \n{% else %}\n  Not Connected\n{% endif %}"
+            double_tap_action:
+              action: none
+            entity: device_tracker.deco_pixel_8_pro
+            hold_action:
+              action: none
+            icon: '{% if is_state(''device_tracker.deco_pixel_8_pro'', ''home'') %}
+
+              mdi:cellphone-wireless
+
+              {% else %}
+
+              mdi:cellphone-off
+
+              {% endif %}'
+            icon_color: '{% if is_state(''device_tracker.deco_pixel_8_pro'', ''home'')
+              %}
+
+              blue
+
+              {% else %}
+
+              white
+
+              {% endif %}
+
+              '
+            tap_action:
+              action: none
+            type: template
+          - entity: button.pixel_8_pro_update_location
+            icon_color: light-green
+            tap_action:
+              action: toggle
+            type: entity
+          - entity: button.pixel_8_pro_update_sensors
+            icon_color: brown
+            tap_action:
+              action: toggle
+            type: entity
+          - content_info: none
+            entity: button.pixel_8_pro_open_mobile_app
+            icon_color: primary
+            tap_action:
+              action: toggle
+            type: entity
+          type: custom:mushroom-chips-card
+        - alignment: center
+          chips:
+          - icon: mdi:volume-low
+            icon_color: '{{ iif(is_state(''sensor.pixel8pro_ringer_mode'', ''silent''),
+              ''red'', ''disabled'') }}'
+            tap_action:
+              action: call-service
+              data:
+                option: silent
+              service: select.select_option
+              target:
+                entity_id: select.pixel_8_pro_ringer_mode
+            type: template
+          - icon: mdi:vibrate
+            icon_color: '{{ iif(is_state(''sensor.pixel8pro_ringer_mode'', ''vibrate''),
+              ''red'', ''disabled'') }}'
+            tap_action:
+              action: call-service
+              data:
+                option: vibrate
+              service: select.select_option
+              target:
+                entity_id: select.pixel_8_pro_ringer_mode
+            type: template
+          - icon: mdi:volume-high
+            icon_color: '{{ iif(is_state(''sensor.pixel8pro_ringer_mode'', ''normal''),
+              ''red'', ''disabled'') }}'
+            tap_action:
+              action: call-service
+              data:
+                option: normal
+              service: select.select_option
+              target:
+                entity_id: select.pixel_8_pro_ringer_mode
+            type: template
+          type: custom:mushroom-chips-card
+        type: vertical-stack
+      - entities:
+        - entity: number.pixel_8_pro_media_volume
+          name: Media Volume
+          secondary_info: last-updated
+        - entity: number.pixel_8_pro_call_volume
+          name: Call Volume
+          secondary_info: last-updated
+        - entity: number.pixel_8_pro_ringer_volume
+          name: Ring Volume
+          secondary_info: last-changed
+        - entity: number.pixel_8_pro_notification_volume
+          name: Notification Volume
+          secondary_info: last-updated
+        - entity: number.pixel_8_pro_alarm_volume
+          name: Alarm Volume
+          secondary_info: last-updated
+        show_header_toggle: false
+        state_color: true
+        type: entities
+      type: vertical-stack
+    type: vertical-stack
+  - cards:
+    - back_open: true
+      bg_blur: 50
+      card_type: pop-up
+      close_on_click: true
+      hash: '#sleep'
+      margin: 18px
+      margin_top_mobile: 00px
+      type: custom:bubble-card
+    - cards:
+      - entity: script.play_ocean_sounds
+        icon: mdi:beach
+        icon_color: brown
+        primary: Play Ocean Sounds
+        secondary: ''
+        tap_action:
+          action: toggle
+        type: custom:mushroom-template-card
+      - entity: script.play_thunder_sounds
+        icon: mdi:lightning-bolt
+        icon_color: yellow
+        primary: Play Thunder Sounds
+        secondary: ''
+        tap_action:
+          action: toggle
+        type: custom:mushroom-template-card
+      - entity: script.play_night_sounds
+        icon: mdi:weather-night
+        icon_color: black
+        primary: Play Night Sounds
+        secondary: ''
+        tap_action:
+          action: toggle
+        type: custom:mushroom-template-card
+      - entity: script.play_river_sounds
+        icon: mdi:waves
+        icon_color: light-blue
+        primary: Play River Sounds
+        secondary: ''
+        tap_action:
+          action: toggle
+        type: custom:mushroom-template-card
+      - entity: script.play_forest_sounds
+        icon: mdi:forest-outline
+        icon_color: green
+        primary: Play Forest Sounds
+        secondary: ''
+        tap_action:
+          action: toggle
+        type: custom:mushroom-template-card
+      - entity: script.play_white_noise
+        icon: mdi:wave
+        icon_color: grey
+        primary: Play White Noise
+        secondary: ''
+        tap_action:
+          action: toggle
+        type: custom:mushroom-template-card
+      type: custom:stack-in-card
+    type: vertical-stack
+  - cards:
+    - back_open: true
+      bg_blur: 50
+      card_type: pop-up
+      close_on_click: true
+      hash: '#moon'
+      margin: 18px
+      margin_top_mobile: 00px
+      type: custom:bubble-card
+    - entity: sensor.moon_phase
+      layout: icon_state
+      show_entity_picture: true
+      show_name: false
+      show_state: true
+      size: 80%
+      styles:
+        card:
+        - border-radius: 50px
+        state:
+        - justify-self: center
+        - font-size: 20px
+        - font-weight: bold
+      type: custom:button-card
+    type: vertical-stack
+  - cards:
+    - back_open: true
+      bg_blur: 50
+      card_type: pop-up
+      close_on_click: true
+      hash: '#weather'
+      margin: 18px
+      margin_top_mobile: 00px
+      type: custom:bubble-card
+    - cards:
+      - backdrop: true
+        entity: weather.home
+        name: ' '
+        secondary_info:
+        - precipitation_probability
+        type: custom:simple-weather-card
+      - current: false
+        details: true
+        entity: weather.home_hourly
+        forecast: true
+        hourly_forecast: true
+        number_of_forecasts: '7'
+        type: custom:weather-card
+      type: vertical-stack
+    type: vertical-stack
   icon: mdi:castle
   layout:
     max_cols: 3
@@ -1045,6 +1135,49 @@ views:
   visible:
   - user: 74f7e2ffd3594037b1a2fc4de82d9fea
   - user: 5e94cdd892054937b560071ed6662cb8
+- badges: []
+  cards:
+  - artwork: full-cover
+    entity: media_player.darragh_s_nest_hub
+    type: custom:mini-media-player
+  - card:
+      cards:
+      - content: "The temperature in Mug is **{{states.sensor.mug_current_temp.state\
+          \ | round (0)}}\xB0C** and it is {% if is_state('sensor.mug_state', 'heating')\
+          \ %}  heating to {{ states.number.mug_target_temp.state }}\xB0C {% elif\
+          \ is_state('sensor.mug_state', 'cooling') %} cooling to {{ states.number.mug_target_temp.state\
+          \ }}\xB0C\n{% elif is_state('sensor.mug_state', 'perfect') %} perfect {%\
+          \ elif is_state('sensor.mug_state', 'empty') %} empty. {% endif %}\n<br>\n\
+          The battery is at <b>{{states.sensor.mug_battery_percent.state| round (0)}}%</b>\
+          \ and the mug is {{'Charging' if is_state('binary_sensor.mug_power', 'on')\
+          \ else 'Not Charging' }}"
+        type: markdown
+      - display_mode: buttons
+        entity: number.mug_target_temp
+        name: Target Temperature
+        primary_info: state
+        secondary_info: name
+        type: custom:mushroom-number-card
+      - collapsible_controls: true
+        entity: light.ember_mug_e0db3bb2024c_led
+        fill_container: true
+        icon: mdi:coffee
+        name: Mug Light
+        show_brightness_control: false
+        show_color_control: true
+        type: custom:mushroom-light-card
+        use_light_color: true
+      type: vertical-stack
+    conditions:
+    - condition: state
+      entity: sensor.mug_state
+      state_not: unavailable
+    type: conditional
+  icon: mdi:face-man
+  path: darragh
+  title: Darragh
+  visible:
+  - user: 03fac29e97844166b40187a8b4c09ded
 - badges: []
   cards:
   - cards:
@@ -1079,122 +1212,129 @@ views:
       multiline_secondary: false
       primary: Heater
       secondary: Turned {{states.switch.heater.state}} at {{(as_timestamp(states.switch.heater.last_changed)
-        | timestamp_custom('%-I:%M %p'))}}
+        | timestamp_custom('%-I:%M %p'))}} | {{states.sensor.heater_power.state}}
+        W
       type: custom:mushroom-template-card
-    - entity: switch.heater
-      hide_state: false
-      state_content:
-      - state
-      - last-changed
-      - current_consumption
-      type: tile
-      vertical: false
+    - entity: switch.heating_blanket
+      tap_action:
+        action: toggle
+      type: custom:mushroom-entity-card
     type: vertical-stack
     view_layout:
       column: 1
   - cards:
     - entity: media_player.samsung_tv
       type: custom:mushroom-media-player-card
-    - button_style:
-        color: var(--secondary-text-color)
-      custom_keys:
-        back:
-          data:
-            command: KEY_RETURN
-          service: remote.send_command
-          target:
-            entity_id: remote.samsung_tv
-        center:
-          data:
-            command: KEY_ENTER
-          service: remote.send_command
-          target:
-            entity_id: remote.samsung_tv
-        channel_down:
-          data:
-            command: KEY_CHDOWN
-          target:
-            entity_id: remote.samsung_tv
-        channel_up:
-          data:
-            command: KEY_CHUP
-          target:
-            entity_id: remote.samsung_tv
-        down:
-          data:
-            command: KEY_DOWN
-          service: remote.send_command
-          target:
-            entity_id: remote.samsung_tv
-        home:
-          data:
-            command: KEY_HOME
-          service: remote.send_command
-          target:
-            entity_id: remote.samsung_tv
-        left:
-          data:
-            command: KEY_LEFT
-          service: remote.send_command
-          target:
-            entity_id: remote.samsung_tv
-        mute:
-          data:
-            command: KEY_MUTE
-          icon: mdi:volume-mute
-          target:
-            entity_id: remote.samsung_tv
-        power:
-          data: {}
-          icon: mdi:power
-          service: media_player.turn_on
-          style:
-            color: green
-          target:
-            entity_id: media_player.samsung_tv
-        power_off:
-          data: {}
-          icon: mdi:minus-circle-outline
-          service: media_player.turn_off
-          style:
-            --size: 35px
-            color: crimson
-          target:
-            entity_id: media_player.samsung_tv
-        right:
-          data:
-            command: KEY_RIGHT
-          service: remote.send_command
-          target:
-            entity_id: remote.samsung_tv
-        up:
-          data:
-            command: KEY_UP
-          service: remote.send_command
-          target:
-            entity_id: remote.samsung_tv
-      media_player_id: media_player.samsung_tv
-      rows:
-      - - power
-        - power_off
-      - - volume_slider
-        - mute
-      - - - channel_up
-          - null
-          - channel_down
-        - dpad
-        - - home
-          - null
-          - back
-      slider_style:
-        --background-height: 8px
-        --border-radius: 45px
-        --color: dodgerblue
-        height: 10px
-      type: custom:android-tv-card
+    - card:
+        button_style:
+          color: var(--secondary-text-color)
+        custom_keys:
+          back:
+            data:
+              command: KEY_RETURN
+            service: remote.send_command
+            target:
+              entity_id: remote.samsung_tv
+          center:
+            data:
+              command: KEY_ENTER
+            service: remote.send_command
+            target:
+              entity_id: remote.samsung_tv
+          channel_down:
+            data:
+              command: KEY_CHDOWN
+            target:
+              entity_id: remote.samsung_tv
+          channel_up:
+            data:
+              command: KEY_CHUP
+            target:
+              entity_id: remote.samsung_tv
+          down:
+            data:
+              command: KEY_DOWN
+            service: remote.send_command
+            target:
+              entity_id: remote.samsung_tv
+          home:
+            data:
+              command: KEY_HOME
+            service: remote.send_command
+            target:
+              entity_id: remote.samsung_tv
+          left:
+            data:
+              command: KEY_LEFT
+            service: remote.send_command
+            target:
+              entity_id: remote.samsung_tv
+          mute:
+            data:
+              command: KEY_MUTE
+            icon: mdi:volume-mute
+            target:
+              entity_id: remote.samsung_tv
+          power:
+            data: {}
+            icon: mdi:power
+            service: media_player.turn_on
+            style:
+              color: green
+            target:
+              entity_id: media_player.samsung_tv
+          power_off:
+            data: {}
+            icon: mdi:minus-circle-outline
+            service: media_player.turn_off
+            style:
+              --size: 35px
+              color: crimson
+            target:
+              entity_id: media_player.samsung_tv
+          right:
+            data:
+              command: KEY_RIGHT
+            service: remote.send_command
+            target:
+              entity_id: remote.samsung_tv
+          up:
+            data:
+              command: KEY_UP
+            service: remote.send_command
+            target:
+              entity_id: remote.samsung_tv
+        media_player_id: media_player.samsung_tv
+        rows:
+        - - power
+          - power_off
+        - - volume_slider
+          - mute
+        - - - channel_up
+            - null
+            - channel_down
+          - dpad
+          - - home
+            - null
+            - back
+        slider_style:
+          --background-height: 8px
+          --border-radius: 45px
+          --color: dodgerblue
+          height: 10px
+        type: custom:android-tv-card
+      conditions:
+      - condition: state
+        entity: media_player.samsung_tv
+        state: 'on'
+      type: conditional
     type: vertical-stack
     view_layout:
       column: 2
+  - artwork: full-cover
+    entity: media_player.hilary_s_nest_hub
+    toggle_power: true
+    type: custom:mini-media-player
   icon: mdi:face-woman-profile
   path: hilary
   title: Hilary
@@ -1239,9 +1379,14 @@ views:
       alignment: center
       chips:
       - content_info: name
-        entity: binary_sensor.living_room_motion_occupancy
+        entity: binary_sensor.porch_motion_occupancy
         icon_color: deep-orange
-        name: Living Room
+        name: Porch
+        type: entity
+      - content_info: name
+        entity: binary_sensor.hallway_motion_occupancy
+        icon_color: teal
+        name: Hallway
         type: entity
       - content_info: name
         entity: binary_sensor.living_room_presence
@@ -1252,11 +1397,6 @@ views:
         entity: binary_sensor.kitchen_presence
         icon_color: teal
         name: Kitchen
-        type: entity
-      - content_info: name
-        entity: binary_sensor.entrance_motion_occupancy
-        icon_color: teal
-        name: Entrance
         type: entity
       - entity: sensor.living_room_temperature
         icon_color: blue
@@ -1725,7 +1865,8 @@ views:
       icon: mdi:dome-light
       icon_color: '{{ iif(is_state(''switch.kitchen_light'', ''on''), ''lime'', ''disabled'')}}'
       primary: Kitchen Light
-      secondary: '{{ states.switch.kitchen_light.state}}'
+      secondary: Turned {{states.switch.kitchen_light.state}} at {{(as_timestamp(states.switch.kitchen_light.last_changed)
+        |timestamp_custom('%-I:%M %p'))}}
       type: custom:mushroom-template-card
     - cards:
       - badge_icon: ''
@@ -1735,7 +1876,8 @@ views:
         icon_color: '{{ iif(is_state(''switch.backyard_lights_socket_1'', ''on''),
           ''deep-orange'', ''disabled'')}}'
         primary: Backyard Lights
-        secondary: '{{ states.switch.backyard_lights_socket_1.state}}'
+        secondary: Turned {{states.switch.backyard_lights_socket_1.state}} at {{(as_timestamp(states.switch.backyard_lights_socket_1.last_changed)
+          |timestamp_custom('%-I:%M %p'))}}
         type: custom:mushroom-template-card
       - badge_icon: ''
         entity: switch.alleyway_lights
@@ -1743,7 +1885,8 @@ views:
         icon_color: '{{ iif(is_state(''switch.alleyway_lights'', ''on''), ''yellow'',
           ''disabled'')}}'
         primary: Alleyway Lights
-        secondary: '{{ states.switch.alleyway_lights.state}}'
+        secondary: Turned {{states.switch.alleyway_lights.state}} at {{(as_timestamp(states.switch.alleyway_lights.last_changed)
+          |timestamp_custom('%-I:%M %p'))}}
         type: custom:mushroom-template-card
       type: horizontal-stack
     - entity: automation.kitchen_light_presence
@@ -1783,6 +1926,7 @@ views:
     - collapsible_controls: true
       entity: light.living_room_lamp
       name: Lamp
+      secondary_info: last-changed
       show_brightness_control: true
       show_color_control: true
       show_color_temp_control: true
@@ -1792,11 +1936,13 @@ views:
       entity: light.chandelier
       icon: mdi:chandelier
       name: Chandelier
+      secondary_info: last-changed
       show_brightness_control: true
       type: custom:mushroom-light-card
     - collapsible_controls: true
       entity: light.led_strip
       icon: mdi:led-strip-variant
+      secondary_info: last-changed
       show_brightness_control: true
       show_color_control: true
       type: custom:mushroom-light-card
@@ -1836,7 +1982,7 @@ views:
       entity: media_player.google_tv
       fill_container: true
       hold_action:
-        action: toggle
+        action: more-info
       icon: ''
       media_controls: []
       name: Google TV
@@ -1844,7 +1990,7 @@ views:
       secondary_info: name
       show_volume_level: true
       tap_action:
-        action: none
+        action: more-info
       type: custom:mushroom-media-player-card
       use_media_info: true
       volume_controls: []
@@ -1954,7 +2100,7 @@ views:
                 template: logo_button
                 type: custom:button-card
               - entity: media_player.google_tv
-                entity_picture: /local/f1/F1.png
+                entity_picture: /local/icons/F1.png
                 tap_action:
                   service: media_player.select_source
                   service_data:
@@ -1987,7 +2133,8 @@ views:
             - - back
               - keyboard
               - null
-            - - navigation_touchpad
+            - - '{{ "navigation_buttons" if match_media("(min-width: 768px)") else
+                "navigation_touchpad" }}'
               - - captions
                 - null
                 - audio_track
@@ -2009,6 +2156,22 @@ views:
       type: conditional
     - collapsible_controls: true
       entity: media_player.nest_mini
+      fill_container: false
+      media_controls:
+      - play_pause_stop
+      - next
+      - previous
+      - shuffle
+      - repeat
+      show_volume_level: true
+      type: custom:mushroom-media-player-card
+      use_media_info: true
+      volume_controls:
+      - volume_mute
+      - volume_set
+      - volume_buttons
+    - collapsible_controls: true
+      entity: media_player.clock
       fill_container: false
       media_controls:
       - play_pause_stop
@@ -2084,16 +2247,15 @@ views:
       type: custom:mushroom-template-card
     - badge_color: ''
       badge_icon: ''
-      entity: switch.entrance_light
-      icon: '{{ iif(is_state(''switch.entrance_light'', ''on''), ''mdi:lightbulb-on'',
+      entity: switch.porch_light
+      icon: '{{ iif(is_state(''switch.porch_light'', ''on''), ''mdi:lightbulb-on'',
         ''mdi:lightbulb-off-outline'')}}'
-      icon_color: '{{ iif(is_state(''switch.entrance_light'', ''on''), ''yellow'',
-        ''disabled'')}}'
+      icon_color: '{{ iif(is_state(''switch.porch_light'', ''on''), ''yellow'', ''disabled'')}}'
       picture: ''
-      primary: Entrance Light
-      secondary: 'Turned {{states.switch.entrance_light.state}} at
+      primary: Porch Light
+      secondary: 'Turned {{states.switch.porch_light.state}} at
 
-        {{(as_timestamp(states.switch.entrance_light.last_changed) |
+        {{(as_timestamp(states.switch.porch_light.last_changed) |
 
         timestamp_custom(''%-I:%M %p''))}}'
       type: custom:mushroom-template-card
@@ -2160,17 +2322,20 @@ views:
           action: navigate
           navigation_path: /lovelace/living-room?anchor=home
         type: template
-      - content: "{% if states('input_button.bin_outside') | as_datetime > (now()\
-          \ - timedelta(hours=4)) %}\n  Bin Outside!\n{% else %}\n  Bin Outside?\n\
+      - content: "{% if states.input_button.bin_outside.last_updated.timestamp() >\
+          \ (as_timestamp(now()) - 14400) %}\n  Bin Outside!\n{% else %}\n  Bin Outside?\n\
           {% endif %}"
         entity: input_button.bin_outside
-        icon: "{% if states('input_button.bin_outside') | as_datetime > (now() - timedelta(hours=4))\
-          \ %}\n  fas:trash-can-arrow-up\n{% else %}\n  fas:trash-can\n{% endif %}"
-        icon_color: "{% if states('input_button.bin_outside') | as_datetime > (now()\
-          \ - timedelta(hours=4)) %}\n  {% if state_attr(\"sensor.black_bin\", \"\
-          next_collection\") == 1 %}black{% elif state_attr(\"sensor.blue_bin\", \"\
-          next_collection\") == 1 %}blue{% else %}disabled{% endif %}\n{% else %}\n\
-          \  disabled\n{% endif %}"
+        hold_action:
+          action: more-info
+        icon: "{% if states.input_button.bin_outside.last_updated.timestamp() > (as_timestamp(now())\
+          \ - 14400) %}\n  fas:trash-can-arrow-up\n{% else %}\n  fas:trash-can\n{%\
+          \ endif %}"
+        icon_color: "{% if states.input_button.bin_outside.last_updated.timestamp()\
+          \ > (as_timestamp(now()) - 14400) %}\n  {% if state_attr(\"sensor.black_bin\"\
+          , \"next_collection\") == 1 %}black{% elif state_attr(\"sensor.blue_bin\"\
+          , \"next_collection\") == 1 %}blue{% else %}disabled{% endif %}\n{% else\
+          \ %}\n  disabled\n{% endif %}"
         picture: ''
         tap_action:
           action: toggle
@@ -2388,30 +2553,57 @@ views:
           action: none
         type: custom:mushroom-template-card
       type: horizontal-stack
-    - cards:
-      - entity: sensor.bob_duration
-        icon: mdi:timer-play
-        icon_color: deep-orange
-        name: Duration
-        primary_info: state
-        secondary_info: name
-        type: custom:mushroom-entity-card
-      - entity: sensor.bob_remaining
-        fill_container: true
+    - card:
+        bar_background: '#111'
+        bar_height: 10px
+        bar_radius: 20px
+        entities:
+        - active_state: device_state_running
+          duration:
+            entity: sensor.bob_duration
+            units: minutes
+          entity: sensor.bob_state
+          remaining:
+            entity: sensor.bob_remaining
+            units: minutes
         icon: mdi:timer-refresh
-        icon_color: purple
-        layout: horizontal
-        name: Remaining
-        primary_info: state
-        secondary_info: name
-        type: custom:mushroom-entity-card
-      type: horizontal-stack
+        layout: hide_name
+        modifications:
+        - bar_foreground: '#FF6666'
+          elapsed: 10%
+        - bar_foreground: '#FFD700'
+          elapsed: 20%
+        - bar_foreground: '#FFFF66'
+          elapsed: 30%
+        - bar_foreground: '#B0E0E6'
+          elapsed: 40%
+        - bar_foreground: '#98FB98'
+          elapsed: 50%
+        - bar_foreground: '#00FF00'
+          elapsed: 60%
+        - bar_foreground: '#7FFF00'
+          elapsed: 70%
+        - bar_foreground: '#87CEEB'
+          elapsed: 80%
+        - bar_foreground: '#87CEFA'
+          elapsed: 90%
+        - bar_foreground: '#00FF00'
+          elapsed: 100%
+        text_width: 50px
+        type: custom:timer-bar-card
+      conditions:
+      - condition: state
+        entity: sensor.bob_state
+        state_not: device_state_off
+      - condition: state
+        entity: sensor.bob_state
+        state_not: device_state_on
+      type: conditional
     type: vertical-stack
   icon: mdi:washing-machine
   layout: {}
   path: utilities
   title: Utilities
-  type: panel
 - badges: []
   cards:
   - cards:
@@ -2487,29 +2679,139 @@ views:
     type: custom:auto-entities
     view_layout:
       column: 1
-  - card:
-      icon: phu:sonarr
-      show_header_toggle: false
-      state_color: false
-      title: Sonarr
-      type: entities
-    filter:
-      exclude:
-      - state: unavailable
-      include:
-      - name: Sonarr
-        type: weblink
-        url: http://homeassistant.local:8989/
-      - name: /[Ss]onarr/
-    show_empty: false
-    sort:
-      ignore_case: false
-      method: domain
-      numeric: false
-      reverse: false
-    type: custom:auto-entities
-    view_layout:
-      column: 1
+  - cards:
+    - double_tap_action:
+        action: none
+      hold_action:
+        action: none
+      picture: https://cdn.jsdelivr.net/gh/loganmarchione/homelab-svg-assets@0.3.2/assets/sonarr.svg
+      primary: Sonarr
+      secondary: ''
+      tap_action:
+        action: url
+        url_path: http://homeassistant.local:8989/
+      type: custom:mushroom-template-card
+    - double_tap_action:
+        action: none
+      hold_action:
+        action: none
+      picture: https://cdn.jsdelivr.net/gh/loganmarchione/homelab-svg-assets@0.3.2/assets/radarr.svg
+      primary: Radarr
+      secondary: ''
+      tap_action:
+        action: url
+        url_path: http://homeassistant.local:7878/
+      type: custom:mushroom-template-card
+    - double_tap_action:
+        action: none
+      hold_action:
+        action: none
+      icon: ''
+      picture: https://cdn.jsdelivr.net/gh/loganmarchione/homelab-svg-assets@0.3.2/assets/prowlarr.svg
+      primary: Prowlarr
+      secondary: ''
+      tap_action:
+        action: url
+        url_path: http://homeassistant.local:9696/
+      type: custom:mushroom-template-card
+    - double_tap_action:
+        action: none
+      hold_action:
+        action: none
+      icon: ''
+      picture: https://cdn.jsdelivr.net/gh/loganmarchione/homelab-svg-assets@0.3.2/assets/bazarr.svg
+      primary: Bazaar
+      secondary: ''
+      tap_action:
+        action: url
+        url_path: http://homeassistant.local:6767/
+      type: custom:mushroom-template-card
+    - double_tap_action:
+        action: none
+      hold_action:
+        action: none
+      icon: ''
+      picture: https://static-00.iconduck.com/assets.00/plex-icon-512x512-mi6sd8ol.png
+      primary: Plex
+      secondary: ''
+      tap_action:
+        action: url
+        url_path: http://homeassistant.local:32400/web/index.html#!/
+      type: custom:mushroom-template-card
+    - double_tap_action:
+        action: none
+      hold_action:
+        action: none
+      picture: https://tautulli.com/images/logo-circle.png
+      primary: Tautulli
+      secondary: ''
+      tap_action:
+        action: url
+        url_path: http://homeassistant.local:8181/
+      type: custom:mushroom-template-card
+    - double_tap_action:
+        action: none
+      hold_action:
+        action: none
+      icon: ''
+      picture: https://cdn.jsdelivr.net/gh/loganmarchione/homelab-svg-assets@0.3.2/assets/syncthing.svg
+      primary: Syncthing
+      secondary: ''
+      tap_action:
+        action: url
+        url_path: http://homeassistant.local:8384/
+      type: custom:mushroom-template-card
+    - double_tap_action:
+        action: none
+      hold_action:
+        action: none
+      icon: ''
+      picture: https://cdn.jsdelivr.net/gh/loganmarchione/homelab-svg-assets@0.3.2/assets/portainer.svg
+      primary: Portainer
+      secondary: ''
+      tap_action:
+        action: url
+        url_path: http://homeassistant.local:9000/
+      type: custom:mushroom-template-card
+    - double_tap_action:
+        action: none
+      hold_action:
+        action: none
+      icon: ''
+      picture: https://cdn.jsdelivr.net/gh/loganmarchione/homelab-svg-assets@0.3.2/assets/filebrowser.svg
+      primary: File Browser
+      secondary: ''
+      tap_action:
+        action: url
+        url_path: http://homeassistant.local:8081/
+      type: custom:mushroom-template-card
+    - double_tap_action:
+        action: none
+      hold_action:
+        action: none
+      icon: ''
+      picture: https://cdn.jsdelivr.net/gh/loganmarchione/homelab-svg-assets@0.3.2/assets/transmission.svg
+      primary: Transmission
+      secondary: ''
+      tap_action:
+        action: url
+        url_path: http://homeassistant.local:9091/
+      type: custom:mushroom-template-card
+    - double_tap_action:
+        action: none
+      hold_action:
+        action: none
+      icon: ''
+      picture: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg/your-spotify.svg
+      primary: My Spotify
+      secondary: ''
+      tap_action:
+        action: url
+        url_path: http://homeassistant.local:3000/
+      type: custom:mushroom-template-card
+    columns: 2
+    square: false
+    type: grid
   - cards:
     - double_tap_action:
         action: none
@@ -2527,10 +2829,9 @@ views:
         target: {}
       type: custom:mushroom-template-card
     - cards:
-      - aspect_ratio: 1/1
+      - aspect_ratio: 2/1
         entity_picture: /local/icons/movie.png
         show_entity_picture: true
-        size: 60%
         tap_action:
           action: call-service
           service: plex.refresh_library
@@ -2538,10 +2839,9 @@ views:
             library_name: Movies
             server_name: Plex Media Server
         type: custom:button-card
-      - aspect_ratio: 1/1
+      - aspect_ratio: 2/1
         entity_picture: /local/icons/music.png
         show_entity_picture: true
-        size: 60%
         tap_action:
           action: call-service
           service: plex.refresh_library
@@ -2549,29 +2849,15 @@ views:
             library_name: Music
             server_name: Plex Media Server
         type: custom:button-card
-      - aspect_ratio: 1/1
+      - aspect_ratio: 2/1
         entity_picture: /local/icons/tvshow.png
         show_entity_picture: true
-        size: 60%
         tap_action:
           action: call-service
           service: plex.refresh_library
           service_data:
             library_name: TV Shows
             server_name: Plex Media Server
-        type: custom:button-card
-      - aspect_ratio: 1/1
-        color: dodgerblue
-        confirmation:
-          text: '[[[ return `Are you sure you want to toggle ${entity.attributes.friendly_name}?`
-            ]]]'
-        entity: switch.docker_plex
-        icon: mdi:docker
-        name: Docker
-        show_state: false
-        size: 60%
-        tap_action:
-          action: toggle
         type: custom:button-card
       type: horizontal-stack
     - card:
@@ -2582,9 +2868,7 @@ views:
         - entity_id: '*refresh*'
         - entity_id: switch.docker_plex
         include:
-        - name: Plex Media Server
-          type: weblink
-          url: http://homeassistant.local:32400/web/index.html#!/
+        - type: ''
         - name: /[Pp]lex/
       show_empty: false
       sort:
@@ -2598,22 +2882,6 @@ views:
   - card:
       all_shadows: false
       date: ddmm
-      entity: sensor.recently_added_movies
-      flag: false
-      image_style: fanart
-      max: 3
-      title: Recently Added Movies
-      type: custom:upcoming-media-card
-    conditions:
-    - condition: state
-      entity: binary_sensor.plex_movies
-      state: 'on'
-    type: conditional
-    view_layout:
-      column: 3
-  - card:
-      all_shadows: false
-      date: ddmm
       entity: sensor.recently_added_tv
       flag: false
       image_style: fanart
@@ -2623,6 +2891,22 @@ views:
     conditions:
     - condition: state
       entity: binary_sensor.plex_tv_shows
+      state: 'on'
+    type: conditional
+    view_layout:
+      column: 3
+  - card:
+      all_shadows: false
+      date: ddmm
+      entity: sensor.recently_added_movies
+      flag: false
+      image_style: fanart
+      max: 3
+      title: Recently Added Movies
+      type: custom:upcoming-media-card
+    conditions:
+    - condition: state
+      entity: binary_sensor.plex_movies
       state: 'on'
     type: conditional
     view_layout:
@@ -2669,7 +2953,7 @@ views:
                 primary_info: state
                 secondary_info: name
                 type: custom:mushroom-entity-card
-              - entity: sensor.system_bridge_cpu_speed
+              - entity: sensor.homeassistant_cpu_speed
                 icon_color: grey
                 name: CPU Speed
                 primary_info: state
@@ -2715,7 +2999,7 @@ views:
           primary_info: state
           secondary_info: name
           type: custom:mushroom-entity-card
-        - entity: sensor.system_bridge_boot_time
+        - entity: sensor.homeassistant_boot_time
           icon: mdi:clock
           name: Last Boot
           primary_info: state
@@ -2729,27 +3013,39 @@ views:
   - cards:
     - alignment: center
       chips:
-      - content: Speed Test
-        icon: mdi:speedometer
-        icon_color: green
+      - content: Internet Speed
+        icon: "{% set speed = states('sensor.speedtest_download') | round %}\n{% if\
+          \ speed < 100 %}\n  mdi:speedometer-slow\n{% elif 100 <= speed <= 300 %}\n\
+          \  mdi:speedometer-medium\n{% else %}\n  mdi:speedometer\n{% endif %}"
+        icon_color: "{% set speed = states('sensor.speedtest_download') | round %}\n\
+          {% if speed < 100 %}\n  red\n{% elif 100 <= speed <= 300 %}\n  orange\n\
+          {% else %}\n  green\n{% endif %}"
         type: template
       type: custom:mushroom-chips-card
     - cards:
-      - icon: mdi:download
-        icon_color: red
+      - entity: sensor.speedtest_download
+        hold_action:
+          action: more-info
+        icon: mdi:download
+        icon_color: "{% set speed = states('sensor.speedtest_download') | round %}\n\
+          {% if speed < 100 %}\n  red\n{% elif 100 <= speed <= 300 %}\n  yellow\n\
+          {% else %}\n  green\n{% endif %}"
         primary: '{{states.sensor.speedtest_download.state | round }} Mbps'
         secondary: Download Speed
         tap_action:
           action: call-service
-          service: homeassistant.reload_config_entry
-          target:
-            entity_id:
-            - sensor.speedtest_download
-            - sensor.speedtest_upload
-            - sensor.speedtest_ping
+          data:
+            addon: 6b87c29e_speedtest_addon
+          service: hassio.addon_start
+          target: {}
         type: custom:mushroom-template-card
-      - icon: mdi:upload
-        icon_color: orange
+      - entity: sensor.speedtest_upload
+        hold_action:
+          action: more-info
+        icon: mdi:upload
+        icon_color: "{% set speed = states('sensor.speedtest_upload') | round %}\n\
+          {% if speed < 10 %}\n  red\n{% elif 10 <= speed <= 30 %}\n  yellow\n{% else\
+          \ %}\n  green\n{% endif %}"
         primary: '{{states.sensor.speedtest_upload.state | round }} Mbps'
         secondary: Upload Speed
         type: custom:mushroom-template-card
@@ -2757,15 +3053,20 @@ views:
     - alignment: center
       chips:
       - content: Ping
-        icon: mdi:lan-pending
-        icon_color: blue
+        icon: "{% if is_state('binary_sensor.192_168_68_1', 'off') or is_state('binary_sensor.8_8_8_8',\
+          \ 'off') %}\n  mdi:lan-disconnect\n{% else %}\n  mdi:lan-connect\n{% endif\
+          \ %}"
+        icon_color: "{% if is_state('binary_sensor.192_168_68_1', 'off') or is_state('binary_sensor.8_8_8_8',\
+          \ 'off') %}\n  red\n{% else %}\n  blue\n{% endif %}"
         type: template
       type: custom:mushroom-chips-card
     - cards:
       - entity: binary_sensor.192_168_68_1
+        icon_color: blue
         name: Deco
         type: custom:mushroom-entity-card
-      - entity: binary_sensor.www_google_com
+      - entity: binary_sensor.8_8_8_8
+        icon_color: blue
         name: Google
         type: custom:mushroom-entity-card
       type: horizontal-stack
@@ -2773,67 +3074,9 @@ views:
   - cards:
     - alignment: center
       chips:
-      - content: Syncthing
-        icon: mdi:sync
-        icon_color: green
-        type: template
-      type: custom:mushroom-chips-card
-    - double_tap_action:
-        action: none
-      entity: sensor.syncthing_whatsapp
-      hold_action:
-        action: more-info
-      icon: "{% if states('sensor.syncthing_whatsapp') == 'syncing' %}\n  mdi:folder-sync\n\
-        {% elif states('sensor.syncthing_whatsapp') == 'idle' %}\n  mdi:folder-check\n\
-        {% elif states('sensor.syncthing_whatsapp') == 'paused' %}\n  mdi:folder-clock\n\
-        {% endif %}\n"
-      icon_color: "{% if states('sensor.syncthing_whatsapp') == 'syncing' %}\n  yellow\n\
-        {% elif states('sensor.syncthing_whatsapp') == 'idle' %}\n  green\n{% elif\
-        \ states('sensor.syncthing_whatsapp') == 'paused' %}\n  grey\n{% endif %}\n"
-      multiline_secondary: true
-      primary: Syncthing WhatsApp
-      secondary: 'Files - {{states.sensor.syncthing_whatsapp.attributes.global_files}}
-
-        Local Files - {{states.sensor.syncthing_whatsapp.attributes.local_files}}
-
-        Size - {{ (states.sensor.syncthing_whatsapp.attributes.local_bytes | float
-        / 1024 / 1024 / 1024)  | round(2) }} GB
-
-        '
-      tap_action:
-        action: none
-      type: custom:mushroom-template-card
-    - double_tap_action:
-        action: none
-      entity: sensor.syncthing_camera
-      hold_action:
-        action: more-info
-      icon: "{% if states('sensor.syncthing_camera') == 'syncing' %}\n  mdi:folder-sync\n\
-        {% elif states('sensor.syncthing_camera') == 'idle' %}\n  mdi:folder-check\n\
-        {% endif %}\n"
-      icon_color: "{% if states('sensor.syncthing_camera') == 'syncing' %}\n  yellow\n\
-        {% elif states('sensor.syncthing_camera') == 'idle' %}\n  green\n{% endif\
-        \ %}\n"
-      multiline_secondary: true
-      primary: Syncthing Camera
-      secondary: 'Files - {{states.sensor.syncthing_camera.attributes.global_files}}
-
-        Local Files - {{states.sensor.syncthing_camera.attributes.local_files}}
-
-        Size - {{ (states.sensor.syncthing_camera.attributes.local_bytes | float /
-        1024 / 1024 / 1024)  | round(2) }} GB
-
-        '
-      tap_action:
-        action: none
-      type: custom:mushroom-template-card
-    type: vertical-stack
-  - cards:
-    - alignment: center
-      chips:
       - content: Storage
         icon: mdi:memory
-        icon_color: red
+        icon_color: blue-grey
         type: template
       type: custom:mushroom-chips-card
     - entity: sensor.database_size
@@ -2860,11 +3103,11 @@ views:
       secondary: Google Drive Backup Size
       type: custom:mushroom-template-card
     - double_tap_action:
-        action: url
-        url_path: /hassio/backups
+        action: navigate
+        navigation_path: /hassio/backups
       entity: sensor.backup_state
       fill_container: false
-      icon: si:homeassistant
+      icon: mdi:home-assistant
       icon_color: blue
       multiline_secondary: false
       primary: '{{states.sensor.backup_state.attributes.size_in_home_assistant}}'
@@ -2979,6 +3222,64 @@ views:
   - cards:
     - alignment: center
       chips:
+      - content: Syncthing
+        icon: mdi:sync
+        icon_color: blue
+        type: template
+      type: custom:mushroom-chips-card
+    - double_tap_action:
+        action: none
+      entity: sensor.syncthing_whatsapp
+      hold_action:
+        action: more-info
+      icon: "{% if states('sensor.syncthing_whatsapp') == 'syncing' %}\n  mdi:folder-sync\n\
+        {% elif states('sensor.syncthing_whatsapp') == 'idle' %}\n  mdi:folder-check\n\
+        {% elif states('sensor.syncthing_whatsapp') == 'paused' %}\n  mdi:folder-clock\n\
+        {% endif %}\n"
+      icon_color: "{% if states('sensor.syncthing_whatsapp') == 'syncing' %}\n  yellow\n\
+        {% elif states('sensor.syncthing_whatsapp') == 'idle' %}\n  green\n{% elif\
+        \ states('sensor.syncthing_whatsapp') == 'paused' %}\n  grey\n{% endif %}\n"
+      multiline_secondary: true
+      primary: Syncthing WhatsApp
+      secondary: 'Files - {{states.sensor.syncthing_whatsapp.attributes.global_files}}
+
+        Local Files - {{states.sensor.syncthing_whatsapp.attributes.local_files}}
+
+        Size - {{ (states.sensor.syncthing_whatsapp.attributes.local_bytes | float
+        / 1024 / 1024 / 1024)  | round(2) }} GB
+
+        '
+      tap_action:
+        action: none
+      type: custom:mushroom-template-card
+    - double_tap_action:
+        action: none
+      entity: sensor.syncthing_camera
+      hold_action:
+        action: more-info
+      icon: "{% if states('sensor.syncthing_camera') == 'syncing' %}\n  mdi:folder-sync\n\
+        {% elif states('sensor.syncthing_camera') == 'idle' %}\n  mdi:folder-check\n\
+        {% endif %}\n"
+      icon_color: "{% if states('sensor.syncthing_camera') == 'syncing' %}\n  yellow\n\
+        {% elif states('sensor.syncthing_camera') == 'idle' %}\n  green\n{% endif\
+        \ %}\n"
+      multiline_secondary: true
+      primary: Syncthing Camera
+      secondary: 'Files - {{states.sensor.syncthing_camera.attributes.global_files}}
+
+        Local Files - {{states.sensor.syncthing_camera.attributes.local_files}}
+
+        Size - {{ (states.sensor.syncthing_camera.attributes.local_bytes | float /
+        1024 / 1024 / 1024)  | round(2) }} GB
+
+        '
+      tap_action:
+        action: none
+      type: custom:mushroom-template-card
+    type: vertical-stack
+  - cards:
+    - alignment: center
+      chips:
       - content: Git
         icon: mdi:github
         icon_color: white
@@ -3049,6 +3350,7 @@ views:
   title: System Monitor
   visible:
   - user: 74f7e2ffd3594037b1a2fc4de82d9fea
+  - user: 03fac29e97844166b40187a8b4c09ded
 - badges: []
   cards:
   - cards:
@@ -3162,79 +3464,8 @@ views:
         - grid-template-columns: 2fr 1fr
         - grid-template-rows: 1fr min-content min-content min-content min-content
       tap_action:
-        action: fire-dom-event
-        browser_mod:
-          data:
-            browser_id: THIS
-            content:
-              cards:
-              - card_mod:
-                  class: content
-                entities:
-                - entity: person.darragh_clerkin
-                  secondary_info: last-changed
-                type: entities
-              - entities:
-                - entity: person.darragh_clerkin
-                  name: ' '
-                type: history-graph
-              - cards:
-                - entity: sensor.op7t_battery_level
-                  fill_container: true
-                  icon_color: green
-                  layout: vertical
-                  name: Battery
-                  type: custom:mushroom-entity-card
-                - entity: binary_sensor.op7t_is_charging
-                  fill_container: true
-                  layout: vertical
-                  name: Charging
-                  type: custom:mushroom-entity-card
-                - entity: binary_sensor.op7t_wifi_state
-                  fill_container: true
-                  layout: vertical
-                  name: Wi-Fi
-                  type: custom:mushroom-entity-card
-                - entity: binary_sensor.op7t_bluetooth_state
-                  fill_container: true
-                  layout: vertical
-                  name: Bluetooth
-                  type: custom:mushroom-entity-card
-                - entity: binary_sensor.op7t_mobile_data
-                  fill_container: true
-                  layout: vertical
-                  name: Data
-                  type: custom:mushroom-entity-card
-                mode: horizontal
-                type: custom:stack-in-card
-              - dark_mode: true
-                default_zoom: 15
-                entities:
-                - entity: person.darragh_clerkin
-                hours_to_show: 24
-                type: map
-              type: vertical-stack
-            style:
-              hui-vertical-stack-card:
-                $: "button-card {\n  align-self: center;\n  padding: .2em 0 2em 0;\n\
-                  }\nhui-history-graph-card {\n  padding: 0 1em 0 1em;\n}\n"
-                $hui-entities-card$: "#states {\n  padding-left: 2em;\n  padding-bottom:\
-                  \ .9em;\n}\n"
-                $hui-glance-card$: ".entities {\n  padding: 12px 29px 4px 26px !important;\n\
-                  }\n"
-                $hui-map-card:
-                  $: "#root {\n  height: 25em;\n  padding-bottom: 0 !important;\n\
-                    }\nha-icon-button {\n  color: var(--primary-color);\n  zoom: 140%;\n\
-                    \  margin-left: -0.2em;\n}\nha-card {\n  border-top: 2px solid\
-                    \ #1a1a1a;\n  border-radius: 0;\n  transition: none;\n}\n"
-                  $ha-map$: "#map {\n  background-color: #191919 !important;\n}\n\
-                    .leaflet-control-attribution {\n  display: none;\n}\n.leaflet-bar\
-                    \ a {\n  background-color: rgba(115, 123, 124, 0.2) !important;\n\
-                    \  color: #9da0a2 !important;\n  backdrop-filter: blur(0.25em);\n\
-                    \  zoom: 140%;\n}\na.leaflet-control-zoom-in {\n  border-bottom:\
-                    \ 1px solid #181818 !important;\n}\n.leaflet-pane.leaflet-tile-pane\
-                    \ {\n  filter: invert(0.95) grayscale(0.95) contrast(95%);\n}\n"
-          service: browser_mod.popup
+        action: navigate
+        navigation_path: '#darragh'
       type: custom:button-card
     - aspect_ratio: 1/1
       custom_fields:
@@ -3347,97 +3578,8 @@ views:
         - grid-template-columns: 2fr 1fr
         - grid-template-rows: 1fr min-content min-content min-content min-content
       tap_action:
-        action: fire-dom-event
-        browser_mod:
-          data:
-            browser_id: THIS
-            content:
-              cards:
-              - card_mod:
-                  class: content
-                entities:
-                - entity: person.pavanthanuj
-                  secondary_info: last-changed
-                type: entities
-              - entities:
-                - entity: person.pavanthanuj
-                  name: ' '
-                type: history-graph
-              - cards:
-                - entity: sensor.pixel8pro_battery_level
-                  fill_container: true
-                  icon_color: green
-                  layout: vertical
-                  name: Battery
-                  type: custom:mushroom-entity-card
-                - entity: binary_sensor.pixel8pro_is_charging
-                  fill_container: true
-                  layout: vertical
-                  name: Charging
-                  type: custom:mushroom-entity-card
-                - entity: binary_sensor.pixel8pro_wifi_state
-                  fill_container: true
-                  layout: vertical
-                  name: Wi-Fi
-                  type: custom:mushroom-entity-card
-                - entity: binary_sensor.pixel8pro_bluetooth_state
-                  fill_container: true
-                  layout: vertical
-                  name: Bluetooth
-                  type: custom:mushroom-entity-card
-                - entity: binary_sensor.pixel8pro_mobile_data
-                  fill_container: true
-                  layout: vertical
-                  name: Data
-                  type: custom:mushroom-entity-card
-                mode: horizontal
-                type: custom:stack-in-card
-              - alignment: center
-                chips:
-                - content_info: name
-                  entity: device_tracker.pixel8pro
-                  icon: mdi:volume-high
-                  icon_color: red
-                  name: Find My Phone
-                  tap_action:
-                    action: call-service
-                    data:
-                      data:
-                        channel: alarm_stream
-                        priority: high
-                        ttl: 0
-                      message: Find My Phone
-                    service: notify.mobile_app_pixel8pro
-                  type: entity
-                type: custom:mushroom-chips-card
-              - dark_mode: true
-                default_zoom: 15
-                entities:
-                - entity: person.pavanthanuj
-                hours_to_show: 24
-                type: map
-              type: vertical-stack
-            style:
-              hui-vertical-stack-card:
-                $: "button-card {\n  align-self: center;\n  padding: .2em 0 2em 0;\n\
-                  }\nhui-history-graph-card {\n  padding: 0 1em 0 1em;\n}\n"
-                $hui-entities-card$: "#states {\n  padding-left: 2em;\n  padding-bottom:\
-                  \ .9em;\n}\n"
-                $hui-glance-card$: ".entities {\n  padding: 12px 29px 4px 26px !important;\n\
-                  }\n"
-                $hui-map-card:
-                  $: "#root {\n  height: 25em;\n  padding-bottom: 0 !important;\n\
-                    }\nha-icon-button {\n  color: var(--primary-color);\n  zoom: 140%;\n\
-                    \  margin-left: -0.2em;\n}\nha-card {\n  border-top: 2px solid\
-                    \ #1a1a1a;\n  border-radius: 0;\n  transition: none;\n}\n"
-                  $ha-map$: "#map {\n  background-color: #191919 !important;\n}\n\
-                    .leaflet-control-attribution {\n  display: none;\n}\n.leaflet-bar\
-                    \ a {\n  background-color: rgba(115, 123, 124, 0.2) !important;\n\
-                    \  color: #9da0a2 !important;\n  backdrop-filter: blur(0.25em);\n\
-                    \  zoom: 140%;\n}\na.leaflet-control-zoom-in {\n  border-bottom:\
-                    \ 1px solid #181818 !important;\n}\n.leaflet-pane.leaflet-tile-pane\
-                    \ {\n  filter: invert(0.95) grayscale(0.95) contrast(95%);\n}\n"
-          service: browser_mod.popup
+        action: navigate
+        navigation_path: '#pavan'
       type: custom:button-card
     - aspect_ratio: 1/1
       custom_fields:
@@ -3553,76 +3695,33 @@ views:
         - justify-self: start
         - padding-bottom: 10px
       tap_action:
-        action: fire-dom-event
-        browser_mod:
-          data:
-            browser_id: THIS
-            content:
-              cards:
-              - card_mod:
-                  class: content
-                entities:
-                - entity: person.hilary_harris
-                  secondary_info: last-changed
-                type: entities
-              - entities:
-                - entity: person.hilary_harris
-                  name: ' '
-                type: history-graph
-              - cards:
-                - entity: sensor.hilary_s_phone_battery_level
-                  fill_container: true
-                  icon_color: green
-                  layout: vertical
-                  name: Battery
-                  type: custom:mushroom-entity-card
-                - entity: sensor.hilary_s_phone_battery_state
-                  fill_container: true
-                  layout: vertical
-                  name: Charging?
-                  type: custom:mushroom-entity-card
-                - entity: sensor.hilary_s_phone_connection_type
-                  fill_container: true
-                  layout: vertical
-                  name: Connection
-                  type: custom:mushroom-entity-card
-                - entity: sensor.hilary_s_phone_ssid
-                  fill_container: true
-                  layout: vertical
-                  name: SSID
-                  type: custom:mushroom-entity-card
-                mode: horizontal
-                type: custom:stack-in-card
-              - dark_mode: true
-                default_zoom: 15
-                entities:
-                - entity: person.hilary_harris
-                hours_to_show: 24
-                type: map
-              type: vertical-stack
-            style:
-              hui-vertical-stack-card:
-                $: "button-card {\n  align-self: center;\n  padding: .2em 0 2em 0;\n\
-                  }\nhui-history-graph-card {\n  padding: 0 1em 0 1em;\n}\n"
-                $hui-entities-card$: "#states {\n  padding-left: 2em;\n  padding-bottom:\
-                  \ .9em;\n}\n"
-                $hui-glance-card$: ".entities {\n  padding: 12px 29px 4px 26px !important;\n\
-                  }\n"
-                $hui-map-card:
-                  $: "#root {\n  height: 25em;\n  padding-bottom: 0 !important;\n\
-                    }\nha-icon-button {\n  color: var(--primary-color);\n  zoom: 140%;\n\
-                    \  margin-left: -0.2em;\n}\nha-card {\n  border-top: 2px solid\
-                    \ #1a1a1a;\n  border-radius: 0;\n  transition: none;\n}\n"
-                  $ha-map$: "#map {\n  background-color: #191919 !important;\n}\n\
-                    .leaflet-control-attribution {\n  display: none;\n}\n.leaflet-bar\
-                    \ a {\n  background-color: rgba(115, 123, 124, 0.2) !important;\n\
-                    \  color: #9da0a2 !important;\n  backdrop-filter: blur(0.25em);\n\
-                    \  zoom: 140%;\n}\na.leaflet-control-zoom-in {\n  border-bottom:\
-                    \ 1px solid #181818 !important;\n}\n.leaflet-pane.leaflet-tile-pane\
-                    \ {\n  filter: invert(0.95) grayscale(0.95) contrast(95%);\n}\n"
-          service: browser_mod.popup
+        action: navigate
+        navigation_path: '#hilary'
       type: custom:button-card
     type: horizontal-stack
+    view_layout:
+      column: 1
+  - card:
+      icon: mdi:wifi
+      title: Guest Devices
+      type: entities
+    filter:
+      exclude:
+      - state: not_home
+      include:
+      - attributes:
+          interface: guest
+        integration: tplink_deco
+        options:
+          type: custom:mushroom-entity-card
+    show_empty: false
+    sort:
+      ignore_case: false
+      method: domain
+      reverse: false
+    type: custom:auto-entities
+    view_layout:
+      column: 1
   - styles:
       --mdc-icon-size: 25px
       --mdc-tab-color-default: var(--primary-text-color)
@@ -3641,10 +3740,6 @@ views:
           to: ''
         - from: e/
           to: 'e and '
-        color_gradient:
-        - '#ff0000'
-        - '#ffff00'
-        - '#00ff00'
         entities:
         - charging_state:
             entity_id: binary_sensor.op7t_is_charging
@@ -3670,6 +3765,7 @@ views:
           entity: sensor.pavan_thanujs_ipad_battery_level
           name: iPad Pro
           tap_action: more-info
+        secondary_info: '{last_changed}'
         type: custom:battery-state-card
       styles:
         --mdc-theme-primary: green
@@ -3677,45 +3773,61 @@ views:
         icon: mdi:zigbee
         label: Zigbee Devices
       card:
-        color_gradient:
-        - '#ff0000'
-        - '#ffff00'
-        - '#00ff00'
         entities:
         - entity: sensor.den_motion_battery
+          secondary_info: '{sensor.den_motion_battery_type.state}'
           tap_action: more-info
-        - entity: sensor.living_room_motion_battery
+        - entity: sensor.porch_motion_battery
+          secondary_info: '{sensor.porch_motion_battery_type.state}'
           tap_action: more-info
-        - entity: sensor.entrance_motion_battery
-          tap_action: more-info
-        - entity: sensor.kitchen_motion_battery
+        - entity: sensor.hallway_motion_battery
+          secondary_info: '{sensor.hallway_motion_battery_type.state}'
           tap_action: more-info
         - entity: sensor.den_door_battery
+          secondary_info: '{sensor.den_door_battery_type.state}'
           tap_action: more-info
         - entity: sensor.hygrometer_battery
+          secondary_info: '{sensor.hygrometer_battery_type.state}'
           tap_action: more-info
         - entity: sensor.temperature_and_humidity_battery
+          secondary_info: '{sensor.temperature_and_humidity_battery_type.state}'
           tap_action: more-info
         - entity: sensor.back_door_battery
+          secondary_info: '{sensor.back_door_battery_type.state}'
           tap_action: more-info
         - entity: sensor.button_battery
+          secondary_info: '{sensor.button_battery_type.state}'
           tap_action: more-info
         - entity: sensor.magic_cube_battery
+          secondary_info: '{sensor.magic_cube_battery_type.state}'
           tap_action: more-info
         - entity: sensor.vibration_battery
+          secondary_info: '{sensor.vibration_battery_type.state}'
           tap_action: more-info
         - entity: sensor.ikea_multi_button_battery
+          secondary_info: '{sensor.ikea_multi_button_battery_type.state}'
           tap_action: more-info
         - entity: sensor.ikea_on_off_battery
+          secondary_info: '{sensor.ikea_on_off_battery_type.state}'
           tap_action: more-info
         - entity: sensor.curtain_left_battery
+          secondary_info: '{sensor.curtain_left_battery_type.state}'
           tap_action: more-info
         - entity: sensor.curtain_right_battery
+          secondary_info: '{sensor.curtain_right_battery_type.state}'
+          tap_action: more-info
+        - entity: sensor.darragh_button_battery
+          secondary_info: '{sensor.darragh_button_battery_type.state}'
+          tap_action: more-info
+        - entity: sensor.hilary_button_battery
+          secondary_info: '{sensor.hilary_button_battery_type.state}'
           tap_action: more-info
         type: custom:battery-state-card
       styles:
         --mdc-theme-primary: red
     type: custom:tabbed-card
+    view_layout:
+      column: 1
   - alignment: center
     chips:
     - content_info: state
@@ -3772,59 +3884,6 @@ views:
       name: '# Zones'
       type: entity
     type: custom:mushroom-chips-card
-  - card:
-      cards:
-      - card_mod:
-          style:
-            ha-markdown:
-              $: "ha-markdown-element:first-of-type hr{\n  border-color: #303030;\n\
-                }\n"
-        content: '<h2> <ha-icon icon=''mdi:shield-half-full''></ha-icon> Watchman
-          report<h2> <h3>Missing Entities: {{ states.sensor.watchman_missing_entities.state
-          }} </h3> {%- for item in state_attr("sensor.watchman_missing_entities",
-          "entities") %} <hr> <table><tr> <td> <ha-icon icon=''mdi: {%- if item.state=="missing"-%}cloud-alert''
-          {%- elif item.state=="unavail" -%}cloud-off-outline'' {%- else-%}cloud-question''
-          {%- endif -%} ></ha-icon> {{ item.id }} [{{item.state}}] <a title="{{item.occurrences}}">
-          {{item.occurrences.split(''/'')[-1].split('':'')[0]}}</a> </td></tr></table>
-          {%- endfor %}'
-        type: markdown
-      - card_mod:
-          style:
-            ha-markdown:
-              $: "ha-markdown-element:first-of-type hr{\n  border-color: #303030;\n\
-                }\n"
-        content: '<h2 class="some"> <ha-icon icon=''mdi:shield-half-full''></ha-icon>
-          Watchman report<h2> <h3> Missing Services: {{ states.sensor.watchman_missing_services.state
-          }} </h3> {%- for item in state_attr("sensor.watchman_missing_services",
-          "entities") %} <hr><table><tr> <td>  <ha-icon icon=''mdi:cloud-alert''></ha-icon>
-          {{ item.id }} <a title="{{item.occurrences}}">{{item.occurrences.split(''/'')[-1].split('':'')[0]}}</a>
-          </td></tr></table> {%- endfor %}'
-        type: markdown
-      - alignment: center
-        chips:
-        - double_tap_action:
-            action: call-service
-            service: watchman.report
-            service_data:
-              data:
-                data:
-                  parse_mode: html
-                parse_config: true
-            target: {}
-          entity: sensor.watchman_last_updated
-          hold_action:
-            action: none
-          icon: mdi:camera-timer
-          name: 'Watchman Last Updated :'
-          tap_action:
-            action: none
-          type: entity
-        type: custom:mushroom-chips-card
-      type: custom:stack-in-card
-    conditions:
-    - entity: sensor.watchman_missing_entities
-      state_not: '0'
-    type: conditional
   - cards:
     - cards:
       - cards:
@@ -3832,7 +3891,7 @@ views:
           align_state: center
           decimals: 1
           entities:
-          - sensor.temperature_and_humidity_humidity
+          - sensor.den_humidity
           font_size: 70
           hours_to_show: 6
           line_color: skyblue
@@ -3853,7 +3912,7 @@ views:
             value: 30
           decimals: 1
           entities:
-          - sensor.temperature_and_humidity_temperature
+          - sensor.den_temperature
           font_size: 70
           hours_to_show: 6
           line_color: '#e74c3c'
@@ -3867,6 +3926,8 @@ views:
         type: horizontal-stack
       mode: vertical
       type: custom:stack-in-card
+      view_layout:
+        column: 2
     - cards:
       - cards:
         - align_icon: left
@@ -3950,42 +4011,52 @@ views:
       mode: vertical
       type: custom:stack-in-card
     type: vertical-stack
-  - align_icon: left
-    align_state: center
-    entities:
-    - color: orange
-      entity: sensor.den_light
-      name: Den
-    - color: aqua
-      entity: sensor.living_room_light
-      name: Living Room
-      show_state: true
-    font_size: 90
-    hours_to_show: 6
-    line_width: 1
-    points_per_hour: 10
-    show:
-      fill: fade
-    type: custom:mini-graph-card
-    update_interval: 30
-  - align_icon: left
-    align_state: center
-    entities:
-    - color: orange
-      entity: sensor.kitchen_motion_illuminance
-      name: Kitchen
-    - color: aqua
-      entity: sensor.living_room_motion_illuminance
-      name: Living Room
-      show_state: true
-    font_size: 90
-    hours_to_show: 6
-    line_width: 1
-    points_per_hour: 10
-    show:
-      fill: fade
-    type: custom:mini-graph-card
-    update_interval: 30
+    view_layout:
+      column: 2
+  - cards:
+    - align_icon: left
+      align_state: center
+      entities:
+      - color: orange
+        entity: sensor.den_light
+        name: Den
+      - color: aqua
+        entity: sensor.living_room_light
+        name: Living Room
+        show_state: true
+      font_size: 90
+      hours_to_show: 6
+      line_width: 1
+      points_per_hour: 10
+      show:
+        fill: fade
+      type: custom:mini-graph-card
+      update_interval: 30
+    - align_icon: left
+      align_state: center
+      entities:
+      - color: aqua
+        entity: sensor.porch_motion_illuminance
+        name: Porch
+      - color: orange
+        entity: sensor.hallway_motion_illuminance
+        name: Hallway
+        show_state: true
+      - color: red
+        entity: sensor.presence_sensor_light_level
+        name: Living Room
+        show_state: true
+      font_size: 90
+      hours_to_show: 6
+      line_width: 1
+      points_per_hour: 10
+      show:
+        fill: fade
+      type: custom:mini-graph-card
+      update_interval: 30
+    type: vertical-stack
+    view_layout:
+      column: 3
   - card:
       content: Snapshots are stale! Please visit the "Home Assistant Google Drive
         Backup" add-on status page for details.
@@ -3995,10 +4066,287 @@ views:
     - entity: binary_sensor.backups_stale
       state: 'on'
     type: conditional
+  - card:
+      cards:
+      - card_mod:
+          style:
+            ha-markdown:
+              $: "ha-markdown-element:first-of-type hr{\n  border-color: #303030;\n\
+                }\n"
+        content: '<h2> <ha-icon icon=''mdi:shield-half-full''></ha-icon> Watchman
+          report<h2> <h3>Missing Entities: {{ states.sensor.watchman_missing_entities.state
+          }} </h3> {%- for item in state_attr("sensor.watchman_missing_entities",
+          "entities") %} <hr> <table><tr> <td> <ha-icon icon=''mdi: {%- if item.state=="missing"-%}cloud-alert''
+          {%- elif item.state=="unavail" -%}cloud-off-outline'' {%- else-%}cloud-question''
+          {%- endif -%} ></ha-icon> {{ item.id }} [{{item.state}}] <a title="{{item.occurrences}}">
+          {{item.occurrences.split(''/'')[-1].split('':'')[0]}}</a> </td></tr></table>
+          {%- endfor %}'
+        type: markdown
+      - card_mod:
+          style:
+            ha-markdown:
+              $: "ha-markdown-element:first-of-type hr{\n  border-color: #303030;\n\
+                }\n"
+        content: '<h2 class="some"> <ha-icon icon=''mdi:shield-half-full''></ha-icon>
+          Watchman report<h2> <h3> Missing Services: {{ states.sensor.watchman_missing_services.state
+          }} </h3> {%- for item in state_attr("sensor.watchman_missing_services",
+          "entities") %} <hr><table><tr> <td>  <ha-icon icon=''mdi:cloud-alert''></ha-icon>
+          {{ item.id }} <a title="{{item.occurrences}}">{{item.occurrences.split(''/'')[-1].split('':'')[0]}}</a>
+          </td></tr></table> {%- endfor %}'
+        type: markdown
+      - alignment: center
+        chips:
+        - double_tap_action:
+            action: call-service
+            service: watchman.report
+            service_data:
+              data:
+                data:
+                  parse_mode: html
+                parse_config: true
+            target: {}
+          entity: sensor.watchman_last_updated
+          hold_action:
+            action: none
+          icon: mdi:camera-timer
+          name: 'Watchman Last Updated :'
+          tap_action:
+            action: none
+          type: entity
+        type: custom:mushroom-chips-card
+      type: custom:stack-in-card
+    conditions:
+    - entity: sensor.watchman_missing_entities
+      state_not: '0'
+    type: conditional
+    view_layout:
+      column: 3
+  - cards:
+    - back_open: true
+      bg_blur: 50
+      card_type: pop-up
+      hash: '#darragh'
+      margin: 18px
+      margin_top_mobile: 00px
+      type: custom:bubble-card
+    - cards:
+      - card_mod:
+          class: content
+        entities:
+        - entity: person.darragh_clerkin
+          secondary_info: last-changed
+        type: entities
+      - entities:
+        - entity: person.darragh_clerkin
+          name: ' '
+        type: history-graph
+      - cards:
+        - entity: sensor.op7t_battery_level
+          fill_container: true
+          icon_color: green
+          layout: vertical
+          name: Battery
+          type: custom:mushroom-entity-card
+        - entity: binary_sensor.op7t_is_charging
+          fill_container: true
+          layout: vertical
+          name: Charging
+          type: custom:mushroom-entity-card
+        - entity: binary_sensor.op7t_wifi_state
+          fill_container: true
+          layout: vertical
+          name: Wi-Fi
+          type: custom:mushroom-entity-card
+        - entity: binary_sensor.op7t_bluetooth_state
+          fill_container: true
+          layout: vertical
+          name: Bluetooth
+          type: custom:mushroom-entity-card
+        - entity: binary_sensor.op7t_mobile_data
+          fill_container: true
+          layout: vertical
+          name: Data
+          type: custom:mushroom-entity-card
+        mode: horizontal
+        type: custom:stack-in-card
+      - dark_mode: true
+        default_zoom: 15
+        entities:
+        - entity: person.darragh_clerkin
+        hours_to_show: 36
+        type: map
+      type: vertical-stack
+    type: vertical-stack
+  - cards:
+    - back_open: true
+      bg_blur: 50
+      card_type: pop-up
+      hash: '#hilary'
+      margin: 18px
+      margin_top_mobile: 00px
+      type: custom:bubble-card
+    - cards:
+      - card_mod:
+          class: content
+        entities:
+        - entity: person.hilary_harris
+          secondary_info: last-changed
+        type: entities
+      - entities:
+        - entity: person.hilary_harris
+          name: ' '
+        type: history-graph
+      - cards:
+        - entity: sensor.hilary_s_phone_battery_level
+          fill_container: true
+          icon_color: green
+          layout: vertical
+          name: Battery
+          type: custom:mushroom-entity-card
+        - entity: sensor.hilary_s_phone_battery_state
+          fill_container: true
+          layout: vertical
+          name: Charging?
+          type: custom:mushroom-entity-card
+        - entity: sensor.hilary_s_phone_connection_type
+          fill_container: true
+          layout: vertical
+          name: Connection
+          type: custom:mushroom-entity-card
+        - entity: sensor.hilary_s_phone_ssid
+          fill_container: true
+          layout: vertical
+          name: SSID
+          type: custom:mushroom-entity-card
+        mode: horizontal
+        type: custom:stack-in-card
+      - dark_mode: true
+        default_zoom: 15
+        entities:
+        - entity: person.hilary_harris
+        hours_to_show: 24
+        type: map
+      style:
+        hui-vertical-stack-card:
+          $: "button-card {\n  align-self: center;\n  padding: .2em 0 2em 0;\n}\n\
+            hui-history-graph-card {\n  padding: 0 1em 0 1em;\n}\n"
+          $hui-entities-card$: "#states {\n  padding-left: 2em;\n  padding-bottom:\
+            \ .9em;\n}\n"
+          $hui-glance-card$: ".entities {\n  padding: 12px 29px 4px 26px !important;\n\
+            }\n"
+          $hui-map-card:
+            $: "#root {\n  height: 25em;\n  padding-bottom: 0 !important;\n}\nha-icon-button\
+              \ {\n  color: var(--primary-color);\n  zoom: 140%;\n  margin-left: -0.2em;\n\
+              }\nha-card {\n  border-top: 2px solid #1a1a1a;\n  border-radius: 0;\n\
+              \  transition: none;\n}\n"
+            $ha-map$: "#map {\n  background-color: #191919 !important;\n}\n.leaflet-control-attribution\
+              \ {\n  display: none;\n}\n.leaflet-bar a {\n  background-color: rgba(115,\
+              \ 123, 124, 0.2) !important;\n  color: #9da0a2 !important;\n  backdrop-filter:\
+              \ blur(0.25em);\n  zoom: 140%;\n}\na.leaflet-control-zoom-in {\n  border-bottom:\
+              \ 1px solid #181818 !important;\n}\n.leaflet-pane.leaflet-tile-pane\
+              \ {\n  filter: invert(0.95) grayscale(0.95) contrast(95%);\n}    \n"
+      type: vertical-stack
+    type: vertical-stack
+  - cards:
+    - back_open: true
+      bg_blur: 50
+      card_type: pop-up
+      hash: '#pavan'
+      margin: 18px
+      margin_top_mobile: 00px
+      type: custom:bubble-card
+    - cards:
+      - card_mod:
+          class: content
+        entities:
+        - entity: person.pavanthanuj
+          secondary_info: last-changed
+        type: entities
+      - entities:
+        - entity: person.pavanthanuj
+          name: ' '
+        type: history-graph
+      - cards:
+        - entity: sensor.pixel8pro_battery_level
+          fill_container: true
+          icon_color: green
+          layout: vertical
+          name: Battery
+          type: custom:mushroom-entity-card
+        - entity: binary_sensor.pixel8pro_is_charging
+          fill_container: true
+          layout: vertical
+          name: Charging
+          type: custom:mushroom-entity-card
+        - entity: binary_sensor.pixel8pro_wifi_state
+          fill_container: true
+          layout: vertical
+          name: Wi-Fi
+          type: custom:mushroom-entity-card
+        - entity: binary_sensor.pixel8pro_bluetooth_state
+          fill_container: true
+          layout: vertical
+          name: Bluetooth
+          type: custom:mushroom-entity-card
+        - entity: binary_sensor.pixel8pro_mobile_data
+          fill_container: true
+          layout: vertical
+          name: Data
+          type: custom:mushroom-entity-card
+        mode: horizontal
+        type: custom:stack-in-card
+      - alignment: center
+        chips:
+        - content_info: name
+          entity: device_tracker.pixel8pro
+          icon: mdi:volume-high
+          icon_color: red
+          name: Find My Phone
+          tap_action:
+            action: call-service
+            data:
+              data:
+                channel: alarm_stream
+                priority: high
+                ttl: 0
+              message: Find My Phone
+            service: notify.mobile_app_pixel8pro
+          type: entity
+        type: custom:mushroom-chips-card
+      - dark_mode: true
+        default_zoom: 15
+        entities:
+        - entity: person.pavanthanuj
+        hours_to_show: 24
+        type: map
+      style:
+        hui-vertical-stack-card:
+          $: "button-card {\n  align-self: center;\n  padding: .2em 0 2em 0;\n}\n\
+            hui-history-graph-card {\n  padding: 0 1em 0 1em;\n}\n"
+          $hui-entities-card$: "#states {\n  padding-left: 2em;\n  padding-bottom:\
+            \ .9em;\n}\n"
+          $hui-glance-card$: ".entities {\n  padding: 12px 29px 4px 26px !important;\n\
+            }\n"
+          $hui-map-card:
+            $: "#root {\n  height: 25em;\n  padding-bottom: 0 !important;\n}\nha-icon-button\
+              \ {\n  color: var(--primary-color);\n  zoom: 140%;\n  margin-left: -0.2em;\n\
+              }\nha-card {\n  border-top: 2px solid #1a1a1a;\n  border-radius: 0;\n\
+              \  transition: none;\n}\n"
+            $ha-map$: "#map {\n  background-color: #191919 !important;\n}\n.leaflet-control-attribution\
+              \ {\n  display: none;\n}\n.leaflet-bar a {\n  background-color: rgba(115,\
+              \ 123, 124, 0.2) !important;\n  color: #9da0a2 !important;\n  backdrop-filter:\
+              \ blur(0.25em);\n  zoom: 140%;\n}\na.leaflet-control-zoom-in {\n  border-bottom:\
+              \ 1px solid #181818 !important;\n}\n.leaflet-pane.leaflet-tile-pane\
+              \ {\n  filter: invert(0.95) grayscale(0.95) contrast(95%);\n}\n"
+      type: vertical-stack
+    type: vertical-stack
   icon: mdi:devices
+  layout:
+    max_cols: 3
   path: network
   theme: ''
   title: Network and Devices
+  type: custom:vertical-layout
   visible:
   - user: 74f7e2ffd3594037b1a2fc4de82d9fea
 - badges: []
@@ -4092,7 +4440,8 @@ views:
           type: entities
         filter:
           include:
-          - name: /[Nn]otif/
+          - domain: automation
+            name: /[Nn]otif/
           show_empty: true
           sort:
             method: last_triggered
@@ -4365,9 +4714,56 @@ views:
   title: Calvin and Hobbes
   type: panel
 - badges: []
+  cards:
+  - card:
+      title: HACS Available Updates
+      type: entities
+    filter:
+      exclude: []
+      include:
+      - integration: hacs
+        options:
+          type: custom:more-info-card
+        state: 'on'
+    show_empty: false
+    type: custom:auto-entities
+  - card:
+      title: Add-on Updates
+      type: entities
+    filter:
+      exclude:
+      - entity_id: update.home_assistant_core_update
+      - entity_id: update.home_assistant_supervisor_update
+      include:
+      - integration: hassio
+        options:
+          type: custom:more-info-card
+        state: 'on'
+    show_empty: false
+    type: custom:auto-entities
+  - card:
+      entity: update.home_assistant_core_update
+      type: custom:more-info-card
+    conditions:
+    - condition: state
+      entity: update.home_assistant_core_update
+      state: 'on'
+    type: conditional
+  - card:
+      entity: update.home_assistant_supervisor_update
+      type: custom:more-info-card
+    conditions:
+    - condition: state
+      entity: update.home_assistant_supervisor_update
+      state: 'on'
+    type: conditional
+  icon: mdi:package-up
+  path: updates
+  subview: true
+  title: Updates
+- badges: []
   cards: []
   icon: mdi:test-tube
   path: testing
   title: testing
-  visible:
-  - user: 74f7e2ffd3594037b1a2fc4de82d9fea
+  visible: []

@@ -17,26 +17,22 @@
 .google.token
 .ssh
 .vscode
-.sonoff.json
 .shopping_list.json
 ._configuration.yaml
 ._localtuya.yaml
 core
 home-assistant_v2.db
-www/cam_captures/*
 glances/
 image/
-double-take
 zigbee2mqtt
 tts
-rtsp2webrtc_v4_amd64
-node-red
 aircast.xml
 *.db-journal
 addons_config
 custom_components/*
 www/community/*
 esphome/.esphome/*
+www/upcoming-media-card*
 
 # Ensure these YAML files are ignored, otherwise your secret data/credentials will leak.
 json_data.json

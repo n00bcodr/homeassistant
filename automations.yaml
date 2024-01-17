@@ -283,7 +283,7 @@
     default: []
   mode: single
 - id: '1642654396519'
-  alias: ⚙️Low battery level detection & notification for all battery sensors
+  alias: "⚙️\U0001F4F3Low battery level detection & notification for all battery sensors"
   description: ''
   use_blueprint:
     path: sbyx/low-battery-level-detection-notification-for-all-battery-sensors.yaml
@@ -624,33 +624,6 @@
             notification_icon: mdi:battery-charging-high
             color: red
   mode: single
-- id: '1671021630739'
-  alias: "\U0001F3F0Curtains - Ikea Remote"
-  description: ''
-  use_blueprint:
-    path: pavax/z2m-ikea-remote-controls.yaml
-    input:
-      remote: sensor.ikea_on_off_action
-      on_button_short:
-      - service: cover.close_cover
-        data: {}
-        target:
-          entity_id: cover.curtains
-      off_button_short:
-      - service: cover.open_cover
-        data: {}
-        target:
-          entity_id: cover.curtains
-      on_button_long:
-      - service: cover.stop_cover
-        data: {}
-        target:
-          entity_id: cover.curtains
-      off_button_long:
-      - service: cover.stop_cover
-        data: {}
-        target:
-          entity_id: cover.curtains
 - id: '1671637864679'
   alias: "\U0001F3F0Den as it was"
   description: Returns Den State to back what it was when Den OFF was triggered.
@@ -937,7 +910,7 @@
   mode: parallel
   max: 10
 - id: '1675093554282'
-  alias: "\U0001F9FA Wash Cycle"
+  alias: "\U0001F9FA\U0001F4F3Wash Cycle Notification"
   description: ''
   trigger:
   - platform: state
@@ -1109,7 +1082,7 @@
             icon_url: /local/images/black_bin.png
             color: black
             tag: bin_pickup
-          message: Pickup is in two days on {{ states.sensor.black_bin.state}}
+          message: Pickup is tomorrow, {{ states.sensor.black_bin.state}}
           title: Black Bin
       - service: notify.all_phones_ios
         data:
@@ -1118,7 +1091,7 @@
             image: /local/images/black_bin.png
             color: black
             tag: bin_pickup
-          message: Pickup is in two days on {{ states.sensor.black_bin.state}}
+          message: Pickup is tomorrow, {{ states.sensor.black_bin.state}}
           title: Black Bin
       alias: Black Bin collection is tomorrow and it is 11 AM
     - conditions:
@@ -1128,10 +1101,6 @@
         alias: Black Bin Next Collection is in 1 Day
       sequence:
       - repeat:
-          while:
-          - condition: template
-            value_template: '{{ states(''input_button.bin_outside'') | as_datetime
-              < (now() - timedelta(hours=1)) }}'
           sequence:
           - service: notify.all_phones
             data:
@@ -1169,6 +1138,13 @@
               minutes: 30
               seconds: 0
               milliseconds: 0
+          until:
+          - condition: template
+            value_template: '{{ states.input_button.bin_outside.last_updated.timestamp()
+              > (as_timestamp(now()) - 3600) and states.input_button.bin_outside.state
+              == ''on'' }}
+
+              '
       alias: Black Bin collection is tomorrow, is the bin out?
     - conditions:
       - condition: template
@@ -1233,7 +1209,7 @@
             icon_url: /local/images/blue_bin.png
             tag: bin_pickup
             color: blue
-          message: Pickup is tomorrow on {{ states.sensor.blue_bin.state}}
+          message: Pickup is tomorrow, {{ states.sensor.blue_bin.state}}
           title: Blue Bin
       - service: notify.all_phones_ios
         data:
@@ -1242,7 +1218,7 @@
             icon_url: /local/images/blue_bin.png
             tag: bin_pickup
             color: blue
-          message: Pickup is tomorrow on {{ states.sensor.blue_bin.state}}
+          message: Pickup is tomorrow, {{ states.sensor.blue_bin.state}}
           title: Blue Bin
       alias: Blue Bin Collection is tomorrow and it is 11 AM
     - conditions:
@@ -1252,10 +1228,6 @@
         alias: Blue Bin Next Collection is in 1 Day
       sequence:
       - repeat:
-          while:
-          - condition: template
-            value_template: '{{ states(''input_button.bin_outside'') | as_datetime
-              < (now() - timedelta(hours=1)) }}'
           sequence:
           - service: notify.all_phones
             data:
@@ -1293,6 +1265,13 @@
               minutes: 30
               seconds: 0
               milliseconds: 0
+          until:
+          - condition: template
+            value_template: '{{ states.input_button.bin_outside.last_updated.timestamp()
+              > (as_timestamp(now()) - 3600) and states.input_button.bin_outside.state
+              == ''on'' }}
+
+              '
       alias: Blue Bin collection is tomorrow, is the bin out?
   mode: single
 - id: '1677184691191'
@@ -1397,14 +1376,18 @@
   trigger:
   - platform: state
     entity_id:
-    - binary_sensor.entrance_motion_occupancy
+    - binary_sensor.hallway_motion_occupancy
     to: 'on'
     from: 'off'
   condition:
-  - condition: sun
-    before: sunrise
-    after: sunset
-    after_offset: -01:00:00
+  - condition: or
+    conditions:
+    - condition: sun
+      before: sunrise
+      after: sunset
+    - condition: numeric_state
+      entity_id: sensor.hallway_motion_illuminance
+      below: 30
   action:
   - service: homeassistant.turn_on
     data: {}
@@ -1414,7 +1397,7 @@
   - wait_for_trigger:
     - platform: state
       entity_id:
-      - binary_sensor.entrance_motion_occupancy
+      - binary_sensor.hallway_motion_occupancy
       from: 'on'
       to: 'off'
     continue_on_timeout: false
@@ -1478,14 +1461,6 @@
         - sonarr
       sequence:
       - service: notify.mobile_app_pixel8pro
-        data:
-          message: '{{ state_attr( "sensor.recently_added_tv", "data")[1].title }}
-            - {{ state_attr( "sensor.recently_added_tv", "data")[1].number }} is downloaded
-            and now available on Plex.'
-          data:
-            notification_icon: mdi:television-box
-            image: '{{ state_attr( "sensor.recently_added_tv", "data")[1].fanart}}'
-      - service: notify.mobile_app_op7t
         data:
           message: '{{ state_attr( "sensor.recently_added_tv", "data")[1].title }}
             - {{ state_attr( "sensor.recently_added_tv", "data")[1].number }} is downloaded
@@ -1572,6 +1547,11 @@
     device_id: 88946d0ffcf369169d9dc690798047c2
     domain: nest
     type: camera_person
+  - type: motion
+    platform: device
+    device_id: 59ae4f51536e6ef0aad9797908c43c4f
+    entity_id: 2469b2b43494bb595c40223eb03614cf
+    domain: binary_sensor
   condition:
   - condition: sun
     before: sunrise
@@ -1580,7 +1560,7 @@
   - service: homeassistant.turn_on
     data: {}
     target:
-      entity_id: switch.entrance_light
+      entity_id: switch.porch_light
   - delay:
       hours: 0
       minutes: 0
@@ -1589,7 +1569,7 @@
   - service: homeassistant.turn_off
     data: {}
     target:
-      entity_id: switch.entrance_light
+      entity_id: switch.porch_light
   mode: single
 - id: '1687359882327'
   alias: ⚙Reload Unavailable Entities
@@ -1602,7 +1582,7 @@
     to: unavailable
     for:
       hours: 0
-      minutes: 0
+      minutes: 1
       seconds: 30
   - platform: state
     entity_id:
@@ -1611,7 +1591,7 @@
     to: unavailable
     for:
       hours: 0
-      minutes: 0
+      minutes: 1
       seconds: 30
   - alias: When Bins change to Unavailable
     platform: template
@@ -1633,7 +1613,7 @@
     id: tuya
     for:
       hours: 0
-      minutes: 0
+      minutes: 2
       seconds: 30
   condition: []
   action:
@@ -1642,15 +1622,9 @@
       - condition: trigger
         id: speedtest
       sequence:
-      - service: homeassistant.reload_config_entry
-        target:
-          entity_id:
-          - sensor.speedtest_ping
-          - sensor.speedtest_download
-          - sensor.speedtest_upload
-          device_id: []
-          area_id: []
-        data: {}
+      - service: hassio.addon_start
+        data:
+          addon: 6b87c29e_speedtest_addon
     - conditions:
       - condition: trigger
         id: homewhiz
@@ -1728,7 +1702,7 @@
         "source")}} {%else%}{{ states(''input_select.speakers_spotify'') }}{%endif%}'
   mode: single
 - id: '1688823940913'
-  alias: ⚙️Front Door Motion - TV Notification
+  alias: "⚙\U0001F4F3Front Door Motion - TV Notification"
   description: ''
   trigger:
   - platform: device
@@ -2049,16 +2023,13 @@
   mode: parallel
   max: 10
 - id: '1698150976885'
-  alias: ⚙ Calvin and Hobbes
+  alias: "\U0001F4F3Calvin and Hobbes Notifications"
   description: ''
   trigger:
   - platform: sun
     event: sunrise
     offset: 0
     id: sunrise
-  - platform: sun
-    event: sunset
-    offset: 0
   condition: []
   action:
   - delay:
@@ -2084,15 +2055,6 @@
             GoComics URL</a>'
           parse_mode: html
     default:
-    - service: homeassistant.update_entity
-      target:
-        entity_id: sensor.calvin_and_hobbes
-      data: {}
-    - delay:
-        hours: 0
-        minutes: 0
-        seconds: 10
-        milliseconds: 0
     - service: notify.mobile_app_pixel8pro
       data:
         message: ''
@@ -2109,45 +2071,6 @@
             title: '{{as_timestamp(strptime(states.sensor.calvin_and_hobbes.attributes.publishedDate,''%Y/%m/%d''))
               | timestamp_custom(''%-d %b, %Y'') }}'
             uri: /lovelace/calvinandhobbes
-  mode: single
-- id: '1698580342658'
-  alias: "\U0001F4FAPause Media on TV when no one is watching"
-  description: ''
-  trigger:
-  - type: not_occupied
-    platform: device
-    device_id: 9e8e30f13e8d71a3c86779f8335cb6a4
-    entity_id: 9e8a3a6bdb500805e716666e46f77510
-    domain: binary_sensor
-  condition:
-  - condition: device
-    device_id: 69e4e0f562681b3da86a0c6291d0b11c
-    domain: media_player
-    entity_id: 2e20cbcfddc439650095c2519f3eff3e
-    type: is_playing
-  action:
-  - service: media_player.media_pause
-    data: {}
-    target:
-      entity_id: media_player.google_tv
-  mode: single
-- id: '1698595572726'
-  alias: ⚙️Joke from Google
-  description: ''
-  trigger:
-  - platform: time_pattern
-    minutes: '5'
-  condition: []
-  action:
-  - service: google_assistant_sdk.send_text_command
-    data:
-      command: tell me a joke
-    response_variable: response
-  - service: input_text.set_value
-    data:
-      value: '{{ response.responses[0].text }}'
-    target:
-      entity_id: input_text.joke
   mode: single
 - id: '1698602804746'
   alias: "\U0001F3F0 Bed Routine"
@@ -2269,7 +2192,7 @@
       - switch.heater
   mode: single
 - id: '1700567569365'
-  alias: "\U0001F6AEIs the Bin Outside?"
+  alias: "\U0001F6AE\U0001F4F3Is the Bin Outside?"
   description: ''
   trigger:
   - platform: state
@@ -2284,9 +2207,10 @@
   condition: []
   action:
   - service: input_button.press
-    data: {}
     target:
-      entity_id: input_button.bin_outside
+      entity_id:
+      - input_button.bin_outside
+    data: {}
   - if:
     - condition: and
       conditions:
@@ -2380,3 +2304,170 @@
     input:
       entity_1: remote.google_tv
       entity_2: light.tv_led_strip
+- id: '1704124907970'
+  alias: Darragh's Button
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: 0f7674241f0842e51cb6ba901f3f0604
+    type: action
+    subtype: 'on'
+    discovery_id: 0x70ac08fffe71ecfc action_on
+  condition: []
+  action:
+  - service: media_player.media_play_pause
+    target:
+      entity_id: media_player.darragh_s_nest_hub
+    data: {}
+  mode: single
+- id: '1704137731926'
+  alias: Hilary's Button
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: b6f8b4147e2c746231ccf83a15c53889
+    type: action
+    subtype: 'on'
+    discovery_id: 0x70ac08fffe71f036 action_on
+    id: single
+  - platform: device
+    domain: mqtt
+    device_id: b6f8b4147e2c746231ccf83a15c53889
+    type: action
+    subtype: 'off'
+    discovery_id: 0x70ac08fffe71f036 action_off
+    id: double
+  - platform: device
+    domain: mqtt
+    device_id: b6f8b4147e2c746231ccf83a15c53889
+    type: action
+    subtype: brightness_move_up
+    discovery_id: 0x70ac08fffe71f036 action_brightness_move_up
+    id: hold
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - single
+      sequence:
+      - service: homeassistant.toggle
+        data: {}
+        target:
+          entity_id: light.bed_lamp
+    - conditions:
+      - condition: trigger
+        id:
+        - double
+      sequence:
+      - service: homeassistant.toggle
+        data: {}
+        target:
+          entity_id: switch.heater
+    - conditions:
+      - condition: trigger
+        id:
+        - hold
+      sequence:
+      - service: homeassistant.toggle
+        data: {}
+        target:
+          entity_id: switch.heating_blanket
+  mode: single
+- id: '1704234098620'
+  alias: "\U0001F3F0Curtains - Ikea Remote"
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: 2b20c2dcd73f02e2c283f6786b16a489
+    type: action
+    subtype: 'off'
+    discovery_id: 0xb4e3f9fffe8c1f22 action_off
+    id: close
+  - platform: device
+    domain: mqtt
+    device_id: 2b20c2dcd73f02e2c283f6786b16a489
+    type: action
+    subtype: 'on'
+    discovery_id: 0xb4e3f9fffe8c1f22 action_on
+    id: open
+  - platform: device
+    domain: mqtt
+    device_id: 2b20c2dcd73f02e2c283f6786b16a489
+    type: action
+    subtype: brightness_move_down
+    discovery_id: 0xb4e3f9fffe8c1f22 action_brightness_move_down
+    id: hold
+  - platform: device
+    domain: mqtt
+    device_id: 2b20c2dcd73f02e2c283f6786b16a489
+    type: action
+    subtype: brightness_move_up
+    discovery_id: 0xb4e3f9fffe8c1f22 action_brightness_move_up
+    id: hold
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - close
+      sequence:
+      - service: cover.open_cover
+        data: {}
+        target:
+          entity_id: cover.curtains
+    - conditions:
+      - condition: trigger
+        id:
+        - open
+      sequence:
+      - service: cover.close_cover
+        data: {}
+        target:
+          entity_id: cover.curtains
+    - conditions:
+      - condition: trigger
+        id:
+        - hold
+      sequence:
+      - service: cover.stop_cover
+        data: {}
+        target:
+          entity_id: cover.curtains
+  mode: parallel
+  max: 10
+- id: '1705166594977'
+  alias: ⚙️ SpeedTest
+  description: Runs SpeedTest every 6 hours
+  trigger:
+  - platform: time_pattern
+    hours: '3'
+  condition: []
+  action:
+  - service: hassio.addon_start
+    metadata: {}
+    data:
+      addon: 6b87c29e_speedtest_addon
+  mode: single
+- id: '1705422114650'
+  alias: "\U0001F3F0 Turn on Workstation"
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - device_tracker.deco_35hw000201
+    attribute: connection_type
+    to: wired
+  condition: []
+  action:
+  - service: switch.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.workstation
+  mode: single

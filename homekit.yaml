@@ -1,28 +1,31 @@
 - filter:
     include_entities:
       - binary_sensor.den_motion_occupancy
-      - binary_sensor.living_room_motion_occupancy
-      - binary_sensor.kitchen_motion_occupancy
-      - binary_sensor.entrance_motion_occupancy
+      - binary_sensor.porch_motion_occupancy
+      - binary_sensor.hallway_motion_occupancy
       - binary_sensor.chair_occupancy
       - binary_sensor.den_door_contact
       - binary_sensor.back_door_contact
+      - binary_sensor.living_room_presence
+      - binary_sensor.kitchen_presence
       - sensor.living_room_temperature
-      - sensor.den_temperature_2
-      - sensor.den_humidity_2
-      - sensor.kitchen_motion_illuminance
       - sensor.living_room_humidity
+      - sensor.den_temperature
+      - sensor.den_humidity
       - sensor.hygrometer_temperature
       - sensor.hygrometer_humidity
       - light.light
       - light.living_room_lamp
       - light.chandelier
+      - light.guest_lamp
       - light.led_strip
       - light.shapes
+      - light.tv_led_strip
       - media_player.google_tv
       - cover.curtains
       - switch.string_lights
       - switch.kitchen_light
+      - switch.christmas_lights
       - switch.alleyway_lights
       - switch.backyard_lights
       - switch.workstation
@@ -32,7 +35,7 @@
       - switch.boiler
       - switch.bed_warmer
       - switch.kettle
-      - switch.entrance_light
+      - switch.porch_light
       - switch.hallway_chandelier
       - camera.doorbell
       - climate.heater
@@ -42,54 +45,56 @@
     binary_sensor.den_motion_occupancy:
       name: Den Motion
       linked_battery_sensor: sensor.den_motion_battery
+      low_battery_threshold: 20
 
-    binary_sensor.living_room_motion_occupancy:
+    binary_sensor.porch_motion_occupancy:
       name: Living Room Motion
-      linked_battery_sensor: sensor.living_room_motion_battery
+      linked_battery_sensor: sensor.porch_motion_battery
+      low_battery_threshold: 20
 
-    binary_sensor.kitchen_motion_occupancy:
-      name: Kitchen Motion
-      linked_battery_sensor: sensor.kitchen_motion_battery
-
-    binary_sensor.entrance_motion_occupancy:
-      name: Entrance Motion
-      linked_battery_sensor: sensor.entrance_motion_battery
+    binary_sensor.hallway_motion_occupancy:
+      name: Hallway Motion
+      linked_battery_sensor: sensor.hallway_motion_battery
+      low_battery_threshold: 20
 
     binary_sensor.chair_occupancy:
       name: Chair Occupancy
       linked_battery_sensor: sensor.vibration_battery
+      low_battery_threshold: 20
 
     binary_sensor.back_door_contact:
       name: Backyard Door
       linked_battery_sensor: sensor.back_door_battery
+      low_battery_threshold: 20
 
-    sensor.den_humidity_2:
+    sensor.den_humidity:
       name: Den Humidity
       linked_battery_sensor: sensor.temperature_and_humidity_battery
+      low_battery_threshold: 20
 
-    sensor.den_temperature_2:
+    sensor.den_temperature:
       name: Den Temperature
       linked_battery_sensor: sensor.temperature_and_humidity_battery
+      low_battery_threshold: 20
 
     sensor.hygrometer_temperature:
       name: Outdoor Temperature
       linked_battery_sensor: sensor.hygrometer_battery
+      low_battery_threshold: 20
 
     sensor.hygrometer_humidity:
       name: Outdoor Humidity
       linked_battery_sensor: sensor.hygrometer_battery
+      low_battery_threshold: 20
 
-    sensor.kitchen_motion_illuminance:
-      name: Kitchen Illumination
-
-    sensor.living_room_motion_illuminance:
-      name: Living Room Illumination
+    sensor.porch_motion_illuminance:
+      name: Porch Illumination
 
     sensor.living_room_temperature:
       name: Living Room Temperature
 
     switch.backyard_lights:
-      name: Back Garden Lights
+      name: Backyard Lights
 
     switch.heating:
       name: Heating
@@ -97,8 +102,8 @@
     light.shapes:
       name: Shapes
 
-    switch.entrance_light:
-      name: Entrance Light
+    switch.porch_light:
+      name: Porch Light
 
     switch.hallway_chandelier:
       name: Chandelier
