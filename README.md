@@ -1,8 +1,8 @@
-[![My HA Version](https://img.shields.io/github/v/tag/n00bcodr/homeassistant-ireland?color=d42a1e&label=My%20HA%20Version&logo=homeassistant&logoColor=white&?cacheSeconds=600)](https://github.com/n00bcodr/homeassistant/blob/master/.HA_VERSION)
+[![My HA Version](https://img.shields.io/github/v/tag/n00bcodr/homeassistant-ireland?color=d42a1e&label=My%20HA%20Version&logo=homeassistant&logoColor=white&?cacheSeconds=600)](https://github.com/n00bcodr/homeassistant-ireland/blob/master/.HA_VERSION)
 [![Latest HA Release](https://img.shields.io/github/v/release/home-assistant/home-assistant?include_prereleases&label=Latest%20HA%20Release&logo=home-assistant)](https://github.com/home-assistant/home-assistant/releases/latest)
 [![Years Badge](https://badges.strrl.dev/years/n00bcodr?color=darkgreen)](https://github.com/n00bcodr)
 ![Commit Activity](https://img.shields.io/github/commit-activity/w/n00bcodr/homeassistant-ireland?color=f58153&?cacheSeconds=600)
-[![Last Commit](https://img.shields.io/github/last-commit/n00bcodr/homeassistant?color=purple)](https://github.com/n00bcodr/homeassistant-ireland/commits/master)
+[![Last Commit](https://img.shields.io/github/last-commit/n00bcodr/homeassistant-ireland?color=purple)](https://github.com/n00bcodr/homeassistant-ireland/commits/master)
 
 ---
 [![Instagram](https://img.shields.io/badge/Instagram-%23E4405F.svg?style=for-the-badge&logo=Instagram&logoColor=white)](https://www.instagram.com/pavanthanuj/)
