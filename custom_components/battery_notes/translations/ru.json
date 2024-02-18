@@ -1,0 +1,130 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "description": "Если вам нужна помощь с настройкой, посмотрите здесь: https://github.com/andrew-codechimp/ha-battery-notes",
+                "data": {
+                    "device_id": "Устройство",
+                    "name": "Название"
+                },
+                "data_description": {
+                    "name": "Если оставить пустым, то имя будет взято с исходного устройства"
+                }
+            },
+            "battery": {
+                "data": {
+                    "battery_type": "Тип батареи",
+                    "battery_quantity": "Количество батарей",
+                    "battery_low_threshold": "Порог низкого заряда батареи"
+                },
+                "data_description": {
+                    "battery_low_threshold": "0 будет использовать общий порог по умолчанию"
+                }
+            }
+        },
+        "abort": {
+            "already_configured": "Устройство уже настроено"
+        },
+        "error": {
+            "unknown": "Произошла неизвестная ошибка."
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "description": "Если вам нужна помощь с настройкой, посмотрите здесь: https://github.com/andrew-codechimp/ha-battery-notes",
+                "data": {
+                    "name": "Название",
+                    "battery_type": "Тип батареи",
+                    "battery_quantity": "Количество батарей",
+                    "battery_low_threshold": "Порог низкого заряда батареи"
+                },
+                "data_description": {
+                    "name": "Если оставить пустым, то имя будет взято с исходного устройства",
+                    "battery_low_threshold": "0 будет использовать общий порог по умолчанию"
+                }
+            }
+        },
+        "error": {
+            "unknown": "Произошла неизвестная ошибка."
+        }
+    },
+    "entity": {
+        "binary_sensor": {
+            "battery_low": {
+                "name": "Низкий заряд батареи",
+                "state_attributes": {
+                    "battery_low_threshold": {
+                        "name": "Порог низкого заряда батареи"
+                    }
+                }
+            }
+        },
+        "button": {
+            "battery_replaced": {
+                "name": "Батарея заменена"
+            }
+        },
+        "sensor": {
+            "battery_plus": {
+                "name": "Батарея+",
+                "state_attributes": {
+                    "battery_type": {
+                        "name": "Тип батареи"
+                    },
+                    "battery_quantity": {
+                        "name": "Количество батарей"
+                    },
+                    "battery_type_and_quantity": {
+                        "name": "Тип и количество батарей"
+                    },
+                    "battery_last_replaced": {
+                        "name": "Батарея в последний раз заменена"
+                    },
+                    "battery_low": {
+                        "name": "Низкий заряд батареи"
+                    },
+                    "battery_low_threshold": {
+                        "name": "Порог низкого заряда батареи"
+                    },
+                    "battery_last_reported": {
+                        "name": "Последняя информация по батарее"
+                    },
+                    "battery_last_reported_level": {
+                        "name": "Последний уровень заряда батареи"
+                    }
+                }
+            },
+            "battery_type": {
+                "name": "Тип батареи",
+                "state_attributes": {
+                    "battery_type": {
+                        "name": "Тип батареи"
+                    },
+                    "battery_quantity": {
+                        "name": "Количество батарей"
+                    }
+                }
+            },
+            "battery_last_replaced": {
+                "name": "Батарея в последний раз заменена"
+            }
+        }
+    },
+    "services": {
+        "set_battery_replaced": {
+            "description": "Установите последнюю замену батареи.",
+            "fields": {
+                "device_id": {
+                    "description": "Устройство, в котором была заменена батарея.",
+                    "name": "Устройство"
+                },
+                "datetime_replaced": {
+                    "description": "Дата замены.",
+                    "name": "Дата"
+                }
+            },
+            "name": "Отметить замену батареи"
+        }
+    }
+}

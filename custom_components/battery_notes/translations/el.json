@@ -1,0 +1,130 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "description": "Αν χρειάζεστε βοήθεια με τις ρυθμίσεις παραμέτρων ρίξτε μια ματιά εδώ: https://github.com/andrew-codechimp/ha-battery-notes",
+                "data": {
+                    "device_id": "Συσκευή",
+                    "name": "Ονομα"
+                },
+                "data_description": {
+                    "name": "Αφήνοντάς το κενό θα πάρει το όνομα από τη συσκευή προέλευσης"
+                }
+            },
+            "battery": {
+                "data": {
+                    "battery_type": "Τύπος μπαταρίας",
+                    "battery_quantity": "Αριθμός μπαταριών",
+                    "battery_low_threshold": "Ελάχιστο όριο μπαταρίας"
+                },
+                "data_description": {
+                    "battery_low_threshold": "0 θα χρησιμοποιηθεί το καθολικό προεπιλεγμένο ελάχιστο όριο"
+                }
+            }
+        },
+        "abort": {
+            "already_configured": "Η συσκευή έχει ήδη ρυθμιστεί"
+        },
+        "error": {
+            "unknown": "Προέκυψε άγνωστο σφάλμα."
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "description": "Αν χρειάζεστε βοήθεια με τις ρυθμίσεις παραμέτρων ρίξτε μια ματιά εδώ: https://github.com/andrew-codechimp/ha-battery-notes",
+                "data": {
+                    "name": "Ονομα",
+                    "battery_type": "Τύπος μπαταρίας",
+                    "battery_quantity": "Αριθμός μπαταριών",
+                    "battery_low_threshold": "Ελάχιστο όριο μπαταρίας"
+                },
+                "data_description": {
+                    "name": "Αφήνοντάς το κενό θα πάρει το όνομα από τη συσκευή προέλευσης",
+                    "battery_low_threshold": "0 θα χρησιμοποιηθεί το καθολικό προεπιλεγμένο ελάχιστο όριο"
+                }
+            }
+        },
+        "error": {
+            "unknown": "Προέκυψε άγνωστο σφάλμα."
+        }
+    },
+    "entity": {
+        "binary_sensor": {
+            "battery_low": {
+                "name": "Χαμηλό επίπεδο μπαταρίας",
+                "state_attributes": {
+                    "battery_low_threshold": {
+                        "name": "Ελάχιστο όριο μπαταρίας"
+                    }
+                }
+            }
+        },
+        "button": {
+            "battery_replaced": {
+                "name": "Η μπαταρία αντικαταστάθηκε"
+            }
+        },
+        "sensor": {
+            "battery_plus": {
+                "name": "Μπαταρία+",
+                "state_attributes": {
+                    "battery_type": {
+                        "name": "Τύπος μπαταρίας"
+                    },
+                    "battery_quantity": {
+                        "name": "Αριθμός μπαταριών"
+                    },
+                    "battery_type_and_quantity": {
+                        "name": "Αριθμός και τύπος μπαταριών"
+                    },
+                    "battery_last_replaced": {
+                        "name": "Τελευταία αντικατάσταση μπαταρίας"
+                    },
+                    "battery_low": {
+                        "name": "Χαμηλό επίπεδο μπαταρίας"
+                    },
+                    "battery_low_threshold": {
+                        "name": "Ελάχιστο όριο μπαταρίας"
+                    },
+                    "battery_last_reported": {
+                        "name": "Τελευταία αναφορά μπαταρίας"
+                    },
+                    "battery_last_reported_level": {
+                        "name": "Τελευταία αναφερόμενη στάθμη μπαταρίας"
+                    }
+                }
+            },
+            "battery_type": {
+                "name": "Τύπος μπαταρίας",
+                "state_attributes": {
+                    "battery_type": {
+                        "name": "Τύπος μπαταρίας"
+                    },
+                    "battery_quantity": {
+                        "name": "Αριθμός μπαταριών"
+                    }
+                }
+            },
+            "battery_last_replaced": {
+                "name": "Τελευταία αντικατάσταση μπαταρίας"
+            }
+        }
+    },
+    "services": {
+        "set_battery_replaced": {
+            "description": "Ορίστε πότε αντικαταστάθηκε η μπαταρία τελευταία φορά.",
+            "fields": {
+                "device_id": {
+                    "description": "Συσκευή της οποίας η μπαταρία έχει αντικατασταθεί.",
+                    "name": "Συσκευή"
+                },
+                "datetime_replaced": {
+                    "description": "Ημερομηνία αντικατάστασης.",
+                    "name": "Ημερομηνία"
+                }
+            },
+            "name": "Ορισμός μπαταρίας ως αντικατεστημένη"
+        }
+    }
+}

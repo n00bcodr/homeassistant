@@ -1,0 +1,5 @@
+{
+    "services": {
+        "set_battery_replaced": "mdi:battery-sync"
+    }
+}
