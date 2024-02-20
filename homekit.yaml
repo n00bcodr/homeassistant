@@ -14,18 +14,20 @@
       - sensor.den_humidity
       - sensor.hygrometer_temperature
       - sensor.hygrometer_humidity
+      - sensor.kitchen_temperature_and_humidity_humidity
+      - sensor.kitchen_temperature_and_humidity_temperature
       - light.light
       - light.living_room_lamp
       - light.chandelier
       - light.guest_lamp
       - light.led_strip
       - light.shapes
+      - light.lamp
       - light.tv_led_strip
       - media_player.google_tv
       - cover.curtains
       - switch.string_lights
       - switch.kitchen_light
-      - switch.christmas_lights
       - switch.alleyway_lights
       - switch.backyard_lights
       - switch.workstation
@@ -37,18 +39,21 @@
       - switch.kettle
       - switch.porch_light
       - switch.hallway_chandelier
-      - camera.doorbell
       - climate.heater
 
   #Configure Each Entity
   entity_config:
+    cover.curtains:
+      name: Curtains
+      linked_battery_sensor: sensor.curtains_battery
+
     binary_sensor.den_motion_occupancy:
       name: Den Motion
       linked_battery_sensor: sensor.den_motion_battery
       low_battery_threshold: 20
 
     binary_sensor.porch_motion_occupancy:
-      name: Living Room Motion
+      name: Porch Motion
       linked_battery_sensor: sensor.porch_motion_battery
       low_battery_threshold: 20
 
@@ -56,6 +61,12 @@
       name: Hallway Motion
       linked_battery_sensor: sensor.hallway_motion_battery
       low_battery_threshold: 20
+
+    binary_sensor.kitchen_presence:
+      name: Kitchen Presence
+
+    binary_sensor.living_room_presence:
+      name: Living Room Presence
 
     binary_sensor.chair_occupancy:
       name: Chair Occupancy
@@ -69,12 +80,22 @@
 
     sensor.den_humidity:
       name: Den Humidity
-      linked_battery_sensor: sensor.temperature_and_humidity_battery
+      linked_battery_sensor: sensor.den_temperature_and_humidity_battery
       low_battery_threshold: 20
 
     sensor.den_temperature:
       name: Den Temperature
-      linked_battery_sensor: sensor.temperature_and_humidity_battery
+      linked_battery_sensor: sensor.den_temperature_and_humidity_battery
+      low_battery_threshold: 20
+
+    sensor.kitchen_temperature_and_humidity_humidity:
+      name: Kitchen Humidity
+      linked_battery_sensor: sensor.kitchen_temperature_and_humidity_battery
+      low_battery_threshold: 20
+
+    sensor.kitchen_temperature_and_humidity_temperature:
+      name: Kitchen Temperature
+      linked_battery_sensor: sensor.kitchen_temperature_and_humidity_battery
       low_battery_threshold: 20
 
     sensor.hygrometer_temperature:
@@ -93,14 +114,20 @@
     sensor.living_room_temperature:
       name: Living Room Temperature
 
+    sensor.living_room_humidity:
+      name: Living Room Humidity
+
     switch.backyard_lights:
-      name: Backyard Lights
+      name: Backyard String Lights
 
     switch.heating:
       name: Heating
 
     light.shapes:
       name: Shapes
+
+    light.lamp:
+      name: Bed Lamp
 
     switch.porch_light:
       name: Porch Light
@@ -114,6 +141,3 @@
         - feature: play_pause
         - feature: play_stop
         - feature: toggle_mute
-
-    camera.doorbell:
-      name: Doorbell Camera

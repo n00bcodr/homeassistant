@@ -64,6 +64,7 @@ keep_texts_in_tabs:
 swipe_nav:
   animate: fade
   enable_mouse_swipe: true
+  skip_tabs: 2
 title: Mad House
 views:
 - badges: []
@@ -157,7 +158,7 @@ views:
     - chip:
         content_info: name
         entity: binary_sensor.addon_updates
-        icon: ''
+        icon: mdi:home-assistant
         icon_color: light-blue
         name: Addons
         tap_action:
@@ -167,6 +168,21 @@ views:
       conditions:
       - condition: state
         entity: binary_sensor.addon_updates
+        state: 'on'
+      type: conditional
+    - chip:
+        content_info: name
+        entity: binary_sensor.other_updates
+        icon: ''
+        icon_color: light-blue
+        name: Other Updates
+        tap_action:
+          action: navigate
+          navigation_path: /lovelace/updates
+        type: entity
+      conditions:
+      - condition: state
+        entity: binary_sensor.other_updates
         state: 'on'
       type: conditional
     - chip:
@@ -364,6 +380,15 @@ views:
       type: custom:mushroom-light-card
       use_light_color: true
     - collapsible_controls: true
+      entity: light.lamp
+      fill_container: false
+      icon: ''
+      show_brightness_control: true
+      show_color_control: true
+      show_color_temp_control: true
+      type: custom:mushroom-light-card
+      use_light_color: true
+    - collapsible_controls: true
       entity: light.shapes
       fill_container: false
       icon: mdi:hexagon-multiple
@@ -519,24 +544,7 @@ views:
       entity: cover.curtains
       fill_container: false
       hold_action:
-        action: fire-dom-event
-        browser_mod:
-          data:
-            browser_id: THIS
-            content:
-              cards:
-              - entity: cover.curtain_left
-                layout: vertical
-                name: Left
-                show_position_control: true
-                type: custom:mushroom-cover-card
-              - entity: cover.curtain_right
-                layout: vertical
-                name: Right
-                show_position_control: true
-                type: custom:mushroom-cover-card
-              type: horizontal-stack
-          service: browser_mod.popup
+        action: more-info
       name: Curtains
       primary_info: name
       secondary_info: state
@@ -1341,29 +1349,13 @@ views:
   type: custom:vertical-layout
   visible:
   - user: e07f5c6a76fd4886ad5d945ed22f6d4b
+  - user: 74f7e2ffd3594037b1a2fc4de82d9fea
 - badges: []
   cards:
   - anchor_id: home
     offset: -50
     strict_url_change: true
     type: custom:anchor-card
-  - aspect_ratio: 16/2
-    entity: switch.christmas_lights
-    entity_picture: "[[[\n  if (entity.state === 'on') return '/local/christmas.gif';\n\
-      \  else return '/local/christmas.png';\n]]]\n"
-    hold_action:
-      action: more-info
-    show_entity_picture: true
-    show_name: false
-    styles:
-      card:
-      - --ha-card-background: transparent;
-      - --ha-card-box-shadow: none;
-      entity_picture:
-      - width: 100%
-      - filter: "[[[\n  if (entity.state === 'on') return 'none';\n  else return 'blur(.9px)\
-          \ grayscale(90%)';\n]]]\n"
-    type: custom:button-card
   - card:
       content: '{{ states("sensor.random_joke") }}'
       type: markdown
@@ -1375,6 +1367,10 @@ views:
     type: conditional
     view_layout:
       column: 1
+  - alignment: center
+    chips:
+    - type: spacer
+    type: custom:mushroom-chips-card
   - card:
       alignment: center
       chips:
@@ -1388,13 +1384,15 @@ views:
         icon_color: teal
         name: Hallway
         type: entity
-      - content_info: name
+      - content_info: last-changed
         entity: binary_sensor.living_room_presence
+        icon: mdi:sofa-outline
         icon_color: yellow
         name: Living Room
         type: entity
-      - content_info: name
+      - content_info: last-changed
         entity: binary_sensor.kitchen_presence
+        icon: mdi:countertop-outline
         icon_color: teal
         name: Kitchen
         type: entity
@@ -1777,6 +1775,9 @@ views:
         - 74f7e2ffd3594037b1a2fc4de82d9fea
       - condition: screen
         media_query: '(min-width: 768px)'
+      - condition: state
+        entity: switch.schedule_boiler
+        state: 'on'
       type: conditional
     type: vertical-stack
     view_layout:
@@ -1794,7 +1795,7 @@ views:
           action: none
         hold_action:
           action: none
-        icon: mdi:fridge
+        icon: mdi:countertop-outline
         icon_color: orange
         tap_action:
           action: navigate
@@ -1910,7 +1911,7 @@ views:
           action: none
         hold_action:
           action: none
-        icon: mdi:sofa
+        icon: mdi:sofa-outline
         icon_color: blue
         tap_action:
           action: navigate
@@ -2314,32 +2315,42 @@ views:
           service: homeassistant.reload_config_entry
           target:
             entity_id:
-            - calendar.allied_recycling_black_bin
-            - calendar.allied_recycling_blue_bin
+            - calendar.black_bin
+            - calendar.blue_bin
         icon: mdi:trash-can
         icon_color: brown
         tap_action:
           action: navigate
           navigation_path: /lovelace/living-room?anchor=home
         type: template
-      - content: "{% if states.input_button.bin_outside.last_updated.timestamp() >\
-          \ (as_timestamp(now()) - 14400) %}\n  Bin Outside!\n{% else %}\n  Bin Outside?\n\
-          {% endif %}"
-        entity: input_button.bin_outside
-        hold_action:
-          action: more-info
-        icon: "{% if states.input_button.bin_outside.last_updated.timestamp() > (as_timestamp(now())\
-          \ - 14400) %}\n  fas:trash-can-arrow-up\n{% else %}\n  fas:trash-can\n{%\
-          \ endif %}"
-        icon_color: "{% if states.input_button.bin_outside.last_updated.timestamp()\
-          \ > (as_timestamp(now()) - 14400) %}\n  {% if state_attr(\"sensor.black_bin\"\
-          , \"next_collection\") == 1 %}black{% elif state_attr(\"sensor.blue_bin\"\
-          , \"next_collection\") == 1 %}blue{% else %}disabled{% endif %}\n{% else\
-          \ %}\n  disabled\n{% endif %}"
-        picture: ''
-        tap_action:
-          action: toggle
-        type: template
+      - chip:
+          content: "{% if states('input_button.bin_outside')|as_timestamp  > (as_timestamp(now())\
+            \ - 14400) %}\n  Bin Outside!\n{% else %}\n  Bin Outside?\n{% endif %}"
+          entity: input_button.bin_outside
+          hold_action:
+            action: more-info
+          icon: "{% if states('input_button.bin_outside')|as_timestamp  > (as_timestamp(now())\
+            \ - 14400) %}\n  fas:trash-can-arrow-up\n{% else %}\n  fas:trash-can\n\
+            {% endif %}"
+          icon_color: "{% if states('input_button.bin_outside')|as_timestamp  > (as_timestamp(now())\
+            \ - 14400) %}\n  {% if state_attr(\"sensor.black_bin\", \"next_collection\"\
+            ) == 1 %}black{% elif state_attr(\"sensor.blue_bin\", \"next_collection\"\
+            ) == 1 %}blue{% else %}disabled{% endif %}\n{% else %}\n  disabled\n{%\
+            \ endif %}"
+          picture: ''
+          tap_action:
+            action: toggle
+          type: template
+        conditions:
+        - condition: or
+          conditions:
+          - condition: state
+            entity: calendar.blue_bin
+            state: 'on'
+          - condition: state
+            entity: calendar.black_bin
+            state: 'on'
+        type: conditional
       - icon: mdi:arrow-up
         icon_color: grey
         tap_action:
@@ -2598,6 +2609,9 @@ views:
       - condition: state
         entity: sensor.bob_state
         state_not: device_state_on
+      - condition: state
+        entity: sensor.bob_state
+        state_not: unavailable
       type: conditional
     type: vertical-stack
   icon: mdi:washing-machine
@@ -2809,6 +2823,18 @@ views:
         action: url
         url_path: http://homeassistant.local:3000/
       type: custom:mushroom-template-card
+    - double_tap_action:
+        action: none
+      hold_action:
+        action: none
+      icon: ''
+      picture: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg/homebridge.svg
+      primary: Home Bridge
+      secondary: ''
+      tap_action:
+        action: url
+        url_path: http://homeassistant.local:8581/
+      type: custom:mushroom-template-card
     columns: 2
     square: false
     type: grid
@@ -2866,7 +2892,6 @@ views:
         exclude:
         - state: unavailable
         - entity_id: '*refresh*'
-        - entity_id: switch.docker_plex
         include:
         - type: ''
         - name: /[Pp]lex/
@@ -2916,6 +2941,7 @@ views:
     max_cols: 3
   path: media
   title: Media
+  type: custom:vertical-layout
   visible:
   - user: 74f7e2ffd3594037b1a2fc4de82d9fea
 - badges: []
@@ -3079,8 +3105,13 @@ views:
         icon_color: blue-grey
         type: template
       type: custom:mushroom-chips-card
-    - entity: sensor.database_size
-      icon_color: blue-grey
+    - double_tap_action:
+        action: none
+      entity: sensor.database_size
+      hold_action:
+        action: none
+      icon: mdi:database
+      icon_color: indigo
       primary_info: state
       secondary_info: name
       type: custom:mushroom-entity-card
@@ -3096,11 +3127,16 @@ views:
         url_path: https://drive.google.com/drive/folders/1iDzbeGS-PLCnsDwG5i3dcOs1g-Ws4BjOhttps://drive.google.com/drive/folders/1iDzbeGS-PLCnsDwG5i3dcOs1g-Ws4BjO
       entity: sensor.backup_state
       fill_container: false
+      hold_action:
+        action: none
       icon: mdi:google-drive
       icon_color: yellow
       multiline_secondary: false
       primary: '{{states.sensor.backup_state.attributes.size_in_google_drive}}'
       secondary: Google Drive Backup Size
+      tap_action:
+        action: navigate
+        navigation_path: http://homeassistant.local:8123/hassio/ingress/cebe7a76_hassio_google_drive_backup
       type: custom:mushroom-template-card
     - double_tap_action:
         action: navigate
@@ -3731,98 +3767,45 @@ views:
         icon: mdi:cellphone
         label: Mobile Devices
       card:
-        bulk_rename:
-        - from: -Battery
-          to: ''
-        - from: ' Battery'
-          to: ''
-        - from: Sensor
-          to: ''
-        - from: e/
-          to: 'e and '
-        entities:
-        - charging_state:
-            entity_id: binary_sensor.op7t_is_charging
-            state: 'on'
-          entity: sensor.op7t_battery_level
-          name: 7T
-          tap_action: more-info
-        - charging_state:
-            entity_id: binary_sensor.pixel8pro_is_charging
-            state: 'on'
-          entity: sensor.pixel8pro_battery_level
-          name: Pixel 8 Pro
-          tap_action: more-info
-        - charging_state:
-            entity_id: binary_sensor.galaxy_watch4_classic_is_charging
-            state: 'on'
-          entity: sensor.galaxy_watch4_classic_battery_level
-          name: Watch Classic
-          tap_action: more-info
-        - charging_state:
-            entity_id: sensor.pavan_thanujs_ipad_battery_state
-            state: 'on'
-          entity: sensor.pavan_thanujs_ipad_battery_level
-          name: iPad Pro
-          tap_action: more-info
-        secondary_info: '{last_changed}'
-        type: custom:battery-state-card
+        card:
+          bulk_rename:
+          - from: Level
+            to: ''
+          - from: level
+            to: ''
+          - from: Battery
+            to: ''
+          secondary_info: '{last_changed}'
+          type: custom:battery-state-card
+        filter:
+          include:
+          - entity_id: /battery_level/
+            integration: mobile_app
+        sort:
+          method: state
+          numeric: true
+        type: custom:auto-entities
       styles:
         --mdc-theme-primary: green
     - attributes:
         icon: mdi:zigbee
         label: Zigbee Devices
       card:
-        entities:
-        - entity: sensor.den_motion_battery
-          secondary_info: '{sensor.den_motion_battery_type.state}'
-          tap_action: more-info
-        - entity: sensor.porch_motion_battery
-          secondary_info: '{sensor.porch_motion_battery_type.state}'
-          tap_action: more-info
-        - entity: sensor.hallway_motion_battery
-          secondary_info: '{sensor.hallway_motion_battery_type.state}'
-          tap_action: more-info
-        - entity: sensor.den_door_battery
-          secondary_info: '{sensor.den_door_battery_type.state}'
-          tap_action: more-info
-        - entity: sensor.hygrometer_battery
-          secondary_info: '{sensor.hygrometer_battery_type.state}'
-          tap_action: more-info
-        - entity: sensor.temperature_and_humidity_battery
-          secondary_info: '{sensor.temperature_and_humidity_battery_type.state}'
-          tap_action: more-info
-        - entity: sensor.back_door_battery
-          secondary_info: '{sensor.back_door_battery_type.state}'
-          tap_action: more-info
-        - entity: sensor.button_battery
-          secondary_info: '{sensor.button_battery_type.state}'
-          tap_action: more-info
-        - entity: sensor.magic_cube_battery
-          secondary_info: '{sensor.magic_cube_battery_type.state}'
-          tap_action: more-info
-        - entity: sensor.vibration_battery
-          secondary_info: '{sensor.vibration_battery_type.state}'
-          tap_action: more-info
-        - entity: sensor.ikea_multi_button_battery
-          secondary_info: '{sensor.ikea_multi_button_battery_type.state}'
-          tap_action: more-info
-        - entity: sensor.ikea_on_off_battery
-          secondary_info: '{sensor.ikea_on_off_battery_type.state}'
-          tap_action: more-info
-        - entity: sensor.curtain_left_battery
-          secondary_info: '{sensor.curtain_left_battery_type.state}'
-          tap_action: more-info
-        - entity: sensor.curtain_right_battery
-          secondary_info: '{sensor.curtain_right_battery_type.state}'
-          tap_action: more-info
-        - entity: sensor.darragh_button_battery
-          secondary_info: '{sensor.darragh_button_battery_type.state}'
-          tap_action: more-info
-        - entity: sensor.hilary_button_battery
-          secondary_info: '{sensor.hilary_button_battery_type.state}'
-          tap_action: more-info
-        type: custom:battery-state-card
+        card:
+          bulk_rename:
+          - from: Battery+
+            to: Battery
+          secondary_info: '{attributes.battery_type_and_quantity}'
+          type: custom:battery-state-card
+        filter:
+          include:
+          - entity_id: /battery_plus/
+            integration: battery_notes
+        sort:
+          method: state
+          numeric: true
+          reverse: false
+        type: custom:auto-entities
       styles:
         --mdc-theme-primary: red
     type: custom:tabbed-card
@@ -3894,7 +3877,7 @@ views:
           - sensor.den_humidity
           font_size: 70
           hours_to_show: 6
-          line_color: skyblue
+          line_color: dodgerblue
           line_width: 5
           points_per_hour: 10
           show:
@@ -3905,11 +3888,11 @@ views:
           align_state: center
           color_thresholds:
           - color: '#f39c12'
-            value: 25
+            value: 20
           - color: '#d35400'
-            value: 28
+            value: 15
           - color: '#ff1800'
-            value: 30
+            value: 5
           decimals: 1
           entities:
           - sensor.den_temperature
@@ -3934,10 +3917,10 @@ views:
           align_state: center
           decimals: 1
           entities:
-          - sensor.living_room_humidity
+          - sensor.kitchen_temperature_and_humidity_humidity
           font_size: 70
           hours_to_show: 6
-          line_color: skyblue
+          line_color: dodgerblue
           line_width: 5
           points_per_hour: 10
           show:
@@ -3948,11 +3931,52 @@ views:
           align_state: center
           color_thresholds:
           - color: '#f39c12'
-            value: 25
+            value: 20
           - color: '#d35400'
-            value: 28
+            value: 15
           - color: '#ff1800'
-            value: 30
+            value: 5
+          decimals: 1
+          entities:
+          - sensor.kitchen_temperature_and_humidity_temperature
+          font_size: 70
+          hours_to_show: 6
+          line_color: '#e74c3c'
+          line_width: 5
+          points_per_hour: 10
+          show:
+            name: false
+          type: custom:mini-graph-card
+          update_interval: 10
+        title: Kitchen
+        type: horizontal-stack
+      mode: vertical
+      type: custom:stack-in-card
+    - cards:
+      - cards:
+        - align_icon: left
+          align_state: center
+          decimals: 1
+          entities:
+          - sensor.living_room_humidity
+          font_size: 70
+          hours_to_show: 6
+          line_color: dodgerblue
+          line_width: 5
+          points_per_hour: 10
+          show:
+            name: false
+          type: custom:mini-graph-card
+          update_interval: 10
+        - align_icon: left
+          align_state: center
+          color_thresholds:
+          - color: '#f39c12'
+            value: 20
+          - color: '#d35400'
+            value: 15
+          - color: '#ff1800'
+            value: 5
           decimals: 1
           entities:
           - sensor.living_room_temperature
@@ -3978,7 +4002,7 @@ views:
           - sensor.hygrometer_humidity
           font_size: 70
           hours_to_show: 6
-          line_color: skyblue
+          line_color: dodgerblue
           line_width: 5
           points_per_hour: 10
           show:
@@ -3989,11 +4013,11 @@ views:
           align_state: center
           color_thresholds:
           - color: '#f39c12'
-            value: 25
+            value: 20
           - color: '#d35400'
-            value: 28
+            value: 15
           - color: '#ff1800'
-            value: 30
+            value: 5
           decimals: 1
           entities:
           - sensor.hygrometer_temperature
@@ -4495,9 +4519,20 @@ views:
       styles:
         --mdc-theme-primary: grey
     type: custom:tabbed-card
+  - card:
+      type: entities
+    filter:
+      exclude: []
+      include:
+      - domain: script
+    sort:
+      method: last_triggered
+      reverse: false
+    type: custom:auto-entities
   icon: mdi:robot
   path: automations
   title: Automations
+  type: custom:horizontal-layout
 - badges: []
   cards:
   - card:
@@ -4688,21 +4723,67 @@ views:
   visible: []
 - badges: []
   cards:
-  - double_tap_action:
+  - custom_fields:
+      date:
+        card:
+          alignment: center
+          chips:
+          - content_info: none
+            entity: sensor.calvin_and_hobbes
+            icon: mdi:shuffle-variant
+            icon_color: accent
+            tap_action:
+              action: call-service
+              service: homeassistant.update_entity
+              target:
+                entity_id: sensor.calvin_and_hobbes
+            type: entity
+          - content: '{{ as_timestamp(strptime(states.sensor.calvin_and_hobbes.attributes.publishedDate,
+              ''%Y/%m/%d'')) | timestamp_custom(''%-d %b, %Y'') }}'
+            double_tap_action:
+              action: none
+            hold_action:
+              action: none
+            tap_action:
+              action: none
+            type: template
+          type: custom:mushroom-chips-card
+      item:
+        card:
+          double_tap_action:
+            action: url
+            url_path: '[[[ return entity.state ]]]'
+          entity: sensor.calvin_and_hobbes
+          entity_picture: '[[[ return entity.state ]]]'
+          hold_action:
+            action: url
+            url_path: '[[[ return entity.state ]]]'
+          show_entity_picture: true
+          show_name: false
+          size: 100%
+          styles:
+            card:
+            - padding: 0px
+            - border-radius: 0px
+          tap_action:
+            action: navigate
+            navigation_path: /lovelace/calvinandhobbes
+          type: custom:button-card
+    double_tap_action:
       action: navigate
       navigation_path: /lovelace/den
     entity: sensor.calvin_and_hobbes
-    entity_picture: '[[[ return entity.state ]]]'
     hold_action:
       action: navigate
       navigation_path: /lovelace/den
-    show_entity_picture: true
+    show_icon: false
     show_name: false
-    size: 100%
     styles:
       card:
       - padding: 0px
       - border-radius: 0px
+      grid:
+      - grid-template-areas: '"item item" "date date"'
     tap_action:
       action: navigate
       navigation_path: /lovelace/den
@@ -4757,12 +4838,45 @@ views:
       entity: update.home_assistant_supervisor_update
       state: 'on'
     type: conditional
+  - card:
+      title: Other Updates
+      type: entities
+    filter:
+      exclude:
+      - entity_id: update.home_assistant_core_update
+      - entity_id: update.home_assistant_supervisor_update
+      - integration: hassio
+        state: 'on'
+      - integration: hacs
+        state: 'on'
+      include:
+      - domain: update
+        options:
+          type: custom:more-info-card
+        state: 'on'
+    show_empty: false
+    type: custom:auto-entities
   icon: mdi:package-up
   path: updates
   subview: true
   title: Updates
 - badges: []
-  cards: []
+  cards:
+  - card:
+      bulk_rename:
+      - from: Battery+
+        to: Battery
+      secondary_info: '{attributes.battery_type_and_quantity}'
+      type: custom:battery-state-card
+    filter:
+      include:
+      - entity_id: /battery_plus/
+        integration: battery_notes
+    sort:
+      method: state
+      numeric: true
+      reverse: false
+    type: custom:auto-entities
   icon: mdi:test-tube
   path: testing
   title: testing

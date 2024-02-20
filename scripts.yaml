@@ -29,7 +29,7 @@ clear_shopping_list:
 update_all_phone_sensors:
   alias: Update all phone sensors
   sequence:
-  - service: notify.all_phones
+  - service: notify.all_phones_android
     data:
       message: command_update_sensors
   - service: notify.all_phones_ios
@@ -137,7 +137,9 @@ bed_routine_script:
       seconds: 0
       milliseconds: 0
   - choose:
-    - conditions: '{{ wait.trigger.event.data.action == action_yes }}'
+    - conditions:
+      - condition: template
+        value_template: '{{ wait.trigger.event.data.action == action_yes }}'
       sequence:
       - service: homeassistant.turn_off
         data: {}
@@ -147,7 +149,9 @@ bed_routine_script:
           - light.shapes
           - light.chandelier
           - light.led_strip
-    - conditions: '{{ wait.trigger.event.data.action == action_no }}'
+    - conditions:
+      - condition: template
+        value_template: '{{ wait.trigger.event.data.action == action_no }}'
       sequence:
       - stop: ''
   - service: homeassistant.turn_off
@@ -179,7 +183,7 @@ play_ocean_sounds:
       entity_id:
       - media_player.pavan_s_nest_hub
   - delay:
-      hours: 2
+      hours: 8
       minutes: 0
       seconds: 0
       milliseconds: 0
@@ -203,7 +207,7 @@ play_forest_sounds:
       entity_id:
       - media_player.pavan_s_nest_hub
   - delay:
-      hours: 2
+      hours: 8
       minutes: 0
       seconds: 0
       milliseconds: 0
@@ -227,7 +231,7 @@ play_river_sounds:
     target:
       entity_id: media_player.pavan_s_nest_hub
   - delay:
-      hours: 2
+      hours: 8
       minutes: 0
       seconds: 0
       milliseconds: 0
@@ -250,7 +254,7 @@ play_white_noise:
     target:
       entity_id: media_player.pavan_s_nest_hub
   - delay:
-      hours: 2
+      hours: 8
       minutes: 0
       seconds: 0
       milliseconds: 0
@@ -274,7 +278,7 @@ play_night_sounds:
       entity_id:
       - media_player.pavan_s_nest_hub
   - delay:
-      hours: 2
+      hours: 8
       minutes: 0
       seconds: 0
       milliseconds: 0
@@ -341,7 +345,7 @@ play_thunderstorm_sounds:
       entity_id:
       - media_player.pavan_s_nest_hub
   - delay:
-      hours: 2
+      hours: 8
       minutes: 0
       seconds: 0
       milliseconds: 0
@@ -352,12 +356,3 @@ play_thunderstorm_sounds:
       - media_player.pavan_s_nest_hub
   mode: single
   icon: mdi:lightning-bolt-outline
-restart_plex:
-  alias: Restart Plex
-  sequence:
-  - service: monitor_docker.restart
-    data:
-      name: plex
-    alias: Restart Docker Plex
-  mode: single
-  icon: mdi:plex

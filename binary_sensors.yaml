@@ -12,8 +12,13 @@
       friendly_name: "Chair Occupancy"
       unique_id: chair_occupancy
       device_class: occupancy
-      value_template: "{{ true }}"
-      value_template: "{{ is_state('binary_sensor.vibration_vibration', 'on') or not is_state('sensor.vibration_action', 'None') }}"
+      value_template: >-
+        {{ max(
+            as_timestamp(states.sensor.vibration_angle_x.last_changed),
+            as_timestamp(states.sensor.vibration_angle_y.last_changed),
+            as_timestamp(states.sensor.vibration_angle_z.last_changed)
+          ) > (as_timestamp(now()) - 30) or is_state('binary_sensor.vibration_vibration', 'on') or not is_state('sensor.vibration_action', 'None')
+        }}
       icon_template: "{{ iif(is_state('binary_sensor.chair_occupancy', 'on'), 'mdi:table-chair', 'mdi:account-off') }}"
       delay_off: "00:01:00"
 
@@ -33,3 +38,11 @@
       device_class: update
       value_template: "{{ states.update | selectattr('state', 'eq', 'on') |  selectattr('entity_id', 'in', integration_entities('hassio')) | rejectattr('entity_id', 'eq', 'update.home_assistant_core_update') | map(attribute='name') | list | count }}"
       availability_template: "{{ states.update | selectattr('state', 'eq', 'on') |  selectattr('entity_id', 'in', integration_entities('hassio')) | rejectattr('entity_id', 'eq', 'update.home_assistant_core_update') | map(attribute='name') | list | count | int(-1) > -1 }}"
+
+    other_updates:
+      friendly_name: "Other Updates"
+      unique_id: other_updates
+      icon_template: mdi:package-up
+      device_class: update
+      value_template: "{{ states.update | selectattr('state', 'eq', 'on') |  rejectattr('entity_id', 'in', integration_entities('hassio')) |  rejectattr('entity_id', 'in', integration_entities('hacs')) | map(attribute='name') | list | count }}"
+      availability_template: "{{ states.update | selectattr('state', 'eq', 'on') |  rejectattr('entity_id', 'in', integration_entities('hassio')) |  rejectattr('entity_id', 'in', integration_entities('hacs')) | map(attribute='name') | list | count | int(-1) > -1 }}"

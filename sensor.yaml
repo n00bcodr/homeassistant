@@ -224,6 +224,30 @@
       value_template: >
         {{ ((states('sensor.1tb_total_space') | float) - ( states('sensor.1tb_free_space') | float ) | round(2)) }}
 
+    1tb_ssd_total_space:
+      friendly_name: "1TB SSD Total Space"
+      unique_id: 1tb_ssd_total_space
+      unit_of_measurement: "GB"
+      icon_template: mdi:harddisk
+      value_template: >
+        {{ state_attr('sensor.sonarr_disk_space', '/media/pt/1TB_SSD') |regex_findall_index(find='(/.*G)') | replace ("G", "")| replace ("/", "")}}
+
+    1tb_ssd_free_space:
+      friendly_name: "1TB SSD Free Space"
+      unique_id: 1tb_harddisk_free_space
+      unit_of_measurement: "GB"
+      icon_template: mdi:harddisk
+      value_template: >
+        {{ state_attr('sensor.sonarr_disk_space', '/media/pt/1TB_SSD') |regex_findall_index(find='(.*/)') | replace ("G", "")| replace ("/", "")}}
+
+    1tb_ssd_used_space:
+      friendly_name: "1TB SSD Used Space"
+      unique_id: 1tb_ssd_used_space
+      unit_of_measurement: "GB"
+      icon_template: mdi:harddisk
+      value_template: >
+        {{ ((states('sensor.1tb_total_space') | float) - ( states('sensor.1tb_free_space') | float ) | round(2)) }}
+
     5tb_total_space:
       friendly_name: "5TB Hard Disk Total Space"
       unique_id: 5tb_harddisk_total_space
@@ -252,23 +276,23 @@
       friendly_name: Black Bin Pickup
       unique_id: black_bin_pickup
       value_template: >
-        {{ as_timestamp(state_attr("calendar.allied_recycling_black_bin", "start_time")) | timestamp_custom('%B %-d') }}
+        {{ as_timestamp(state_attr("calendar.black_bin", "start_time")) | timestamp_custom('%B %-d') }}
       attribute_templates:
         next_collection: >
-          {{ ((as_timestamp(state_attr("calendar.allied_recycling_black_bin", "start_time")) | as_datetime | as_local).date() - now().date()).days }}
+          {{ ((as_timestamp(state_attr("calendar.black_bin", "start_time")) | as_datetime | as_local).date() - now().date()).days }}
         icon: >
-          mdi:numeric-{{ ((as_timestamp(state_attr("calendar.allied_recycling_black_bin", "start_time")) | as_datetime | as_local).date() - now().date()).days }}
+          mdi:numeric-{{ ((as_timestamp(state_attr("calendar.black_bin", "start_time")) | as_datetime | as_local).date() - now().date()).days }}
 
     blue_bin:
       friendly_name: Blue Bin Pickup
       unique_id: blue_bin_pickup
       value_template: >
-        {{ as_timestamp(state_attr("calendar.allied_recycling_blue_bin", "start_time")) | timestamp_custom('%B %-d') }}
+        {{ as_timestamp(state_attr("calendar.blue_bin", "start_time")) | timestamp_custom('%B %-d') }}
       attribute_templates:
         next_collection: >
-          {{ ((as_timestamp(state_attr("calendar.allied_recycling_blue_bin", "start_time")) | as_datetime | as_local).date() - now().date()).days }}
+          {{ ((as_timestamp(state_attr("calendar.blue_bin", "start_time")) | as_datetime | as_local).date() - now().date()).days }}
         icon: >
-          mdi:numeric-{{ ((as_timestamp(state_attr("calendar.allied_recycling_blue_bin", "start_time")) | as_datetime | as_local).date() - now().date()).days }}
+          mdi:numeric-{{ ((as_timestamp(state_attr("calendar.blue_bin", "start_time")) | as_datetime | as_local).date() - now().date()).days }}
 
 - platform: formulaone_api
 

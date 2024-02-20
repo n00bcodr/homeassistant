@@ -14,8 +14,7 @@ battery_notes:
 logger:
   default: critical
   # logs:
-  # homeassistant.components.shell_command: debug
-  # homeassistant.components.pyscript: debug
+  #custom_components.tplink_deco: debug
 
 tts:
   - platform: google_translate
@@ -43,9 +42,6 @@ monitor_docker:
     url: tcp://192.168.68.168:2375
     switchname: "Docker {name}"
     containers:
-      - plex
-      - tautulli
-      - portainer
       - addon_core_samba
       - homebridge-homebridge-1
       - homer
@@ -53,10 +49,9 @@ monitor_docker:
       - flaresolverr
       - Tautulli
     rename:
-      plex: Plex
       tautulli: Tautulli
-      portainer: Portainer
       addon_core_samba: Samba
+      homebridge-homebridge-1: HomeBridge
     monitored_conditions:
       - containers_running
       - containers_total
@@ -75,7 +70,6 @@ recorder:
       - weather.*
       - sensor.x60*
     entities:
-      - sensor.homeassistant_boot_time
       - sun.sun
 
 spotcast:

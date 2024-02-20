@@ -3,6 +3,9 @@
     { "item": "Overview",
       "order": 0
     },
+    { "item": "Tablet",
+      "order": 1
+    },    
     { "item": "HACS",
       "order": 1
     },
@@ -30,7 +33,7 @@
     },
     {
       "item": "To-do lists",
-      "order": 6
+      "order": 7
     },    
     {
       "new_item": true,
@@ -38,15 +41,15 @@
       "href": "/config/tags",
       "icon": "mdi:nfc-variant",
       "bottom": true,
-      "order": 7
+      "order": 8
     },
     {
       "new_item": true,
       "item": "Integrations",
       "href": "/config/integrations",
-      "icon": "fas:cogs",
+      "icon": "mdi:cogs",
       "bottom": true,
-      "order": 8
+      "order": 9
     },    
     {
       "new_item": true,
@@ -54,7 +57,7 @@
       "href": "/hassio/dashboard",
       "icon": "mdi:home-assistant",
       "bottom": true,
-      "order": 9
+      "order": 10
     },
     {
       "new_item": true,
@@ -62,7 +65,7 @@
       "href": "/developer-tools/yaml",
       "icon": "mdi:restart",
       "bottom": true,
-      "order": 10
+      "order": 11
     },
     {
       "new_item": true,
@@ -70,12 +73,12 @@
       "href": "/developer-tools/state",
       "icon": "mdi:hammer",
       "bottom": true,
-      "order": 11
+      "order": 12
     },
     {
       "item": "Settings",
       "bottom": true,
-      "order": 12
+      "order": 13
     },
     {
       "item": "map",

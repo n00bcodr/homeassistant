@@ -301,7 +301,6 @@
         entity_id:
         - sensor.hilary_s_phone_battery_level
         - sensor.op7t_battery_level
-        - sensor.contact_sensor_battery
 - id: '1654855874344'
   alias: ⚙️Convert Lovelace configuration to yaml
   description: ''
@@ -417,21 +416,6 @@
       entity_id: media_player.google_tv
       command: HOME
   - service: script.load_share_url_googletv
-    data: {}
-  mode: single
-- id: '1659935815150'
-  alias: ⚙️Update Formula1 Standings after every Race
-  description: ''
-  trigger:
-  - platform: calendar
-    event: end
-    offset: 0:0:0
-    entity_id: calendar.formula1_2022
-  condition: []
-  action:
-  - service: pyscript.f1driverstandings
-    data: {}
-  - service: pyscript.f1constructorstandings
     data: {}
   mode: single
 - id: '1670537821206'
@@ -938,19 +922,13 @@
             tag: wash_cycle
           message: clear_notification
         alias: Clear Existing Notifications
-      - service: notify.all_phones_ios
-        data:
-          data:
-            tag: wash_cycle
-          message: clear_notification
-        alias: Clear Existing Notifications
       - wait_for_trigger:
         - platform: state
           entity_id:
           - sensor.washing_machine_state
           to: Cycle Complete
         continue_on_timeout: false
-      - service: notify.all_phones
+      - service: notify.all_phones_android
         data:
           message: at {{ as_timestamp(now()) | timestamp_custom('%-I:%M %p')}}
           data:
@@ -963,7 +941,6 @@
         data:
           message: at {{ as_timestamp(now()) | timestamp_custom('%-I:%M %p')}}
           data:
-            notification_icon: mdi:washing-machine
             image: /local/images/washing_machine.png
             tag: wash_cycle
           title: "\U0001F9FA Wash Cycle Complete"
@@ -977,19 +954,13 @@
             tag: wash_cycle
           message: clear_notification
         alias: Clear Existing Notifications
-      - service: notify.all_phones_ios
-        data:
-          data:
-            tag: wash_cycle
-          message: clear_notification
-        alias: Clear Existing Notifications
       - wait_for_trigger:
         - platform: state
           entity_id:
           - sensor.washing_machine_state
           to: Cycle Complete
         continue_on_timeout: false
-      - service: notify.all_phones
+      - service: notify.all_phones_android
         data:
           message: at {{ as_timestamp(now()) | timestamp_custom('%-I:%M %p')}}
           data:
@@ -1001,8 +972,7 @@
         data:
           message: at {{ as_timestamp(now()) | timestamp_custom('%-I:%M %p')}}
           data:
-            notification_icon: mdi:washing-machine
-            icon_url: /local/images/washing_machine.png
+            image: /local/images/washing_machine.png
             sticky: 'true'
             tag: wash_cycle
           title: "\U0001F9FA Dry Cycle Complete"
@@ -1035,12 +1005,7 @@
           data:
             tag: bin_pickup
           message: clear_notification
-      - service: notify.all_phones_ios
-        data:
-          data:
-            tag: bin_pickup
-          message: clear_notification
-      - service: notify.all_phones
+      - service: notify.all_phones_android
         data:
           data:
             notification_icon: mdi:trash-can-outline
@@ -1051,7 +1016,6 @@
       - service: notify.all_phones_ios
         data:
           data:
-            notification_icon: mdi:trash-can-outline
             image: /local/images/black_bin.png
             tag: bin_pickup
           message: Pickup is in two days on {{ states.sensor.black_bin.state}}
@@ -1070,12 +1034,7 @@
           data:
             tag: bin_pickup
           message: clear_notification
-      - service: notify.all_phones_ios
-        data:
-          data:
-            tag: bin_pickup
-          message: clear_notification
-      - service: notify.all_phones
+      - service: notify.all_phones_android
         data:
           data:
             notification_icon: mdi:trash-can-outline
@@ -1087,9 +1046,7 @@
       - service: notify.all_phones_ios
         data:
           data:
-            notification_icon: mdi:trash-can-outline
             image: /local/images/black_bin.png
-            color: black
             tag: bin_pickup
           message: Pickup is tomorrow, {{ states.sensor.black_bin.state}}
           title: Black Bin
@@ -1107,12 +1064,7 @@
               data:
                 tag: bin_pickup
               message: clear_notification
-          - service: notify.all_phones_ios
-            data:
-              data:
-                tag: bin_pickup
-              message: clear_notification
-          - service: notify.all_phones
+          - service: notify.all_phones_android
             data:
               data:
                 notification_icon: mdi:trash-can-outline
@@ -1127,9 +1079,7 @@
           - service: notify.all_phones_ios
             data:
               data:
-                notification_icon: mdi:trash-can-outline
                 image: /local/images/black_bin.png
-                color: black
                 tag: bin_pickup
               message: Put the Black Bin out.
               title: Black Bin
@@ -1141,8 +1091,7 @@
           until:
           - condition: template
             value_template: '{{ states.input_button.bin_outside.last_updated.timestamp()
-              > (as_timestamp(now()) - 3600) and states.input_button.bin_outside.state
-              == ''on'' }}
+              > (as_timestamp(now()) - 3600) }}
 
               '
       alias: Black Bin collection is tomorrow, is the bin out?
@@ -1160,12 +1109,7 @@
           data:
             tag: bin_pickup
           message: clear_notification
-      - service: notify.all_phones_ios
-        data:
-          data:
-            tag: bin_pickup
-          message: clear_notification
-      - service: notify.all_phones
+      - service: notify.all_phones_android
         data:
           data:
             notification_icon: mdi:trash-can
@@ -1177,10 +1121,8 @@
       - service: notify.all_phones_ios
         data:
           data:
-            notification_icon: mdi:trash-can
-            icon_url: /local/images/blue_bin.png
+            image: /local/images/blue_bin.png
             tag: bin_pickup
-            color: blue
           message: Pickup is in two days on {{ states.sensor.blue_bin.state}}
           title: Blue Bin
     - conditions:
@@ -1197,12 +1139,7 @@
           data:
             tag: bin_pickup
           message: clear_notification
-      - service: notify.all_phones_ios
-        data:
-          data:
-            tag: bin_pickup
-          message: clear_notification
-      - service: notify.all_phones
+      - service: notify.all_phones_android
         data:
           data:
             notification_icon: mdi:trash-can
@@ -1214,10 +1151,8 @@
       - service: notify.all_phones_ios
         data:
           data:
-            notification_icon: mdi:trash-can
-            icon_url: /local/images/blue_bin.png
+            image: /local/images/blue_bin.png
             tag: bin_pickup
-            color: blue
           message: Pickup is tomorrow, {{ states.sensor.blue_bin.state}}
           title: Blue Bin
       alias: Blue Bin Collection is tomorrow and it is 11 AM
@@ -1234,12 +1169,7 @@
               data:
                 tag: bin_pickup
               message: clear_notification
-          - service: notify.all_phones_ios
-            data:
-              data:
-                tag: bin_pickup
-              message: clear_notification
-          - service: notify.all_phones
+          - service: notify.all_phones_android
             data:
               data:
                 notification_icon: mdi:trash-can
@@ -1254,8 +1184,7 @@
           - service: notify.all_phones_ios
             data:
               data:
-                notification_icon: mdi:trash-can
-                icon_url: /local/images/blue_bin.png
+                image: /local/images/blue_bin.png
                 tag: bin_pickup
                 color: blue
               message: Put the Blue Bin out.
@@ -1268,8 +1197,7 @@
           until:
           - condition: template
             value_template: '{{ states.input_button.bin_outside.last_updated.timestamp()
-              > (as_timestamp(now()) - 3600) and states.input_button.bin_outside.state
-              == ''on'' }}
+              > (as_timestamp(now()) - 3600) }}
 
               '
       alias: Blue Bin collection is tomorrow, is the bin out?
@@ -1355,7 +1283,7 @@
     target:
       entity_id: switch.heating
     enabled: true
-  - service: notify.all_phones
+  - service: notify.all_phones_android
     data:
       message: at  {{ as_timestamp(now()) | timestamp_custom('%-I:%M %p')}}
       title: "\U0001F525 Turned off"
@@ -1410,8 +1338,7 @@
     data: {}
     target:
       entity_id: switch.string_lights
-  mode: parallel
-  max: 10
+  mode: restart
 - id: '1684017771758'
   alias: "\U0001F4FARefresh Plex Library"
   description: Refreshes the plex libraries when a download from sonarr or radarr
@@ -1593,28 +1520,6 @@
       hours: 0
       minutes: 1
       seconds: 30
-  - alias: When Bins change to Unavailable
-    platform: template
-    value_template: '{{ states.calendar.allied_recycling_blue_bin.state == unavailable
-      or states.calendar.allied_recycling_black_bin.state == unavailable }}
-
-      '
-    id: bins
-    for:
-      hours: 0
-      minutes: 0
-      seconds: 30
-  - alias: When Tuya changes to Unavailable
-    platform: template
-    value_template: '{{ states.switch.heating.state == unavailable or states.light.light.state
-      == unavailable or states.switch.string_lights.state == unavailable }}
-
-      '
-    id: tuya
-    for:
-      hours: 0
-      minutes: 2
-      seconds: 30
   condition: []
   action:
   - choose:
@@ -1656,29 +1561,6 @@
           device_id: []
           area_id: []
         data: {}
-    - conditions:
-      - condition: trigger
-        id:
-        - bins
-      sequence:
-      - service: homeassistant.reload_config_entry
-        data: {}
-        target:
-          entity_id:
-          - calendar.allied_recycling_blue_bin
-          - calendar.allied_recycling_black_bin
-    - conditions:
-      - condition: trigger
-        id:
-        - tuya
-      sequence:
-      - service: homeassistant.reload_config_entry
-        data: {}
-        target:
-          entity_id:
-          - light.light
-          - switch.heating
-          - switch.string_lights
   mode: single
 - id: '1688497197460'
   alias: "\U0001F3B5Text Search and Play Music on Spotify"
@@ -1991,7 +1873,7 @@
     - condition: numeric_state
       entity_id: sensor.presence_sensor_light_level
       below: 30
-      enabled: false
+      enabled: true
   action:
   - choose:
     - conditions:
@@ -2090,8 +1972,8 @@
     conditions:
     - condition: device
       type: is_on
-      device_id: dff84bd584c07eb8fe0319805d37fb40
-      entity_id: aae986f563864b62471636d435e625a3
+      device_id: 6d1dbea0f4601c12e1d4c9814c77d0f2
+      entity_id: f3eb17c987845143d05b101d743c7066
       domain: light
     - condition: device
       type: is_on
@@ -2231,12 +2113,7 @@
         data:
           tag: bin_pickup
         message: clear_notification
-    - service: notify.all_phones_ios
-      data:
-        data:
-          tag: bin_pickup
-        message: clear_notification
-    - service: notify.all_phones
+    - service: notify.all_phones_android
       data:
         data:
           notification_icon: mdi:delete-empty
@@ -2443,7 +2320,7 @@
   max: 10
 - id: '1705166594977'
   alias: ⚙️ SpeedTest
-  description: Runs SpeedTest every 6 hours
+  description: Runs SpeedTest every 3 hours
   trigger:
   - platform: time_pattern
     hours: '3'
@@ -2454,15 +2331,20 @@
     data:
       addon: 6b87c29e_speedtest_addon
   mode: single
-- id: '1705422114650'
+- id: '1707523697172'
   alias: "\U0001F3F0 Turn on Workstation"
   description: ''
   trigger:
   - platform: state
     entity_id:
-    - device_tracker.deco_35hw000201
-    attribute: connection_type
-    to: wired
+    - device_tracker.deco_rog_x13_wifi
+    from: not_home
+    to: home
+  - platform: state
+    entity_id:
+    - sensor.theaterofdreams_theaterofdreams_monitorpowerstate
+    from: 'off'
+    to: 'on'
   condition: []
   action:
   - service: switch.turn_on
@@ -2470,4 +2352,26 @@
     data: {}
     target:
       entity_id: switch.workstation
+  mode: single
+- id: '1708182186928'
+  alias: ⚙️Lovelace Reload
+  description: ''
+  trigger:
+  - platform: event
+    event_type: lovelace_updated
+    event_data:
+      url_path: dashboard-tablet
+    context: {}
+  condition: []
+  action:
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 20
+      milliseconds: 0
+  - service: button.press
+    metadata: {}
+    data: {}
+    target:
+      entity_id: button.nexus_7_load_start_url
   mode: single
