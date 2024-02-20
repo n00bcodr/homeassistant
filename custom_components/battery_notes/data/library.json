@@ -9,6 +9,11 @@
             "battery_quantity": 2
         },
         {
+            "manufacturer": "_TYZB01_hww2py6b",
+            "model": "TS1001",
+            "battery_type": "CR2450"
+        },
+        {
             "manufacturer": "_TZ1800_fcdjzz3s",
             "model": "TY0202",
             "battery_type": "AAA",
@@ -133,6 +138,11 @@
             "battery_type": "CR2032"
         },
         {
+            "manufacturer": "_TZ3000_ja5osu5g",
+            "model": "TS004F",
+            "battery_type": "CR2032"
+        },
+        {
             "manufacturer": "_TZ3000_k4ej3ww2",
             "model": "TS0207",
             "battery_type": "CR2032"
@@ -217,6 +227,11 @@
             "model": "TS0601",
             "battery_type": "AA",
             "battery_quantity": 2
+        },
+        {
+            "manufacturer": "_TZE200_3towulqd",
+            "model": "TS0601",
+            "battery_type": "CR2450"
         },
         {
             "manufacturer": "_TZE200_4eeyebrt",
@@ -380,9 +395,21 @@
         },
         {
             "manufacturer": "Airthings",
+            "model": "View Plus",
+            "battery_type": "AA",
+            "battery_quantity": 6
+        },
+        {
+            "manufacturer": "Airthings",
             "model": "View Radon",
             "battery_type": "AA",
             "battery_quantity": 6
+        },
+        {
+            "manufacturer": "Airthings",
+            "model": "Wave Plus",
+            "battery_type": "AA",
+            "battery_quantity": 2
         },
         {
             "manufacturer": "Airthings AS",
@@ -429,6 +456,16 @@
             "model": "BE469ZP",
             "battery_type": "AA",
             "battery_quantity": 4
+        },
+        {
+            "manufacturer": "Amazon",
+            "model": "KFONWI",
+            "battery_type": "Rechargeable"
+        },
+        {
+            "manufacturer": "Amazon",
+            "model": "KFRAWI",
+            "battery_type": "Rechargeable"
         },
         {
             "manufacturer": "American Power Conversion",
@@ -2401,7 +2438,7 @@
         {
             "manufacturer": "Philips",
             "model": "Hue dimmer switch (324131092621)",
-            "battery_type": "CR2032"
+            "battery_type": "CR2450"
         },
         {
             "manufacturer": "Philips",
@@ -2658,6 +2695,21 @@
             "battery_type": "CR2"
         },
         {
+            "manufacturer": "samsung",
+            "model": "SM-G955U",
+            "battery_type": "Rechargeable"
+        },
+        {
+            "manufacturer": "samsung",
+            "model": "SM-G998U",
+            "battery_type": "Rechargeable"
+        },
+        {
+            "manufacturer": "samsung",
+            "model": "SM-S918U",
+            "battery_type": "Rechargeable"
+        },
+        {
             "manufacturer": "Saswell",
             "model": "Thermostatic radiator valve (SEA801-Zigbee/SEA802-Zigbee)",
             "battery_type": "AA",
@@ -2767,12 +2819,12 @@
         {
             "manufacturer": "Signify Netherlands B.V.",
             "model": "Hue dimmer switch (RWL020)",
-            "battery_type": "CR2032"
+            "battery_type": "CR2450"
         },
         {
             "manufacturer": "Signify Netherlands B.V.",
             "model": "Hue dimmer switch (RWL021)",
-            "battery_type": "CR2032"
+            "battery_type": "CR2450"
         },
         {
             "manufacturer": "Signify Netherlands B.V.",
@@ -3989,6 +4041,11 @@
         },
         {
             "manufacturer": "Xiaomi",
+            "model": "Mi light sensor (GZCGQ01LM)",
+            "battery_type": "CR2450"
+        },
+        {
+            "manufacturer": "Xiaomi",
             "model": "Mi Scale V1",
             "battery_type": "CR2032"
         },
@@ -4052,6 +4109,11 @@
         {
             "manufacturer": "Xiaomi",
             "model": "WSDCGQ01LM",
+            "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "Xiaomi",
+            "model": "WXKG13LM",
             "battery_type": "CR2032"
         },
         {
@@ -4150,6 +4212,12 @@
             "manufacturer": "YoLink",
             "model": "MotionSensor",
             "battery_type": "AAA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "YoLink",
+            "model": "PowerFailureAlarm",
+            "battery_type": "AA",
             "battery_quantity": 2
         },
         {
