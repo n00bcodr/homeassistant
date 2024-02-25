@@ -2,7 +2,7 @@
     "config": {
         "step": {
             "user": {
-                "description": "Jos tarvitset apua asetuksissa, katso täältä: https://github.com/andrew-codechimp/ha-battery-notes",
+                "description": "Jos tarvitset apua asetuksissa, katso täältä: https://andrew-codechimp.github.io/HA-Battery-Notes/",
                 "data": {
                     "device_id": "Laite",
                     "name": "Nimi"
@@ -15,10 +15,12 @@
                 "data": {
                     "battery_type": "Akun tyyppi",
                     "battery_quantity": "Akkujen määrä",
-                    "battery_low_threshold": "Akun alhainen raja"
+                    "battery_low_threshold": "Akun alhainen raja",
+                    "battery_low_template": "Battery low template"
                 },
                 "data_description": {
-                    "battery_low_threshold": "0 käyttää yleistä oletusarvoa"
+                    "battery_low_threshold": "0 käyttää yleistä oletusarvoa",
+                    "battery_low_template": "Template to determine a battery is low, should return true if low\nOnly needed for non-standard battery levels"
                 }
             }
         },
@@ -32,16 +34,18 @@
     "options": {
         "step": {
             "init": {
-                "description": "Jos tarvitset apua asetuksissa, katso täältä: https://github.com/andrew-codechimp/ha-battery-notes",
+                "description": "Jos tarvitset apua asetuksissa, katso täältä: https://andrew-codechimp.github.io/HA-Battery-Notes/",
                 "data": {
                     "name": "Nimi",
                     "battery_type": "Akun tyyppi",
                     "battery_quantity": "Akkujen määrä",
-                    "battery_low_threshold": "Akun alhainen raja"
+                    "battery_low_threshold": "Akun alhainen raja",
+                    "battery_low_template": "Battery low template"
                 },
                 "data_description": {
                     "name": "Tyhjäksi jättäminen ottaa nimen lähdelaitteesta",
-                    "battery_low_threshold": "0 käyttää yleistä oletusarvoa"
+                    "battery_low_threshold": "0 käyttää yleistä oletusarvoa",
+                    "battery_low_template": "Template to determine a battery is low, should return true if low\nOnly needed for non-standard battery levels"
                 }
             }
         },
@@ -125,6 +129,16 @@
                 }
             },
             "name": "Aseta akku vaihdetuksi"
+        },
+        "check_battery_last_reported": {
+            "description": "Raise events for devices that haven't reported their battery level.",
+            "fields": {
+                "days_last_reported": {
+                    "description": "Number of days since a device last reported its battery level.",
+                    "name": "Päivät"
+                }
+            },
+            "name": "Check battery last reported"
         }
     }
 }
