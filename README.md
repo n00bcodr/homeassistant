@@ -146,13 +146,13 @@ I started my Home Assistant Journey with a Raspberry Pi 3, from which I have swi
 | [Go to Menu](#menu) |
 
 
-![Lovelace 1](https://github.com/n00bcodr/homeassistant-ireland/blob/master/screenshots/1.jpg?raw=true "Lovelace 1")
-![Lovelace 2](https://github.com/n00bcodr/homeassistant-ireland/blob/master/screenshots/2.jpg?raw=true "Lovelace 2")
-![Lovelace 3](https://github.com/n00bcodr/homeassistant-ireland/blob/master/screenshots/3.jpg?raw=true "Lovelace 3")
-![Lovelace 4](https://github.com/n00bcodr/homeassistant-ireland/blob/master/screenshots/4.jpg?raw=true "Lovelace 4")
-![Lovelace 5](https://github.com/n00bcodr/homeassistant-ireland/blob/master/screenshots/5.jpg?raw=true "Lovelace 5")
-![Lovelace 6](https://github.com/n00bcodr/homeassistant-ireland/blob/master/screenshots/6.jpg?raw=true "Lovelace 6")
-![Lovelace 7](https://github.com/n00bcodr/homeassistant-ireland/blob/master/screenshots/7.jpg?raw=true "Lovelace 7")
+![Lovelace 1](https://github.com/n00bcodr/homeassistant-ireland/blob/master/screenshots/1.png?raw=true "Lovelace 1")
+![Lovelace 2](https://github.com/n00bcodr/homeassistant-ireland/blob/master/screenshots/2.png?raw=true "Lovelace 2")
+![Lovelace 3](https://github.com/n00bcodr/homeassistant-ireland/blob/master/screenshots/3.png?raw=true "Lovelace 3")
+![Lovelace 4](https://github.com/n00bcodr/homeassistant-ireland/blob/master/screenshots/4.png?raw=true "Lovelace 4")
+![Lovelace 5](https://github.com/n00bcodr/homeassistant-ireland/blob/master/screenshots/5.png?raw=true "Lovelace 5")
+![Lovelace 6](https://github.com/n00bcodr/homeassistant-ireland/blob/master/screenshots/6.png?raw=true "Lovelace 6")
+![Lovelace 7](https://github.com/n00bcodr/homeassistant-ireland/blob/master/screenshots/7.png?raw=true "Lovelace 7")
 
 ---
 
