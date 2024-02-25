@@ -29,7 +29,7 @@ I started my Home Assistant Journey with a Raspberry Pi 3, from which I have swi
 * [dockerproxy](https://github.com/Tecnativa/docker-socket-proxy) to monitor various docker containers through Home Assistant
 * [Broadlink Manager](https://hub.docker.com/r/techblog/broadlinkmanager) for reading IR codes
 * [Watchtower](https://github.com/containrrr/watchtower) to have all the containers up to date. This will cause the homeassistant instance to be "unhealthy". I am using this [workaround](https://gist.github.com/HCanber/700b4a5c685b9b97fb4865de6eaff0f3).
-* [Heimdall](https://hub.docker.com/r/linuxserver/heimdall) for browser start page
+* [Homarr](https://homarr.dev/) for browser start page
 * [Transmission](https://transmissionbt.com/) installed as an app in Debian
 * [EmulatorJS](https://emulatorjs.org/) to play retro games
 * [SyncThing](https://syncthing.net/) to keep my phone's photos backed up to the server
