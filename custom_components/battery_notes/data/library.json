@@ -349,6 +349,11 @@
             "battery_type": "Rechargeable"
         },
         {
+            "manufacturer": "Aeotec",
+            "model": "ZWA011",
+            "battery_type": "CR14250"
+        },
+        {
             "manufacturer": "Aeotec Ltd.",
             "model": "ZW187",
             "battery_type": "CR2"
@@ -1394,7 +1399,7 @@
             "manufacturer": "Everspring",
             "model": "ST812",
             "battery_type": "AA",
-            "battery_quantity": 2
+            "battery_quantity": 3
         },
         {
             "manufacturer": "eWeLink",
@@ -1534,6 +1539,12 @@
         {
             "manufacturer": "Frient",
             "model": "ZHEMI101",
+            "battery_type": "AA",
+            "battery_quantity": 3
+        },
+        {
+            "manufacturer": "frient A/S",
+            "model": "EMIZB-141",
             "battery_type": "AA",
             "battery_quantity": 3
         },
@@ -1871,6 +1882,12 @@
         },
         {
             "manufacturer": "IKEA of Sweden",
+            "model": "SYMFONISK sound remote gen2",
+            "battery_type": "AAA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "IKEA of Sweden",
             "model": "TRADFRI motion sensor",
             "battery_type": "CR2032",
             "battery_quantity": 2
@@ -1927,6 +1944,11 @@
             "model": "IBS-TH2/P01B",
             "battery_type": "AAA",
             "battery_quantity": 2
+        },
+        {
+            "manufacturer": "Innr",
+            "model": "Remote control (RC 210)",
+            "battery_type": "CR2032"
         },
         {
             "manufacturer": "iNode",
@@ -2126,6 +2148,11 @@
         },
         {
             "manufacturer": "LUMI",
+            "model": "lumi.flood.agl02",
+            "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "LUMI",
             "model": "lumi.magnet.agl02",
             "battery_type": "CR1632"
         },
@@ -2226,6 +2253,11 @@
             "battery_type": "CR2032"
         },
         {
+            "manufacturer": "Merkury",
+            "model": "SS003",
+            "battery_type": "CR2"
+        },
+        {
             "manufacturer": "Meross",
             "model": "ms100",
             "battery_type": "CR2477"
@@ -2234,6 +2266,12 @@
             "manufacturer": "Mi light sensor",
             "model": "GZCGQ01LM",
             "battery_type": "CR2450"
+        },
+        {
+            "manufacturer": "Minoston",
+            "model": "MR40Z",
+            "battery_type": "CR2032",
+            "battery_quantity": 2
         },
         {
             "manufacturer": "modkam.ru",
@@ -2492,6 +2530,11 @@
         },
         {
             "manufacturer": "Philio Technology Corp",
+            "model": "PAT02-C",
+            "battery_type": "CR123A"
+        },
+        {
+            "manufacturer": "Philio Technology Corp",
             "model": "PST02A",
             "battery_type": "CR123A"
         },
@@ -2632,6 +2675,12 @@
             "battery_quantity": 2
         },
         {
+            "manufacturer": "Remsol",
+            "model": "ismartgateLITE",
+            "battery_type": "N",
+            "battery_quantity": 2
+        },
+        {
             "manufacturer": "Ring",
             "model": "4AK1SZ",
             "battery_type": "Rechargeable"
@@ -2657,6 +2706,11 @@
             "model": "Motion Sensor",
             "battery_type": "AA",
             "battery_quantity": 2
+        },
+        {
+            "manufacturer": "Ring",
+            "model": "Peephole Cam",
+            "battery_type": "\"Rechargeable\""
         },
         {
             "manufacturer": "Ring",
@@ -2821,6 +2875,16 @@
         },
         {
             "manufacturer": "Shelly",
+            "model": "BLU Button1",
+            "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "Shelly",
+            "model": "BLU Door/Window",
+            "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "Shelly",
             "model": "Shelly Door/Window 2",
             "battery_type": "CR123A",
             "battery_quantity": 2
@@ -2844,6 +2908,11 @@
             "manufacturer": "Shelly",
             "model": "Shelly Plus Smoke",
             "battery_type": "CR123A"
+        },
+        {
+            "manufacturer": "Shelly",
+            "model": "Shelly Valve",
+            "battery_type": "Rechargable"
         },
         {
             "manufacturer": "Shenzhen Heiman Technology Co., Ltd.",
@@ -3104,6 +3173,39 @@
             "battery_type": "CR123A"
         },
         {
+            "manufacturer": "Somfy",
+            "model": "IntelliTag",
+            "battery_type": "AAA"
+        },
+        {
+            "manufacturer": "Somfy",
+            "model": "Key Fob",
+            "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "Somfy",
+            "model": "Myfox Security Infrared Sensor",
+            "battery_type": "CR123A"
+        },
+        {
+            "manufacturer": "Somfy",
+            "model": "Myfox Security Outdoor Siren",
+            "battery_type": "LR20",
+            "battery_quantity": 4
+        },
+        {
+            "manufacturer": "Somfy",
+            "model": "Myfox Security Siren",
+            "battery_type": "LR20",
+            "battery_quantity": 4
+        },
+        {
+            "manufacturer": "Somfy",
+            "model": "Somfy Smoke Detector",
+            "battery_type": "AA",
+            "battery_quantity": 2
+        },
+        {
             "manufacturer": "SOMFY",
             "model": "Sonesse 28 WF Li-Ion Roller",
             "battery_type": "MANUAL"
@@ -3341,6 +3443,12 @@
         },
         {
             "manufacturer": "Third Reality, Inc",
+            "model": "3RSB015BZ",
+            "battery_type": "AA",
+            "battery_quantity": 4
+        },
+        {
+            "manufacturer": "Third Reality, Inc",
             "model": "3RSB22BZ",
             "battery_type": "AAA",
             "battery_quantity": 2
@@ -3396,6 +3504,11 @@
         {
             "manufacturer": "TS004F",
             "model": "_TZ3000_qja6nq5z",
+            "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "TS0207",
+            "model": "_TYZB01_0eaduw43",
             "battery_type": "CR2032"
         },
         {
@@ -3580,6 +3693,12 @@
         },
         {
             "manufacturer": "TuYa",
+            "model": "Smoke sensor (TS0205_smoke_2)",
+            "battery_type": "AAA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "TuYa",
             "model": "Smoke sensor (TS0601_smoke_1)",
             "battery_type": "AAA",
             "battery_quantity": 2
@@ -3664,6 +3783,11 @@
             "battery_type": "CR2032"
         },
         {
+            "manufacturer": "Tuya",
+            "model": "TS0205",
+            "battery_type": "CR123A"
+        },
+        {
             "manufacturer": "tuya",
             "model": "TS0210",
             "battery_type": "AAA",
@@ -3715,6 +3839,11 @@
         {
             "manufacturer": "TuYa",
             "model": "Wireless switch with 4 buttons (TS0044) by TuYa",
+            "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "TuYa",
+            "model": "Wireless switch with 4 buttons (TS004F)",
             "battery_type": "CR2032"
         },
         {
@@ -4146,6 +4275,11 @@
         },
         {
             "manufacturer": "Xiaomi",
+            "model": "Mi door and window sensor (MCCGQ01LM)",
+            "battery_type": "CR1632"
+        },
+        {
+            "manufacturer": "Xiaomi",
             "model": "Mi light sensor (GZCGQ01LM)",
             "battery_type": "CR2450"
         },
@@ -4378,7 +4512,7 @@
         {
             "manufacturer": "Zooz",
             "model": "ZSE42",
-            "battery_type": "CR2032"
+            "battery_type": "CR2450"
         },
         {
             "manufacturer": "Zooz",
@@ -4388,7 +4522,7 @@
         {
             "manufacturer": "Zooz",
             "model": "ZSE44",
-            "battery_type": "CR2450"
+            "battery_type": "MANUAL"
         }
     ]
 }
