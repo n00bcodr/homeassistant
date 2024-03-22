@@ -565,49 +565,6 @@
         default: []
     default: []
   mode: single
-- id: '1670844577464'
-  alias: ⚡Full charge notification
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.pixel8pro_is_charging
-    to: 'on'
-    id: pixel8pro
-  - platform: state
-    entity_id:
-    - sensor.pavan_thanujs_ipad_battery_state
-    to: 'on'
-    id: ipad
-  condition: []
-  action:
-  - choose:
-    - conditions:
-      - condition: state
-        entity_id: sensor.pixel8pro_battery_level
-        state: '100'
-      - condition: trigger
-        id: pixel8pro
-      sequence:
-      - service: notify.mobile_app_pixel8pro
-        data:
-          message: ⚡Charging Complete⚡
-          data:
-            notification_icon: mdi:battery-charging-high
-            color: red
-    - conditions:
-      - condition: state
-        entity_id: sensor.pavan_thanujs_ipad_battery_level
-        state: '100'
-      - condition: trigger
-        id: ipad
-      sequence:
-      - service: notify.mobile_app_pixel8pro
-        data:
-          message: ⚡iPad Charging Complete⚡
-          data:
-            notification_icon: mdi:battery-charging-high
-            color: red
-  mode: single
 - id: '1671637864679'
   alias: "\U0001F3F0Den as it was"
   description: Returns Den State to back what it was when Den OFF was triggered.
@@ -726,103 +683,6 @@
         tag: den_off
       message: clear_notification
   mode: single
-- id: '1672388963171'
-  alias: "\U0001F3F0\U0001F3B5Controller - TRÅDFRI Wireless 5-Button Remote"
-  description: ''
-  use_blueprint:
-    path: EPMatt/ikea_e1524_e1810.yaml
-    input:
-      integration: Zigbee2MQTT
-      controller_device: 97ca075758792ef9bbde00dd0db2f808
-      controller_entity: sensor.ikea_multi_button_action
-      helper_last_controller_event: input_text.multibutton_last_state
-      action_button_left_short: []
-      action_button_center_short: []
-      action_button_up_short: []
-      action_button_down_release: []
-      action_button_down_short: []
-      action_button_right_double: []
-      action_button_left_double: []
-      action_button_center_long:
-      - choose:
-        - conditions:
-          - condition: state
-            entity_id: media_player.spotify
-            state: playing
-          sequence:
-          - service: media_player.media_pause
-            target:
-              entity_id: media_player.spotify
-            data: {}
-        - conditions:
-          - condition: state
-            entity_id: media_player.spotify
-            state: paused
-          sequence:
-          - service: media_player.media_play
-            target:
-              entity_id: media_player.spotify
-            data: {}
-        - conditions:
-          - condition: state
-            entity_id: media_player.spotify
-            state: idle
-          sequence:
-          - service: spotcast.start
-            data:
-              device_name: '{% if is_state(''media_player.spotify'', ''playing'')
-                %} {{state_attr("media_player.spotify", "source")}} {%else%}{{ states(''input_select.speakers_spotify'')
-                }}{%endif%}'
-              force_playback: true
-              random_song: true
-              shuffle: true
-        default: []
-      action_button_center_double:
-      - choose:
-        - conditions:
-          - condition: state
-            entity_id: media_player.spotify
-            state: playing
-          sequence:
-          - service: media_player.media_pause
-            target:
-              entity_id: media_player.spotify
-            data: {}
-        - conditions:
-          - condition: state
-            entity_id: media_player.spotify
-            state: paused
-          sequence:
-          - service: media_player.media_play
-            target:
-              entity_id: media_player.spotify
-            data: {}
-        - conditions:
-          - condition: state
-            entity_id: media_player.spotify
-            state: idle
-          sequence:
-          - service: spotcast.start
-            data:
-              device_name: '{% if is_state(''media_player.spotify'', ''playing'')
-                %} {{state_attr("media_player.spotify", "source")}} {%else%}{{ states(''input_select.speakers_spotify'')
-                }}{%endif%}'
-              force_playback: true
-              random_song: true
-              shuffle: true
-        default: []
-- id: '1672388988293'
-  alias: "\U0001F3F0\U0001F3B5Hook - Media Player"
-  description: ''
-  use_blueprint:
-    path: EPMatt/media_player.yaml
-    input:
-      controller_device: 97ca075758792ef9bbde00dd0db2f808
-      controller_entity: sensor.ikea_multi_button_action
-      controller_model: IKEA E1524/E1810 TRÅDFRI Wireless 5-Button Remote
-      media_player: media_player.spotify
-      volume_steps_short: 10
-      volume_steps_long: 20
 - id: '1672404137791'
   alias: "\U0001F3F0 Bed IFTTT"
   description: ''
@@ -978,7 +838,7 @@
           title: "\U0001F9FA Dry Cycle Complete"
   mode: single
 - id: '1675437001659'
-  alias: "\U0001F6AEBin Pickup Notification"
+  alias: "\U0001F6AE\U0001F4F3Bin Pickup Notification"
   description: ''
   trigger:
   - platform: time
@@ -1315,7 +1175,7 @@
       after: sunset
     - condition: numeric_state
       entity_id: sensor.hallway_motion_illuminance
-      below: 30
+      below: 40
   action:
   - service: homeassistant.turn_on
     data: {}
@@ -1499,7 +1359,7 @@
       entity_id: switch.porch_light
   mode: single
 - id: '1687359882327'
-  alias: ⚙Reload Unavailable Entities
+  alias: ⚙️Reload Unavailable Entities
   description: ''
   trigger:
   - platform: state
@@ -1584,7 +1444,7 @@
         "source")}} {%else%}{{ states(''input_select.speakers_spotify'') }}{%endif%}'
   mode: single
 - id: '1688823940913'
-  alias: "⚙\U0001F4F3Front Door Motion - TV Notification"
+  alias: "⚙️\U0001F4F3Front Door Motion - TV Notification"
   description: ''
   trigger:
   - platform: device
@@ -1602,7 +1462,14 @@
     domain: nest
     type: doorbell_chime
     id: doorbell
-  condition: []
+  condition:
+  - condition: not
+    conditions:
+    - condition: device
+      device_id: 69e4e0f562681b3da86a0c6291d0b11c
+      domain: media_player
+      entity_id: 2e20cbcfddc439650095c2519f3eff3e
+      type: is_off
   action:
   - choose:
     - conditions:
@@ -1872,8 +1739,11 @@
       after: sunset
     - condition: numeric_state
       entity_id: sensor.presence_sensor_light_level
-      below: 30
+      below: 20
       enabled: true
+    - condition: state
+      entity_id: switch.kitchen_light
+      state: 'on'
   action:
   - choose:
     - conditions:
@@ -2174,7 +2044,7 @@
           device_name: Friday
   mode: single
 - id: '1701438113238'
-  alias: ⚙Google TV and LED Strip
+  alias: "⚙️\U0001F4A1Google TV and LED Strip"
   description: ''
   use_blueprint:
     path: adchevrier/synchronize-the-on-off-state-of-2-entities.yaml
@@ -2337,13 +2207,7 @@
   trigger:
   - platform: state
     entity_id:
-    - device_tracker.deco_rog_x13_wifi
-    from: not_home
-    to: home
-  - platform: state
-    entity_id:
     - sensor.theaterofdreams_theaterofdreams_monitorpowerstate
-    from: 'off'
     to: 'on'
   condition: []
   action:
@@ -2375,3 +2239,146 @@
     target:
       entity_id: button.nexus_7_load_start_url
   mode: single
+- id: '1708553418076'
+  alias: "\U0001F4F3Devices Unavailable!"
+  description: ''
+  trigger:
+  - platform: time
+    at: '20:00:00'
+  condition:
+  - condition: template
+    value_template: '{{states.switch.heating_blanket.state == ''unavailable''}}'
+  action:
+  - service: notify.all_phones_ios
+    data:
+      title: Some Devices are Unavailable!
+      message: switch.heating_blanket is {{states.switch.heating_blanket.state}},
+        light.guest_lamp is {{states.light.guest_lamp.state}}
+      data:
+        push:
+          sound:
+            name: default
+            critical: 1
+            volume: 0.7
+  mode: single
+- id: '1708682275062'
+  alias: "\U0001F4F3Notify New Wifi Device"
+  description: ''
+  trigger:
+  - platform: event
+    event_type: entity_registry_updated
+    event_data:
+      action: create
+  condition:
+  - condition: template
+    value_template: '{{ id.split(''.'')[0] == ''device_tracker'' }}'
+  - condition: template
+    value_template: '{{ id in integration_entities(''tplink_deco'') }}'
+  action:
+  - alias: Wait a little while to make sure the entity has updated with new state
+    wait_template: '{{ states(id) not in [''unknown'', ''unavailable''] }}'
+    timeout:
+      minutes: 1
+  - service: notify.mobile_app_pixel8pro
+    data:
+      title: '{{ state_attr(id, ''friendly_name'') or id }} connected to WiFi'
+      message: "{{ id }} connected to {{ state_attr(id, 'interface') }} {{\n  state_attr(id,
+        'connection_type')\n    | regex_replace('band', '')\n    | regex_replace('_',
+        '.')\n    | regex_replace('$', 'G')\n}} through {{ state_attr(id, 'deco_device')
+        }}"
+      data:
+        group: wifi-new-device
+        clickAction: entityId:{{ id }}
+  mode: parallel
+  max: 100
+  variables:
+    id: '{{ trigger.event.data.entity_id }}'
+- id: '1708687666073'
+  alias: "\U0001F50BBattery Replaced"
+  description: Battery Replaced
+  trigger:
+  - platform: event
+    event_type: battery_notes_battery_increased
+  condition: []
+  action:
+  - service: battery_notes.set_battery_replaced
+    data:
+      device_id: '{{ trigger.event.data.device_id }}'
+  mode: queued
+- id: '1709064572878'
+  alias: "\U0001F3B5Bathroom Speaker - Hook"
+  description: ''
+  use_blueprint:
+    path: EPMatt/media_player.yaml
+    input:
+      controller_device: 97ca075758792ef9bbde00dd0db2f808
+      controller_entity: sensor.ikea_multi_button_action
+      controller_model: IKEA E1524/E1810 TRÅDFRI Wireless 5-Button Remote
+      media_player: media_player.bathroom_speaker
+      volume_steps_short: 10
+      volume_steps_long: 20
+- id: '1709064643084'
+  alias: "\U0001F3B5Bathroom Speaker Button"
+  description: ''
+  use_blueprint:
+    path: EPMatt/ikea_e1524_e1810.yaml
+    input:
+      integration: Zigbee2MQTT
+      controller_device: 97ca075758792ef9bbde00dd0db2f808
+      controller_entity: sensor.ikea_multi_button_action
+      helper_last_controller_event: input_text.multibutton_last_state
+      action_button_left_short: []
+      action_button_center_short: []
+      action_button_up_short: []
+      action_button_down_release: []
+      action_button_down_short: []
+      action_button_right_double: []
+      action_button_left_double: []
+      action_button_center_long: []
+      action_button_center_double:
+      - choose:
+        - conditions:
+          - condition: state
+            entity_id: media_player.bathroom_speaker
+            state: playing
+          sequence:
+          - service: media_player.media_pause
+            target:
+              entity_id: media_player.spotify
+            data: {}
+        - conditions:
+          - condition: state
+            entity_id: media_player.bathroom_speaker
+            state: paused
+          sequence:
+          - service: media_player.media_play
+            target:
+              entity_id: media_player.bathroom_speaker
+            data: {}
+        default: []
+- id: '1710081581692'
+  alias: "\U0001F50BBattery Increased Notification"
+  description: Battery Increased Notification
+  trigger:
+  - platform: event
+    event_type: battery_notes_battery_increased
+  condition: []
+  action:
+  - service: persistent_notification.create
+    data:
+      title: '{{ trigger.event.data.device_name }} Battery Increased
+
+        '
+      message: 'The device has increased its battery level, you probably want to mark
+        it as replaced
+
+        '
+  mode: queued
+- id: '1710081720910'
+  alias: "\U0001F50BBattery Notes - Battery Not Reported"
+  description: ''
+  use_blueprint:
+    path: andrew-codechimp/battery_notes_battery_not_reported.yaml
+    input:
+      excluded_devices:
+      - null

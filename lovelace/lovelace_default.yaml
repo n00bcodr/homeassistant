@@ -136,9 +136,14 @@ views:
         type: entity
         use_entity_picture: true
       conditions:
-      - condition: state
-        entity: device_tracker.deco_hilary_s_phone
-        state: home
+      - condition: or
+        conditions:
+        - condition: state
+          entity: media_player.samsung_tv
+          state: 'on'
+        - condition: state
+          entity: device_tracker.deco_hilary_s_phone
+          state: home
       type: conditional
     - chip:
         content_info: name
@@ -524,7 +529,7 @@ views:
       badge_icon: ''
       double_tap_action:
         action: more-info
-      entity: sensor.bed_warmer_power
+      entity: switch.bed_warmer
       icon: '{{ iif(is_state(''switch.bed_warmer'', ''on''), ''phu:elec_blanket'',
         ''mdi:power-plug-off-outline'')}}'
       icon_color: '{{ iif(is_state(''switch.bed_warmer'', ''on''), iif(is_state(''sensor.bed_warmer_power'',
@@ -1236,6 +1241,13 @@ views:
     - card:
         button_style:
           color: var(--secondary-text-color)
+        custom_actions:
+          slider:
+            style:
+              --background-height: 8px
+              --border-radius: 50px
+              --color: dodgerblue
+              --height: 10px
         custom_keys:
           back:
             data:
@@ -1281,6 +1293,9 @@ views:
             data:
               command: KEY_MUTE
             icon: mdi:volume-mute
+            style:
+              --size: 35px
+              color: grey
             target:
               entity_id: remote.samsung_tv
           power:
@@ -1325,11 +1340,6 @@ views:
           - - home
             - null
             - back
-        slider_style:
-          --background-height: 8px
-          --border-radius: 45px
-          --color: dodgerblue
-          height: 10px
         type: custom:android-tv-card
       conditions:
       - condition: state
@@ -1349,7 +1359,6 @@ views:
   type: custom:vertical-layout
   visible:
   - user: e07f5c6a76fd4886ad5d945ed22f6d4b
-  - user: 74f7e2ffd3594037b1a2fc4de82d9fea
 - badges: []
   cards:
   - anchor_id: home
@@ -1605,7 +1614,7 @@ views:
             action: none
           hold_action:
             action: none
-          icon: hue:room-hallway
+          icon: mdi:coat-rack
           icon_color: purple
           tap_action:
             action: navigate
@@ -1948,6 +1957,14 @@ views:
       show_color_control: true
       type: custom:mushroom-light-card
       use_light_color: true
+    - collapsible_controls: true
+      entity: switch.dragon
+      icon: fas:dragon
+      icon_color: green
+      name: Dragon
+      secondary_info: last-changed
+      show_brightness_control: true
+      type: custom:mushroom-light-card
     type: vertical-stack
     view_layout:
       column: 2
@@ -2007,6 +2024,13 @@ views:
           - button_style:
               --size: 35px
               color: var(--secondary-text-color)
+            custom_actions:
+              slider:
+                style:
+                  --background-height: 5px
+                  --border-radius: 40px
+                  --color: var(--secondary-text-color)
+                  --height: 10px
             custom_keys:
               power:
                 style:
@@ -2019,11 +2043,6 @@ views:
               - home
             - - volume_slider
               - volume_mute
-            slider_style:
-              --background-height: 5px
-              --border-radius: 40px
-              --color: var(--secondary-text-color)
-              height: 10px
             type: custom:android-tv-card
           - entities:
             - card_type: horizontal-stack
@@ -2203,7 +2222,7 @@ views:
           action: none
         hold_action:
           action: none
-        icon: hue:room-hallway
+        icon: mdi:coat-rack
         icon_color: purple
         tap_action:
           action: navigate
@@ -2468,482 +2487,463 @@ views:
   path: living-room
   title: Living Room
   type: custom:vertical-layout
-- badges: []
-  cards:
-  - cards:
-    - double_tap_action:
-        action: none
-      entity: sensor.washing_machine_state
-      fill_container: true
-      hold_action:
-        action: none
-      icon_color: yellow
-      icon_type: icon
-      layout: vertical
-      name: ' '
-      primary_info: state
-      secondary_info: name
-      tap_action:
-        action: more-info
-      type: custom:mushroom-entity-card
-    - cards:
-      - double_tap_action:
-          action: none
-        fill_container: true
-        hold_action:
-          action: none
-        icon: mdi:washing-machine-alert
-        icon_color: '{{ iif(is_state(''sensor.washing_machine_state'', ''Idle''),
-          ''blue-grey'', ''grey'') }}'
-        layout: vertical
-        picture: ''
-        tap_action:
-          action: none
-        type: custom:mushroom-template-card
-      - double_tap_action:
-          action: none
-        fill_container: true
-        hold_action:
-          action: none
-        icon: mdi:washing-machine
-        icon_color: '{{ iif(is_state(''sensor.washing_machine_state'', ''Washing''),
-          ''cyan'', ''grey'') }}'
-        layout: vertical
-        picture: ''
-        tap_action:
-          action: none
-        type: custom:mushroom-template-card
-      - double_tap_action:
-          action: none
-        fill_container: true
-        hold_action:
-          action: none
-        icon: fas:spinner
-        icon_color: '{{ iif(is_state(''sensor.washing_machine_state'', ''Spinning''),
-          ''purple'', ''grey'') }}'
-        layout: vertical
-        picture: ''
-        tap_action:
-          action: none
-        type: custom:mushroom-template-card
-      - double_tap_action:
-          action: none
-        fill_container: true
-        hold_action:
-          action: none
-        icon: mdi:dishwasher
-        icon_color: '{{ iif(is_state(''sensor.washing_machine_state'', ''Rinsing''),
-          ''blue'', ''grey'') }}'
-        layout: vertical
-        picture: ''
-        tap_action:
-          action: none
-        type: custom:mushroom-template-card
-      - double_tap_action:
-          action: none
-        fill_container: true
-        hold_action:
-          action: none
-        icon: mdi:tumble-dryer
-        icon_color: '{{ iif(is_state(''sensor.washing_machine_state'', ''Drying''),
-          ''deep-orange'', ''grey'') }}'
-        picture: ''
-        tap_action:
-          action: none
-        type: custom:mushroom-template-card
-      - double_tap_action:
-          action: none
-        hold_action:
-          action: none
-        icon: mdi:check-circle
-        icon_color: '{{ iif(is_state(''sensor.washing_machine_state'', ''Cycle Complete''),
-          ''green'', ''grey'') }}'
-        layout: vertical
-        picture: ''
-        tap_action:
-          action: none
-        type: custom:mushroom-template-card
-      type: horizontal-stack
-    - card:
-        bar_background: '#111'
-        bar_height: 10px
-        bar_radius: 20px
-        entities:
-        - active_state: device_state_running
-          duration:
-            entity: sensor.bob_duration
-            units: minutes
-          entity: sensor.bob_state
-          remaining:
-            entity: sensor.bob_remaining
-            units: minutes
-        icon: mdi:timer-refresh
-        layout: hide_name
-        modifications:
-        - bar_foreground: '#FF6666'
-          elapsed: 10%
-        - bar_foreground: '#FFD700'
-          elapsed: 20%
-        - bar_foreground: '#FFFF66'
-          elapsed: 30%
-        - bar_foreground: '#B0E0E6'
-          elapsed: 40%
-        - bar_foreground: '#98FB98'
-          elapsed: 50%
-        - bar_foreground: '#00FF00'
-          elapsed: 60%
-        - bar_foreground: '#7FFF00'
-          elapsed: 70%
-        - bar_foreground: '#87CEEB'
-          elapsed: 80%
-        - bar_foreground: '#87CEFA'
-          elapsed: 90%
-        - bar_foreground: '#00FF00'
-          elapsed: 100%
-        text_width: 50px
-        type: custom:timer-bar-card
-      conditions:
-      - condition: state
-        entity: sensor.bob_state
-        state_not: device_state_off
-      - condition: state
-        entity: sensor.bob_state
-        state_not: device_state_on
-      - condition: state
-        entity: sensor.bob_state
-        state_not: unavailable
-      type: conditional
-    type: vertical-stack
+- cards: []
   icon: mdi:washing-machine
   layout: {}
   path: utilities
-  title: Utilities
-- badges: []
-  cards:
+  sections:
   - cards:
-    - entity: input_select.speakers_spotify
-      fill_container: false
-      icon_color: green
-      layout: horizontal
-      secondary_info: none
-      type: custom:mushroom-select-card
     - cards:
-      - badge_icon: ''
-        entity: input_select.speakers_spotify
+      - double_tap_action:
+          action: none
+        entity: sensor.washing_machine_state
         fill_container: true
-        icon: "{%if (states.input_select.speakers_spotify.state == 'Friday') %}\n\
-          \    {{ \"phu:nest-audio\" }}\n{%elif  (states.input_select.speakers_spotify.state\
-          \ == 'Nest Mini') %}\n    {{ \"phu:nest-mini\" }}\n{%elif  (states.input_select.speakers_spotify.state\
-          \ == 'pavanthanuj')  %}\n    {{ \"phu:imac\" }}\n{%elif  (states.input_select.speakers_spotify.state\
-          \ == \"Pavan's Nest Hub\")  %}    \n    {{ \"phu:nest-hub\" }}\n{% endif\
-          \ %}"
-        icon_color: "{%if (states.input_select.speakers_spotify.state == 'Friday')\
-          \ %}\n    {{ \"cyan\" }}\n{%elif  (states.input_select.speakers_spotify.state\
-          \ == 'Nest Mini') %}\n    {{ \"white\" }}\n{%elif  (states.input_select.speakers_spotify.state\
-          \ == 'pavanthanuj')  %}\n    {{ \"brown\" }}\n{%elif  (states.input_select.speakers_spotify.state\
-          \ == \"Pavan's Nest Hub\")  %}    \n    {{ \"pink\" }}\n{% endif %}"
-        layout: horizontal
-        picture: ''
-        primary: '{{states.input_select.speakers_spotify.state}}'
-        secondary: ''
-        tap_action:
-          action: call-service
-          data: {}
-          service: script.spotify_start
-          target: {}
-        type: custom:mushroom-template-card
-      - fill_container: true
-        icon: mdi:play
-        icon_color: amber
+        hold_action:
+          action: none
+        icon_color: yellow
+        icon_type: icon
         layout: vertical
-        primary: ''
+        name: ' '
+        primary_info: state
+        secondary_info: name
+        tap_action:
+          action: more-info
+        type: custom:mushroom-entity-card
+      - cards:
+        - double_tap_action:
+            action: none
+          fill_container: true
+          hold_action:
+            action: none
+          icon: mdi:washing-machine-alert
+          icon_color: '{{ iif(is_state(''sensor.washing_machine_state'', ''Idle''),
+            ''blue-grey'', ''grey'') }}'
+          layout: vertical
+          picture: ''
+          tap_action:
+            action: none
+          type: custom:mushroom-template-card
+        - double_tap_action:
+            action: none
+          fill_container: true
+          hold_action:
+            action: none
+          icon: mdi:washing-machine
+          icon_color: '{{ iif(is_state(''sensor.washing_machine_state'', ''Washing''),
+            ''cyan'', ''grey'') }}'
+          layout: vertical
+          picture: ''
+          tap_action:
+            action: none
+          type: custom:mushroom-template-card
+        - double_tap_action:
+            action: none
+          fill_container: true
+          hold_action:
+            action: none
+          icon: fas:spinner
+          icon_color: '{{ iif(is_state(''sensor.washing_machine_state'', ''Spinning''),
+            ''purple'', ''grey'') }}'
+          layout: vertical
+          picture: ''
+          tap_action:
+            action: none
+          type: custom:mushroom-template-card
+        - double_tap_action:
+            action: none
+          fill_container: true
+          hold_action:
+            action: none
+          icon: mdi:dishwasher
+          icon_color: '{{ iif(is_state(''sensor.washing_machine_state'', ''Rinsing''),
+            ''blue'', ''grey'') }}'
+          layout: vertical
+          picture: ''
+          tap_action:
+            action: none
+          type: custom:mushroom-template-card
+        - double_tap_action:
+            action: none
+          fill_container: true
+          hold_action:
+            action: none
+          icon: mdi:tumble-dryer
+          icon_color: '{{ iif(is_state(''sensor.washing_machine_state'', ''Drying''),
+            ''deep-orange'', ''grey'') }}'
+          picture: ''
+          tap_action:
+            action: none
+          type: custom:mushroom-template-card
+        - double_tap_action:
+            action: none
+          hold_action:
+            action: none
+          icon: mdi:check-circle
+          icon_color: '{{ iif(is_state(''sensor.washing_machine_state'', ''Cycle Complete''),
+            ''green'', ''grey'') }}'
+          layout: vertical
+          picture: ''
+          tap_action:
+            action: none
+          type: custom:mushroom-template-card
+        type: horizontal-stack
+      - cards:
+        - entity: sensor.bob_duration
+          icon: mdi:timer-play
+          icon_color: deep-orange
+          name: Duration
+          primary_info: state
+          secondary_info: name
+          type: custom:mushroom-entity-card
+        - entity: sensor.bob_remaining
+          fill_container: true
+          icon: mdi:timer-refresh
+          icon_color: purple
+          layout: horizontal
+          name: Remaining
+          primary_info: state
+          secondary_info: name
+          type: custom:mushroom-entity-card
+        type: horizontal-stack
+      type: vertical-stack
+    title: "\U0001F9FA Washing Machine"
+    type: grid
+  title: Utilities
+  type: sections
+- cards: []
+  icon: mdi:play-network-outline
+  path: media
+  sections:
+  - cards:
+    - cards:
+      - entity: input_select.speakers_spotify
+        fill_container: false
+        icon_color: green
+        layout: horizontal
+        secondary_info: none
+        type: custom:mushroom-select-card
+      - cards:
+        - badge_icon: ''
+          entity: input_select.speakers_spotify
+          fill_container: true
+          icon: "{%if (states.input_select.speakers_spotify.state == 'Friday') %}\n\
+            \    {{ \"phu:nest-audio\" }}\n{%elif  (states.input_select.speakers_spotify.state\
+            \ == 'Nest Mini') %}\n    {{ \"phu:nest-mini\" }}\n{%elif  (states.input_select.speakers_spotify.state\
+            \ == 'Kitchen Speaker') %}\n    {{ \"phu:nest-mini\" }}    \n{%elif  (states.input_select.speakers_spotify.state\
+            \ == 'THEATEROFDREAMS')  %}\n    {{ \"mdi:microsoft-windows\" }}\n{%elif\
+            \  (states.input_select.speakers_spotify.state == \"Pavan's Nest Hub\"\
+            )  %}    \n    {{ \"phu:nest-hub\" }}\n{%elif  (states.input_select.speakers_spotify.state\
+            \ == \"Bathroom Speaker\")  %}    \n    {{ \"phu:google-home\" }}\n{%\
+            \ endif %}"
+          icon_color: "{%if (states.input_select.speakers_spotify.state == 'Friday')\
+            \ %}\n    {{ \"black\" }}\n{%elif  (states.input_select.speakers_spotify.state\
+            \ == 'Nest Mini') %}\n    {{ \"white\" }}\n{%elif  (states.input_select.speakers_spotify.state\
+            \ == 'Kitchen Speaker') %}\n    {{ \"red\" }}        \n{%elif  (states.input_select.speakers_spotify.state\
+            \ == 'THEATEROFDREAMS')  %}\n    {{ \"blue\" }}\n{%elif  (states.input_select.speakers_spotify.state\
+            \ == \"Pavan's Nest Hub\")  %}    \n    {{ \"pink\" }}\n{%elif  (states.input_select.speakers_spotify.state\
+            \ == \"Bathroom Speaker\")  %}    \n    {{ \"white\" }}    \n{% endif\
+            \ %}"
+          layout: horizontal
+          picture: ''
+          primary: '{{states.input_select.speakers_spotify.state}}'
+          secondary: ''
+          tap_action:
+            action: call-service
+            data: {}
+            service: script.spotify_start
+            target: {}
+          type: custom:mushroom-template-card
+        - fill_container: true
+          icon: mdi:play
+          icon_color: amber
+          layout: vertical
+          primary: ''
+          secondary: ''
+          tap_action:
+            action: call-service
+            data: {}
+            service: script.spotify_start
+            target: {}
+          type: custom:mushroom-template-card
+        type: horizontal-stack
+      type: vertical-stack
+      view_layout:
+        column: 1
+    - entities:
+      - input_text.text_spotify
+      type: entities
+    - cards:
+      - double_tap_action:
+          action: none
+        hold_action:
+          action: none
+        picture: https://cdn.jsdelivr.net/gh/loganmarchione/homelab-svg-assets@0.3.2/assets/sonarr.svg
+        primary: Sonarr
         secondary: ''
         tap_action:
-          action: call-service
-          data: {}
-          service: script.spotify_start
-          target: {}
+          action: url
+          url_path: http://homeassistant.local:8989/
         type: custom:mushroom-template-card
-      type: horizontal-stack
-    type: vertical-stack
-    view_layout:
-      column: 1
-  - entities:
-    - input_text.text_spotify
-    type: entities
-  - card:
-      show_header_toggle: false
-      state_color: true
-      type: entities
-    filter:
-      exclude:
-      - state: unavailable
-      - state: 'off'
-      - state: idle
-      - state: standby
-      - state: unknown
-      - entity_id: '*browser*'
-      - entity_id: '*plex*'
-      include:
-      - domain: media_player
-    show_empty: false
-    sort:
-      method: last_changed
-      reverse: true
-    type: custom:auto-entities
-    view_layout:
-      column: 1
-  - cards:
-    - double_tap_action:
-        action: none
-      hold_action:
-        action: none
-      picture: https://cdn.jsdelivr.net/gh/loganmarchione/homelab-svg-assets@0.3.2/assets/sonarr.svg
-      primary: Sonarr
-      secondary: ''
-      tap_action:
-        action: url
-        url_path: http://homeassistant.local:8989/
-      type: custom:mushroom-template-card
-    - double_tap_action:
-        action: none
-      hold_action:
-        action: none
-      picture: https://cdn.jsdelivr.net/gh/loganmarchione/homelab-svg-assets@0.3.2/assets/radarr.svg
-      primary: Radarr
-      secondary: ''
-      tap_action:
-        action: url
-        url_path: http://homeassistant.local:7878/
-      type: custom:mushroom-template-card
-    - double_tap_action:
-        action: none
-      hold_action:
-        action: none
-      icon: ''
-      picture: https://cdn.jsdelivr.net/gh/loganmarchione/homelab-svg-assets@0.3.2/assets/prowlarr.svg
-      primary: Prowlarr
-      secondary: ''
-      tap_action:
-        action: url
-        url_path: http://homeassistant.local:9696/
-      type: custom:mushroom-template-card
-    - double_tap_action:
-        action: none
-      hold_action:
-        action: none
-      icon: ''
-      picture: https://cdn.jsdelivr.net/gh/loganmarchione/homelab-svg-assets@0.3.2/assets/bazarr.svg
-      primary: Bazaar
-      secondary: ''
-      tap_action:
-        action: url
-        url_path: http://homeassistant.local:6767/
-      type: custom:mushroom-template-card
-    - double_tap_action:
-        action: none
-      hold_action:
-        action: none
-      icon: ''
-      picture: https://static-00.iconduck.com/assets.00/plex-icon-512x512-mi6sd8ol.png
-      primary: Plex
-      secondary: ''
-      tap_action:
-        action: url
-        url_path: http://homeassistant.local:32400/web/index.html#!/
-      type: custom:mushroom-template-card
-    - double_tap_action:
-        action: none
-      hold_action:
-        action: none
-      picture: https://tautulli.com/images/logo-circle.png
-      primary: Tautulli
-      secondary: ''
-      tap_action:
-        action: url
-        url_path: http://homeassistant.local:8181/
-      type: custom:mushroom-template-card
-    - double_tap_action:
-        action: none
-      hold_action:
-        action: none
-      icon: ''
-      picture: https://cdn.jsdelivr.net/gh/loganmarchione/homelab-svg-assets@0.3.2/assets/syncthing.svg
-      primary: Syncthing
-      secondary: ''
-      tap_action:
-        action: url
-        url_path: http://homeassistant.local:8384/
-      type: custom:mushroom-template-card
-    - double_tap_action:
-        action: none
-      hold_action:
-        action: none
-      icon: ''
-      picture: https://cdn.jsdelivr.net/gh/loganmarchione/homelab-svg-assets@0.3.2/assets/portainer.svg
-      primary: Portainer
-      secondary: ''
-      tap_action:
-        action: url
-        url_path: http://homeassistant.local:9000/
-      type: custom:mushroom-template-card
-    - double_tap_action:
-        action: none
-      hold_action:
-        action: none
-      icon: ''
-      picture: https://cdn.jsdelivr.net/gh/loganmarchione/homelab-svg-assets@0.3.2/assets/filebrowser.svg
-      primary: File Browser
-      secondary: ''
-      tap_action:
-        action: url
-        url_path: http://homeassistant.local:8081/
-      type: custom:mushroom-template-card
-    - double_tap_action:
-        action: none
-      hold_action:
-        action: none
-      icon: ''
-      picture: https://cdn.jsdelivr.net/gh/loganmarchione/homelab-svg-assets@0.3.2/assets/transmission.svg
-      primary: Transmission
-      secondary: ''
-      tap_action:
-        action: url
-        url_path: http://homeassistant.local:9091/
-      type: custom:mushroom-template-card
-    - double_tap_action:
-        action: none
-      hold_action:
-        action: none
-      icon: ''
-      picture: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg/your-spotify.svg
-      primary: My Spotify
-      secondary: ''
-      tap_action:
-        action: url
-        url_path: http://homeassistant.local:3000/
-      type: custom:mushroom-template-card
-    - double_tap_action:
-        action: none
-      hold_action:
-        action: none
-      icon: ''
-      picture: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg/homebridge.svg
-      primary: Home Bridge
-      secondary: ''
-      tap_action:
-        action: url
-        url_path: http://homeassistant.local:8581/
-      type: custom:mushroom-template-card
-    columns: 2
-    square: false
-    type: grid
-  - cards:
-    - double_tap_action:
-        action: none
-      fill_container: true
-      hold_action:
-        action: none
-      icon: phu:plex
-      icon_color: orange
-      picture: ''
-      primary: Refresh Libraries
-      secondary: ''
-      tap_action:
-        action: call-service
-        service: script.plex_library_refresh
-        target: {}
-      type: custom:mushroom-template-card
-    - cards:
-      - aspect_ratio: 2/1
-        entity_picture: /local/icons/movie.png
-        show_entity_picture: true
+      - double_tap_action:
+          action: none
+        hold_action:
+          action: none
+        picture: https://cdn.jsdelivr.net/gh/loganmarchione/homelab-svg-assets@0.3.2/assets/radarr.svg
+        primary: Radarr
+        secondary: ''
         tap_action:
-          action: call-service
-          service: plex.refresh_library
-          service_data:
-            library_name: Movies
-            server_name: Plex Media Server
-        type: custom:button-card
-      - aspect_ratio: 2/1
-        entity_picture: /local/icons/music.png
-        show_entity_picture: true
+          action: url
+          url_path: http://homeassistant.local:7878/
+        type: custom:mushroom-template-card
+      - double_tap_action:
+          action: none
+        hold_action:
+          action: none
+        icon: ''
+        picture: https://cdn.jsdelivr.net/gh/loganmarchione/homelab-svg-assets@0.3.2/assets/prowlarr.svg
+        primary: Prowlarr
+        secondary: ''
         tap_action:
-          action: call-service
-          service: plex.refresh_library
-          service_data:
-            library_name: Music
-            server_name: Plex Media Server
-        type: custom:button-card
-      - aspect_ratio: 2/1
-        entity_picture: /local/icons/tvshow.png
-        show_entity_picture: true
+          action: url
+          url_path: http://homeassistant.local:9696/
+        type: custom:mushroom-template-card
+      - double_tap_action:
+          action: none
+        hold_action:
+          action: none
+        icon: ''
+        picture: https://cdn.jsdelivr.net/gh/loganmarchione/homelab-svg-assets@0.3.2/assets/bazarr.svg
+        primary: Bazaar
+        secondary: ''
         tap_action:
-          action: call-service
-          service: plex.refresh_library
-          service_data:
-            library_name: TV Shows
-            server_name: Plex Media Server
-        type: custom:button-card
-      type: horizontal-stack
+          action: url
+          url_path: http://homeassistant.local:6767/
+        type: custom:mushroom-template-card
+      - double_tap_action:
+          action: none
+        hold_action:
+          action: none
+        icon: ''
+        picture: https://static-00.iconduck.com/assets.00/plex-icon-512x512-mi6sd8ol.png
+        primary: Plex
+        secondary: ''
+        tap_action:
+          action: url
+          url_path: http://homeassistant.local:32400/web/index.html#!/
+        type: custom:mushroom-template-card
+      - double_tap_action:
+          action: none
+        hold_action:
+          action: none
+        picture: https://tautulli.com/images/logo-circle.png
+        primary: Tautulli
+        secondary: ''
+        tap_action:
+          action: url
+          url_path: http://homeassistant.local:8181/
+        type: custom:mushroom-template-card
+      - double_tap_action:
+          action: none
+        hold_action:
+          action: none
+        icon: ''
+        picture: https://cdn.jsdelivr.net/gh/loganmarchione/homelab-svg-assets@0.3.2/assets/syncthing.svg
+        primary: Syncthing
+        secondary: ''
+        tap_action:
+          action: url
+          url_path: http://homeassistant.local:8384/
+        type: custom:mushroom-template-card
+      - double_tap_action:
+          action: none
+        hold_action:
+          action: none
+        icon: ''
+        picture: https://cdn.jsdelivr.net/gh/loganmarchione/homelab-svg-assets@0.3.2/assets/portainer.svg
+        primary: Portainer
+        secondary: ''
+        tap_action:
+          action: url
+          url_path: http://homeassistant.local:9000/
+        type: custom:mushroom-template-card
+      - double_tap_action:
+          action: none
+        hold_action:
+          action: none
+        icon: ''
+        picture: https://cdn.jsdelivr.net/gh/loganmarchione/homelab-svg-assets@0.3.2/assets/filebrowser.svg
+        primary: File Browser
+        secondary: ''
+        tap_action:
+          action: url
+          url_path: http://homeassistant.local:8081/
+        type: custom:mushroom-template-card
+      - double_tap_action:
+          action: none
+        hold_action:
+          action: none
+        icon: ''
+        picture: https://cdn.jsdelivr.net/gh/loganmarchione/homelab-svg-assets@0.3.2/assets/transmission.svg
+        primary: Transmission
+        secondary: ''
+        tap_action:
+          action: url
+          url_path: http://homeassistant.local:9091/
+        type: custom:mushroom-template-card
+      - double_tap_action:
+          action: none
+        hold_action:
+          action: none
+        icon: ''
+        picture: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg/your-spotify.svg
+        primary: My Spotify
+        secondary: ''
+        tap_action:
+          action: url
+          url_path: http://homeassistant.local:3000/
+        type: custom:mushroom-template-card
+      - double_tap_action:
+          action: none
+        hold_action:
+          action: none
+        icon: ''
+        picture: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg/homebridge.svg
+        primary: Home Bridge
+        secondary: ''
+        tap_action:
+          action: url
+          url_path: http://homeassistant.local:8581/
+        type: custom:mushroom-template-card
+      columns: 2
+      square: false
+      type: grid
     - card:
+        show_header_toggle: false
+        state_color: true
         type: entities
       filter:
         exclude:
         - state: unavailable
-        - entity_id: '*refresh*'
+        - state: 'off'
+        - state: idle
+        - state: standby
+        - state: unknown
+        - entity_id: '*browser*'
+        - entity_id: '*plex*'
         include:
-        - type: ''
-        - name: /[Pp]lex/
+        - domain: media_player
       show_empty: false
       sort:
-        ignore_case: false
-        method: domain
-        reverse: false
+        method: last_changed
+        reverse: true
       type: custom:auto-entities
-    type: vertical-stack
-    view_layout:
-      column: 2
-  - card:
-      all_shadows: false
-      date: ddmm
-      entity: sensor.recently_added_tv
-      flag: false
-      image_style: fanart
-      max: 3
-      title: Recently Added TV
-      type: custom:upcoming-media-card
-    conditions:
-    - condition: state
-      entity: binary_sensor.plex_tv_shows
-      state: 'on'
-    type: conditional
-    view_layout:
-      column: 3
-  - card:
-      all_shadows: false
-      date: ddmm
-      entity: sensor.recently_added_movies
-      flag: false
-      image_style: fanart
-      max: 3
-      title: Recently Added Movies
-      type: custom:upcoming-media-card
-    conditions:
-    - condition: state
-      entity: binary_sensor.plex_movies
-      state: 'on'
-    type: conditional
-    view_layout:
-      column: 3
-  icon: mdi:play-network
-  layout:
-    max_cols: 3
-  path: media
+      view_layout:
+        column: 1
+    type: grid
+  - cards:
+    - cards:
+      - double_tap_action:
+          action: none
+        fill_container: true
+        hold_action:
+          action: none
+        icon: phu:plex
+        icon_color: orange
+        picture: ''
+        primary: Refresh Libraries
+        secondary: ''
+        tap_action:
+          action: call-service
+          service: script.plex_library_refresh
+          target: {}
+        type: custom:mushroom-template-card
+      - cards:
+        - aspect_ratio: 2/1
+          entity_picture: /local/icons/movie.png
+          show_entity_picture: true
+          tap_action:
+            action: call-service
+            service: plex.refresh_library
+            service_data:
+              library_name: Movies
+              server_name: Plex Media Server
+          type: custom:button-card
+        - aspect_ratio: 2/1
+          entity_picture: /local/icons/music.png
+          show_entity_picture: true
+          tap_action:
+            action: call-service
+            service: plex.refresh_library
+            service_data:
+              library_name: Music
+              server_name: Plex Media Server
+          type: custom:button-card
+        - aspect_ratio: 2/1
+          entity_picture: /local/icons/tvshow.png
+          show_entity_picture: true
+          tap_action:
+            action: call-service
+            service: plex.refresh_library
+            service_data:
+              library_name: TV Shows
+              server_name: Plex Media Server
+          type: custom:button-card
+        type: horizontal-stack
+      - card:
+          type: entities
+        filter:
+          exclude:
+          - state: unavailable
+          - entity_id: '*refresh*'
+          include:
+          - type: ''
+          - name: /[Pp]lex/
+        show_empty: false
+        sort:
+          ignore_case: false
+          method: domain
+          reverse: false
+        type: custom:auto-entities
+      type: vertical-stack
+      view_layout:
+        column: 2
+    type: grid
+  - cards:
+    - card:
+        all_shadows: false
+        date: ddmm
+        entity: sensor.recently_added_tv
+        flag: false
+        image_style: fanart
+        max: 3
+        title: Recently Added TV
+        type: custom:upcoming-media-card
+      conditions:
+      - condition: state
+        entity: binary_sensor.plex_tv_shows
+        state: 'on'
+      type: conditional
+      view_layout:
+        column: 3
+    - card:
+        all_shadows: false
+        date: ddmm
+        entity: sensor.recently_added_movies
+        flag: false
+        image_style: fanart
+        max: 3
+        title: Recently Added Movies
+        type: custom:upcoming-media-card
+      conditions:
+      - condition: state
+        entity: binary_sensor.plex_movies
+        state: 'on'
+      type: conditional
+      view_layout:
+        column: 3
+    type: grid
   title: Media
-  type: custom:vertical-layout
-  visible:
-  - user: 74f7e2ffd3594037b1a2fc4de82d9fea
+  type: sections
 - badges: []
   cards:
   - cards:
@@ -3013,8 +3013,8 @@ views:
           - border: none
           grid:
           - grid-template-areas: '''item radial'''
-          - grid-template-columns: 30% 75%
-          - grid-template-rows: 220px
+          - grid-template-columns: 30% 80%
+          - grid-template-rows: 270px
         type: custom:button-card
       - card_mod:
           style: "ha-card {\n  box-shadow: none;\n} \n"
@@ -3387,6 +3387,456 @@ views:
   visible:
   - user: 74f7e2ffd3594037b1a2fc4de82d9fea
   - user: 03fac29e97844166b40187a8b4c09ded
+- icon: mdi:server-network-outline
+  path: system
+  sections:
+  - cards:
+    - cards:
+      - alignment: center
+        chips:
+        - content: Debian
+          icon: mdi:debian
+          icon_color: purple
+          type: template
+        type: custom:mushroom-chips-card
+      - cards:
+        - custom_fields:
+            item:
+              card:
+                card_mod:
+                  style: "ha-card {\n  box-shadow: none;\n} \n"
+                cards:
+                - entity: sensor.processor_use_percent
+                  icon_color: '#01C852'
+                  name: CPU
+                  primary_info: state
+                  secondary_info: name
+                  type: custom:mushroom-entity-card
+                - entity: sensor.memory_use_percent
+                  icon_color: '#E91E63'
+                  name: RAM
+                  primary_info: state
+                  secondary_info: name
+                  type: custom:mushroom-entity-card
+                - entity: sensor.space_used
+                  icon_color: '#FF9101'
+                  name: Disk
+                  primary_info: state
+                  secondary_info: name
+                  type: custom:mushroom-entity-card
+                - entity: sensor.homeassistant_cpu_speed
+                  icon_color: grey
+                  name: CPU Speed
+                  primary_info: state
+                  secondary_info: name
+                  type: custom:mushroom-entity-card
+                mode: vertical
+                type: custom:stack-in-card
+            radial:
+              card:
+                apex_config:
+                  legend:
+                    show: false
+                  title:
+                    align: top
+                    floating: true
+                card_mod:
+                  style: "ha-card {\n  box-shadow: none;\n} \n"
+                chart_type: radialBar
+                header:
+                  show: false
+                series:
+                - color: '#01C852'
+                  entity: sensor.processor_use_percent
+                - color: '#E91E63'
+                  entity: sensor.memory_use_percent
+                - color: '#FF9101'
+                  entity: sensor.space_used
+                type: custom:apexcharts-card
+          styles:
+            card:
+            - border: none
+            grid:
+            - grid-template-areas: '''item radial'''
+            - grid-template-columns: 30% 80%
+            - grid-template-rows: 270px
+          type: custom:button-card
+        - card_mod:
+            style: "ha-card {\n  box-shadow: none;\n} \n"
+          cards:
+          - entity: sensor.processor_temperature
+            icon_color: red
+            name: Processor Temperature
+            primary_info: state
+            secondary_info: name
+            type: custom:mushroom-entity-card
+          - entity: sensor.homeassistant_boot_time
+            icon: mdi:clock
+            name: Last Boot
+            primary_info: state
+            secondary_info: name
+            type: custom:mushroom-entity-card
+          mode: horizontal
+          type: custom:stack-in-card
+        mode: vertical
+        type: custom:stack-in-card
+      type: vertical-stack
+    type: grid
+  - cards:
+    - cards:
+      - alignment: center
+        chips:
+        - content: Internet Speed
+          icon: "{% set speed = states('sensor.speedtest_download') | round %}\n{%\
+            \ if speed < 100 %}\n  mdi:speedometer-slow\n{% elif 100 <= speed <= 300\
+            \ %}\n  mdi:speedometer-medium\n{% else %}\n  mdi:speedometer\n{% endif\
+            \ %}"
+          icon_color: "{% set speed = states('sensor.speedtest_download') | round\
+            \ %}\n{% if speed < 100 %}\n  red\n{% elif 100 <= speed <= 300 %}\n  orange\n\
+            {% else %}\n  green\n{% endif %}"
+          type: template
+        type: custom:mushroom-chips-card
+      - cards:
+        - entity: sensor.speedtest_download
+          hold_action:
+            action: more-info
+          icon: mdi:download
+          icon_color: "{% set speed = states('sensor.speedtest_download') | round\
+            \ %}\n{% if speed < 100 %}\n  red\n{% elif 100 <= speed <= 300 %}\n  yellow\n\
+            {% else %}\n  green\n{% endif %}"
+          primary: '{{states.sensor.speedtest_download.state | round }} Mbps'
+          secondary: Download Speed
+          tap_action:
+            action: call-service
+            data:
+              addon: 6b87c29e_speedtest_addon
+            service: hassio.addon_start
+            target: {}
+          type: custom:mushroom-template-card
+        - entity: sensor.speedtest_upload
+          hold_action:
+            action: more-info
+          icon: mdi:upload
+          icon_color: "{% set speed = states('sensor.speedtest_upload') | round %}\n\
+            {% if speed < 10 %}\n  red\n{% elif 10 <= speed <= 30 %}\n  yellow\n{%\
+            \ else %}\n  green\n{% endif %}"
+          primary: '{{states.sensor.speedtest_upload.state | round }} Mbps'
+          secondary: Upload Speed
+          type: custom:mushroom-template-card
+        type: horizontal-stack
+      - alignment: center
+        chips:
+        - content: Ping
+          icon: "{% if is_state('binary_sensor.192_168_68_1', 'off') or is_state('binary_sensor.8_8_8_8',\
+            \ 'off') %}\n  mdi:lan-disconnect\n{% else %}\n  mdi:lan-connect\n{% endif\
+            \ %}"
+          icon_color: "{% if is_state('binary_sensor.192_168_68_1', 'off') or is_state('binary_sensor.8_8_8_8',\
+            \ 'off') %}\n  red\n{% else %}\n  blue\n{% endif %}"
+          type: template
+        type: custom:mushroom-chips-card
+      - cards:
+        - entity: binary_sensor.192_168_68_1
+          icon_color: blue
+          name: Deco
+          type: custom:mushroom-entity-card
+        - entity: binary_sensor.8_8_8_8
+          icon_color: blue
+          name: Google
+          type: custom:mushroom-entity-card
+        type: horizontal-stack
+      type: vertical-stack
+    - cards:
+      - alignment: center
+        chips:
+        - content: Storage
+          icon: mdi:memory
+          icon_color: blue-grey
+          type: template
+        type: custom:mushroom-chips-card
+      - double_tap_action:
+          action: none
+        entity: sensor.database_size
+        hold_action:
+          action: none
+        icon: mdi:database
+        icon_color: indigo
+        primary_info: state
+        secondary_info: name
+        type: custom:mushroom-entity-card
+      - entity: sensor.home_assistant_log_size
+        icon: mdi:math-log
+        icon_color: deep-orange
+        name: Homeassistant Log Size
+        primary_info: state
+        secondary_info: name
+        type: custom:mushroom-entity-card
+      - double_tap_action:
+          action: url
+          url_path: https://drive.google.com/drive/folders/1iDzbeGS-PLCnsDwG5i3dcOs1g-Ws4BjOhttps://drive.google.com/drive/folders/1iDzbeGS-PLCnsDwG5i3dcOs1g-Ws4BjO
+        entity: sensor.backup_state
+        fill_container: false
+        hold_action:
+          action: none
+        icon: mdi:google-drive
+        icon_color: yellow
+        multiline_secondary: false
+        primary: '{{states.sensor.backup_state.attributes.size_in_google_drive}}'
+        secondary: Google Drive Backup Size
+        tap_action:
+          action: navigate
+          navigation_path: http://homeassistant.local:8123/hassio/ingress/cebe7a76_hassio_google_drive_backup
+        type: custom:mushroom-template-card
+      - double_tap_action:
+          action: navigate
+          navigation_path: /hassio/backups
+        entity: sensor.backup_state
+        fill_container: false
+        icon: mdi:home-assistant
+        icon_color: blue
+        multiline_secondary: false
+        primary: '{{states.sensor.backup_state.attributes.size_in_home_assistant}}'
+        secondary: Homeassistant Local Backup Size
+        tap_action:
+          action: none
+        type: custom:mushroom-template-card
+      - double_tap_action:
+          action: none
+        entity: sensor.harddisk_free_space
+        fill_container: true
+        hold_action:
+          action: none
+        icon: mdi:harddisk
+        icon_color: '{% set percentage = (((states(''sensor.harddisk_free_space'')
+          | float) / (states(''sensor.harddisk_total_space'') | float))*100) | round(2)
+          | float %}
+
+
+
+          {% if percentage > 50.0 %}
+
+          green
+
+          {% elif (percentage <= 50.0) and (percentage > 30.0) %}
+
+          orange
+
+          {% elif (percentage <= 30.0) and (percentage > 0.0) %}
+
+          red
+
+          {% endif %}'
+        multiline_secondary: true
+        primary: '{{states(''sensor.harddisk_used_space'')}} GB'
+        secondary: 'Internal HDD
+
+          {{ (((states(''sensor.harddisk_free_space'') | float) / (states(''sensor.harddisk_total_space'')
+          | float))*100) | round(2)}}% free'
+        tap_action:
+          action: more-info
+        type: custom:mushroom-template-card
+      - double_tap_action:
+          action: none
+        entity: sensor.1tb_free_space
+        fill_container: false
+        hold_action:
+          action: none
+        icon: phu:seagate-ssd
+        icon_color: '{% set percentage = (((states(''sensor.1tb_free_space'') | float)
+          / (states(''sensor.1tb_total_space'') | float))*100) | round(2) | float
+          %}
+
+
+
+          {% if percentage > 50.0 %}
+
+          green
+
+          {% elif (percentage <= 50.0) and (percentage > 30.0) %}
+
+          orange
+
+          {% elif (percentage <= 30.0) and (percentage > 0.0) %}
+
+          red
+
+          {% endif %}'
+        multiline_secondary: true
+        primary: '{{states(''sensor.1tb_used_space'')}} GB'
+        secondary: '1 TB
+
+          {{ (((states(''sensor.1tb_free_space'') | float) / (states(''sensor.1tb_total_space'')
+          | float))*100) | round(2)}}% free'
+        tap_action:
+          action: more-info
+        type: custom:mushroom-template-card
+      - double_tap_action:
+          action: none
+        entity: sensor.5tb_free_space
+        fill_container: true
+        hold_action:
+          action: none
+        icon: phu:seagate-ssd
+        icon_color: '{% set percentage = (((states(''sensor.5tb_free_space'') | float)
+          / (states(''sensor.5tb_total_space'') | float))*100) | round(2) | float
+          %}
+
+
+
+          {% if percentage > 50.0 %}
+
+          green
+
+          {% elif (percentage <= 50.0) and (percentage > 40.0) %}
+
+          orange
+
+          {% elif (percentage <= 40.0) and (percentage > 0.0) %}
+
+          red
+
+          {% endif %}'
+        multiline_secondary: true
+        primary: '{{states(''sensor.5tb_used_space'')}} GB'
+        secondary: '5 TB
+
+          {{ (((states(''sensor.5tb_free_space'') | float) / (states(''sensor.5tb_total_space'')
+          | float))*100) | round(2)}}% free'
+        tap_action:
+          action: more-info
+        type: custom:mushroom-template-card
+      type: vertical-stack
+    type: grid
+  - cards:
+    - cards:
+      - alignment: center
+        chips:
+        - content: Syncthing
+          icon: mdi:sync
+          icon_color: blue
+          type: template
+        type: custom:mushroom-chips-card
+      - double_tap_action:
+          action: none
+        entity: sensor.syncthing_whatsapp
+        hold_action:
+          action: more-info
+        icon: "{% if states('sensor.syncthing_whatsapp') == 'syncing' %}\n  mdi:folder-sync\n\
+          {% elif states('sensor.syncthing_whatsapp') == 'idle' %}\n  mdi:folder-check\n\
+          {% elif states('sensor.syncthing_whatsapp') == 'paused' %}\n  mdi:folder-clock\n\
+          {% endif %}\n"
+        icon_color: "{% if states('sensor.syncthing_whatsapp') == 'syncing' %}\n \
+          \ yellow\n{% elif states('sensor.syncthing_whatsapp') == 'idle' %}\n  green\n\
+          {% elif states('sensor.syncthing_whatsapp') == 'paused' %}\n  grey\n{% endif\
+          \ %}\n"
+        multiline_secondary: true
+        primary: Syncthing WhatsApp
+        secondary: 'Files - {{states.sensor.syncthing_whatsapp.attributes.global_files}}
+
+          Local Files - {{states.sensor.syncthing_whatsapp.attributes.local_files}}
+
+          Size - {{ (states.sensor.syncthing_whatsapp.attributes.local_bytes | float
+          / 1024 / 1024 / 1024)  | round(2) }} GB
+
+          '
+        tap_action:
+          action: none
+        type: custom:mushroom-template-card
+      - double_tap_action:
+          action: none
+        entity: sensor.syncthing_camera
+        hold_action:
+          action: more-info
+        icon: "{% if states('sensor.syncthing_camera') == 'syncing' %}\n  mdi:folder-sync\n\
+          {% elif states('sensor.syncthing_camera') == 'idle' %}\n  mdi:folder-check\n\
+          {% endif %}\n"
+        icon_color: "{% if states('sensor.syncthing_camera') == 'syncing' %}\n  yellow\n\
+          {% elif states('sensor.syncthing_camera') == 'idle' %}\n  green\n{% endif\
+          \ %}\n"
+        multiline_secondary: true
+        primary: Syncthing Camera
+        secondary: 'Files - {{states.sensor.syncthing_camera.attributes.global_files}}
+
+          Local Files - {{states.sensor.syncthing_camera.attributes.local_files}}
+
+          Size - {{ (states.sensor.syncthing_camera.attributes.local_bytes | float
+          / 1024 / 1024 / 1024)  | round(2) }} GB
+
+          '
+        tap_action:
+          action: none
+        type: custom:mushroom-template-card
+      type: vertical-stack
+    - cards:
+      - alignment: center
+        chips:
+        - content: Git
+          icon: mdi:github
+          icon_color: white
+          type: template
+        type: custom:mushroom-chips-card
+      - cards:
+        - entities:
+          - icon: fab:git
+            name: /n00bcodr/homeassistant-ireland
+            type: weblink
+            url: https://github.com/n00bcodr/homeassistant-ireland
+          - entity: sensor.n00bcodr_homeassistant_ireland_latest_commit
+            icon: mdi:source-commit-end
+            name: Last Commit
+          - type: section
+          - icon: mdi:text
+            name: Suggested Commit - files on {{ now().timestamp() | timestamp_custom('%b
+              %d, %Y - %-I:%M %p') }}
+            state: ''
+            tap_action: none
+            type: custom:template-entity-row
+          - entity: input_text.git_commit_message
+            extend_paper_buttons_row:
+              buttons:
+              - icon: mdi:close
+                tap_action:
+                  action: call-service
+                  service: input_text.set_value
+                  service_data:
+                    value: "\u200E"
+                  target:
+                    entity_id: input_text.git_commit_message
+              - icon: fas:paste
+                tap_action:
+                  action: call-service
+                  service: script.git_commit_copy
+              position: right
+            name: Commit Message
+          - type: section
+          type: entities
+        - alignment: center
+          chips:
+          - content: Git Push
+            entity: script.git_push
+            icon: mdi:upload-multiple
+            type: template
+          - content: HA Version Update
+            entity: script.git_push_ha_version
+            icon: mdi:package-up
+            picture: ''
+            type: template
+          type: custom:mushroom-chips-card
+        - alignment: center
+          chips:
+          - content: Push Custom Components
+            icon: hacs:hacs
+            icon_color: blue
+            tap_action:
+              action: call-service
+              service: shell_command.git_hacs_update
+            type: template
+          type: custom:mushroom-chips-card
+        mode: vertical
+        type: custom:stack-in-card
+      type: vertical-stack
+    type: grid
+  title: System
+  type: sections
 - badges: []
   cards:
   - cards:
@@ -3764,6 +4214,27 @@ views:
       --mdc-tab-text-label-color-default: var(--primary-text-color)
     tabs:
     - attributes:
+        icon: mdi:zigbee
+        label: Zigbee Devices
+      card:
+        card:
+          bulk_rename:
+          - from: Battery+
+            to: Battery
+          secondary_info: '{attributes.battery_type_and_quantity}'
+          type: custom:battery-state-card
+        filter:
+          include:
+          - entity_id: /battery_plus/
+            integration: battery_notes
+        sort:
+          method: state
+          numeric: true
+          reverse: false
+        type: custom:auto-entities
+      styles:
+        --mdc-theme-primary: red
+    - attributes:
         icon: mdi:cellphone
         label: Mobile Devices
       card:
@@ -3787,27 +4258,6 @@ views:
         type: custom:auto-entities
       styles:
         --mdc-theme-primary: green
-    - attributes:
-        icon: mdi:zigbee
-        label: Zigbee Devices
-      card:
-        card:
-          bulk_rename:
-          - from: Battery+
-            to: Battery
-          secondary_info: '{attributes.battery_type_and_quantity}'
-          type: custom:battery-state-card
-        filter:
-          include:
-          - entity_id: /battery_plus/
-            integration: battery_notes
-        sort:
-          method: state
-          numeric: true
-          reverse: false
-        type: custom:auto-entities
-      styles:
-        --mdc-theme-primary: red
     type: custom:tabbed-card
     view_layout:
       column: 1
@@ -4364,6 +4814,33 @@ views:
               \ {\n  filter: invert(0.95) grayscale(0.95) contrast(95%);\n}\n"
       type: vertical-stack
     type: vertical-stack
+  - entities:
+    - entity: button.nexus_7_bring_to_foreground
+      name: Bring to foreground
+    - entity: switch.nexus_7_kiosk_lock
+      name: Kiosk lock
+    - entity: button.nexus_7_load_start_url
+      name: Load start URL
+    - entity: switch.nexus_7_maintenance_mode
+      name: Maintenance mode
+    - entity: switch.nexus_7_motion_detection
+      name: Motion detection
+    - entity: button.nexus_7_restart_browser
+      name: Restart browser
+    - entity: button.nexus_7_restart_device
+      name: Restart device
+    - entity: number.nexus_7_screen_brightness
+      name: Screen brightness
+    - entity: number.nexus_7_screen_off_timer
+      name: Screen off timer
+    - entity: number.nexus_7_screensaver_brightness
+      name: Screensaver brightness
+    - entity: number.nexus_7_screensaver_timer
+      name: Screensaver timer
+    - entity: button.nexus_7_send_to_background
+      name: Send to background
+    title: Nexus 7
+    type: entities
   icon: mdi:devices
   layout:
     max_cols: 3
@@ -4373,168 +4850,175 @@ views:
   type: custom:vertical-layout
   visible:
   - user: 74f7e2ffd3594037b1a2fc4de82d9fea
-- badges: []
-  cards:
-  - styles:
-      --mdc-icon-size: 25px
-      --mdc-tab-color-default: var(--primary-text-color)
-      --mdc-tab-text-label-color-default: var(--primary-text-color)
-    tabs:
-    - attributes:
-        icon: mdi:castle
-        label: Den
-      card:
-        card:
-          show_header_toggle: false
-          state_color: true
-          type: entities
-        filter:
-          exclude: []
-          include:
-          - name: "/\U0001F3F0/"
-          show_empty: true
-          sort:
-            method: last_triggered
-        type: custom:auto-entities
-      styles:
-        --mdc-theme-primary: cyan
-    - attributes:
-        icon: mdi:lightbulb
-        label: Light
-      card:
-        card:
-          show_header_toggle: false
-          state_color: true
-          type: entities
-        filter:
-          exclude: []
-          include:
-          - name: "/\U0001F4A1/"
-          show_empty: true
-          sort:
-            method: last_triggered
-        type: custom:auto-entities
-      styles:
-        --mdc-theme-primary: yellow
-    - attributes:
-        icon: mdi:cog
-        label: Tools
-      card:
-        card:
-          show_header_toggle: false
-          state_color: true
-          type: entities
-        filter:
-          exclude: []
-          include:
-          - name: "/\u2699\uFE0F/"
-          show_empty: true
-          sort:
-            method: last_triggered
-        type: custom:auto-entities
-      styles:
-        --mdc-theme-primary: tomato
-    - attributes:
-        icon: mdi:music
-        label: Media
-      card:
-        card:
-          show_header_toggle: false
-          state_color: true
-          type: entities
-        filter:
-          exclude: []
-          include:
-          - name: "/\U0001F3B5/"
-          - name: "/\U0001F3AC/"
-          - name: "/\U0001F4FA/"
-          show_empty: true
-          sort:
-            method: last_triggered
-        type: custom:auto-entities
-      styles:
-        --mdc-theme-primary: skyblue
-    - attributes:
-        icon: mdi:publish
-        label: Notifiy
-      card:
-        card:
-          show_header_toggle: false
-          state_color: true
-          type: entities
-        filter:
-          include:
-          - domain: automation
-            name: /[Nn]otif/
-          show_empty: true
-          sort:
-            method: last_triggered
-        type: custom:auto-entities
-      styles:
-        --mdc-theme-primary: purple
-    - attributes:
-        icon: mdi:robot
-        label: Others
-      card:
-        card:
-          show_header_toggle: false
-          state_color: true
-          type: entities
-        filter:
-          exclude:
-          - name: "*\U0001F3B5*"
-          - name: "*\U0001F9FA*"
-          - name: "*\U0001F4A1*"
-          - name: "*\U0001F4A7*"
-          - name: "*\U0001F3AC*"
-          - name: "*\U0001F3F0*"
-          - name: "*\u2699\uFE0F*"
-          - name: "*\U0001F4FA*"
-          include:
-          - domain: automation
-          show_empty: true
-          sort:
-            ignore_case: false
-            method: last_triggered
-        type: custom:auto-entities
-      styles:
-        --mdc-theme-primary: lightgreen
-    - attributes:
-        icon: mdi:robot-confused-outline
-        label: Disabled
-      card:
-        card:
-          show_header_toggle: false
-          state_color: true
-          type: entities
-        filter:
-          include:
-          - domain: automation
-            state: 'off'
-          show_empty: true
-          sort:
-            ignore_case: false
-            method: last_triggered
-        type: custom:auto-entities
-      styles:
-        --mdc-theme-primary: grey
-    type: custom:tabbed-card
-  - card:
-      type: entities
-    filter:
-      exclude: []
-      include:
-      - domain: script
-    sort:
-      method: last_triggered
-      reverse: false
-    type: custom:auto-entities
+- cards: []
   icon: mdi:robot
   path: automations
+  sections:
+  - cards:
+    - styles:
+        --mdc-icon-size: 25px
+        --mdc-tab-color-default: var(--primary-text-color)
+        --mdc-tab-text-label-color-default: var(--primary-text-color)
+      tabs:
+      - attributes:
+          icon: mdi:castle
+          label: Den
+        card:
+          card:
+            show_header_toggle: false
+            state_color: true
+            type: entities
+          filter:
+            exclude: []
+            include:
+            - name: "/\U0001F3F0/"
+            show_empty: true
+            sort:
+              method: last_triggered
+          type: custom:auto-entities
+        styles:
+          --mdc-theme-primary: cyan
+      - attributes:
+          icon: mdi:lightbulb
+          label: Light
+        card:
+          card:
+            show_header_toggle: false
+            state_color: true
+            type: entities
+          filter:
+            exclude: []
+            include:
+            - name: "/\U0001F4A1/"
+            show_empty: true
+            sort:
+              method: last_triggered
+          type: custom:auto-entities
+        styles:
+          --mdc-theme-primary: yellow
+      - attributes:
+          icon: mdi:cog
+          label: Tools
+        card:
+          card:
+            show_header_toggle: false
+            state_color: true
+            type: entities
+          filter:
+            exclude: []
+            include:
+            - name: "/\u2699\uFE0F/"
+            show_empty: true
+            sort:
+              method: last_triggered
+          type: custom:auto-entities
+        styles:
+          --mdc-theme-primary: tomato
+      - attributes:
+          icon: mdi:music
+          label: Media
+        card:
+          card:
+            show_header_toggle: false
+            state_color: true
+            type: entities
+          filter:
+            exclude: []
+            include:
+            - name: "/\U0001F3B5/"
+            - name: "/\U0001F3AC/"
+            - name: "/\U0001F4FA/"
+            show_empty: true
+            sort:
+              method: last_triggered
+          type: custom:auto-entities
+        styles:
+          --mdc-theme-primary: skyblue
+      - attributes:
+          icon: mdi:publish
+          label: Notifiy
+        card:
+          card:
+            show_header_toggle: false
+            state_color: true
+            type: entities
+          filter:
+            include:
+            - domain: automation
+              name: /[Nn]otif/
+            - name: "*\U0001F4F3*"
+            show_empty: true
+            sort:
+              method: last_triggered
+          type: custom:auto-entities
+        styles:
+          --mdc-theme-primary: purple
+      - attributes:
+          icon: mdi:robot
+          label: Others
+        card:
+          card:
+            show_header_toggle: false
+            state_color: true
+            type: entities
+          filter:
+            exclude:
+            - name: "*\U0001F3B5*"
+            - name: "*\U0001F9FA*"
+            - name: "*\U0001F4A1*"
+            - name: "*\U0001F4A7*"
+            - name: "*\U0001F3AC*"
+            - name: "*\U0001F3F0*"
+            - name: "*\u2699\uFE0F*"
+            - name: "*\U0001F4FA*"
+            - name: "*\U0001F4F3*"
+            include:
+            - domain: automation
+            show_empty: true
+            sort:
+              ignore_case: false
+              method: last_triggered
+          type: custom:auto-entities
+        styles:
+          --mdc-theme-primary: lightgreen
+      - attributes:
+          icon: mdi:robot-confused-outline
+          label: Disabled
+        card:
+          card:
+            show_header_toggle: false
+            state_color: true
+            type: entities
+          filter:
+            include:
+            - domain: automation
+              state: 'off'
+            show_empty: true
+            sort:
+              ignore_case: false
+              method: last_triggered
+          type: custom:auto-entities
+        styles:
+          --mdc-theme-primary: grey
+      type: custom:tabbed-card
+    title: "\U0001F916 Automations"
+  - cards:
+    - card:
+        show_header_toggle: false
+        type: entities
+      filter:
+        exclude: []
+        include:
+        - domain: script
+      sort:
+        method: last_triggered
+        reverse: false
+      type: custom:auto-entities
+    title: "\U0001F4DD Scripts"
+    type: grid
   title: Automations
-  type: custom:horizontal-layout
-- badges: []
-  cards:
+  type: sections
+- cards:
   - card:
       card_type: last_result
       f1_font: true
@@ -4718,9 +5202,11 @@ views:
     type: conditional
   icon: mdi:racing-helmet
   path: formula-1
+  subview: false
   theme: null
   title: formula-1
-  visible: []
+  visible:
+  - user: 74f7e2ffd3594037b1a2fc4de82d9fea
 - badges: []
   cards:
   - custom_fields:

@@ -13,9 +13,9 @@ my:
 battery_notes:
 logger:
   default: critical
-  # logs:
-  #custom_components.tplink_deco: debug
-
+  logs:
+    custom_components.localtuya: debug
+    custom_components.localtuya.pytuya: debug
 tts:
   - platform: google_translate
 
