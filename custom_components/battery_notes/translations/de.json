@@ -20,7 +20,7 @@
                 },
                 "data_description": {
                     "battery_low_threshold": "0 verwendet den globalen Standardschwellenwert",
-                    "battery_low_template": "Template to determine a battery is low, should return true if low\nOnly needed for non-standard battery levels"
+                    "battery_low_template": "Vorlage um zu bestimmen, ob eine Batterie schwach ist; sollte \"wahr\" (true) rückmelden, wenn schwach.\nNur für nicht-Standard Batteriewerte benötigt."
                 }
             }
         },
@@ -45,7 +45,7 @@
                 "data_description": {
                     "name": "Wenn du nichts eingibst, wird der Name vom Quellgerät übernommen",
                     "battery_low_threshold": "0 verwendet den globalen Standardschwellenwert",
-                    "battery_low_template": "Template to determine a battery is low, should return true if low\nOnly needed for non-standard battery levels"
+                    "battery_low_template": "Vorlage um zu bestimmen, ob eine Batterie schwach ist; sollte \"wahr\" (true) rückmelden, wenn schwach.\nNur für nicht-Standard Batteriewerte benötigt."
                 }
             }
         },
@@ -96,6 +96,12 @@
                     },
                     "battery_last_reported_level": {
                         "name": "Letzter gemeldeter Batteriestand"
+                    },
+                    "device_id": {
+                        "name": "Geräte-ID"
+                    },
+                    "device_name": {
+                        "name": "Gerätename"
                     }
                 }
             },
@@ -131,7 +137,7 @@
             "name": "ktualisiert den Zeitpunkt des letzten Batteriewechsels"
         },
         "check_battery_last_reported": {
-            "description": "Raise events for devices that haven't reported their battery level.",
+            "description": "Erzeuge Ereignis für Geräte, die keinen Batteriestand gemeldet haben.",
             "fields": {
                 "days_last_reported": {
                     "description": "Anzahl der Tage seit dem letzten Akkustands-Report.",
@@ -139,6 +145,10 @@
                 }
             },
             "name": "Batteriestatus zuletzt gemeldet"
+        },
+        "check_battery_low": {
+            "description": "Erzeuge Ereignis für Geräte, die einen niedrigen Batteriestand haben.",
+            "name": "Batterie schwach prüfen"
         }
     }
 }

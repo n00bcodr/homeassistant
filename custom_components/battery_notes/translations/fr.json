@@ -16,11 +16,11 @@
                     "battery_type": "Type de batterie",
                     "battery_quantity": "Nombre de batteries",
                     "battery_low_threshold": "Seuil de batterie faible",
-                    "battery_low_template": "Battery low template"
+                    "battery_low_template": "Modèle de batterie faible"
                 },
                 "data_description": {
                     "battery_low_threshold": "0 gardera le seuil par defaut",
-                    "battery_low_template": "Template to determine a battery is low, should return true if low\nOnly needed for non-standard battery levels"
+                    "battery_low_template": "Modèle pour déterminer si une batterie est faible, devrait retourner vrai si faible\nNécessaire uniquement pour les niveaux de batterie non standard"
                 }
             }
         },
@@ -40,12 +40,12 @@
                     "battery_type": "Type de batterie",
                     "battery_quantity": "Nombre de batteries",
                     "battery_low_threshold": "Seuil de batterie faible",
-                    "battery_low_template": "Battery low template"
+                    "battery_low_template": "Modèle de batterie faible"
                 },
                 "data_description": {
                     "name": "Laisser vide gardera le seuil par defaut",
                     "battery_low_threshold": "0 gardera le seuil par defaut",
-                    "battery_low_template": "Template to determine a battery is low, should return true if low\nOnly needed for non-standard battery levels"
+                    "battery_low_template": "Modèle pour déterminer si une batterie est faible, devrait retourner vrai si faible\nNécessaire uniquement pour les niveaux de batterie non standard"
                 }
             }
         },
@@ -96,6 +96,12 @@
                     },
                     "battery_last_reported_level": {
                         "name": "Dernier niveau de batterie signalé"
+                    },
+                    "device_id": {
+                        "name": "ID de l’appareil"
+                    },
+                    "device_name": {
+                        "name": "Nom de l'appareil"
                     }
                 }
             },
@@ -131,14 +137,18 @@
             "name": "Mise à jour remplacement de la batterie"
         },
         "check_battery_last_reported": {
-            "description": "Raise events for devices that haven't reported their battery level.",
+            "description": "Remontée des appareils qui n'ont pas signalé leur niveau de batterie.",
             "fields": {
                 "days_last_reported": {
-                    "description": "Number of days since a device last reported its battery level.",
+                    "description": "Nombre de jours écoulés depuis la dernière fois qu'un appareil a signalé son niveau de batterie.",
                     "name": "Jours"
                 }
             },
-            "name": "Check battery last reported"
+            "name": "Batterie signalée pour la dernière fois"
+        },
+        "check_battery_low": {
+            "description": "Déclenche des événements pour les appareils qui ont une batterie faible.",
+            "name": "Vérifier si batterie faible"
         }
     }
 }

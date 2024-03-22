@@ -1,9 +1,11 @@
 """Sensor platform for battery_notes."""
 from __future__ import annotations
 
+from collections.abc import Mapping
 import logging
 from datetime import datetime
 from dataclasses import dataclass
+from typing import Any
 import voluptuous as vol
 
 from homeassistant.components.sensor import (
@@ -69,6 +71,7 @@ from .const import (
     ATTR_BATTERY_LAST_REPORTED,
     ATTR_BATTERY_LAST_REPORTED_LEVEL,
     ATTR_DEVICE_ID,
+    ATTR_DEVICE_NAME,
 )
 
 from .common import isfloat
@@ -380,12 +383,17 @@ class BatteryNotesBatteryPlusSensor(
                 )
 
         @callback
-        def _filter_entity_id(event: Event) -> bool:
+        def _filter_entity_id(event_data: Mapping[str, Any] | Event) -> bool:
             """Only dispatch the listener for update events concerning the source entity."""
+
+            # Breaking change in 2024.4.0, check for Event for versions prior to this
+            if type(event_data) is Event:  # Intentionally avoid `isinstance` because it's slow and we trust `Event` is not subclassed
+                event_data = event_data.data
+
             return (
-                event.data["action"] == "update"
-                and "old_entity_id" in event.data
-                and event.data["old_entity_id"] == source_entity_id
+                event_data["action"] == "update"
+                and "old_entity_id" in event_data
+                and event_data["old_entity_id"] == source_entity_id
             )
 
         self.hass.bus.async_listen(
@@ -492,6 +500,7 @@ class BatteryNotesBatteryPlusSensor(
 
         # Other attributes that should follow battery, attribute list is unsorted
         attrs[ATTR_DEVICE_ID] = self.coordinator.device_id
+        attrs[ATTR_DEVICE_NAME] = self.coordinator.device_name
 
         super_attrs = super().extra_state_attributes
         if super_attrs:

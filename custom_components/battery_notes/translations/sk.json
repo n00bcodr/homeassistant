@@ -96,6 +96,12 @@
                     },
                     "battery_last_reported_level": {
                         "name": "Posledná nahlásená úroveň batérie"
+                    },
+                    "device_id": {
+                        "name": "Device Id"
+                    },
+                    "device_name": {
+                        "name": "Device name"
                     }
                 }
             },
@@ -139,6 +145,10 @@
                 }
             },
             "name": "Check battery last reported"
+        },
+        "check_battery_low": {
+            "description": "Raise events for devices that have a low battery.",
+            "name": "Check battery low"
         }
     }
 }

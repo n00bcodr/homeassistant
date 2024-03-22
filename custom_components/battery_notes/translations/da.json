@@ -96,6 +96,12 @@
                     },
                     "battery_last_reported_level": {
                         "name": "Sidst rapporterede batteriniveau"
+                    },
+                    "device_id": {
+                        "name": "Enheds Id"
+                    },
+                    "device_name": {
+                        "name": "Enhedens navn"
                     }
                 }
             },
@@ -139,6 +145,10 @@
                 }
             },
             "name": "Batteri sidst rapporteret"
+        },
+        "check_battery_low": {
+            "description": "Raise events for devices that have a low battery.",
+            "name": "Check battery low"
         }
     }
 }
