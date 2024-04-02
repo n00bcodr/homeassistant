@@ -491,7 +491,7 @@
           - light.light
   mode: single
 - id: '1670578939434'
-  alias: "\U0001F3F0Button"
+  alias: "\U0001F3F0Den Button"
   description: ''
   trigger:
   - platform: device
@@ -1156,8 +1156,8 @@
   use_blueprint:
     path: adchevrier/synchronize-the-on-off-state-of-2-entities.yaml
     input:
-      entity_1: switch.backyard_lights_socket_1
-      entity_2: switch.backyard_lights
+      entity_1: light.backyard_lights
+      entity_2: switch.backyard_lights_switch
 - id: '1680037718271'
   alias: "\U0001F4A1Hallway String Lights Motion"
   description: ''
@@ -1275,7 +1275,7 @@
   use_blueprint:
     path: adchevrier/synchronize-the-on-off-state-of-2-entities.yaml
     input:
-      entity_1: switch.string_lights_1
+      entity_1: switch.string_lights_switch
       entity_2: switch.string_lights
 - id: '1684631799938'
   alias: "\U0001F3F0Bed Routine for curtains"
@@ -1842,8 +1842,8 @@
     conditions:
     - condition: device
       type: is_on
-      device_id: 6d1dbea0f4601c12e1d4c9814c77d0f2
-      entity_id: f3eb17c987845143d05b101d743c7066
+      device_id: dff84bd584c07eb8fe0319805d37fb40
+      entity_id: aae986f563864b62471636d435e625a3
       domain: light
     - condition: device
       type: is_on
@@ -2208,7 +2208,11 @@
   - platform: state
     entity_id:
     - sensor.theaterofdreams_theaterofdreams_monitorpowerstate
-    to: 'on'
+    to: PowerOn
+  - platform: numeric_state
+    entity_id:
+    - sensor.theaterofdreams_theaterofdreams_display_display_count
+    above: 0
   condition: []
   action:
   - service: switch.turn_on
