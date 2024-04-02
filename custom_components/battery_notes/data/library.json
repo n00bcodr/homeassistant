@@ -3204,6 +3204,11 @@
         },
         {
             "manufacturer": "Shelly",
+            "model": "Shelly Button1",
+            "battery_type": "Rechargable"
+        },
+        {
+            "manufacturer": "Shelly",
             "model": "Shelly Door/Window 2",
             "battery_type": "CR123A",
             "battery_quantity": 2
@@ -3221,6 +3226,11 @@
         {
             "manufacturer": "Shelly",
             "model": "Shelly Motion",
+            "battery_type": "Rechargable"
+        },
+        {
+            "manufacturer": "Shelly",
+            "model": "Shelly Motion 2",
             "battery_type": "Rechargable"
         },
         {
