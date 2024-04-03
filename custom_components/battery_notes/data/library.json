@@ -4052,6 +4052,11 @@
         },
         {
             "manufacturer": "Tuya",
+            "model": "Smoke Alarm (gymi8xdlnxtpslit)",
+            "battery_type": "CR123A"
+        },
+        {
+            "manufacturer": "Tuya",
             "model": "Smoke Detector (lsjnzox4skgduemo)",
             "battery_type": "PP3"
         },
@@ -4202,6 +4207,11 @@
             "battery_quantity": 2
         },
         {
+            "manufacturer": "Tuya",
+            "model": "TT001ZAV20",
+            "battery_type": "CR2032"
+        },
+        {
             "manufacturer": "TuYa",
             "model": "Water leak detector (TS0207_water_leak_detector)",
             "battery_type": "CR2032"
@@ -4241,6 +4251,11 @@
             "manufacturer": "TuYa",
             "model": "Wireless switch with 6 buttons (TS0046)",
             "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "Tuya",
+            "model": "X-Sense Wi-Fi Smoke Alarm (skivkhveqwmqw4gs)",
+            "battery_type": "CR123A"
         },
         {
             "manufacturer": "TuYa",
