@@ -214,8 +214,61 @@ views:
     type: custom:mushroom-chips-card
     view_layout:
       column: 2
-  - content: '{{ states("sensor.random_joke") }}'
-    type: markdown
+  - cards:
+    - badge_color: '{{ ''deep-orange'' if (now() + timedelta(hours=5, minutes=30)).strftime(''%p'')
+        == ''AM'' else ''black'' }}'
+      badge_icon: '{{ ''mdi:weather-sunny'' if (now() + timedelta(hours=5, minutes=30)).strftime(''%p'')
+        == ''AM'' else ''mdi:weather-night'' }}'
+      double_tap_action:
+        action: none
+      fill_container: false
+      hold_action:
+        action: none
+      icon: ''
+      multiline_secondary: true
+      picture: https://i.ebayimg.com/images/g/cSoAAOSwDLVjjxOt/s-l1600.jpg
+      primary: '{{ (now() + timedelta(hours=5, minutes=30)).strftime(''%-I:%M %p'')
+        }}'
+      secondary: '{{ (now() + timedelta(hours=5, minutes=30)).strftime(''%A, %d %B'')
+        }}'
+      tap_action:
+        action: none
+      type: custom:mushroom-template-card
+    - badge_color: '{{ ''deep-orange'' if (now() + timedelta(hours=-7)).strftime(''%p'')
+        == ''AM'' else ''black'' }}'
+      badge_icon: '{{ ''mdi:weather-sunny'' if (now() + timedelta(hours=-7)).strftime(''%p'')
+        == ''AM'' else ''mdi:weather-night'' }}'
+      double_tap_action:
+        action: none
+      fill_container: false
+      hold_action:
+        action: none
+      icon: ''
+      multiline_secondary: true
+      picture: https://i.etsystatic.com/41344024/r/il/211ae8/4778865152/il_794xN.4778865152_95n8.jpg
+      primary: '{{ (now() + timedelta(hours=-7)).strftime(''%-I:%M %p'') }}'
+      secondary: '{{ (now() + timedelta(hours=-7)).strftime(''%A, %d %B'') }}'
+      tap_action:
+        action: none
+      type: custom:mushroom-template-card
+    - badge_color: '{{ ''deep-orange'' if (now() + timedelta(hours=-8)).strftime(''%p'')
+        == ''AM'' else ''black'' }}'
+      badge_icon: '{{ ''mdi:weather-sunny'' if (now() + timedelta(hours=-8)).strftime(''%p'')
+        == ''AM'' else ''mdi:weather-night'' }}'
+      double_tap_action:
+        action: none
+      fill_container: false
+      hold_action:
+        action: none
+      icon: ''
+      multiline_secondary: true
+      picture: https://t4.ftcdn.net/jpg/05/22/35/01/360_F_522350125_mPLuK4cNT6RNN6bvpuKZpLGjqbJr5EiL.jpg
+      primary: '{{ (now() + timedelta(hours=-8)).strftime(''%-I:%M %p'') }}'
+      secondary: '{{ (now() + timedelta(hours=-8)).strftime(''%A, %d %B'') }}'
+      tap_action:
+        action: none
+      type: custom:mushroom-template-card
+    type: horizontal-stack
     view_layout:
       column: 1
   - card:
@@ -514,7 +567,7 @@ views:
       entity: sensor.charger_power
       icon: '{{ iif(is_state(''switch.charger'', ''on''), ''mdi:power-plug'', ''mdi:power-plug-off-outline'')}}'
       icon_color: '{{ iif(is_state(''switch.charger'', ''on''), iif(is_state(''sensor.charger_power'',
-        ''0.0''), ''green'', ''yellow''), ''disabled'')}}'
+        ''0.0''), ''disabled'', ''yellow''), ''disabled'')}}'
       primary: Charger
       secondary: '{{ iif(is_state(''switch.charger'', ''on''), (states.sensor.charger_power.state
         + " W"), ''Off'')}}'
@@ -753,63 +806,6 @@ views:
     type: custom:tabbed-card
     view_layout:
       column: 3
-  - cards:
-    - badge_color: '{{ ''deep-orange'' if (now() + timedelta(hours=5, minutes=30)).strftime(''%p'')
-        == ''AM'' else ''black'' }}'
-      badge_icon: '{{ ''mdi:weather-sunny'' if (now() + timedelta(hours=5, minutes=30)).strftime(''%p'')
-        == ''AM'' else ''mdi:weather-night'' }}'
-      double_tap_action:
-        action: none
-      fill_container: false
-      hold_action:
-        action: none
-      icon: ''
-      multiline_secondary: true
-      picture: https://i.ebayimg.com/images/g/cSoAAOSwDLVjjxOt/s-l1600.jpg
-      primary: '{{ (now() + timedelta(hours=5, minutes=30)).strftime(''%-I:%M %p'')
-        }}'
-      secondary: '{{ (now() + timedelta(hours=5, minutes=30)).strftime(''%A, %d %B'')
-        }}'
-      tap_action:
-        action: none
-      type: custom:mushroom-template-card
-    - badge_color: '{{ ''deep-orange'' if (now() + timedelta(hours=-7)).strftime(''%p'')
-        == ''AM'' else ''black'' }}'
-      badge_icon: '{{ ''mdi:weather-sunny'' if (now() + timedelta(hours=-7)).strftime(''%p'')
-        == ''AM'' else ''mdi:weather-night'' }}'
-      double_tap_action:
-        action: none
-      fill_container: false
-      hold_action:
-        action: none
-      icon: ''
-      multiline_secondary: true
-      picture: https://i.etsystatic.com/41344024/r/il/211ae8/4778865152/il_794xN.4778865152_95n8.jpg
-      primary: '{{ (now() + timedelta(hours=-7)).strftime(''%-I:%M %p'') }}'
-      secondary: '{{ (now() + timedelta(hours=-7)).strftime(''%A, %d %B'') }}'
-      tap_action:
-        action: none
-      type: custom:mushroom-template-card
-    - badge_color: '{{ ''deep-orange'' if (now() + timedelta(hours=-8)).strftime(''%p'')
-        == ''AM'' else ''black'' }}'
-      badge_icon: '{{ ''mdi:weather-sunny'' if (now() + timedelta(hours=-8)).strftime(''%p'')
-        == ''AM'' else ''mdi:weather-night'' }}'
-      double_tap_action:
-        action: none
-      fill_container: false
-      hold_action:
-        action: none
-      icon: ''
-      multiline_secondary: true
-      picture: https://t4.ftcdn.net/jpg/05/22/35/01/360_F_522350125_mPLuK4cNT6RNN6bvpuKZpLGjqbJr5EiL.jpg
-      primary: '{{ (now() + timedelta(hours=-8)).strftime(''%-I:%M %p'') }}'
-      secondary: '{{ (now() + timedelta(hours=-8)).strftime(''%A, %d %B'') }}'
-      tap_action:
-        action: none
-      type: custom:mushroom-template-card
-    type: horizontal-stack
-    view_layout:
-      column: 1
   - badge_color: blue
     badge_icon: mdi:numeric-{{ ((as_timestamp(state_attr("calendar.birthdays", "start_time"))
       | as_datetime | as_local).date() - now().date()).days }}
@@ -904,6 +900,115 @@ views:
       margin_top_mobile: 00px
       type: custom:bubble-card
     - type: custom:horizon-card
+    type: vertical-stack
+  - cards:
+    - back_open: true
+      bg_blur: 50
+      card_type: pop-up
+      close_on_click: true
+      hash: '#sleep'
+      margin: 18px
+      margin_top_mobile: 00px
+      type: custom:bubble-card
+    - cards:
+      - entity: script.play_ocean_sounds
+        icon: mdi:beach
+        icon_color: brown
+        primary: Play Ocean Sounds
+        secondary: ''
+        tap_action:
+          action: toggle
+        type: custom:mushroom-template-card
+      - entity: script.play_thunder_sounds
+        icon: mdi:lightning-bolt
+        icon_color: yellow
+        primary: Play Thunder Sounds
+        secondary: ''
+        tap_action:
+          action: toggle
+        type: custom:mushroom-template-card
+      - entity: script.play_night_sounds
+        icon: mdi:weather-night
+        icon_color: black
+        primary: Play Night Sounds
+        secondary: ''
+        tap_action:
+          action: toggle
+        type: custom:mushroom-template-card
+      - entity: script.play_river_sounds
+        icon: mdi:waves
+        icon_color: light-blue
+        primary: Play River Sounds
+        secondary: ''
+        tap_action:
+          action: toggle
+        type: custom:mushroom-template-card
+      - entity: script.play_forest_sounds
+        icon: mdi:forest-outline
+        icon_color: green
+        primary: Play Forest Sounds
+        secondary: ''
+        tap_action:
+          action: toggle
+        type: custom:mushroom-template-card
+      - entity: script.play_white_noise
+        icon: mdi:wave
+        icon_color: grey
+        primary: Play White Noise
+        secondary: ''
+        tap_action:
+          action: toggle
+        type: custom:mushroom-template-card
+      type: custom:stack-in-card
+    type: vertical-stack
+  - cards:
+    - back_open: true
+      bg_blur: 50
+      card_type: pop-up
+      close_on_click: true
+      hash: '#moon'
+      margin: 18px
+      margin_top_mobile: 00px
+      type: custom:bubble-card
+    - entity: sensor.moon_phase
+      layout: icon_state
+      show_entity_picture: true
+      show_name: false
+      show_state: true
+      size: 80%
+      styles:
+        card:
+        - border-radius: 50px
+        state:
+        - justify-self: center
+        - font-size: 20px
+        - font-weight: bold
+      type: custom:button-card
+    type: vertical-stack
+  - cards:
+    - back_open: true
+      bg_blur: 50
+      card_type: pop-up
+      close_on_click: true
+      hash: '#weather'
+      margin: 18px
+      margin_top_mobile: 00px
+      type: custom:bubble-card
+    - cards:
+      - backdrop: true
+        entity: weather.home
+        name: ' '
+        secondary_info:
+        - precipitation_probability
+        type: custom:simple-weather-card
+      - current: false
+        details: true
+        entity: weather.home
+        forecast: true
+        hourly_forecast: true
+        number_of_forecasts: '7'
+        type: custom:weather-card
+      type: vertical-stack
     type: vertical-stack
   - cards:
     - back_open: true
@@ -1030,115 +1135,6 @@ views:
         type: entities
       type: vertical-stack
     type: vertical-stack
-  - cards:
-    - back_open: true
-      bg_blur: 50
-      card_type: pop-up
-      close_on_click: true
-      hash: '#sleep'
-      margin: 18px
-      margin_top_mobile: 00px
-      type: custom:bubble-card
-    - cards:
-      - entity: script.play_ocean_sounds
-        icon: mdi:beach
-        icon_color: brown
-        primary: Play Ocean Sounds
-        secondary: ''
-        tap_action:
-          action: toggle
-        type: custom:mushroom-template-card
-      - entity: script.play_thunder_sounds
-        icon: mdi:lightning-bolt
-        icon_color: yellow
-        primary: Play Thunder Sounds
-        secondary: ''
-        tap_action:
-          action: toggle
-        type: custom:mushroom-template-card
-      - entity: script.play_night_sounds
-        icon: mdi:weather-night
-        icon_color: black
-        primary: Play Night Sounds
-        secondary: ''
-        tap_action:
-          action: toggle
-        type: custom:mushroom-template-card
-      - entity: script.play_river_sounds
-        icon: mdi:waves
-        icon_color: light-blue
-        primary: Play River Sounds
-        secondary: ''
-        tap_action:
-          action: toggle
-        type: custom:mushroom-template-card
-      - entity: script.play_forest_sounds
-        icon: mdi:forest-outline
-        icon_color: green
-        primary: Play Forest Sounds
-        secondary: ''
-        tap_action:
-          action: toggle
-        type: custom:mushroom-template-card
-      - entity: script.play_white_noise
-        icon: mdi:wave
-        icon_color: grey
-        primary: Play White Noise
-        secondary: ''
-        tap_action:
-          action: toggle
-        type: custom:mushroom-template-card
-      type: custom:stack-in-card
-    type: vertical-stack
-  - cards:
-    - back_open: true
-      bg_blur: 50
-      card_type: pop-up
-      close_on_click: true
-      hash: '#moon'
-      margin: 18px
-      margin_top_mobile: 00px
-      type: custom:bubble-card
-    - entity: sensor.moon_phase
-      layout: icon_state
-      show_entity_picture: true
-      show_name: false
-      show_state: true
-      size: 80%
-      styles:
-        card:
-        - border-radius: 50px
-        state:
-        - justify-self: center
-        - font-size: 20px
-        - font-weight: bold
-      type: custom:button-card
-    type: vertical-stack
-  - cards:
-    - back_open: true
-      bg_blur: 50
-      card_type: pop-up
-      close_on_click: true
-      hash: '#weather'
-      margin: 18px
-      margin_top_mobile: 00px
-      type: custom:bubble-card
-    - cards:
-      - backdrop: true
-        entity: weather.home
-        name: ' '
-        secondary_info:
-        - precipitation_probability
-        type: custom:simple-weather-card
-      - current: false
-        details: true
-        entity: weather.home
-        forecast: true
-        hourly_forecast: true
-        number_of_forecasts: '7'
-        type: custom:weather-card
-      type: vertical-stack
-    type: vertical-stack
   icon: mdi:castle
   layout:
     max_cols: 3
@@ -1191,8 +1187,7 @@ views:
   title: Darragh
   visible:
   - user: 03fac29e97844166b40187a8b4c09ded
-- badges: []
-  cards:
+- cards:
   - cards:
     - collapsible_controls: true
       entity: light.bed_lamp
@@ -1365,17 +1360,6 @@ views:
     offset: -50
     strict_url_change: true
     type: custom:anchor-card
-  - card:
-      content: '{{ states("sensor.random_joke") }}'
-      type: markdown
-    conditions:
-    - condition: user
-      users:
-      - 03fac29e97844166b40187a8b4c09ded
-      - e07f5c6a76fd4886ad5d945ed22f6d4b
-    type: conditional
-    view_layout:
-      column: 1
   - alignment: center
     chips:
     - type: spacer
@@ -2347,19 +2331,17 @@ views:
           navigation_path: /lovelace/living-room?anchor=home
         type: template
       - chip:
-          content: "{% if states('input_button.bin_outside')|as_timestamp  > (as_timestamp(now())\
-            \ - 14400) %}\n  Bin Outside!\n{% else %}\n  Bin Outside?\n{% endif %}"
+          content: "{% if states('counter.bin_outside') == '1' %}\n  Bin Outside!\n\
+            {% else %}\n  Bin Outside?\n{% endif %}"
           entity: input_button.bin_outside
           hold_action:
             action: more-info
-          icon: "{% if states('input_button.bin_outside')|as_timestamp  > (as_timestamp(now())\
-            \ - 14400) %}\n  fas:trash-can-arrow-up\n{% else %}\n  fas:trash-can\n\
-            {% endif %}"
-          icon_color: "{% if states('input_button.bin_outside')|as_timestamp  > (as_timestamp(now())\
-            \ - 14400) %}\n  {% if state_attr(\"sensor.black_bin\", \"next_collection\"\
-            ) == 1 %}black{% elif state_attr(\"sensor.blue_bin\", \"next_collection\"\
-            ) == 1 %}blue{% else %}disabled{% endif %}\n{% else %}\n  disabled\n{%\
-            \ endif %}"
+          icon: "{% if states('counter.bin_outside') == '1' %}\n  fas:trash-can-arrow-up\n\
+            {% else %}\n  fas:trash-can\n{% endif %}"
+          icon_color: "{% if states('counter.bin_outside') == '1' %}\n  {% if state_attr(\"\
+            sensor.black_bin\", \"next_collection\") == 1 %}black{% elif state_attr(\"\
+            sensor.blue_bin\", \"next_collection\") == 1 %}blue{% else %}disabled{%\
+            \ endif %}\n{% else %}\n  disabled\n{% endif %}"
           picture: ''
           tap_action:
             action: toggle
