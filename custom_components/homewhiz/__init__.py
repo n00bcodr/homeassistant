@@ -9,9 +9,8 @@ from homeassistant.components.bluetooth import (
     async_register_callback,
 )
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import EVENT_HOMEASSISTANT_STOP
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.requirements import RequirementsNotFound
-from homeassistant.util.package import install_package, is_installed
 
 from .api import IdExchangeResponse
 from .bluetooth import HomewhizBluetoothUpdateCoordinator
@@ -61,19 +60,20 @@ async def setup_bluetooth(
             BluetoothScanningMode.ACTIVE,
         )
     )
+
+    # Set up listening to shutdown event
+    def disconnect_service(_event) -> None:  # type: ignore
+        _LOGGER.debug("Received shutdown event and triggering kill")
+        hass.create_task(coordinator.kill())
+
+    _LOGGER.debug("Setting up shutdown event listener")
+    hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, disconnect_service)
+
     return True
-
-
-def _lazy_install_awsiotsdk() -> None:
-    custom_required_packages = ["awsiotsdk"]
-    for pkg in custom_required_packages:
-        if not is_installed(pkg) and not install_package(pkg):
-            raise RequirementsNotFound(DOMAIN, [pkg])
 
 
 async def setup_cloud(entry: ConfigEntry, hass: HomeAssistant) -> bool:
     _LOGGER.info("Setting up cloud connection")
-    _lazy_install_awsiotsdk()
 
     ids = from_dict(IdExchangeResponse, entry.data["ids"])
     cloud_config = from_dict(CloudConfig, entry.data["cloud_config"])
