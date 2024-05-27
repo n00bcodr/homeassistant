@@ -10,6 +10,7 @@
   services:
     - service: mobile_app_pavan_thanujs_ipad
     - service: mobile_app_hilary_s_phone
+    - service: mobile_app_work_laptop
 
 - name: all_phones
   platform: group
@@ -19,3 +20,4 @@
     - service: mobile_app_galaxy_watch4_classic
     - service: mobile_app_pavan_thanujs_ipad
     - service: mobile_app_hilary_s_phone
+    - service: mobile_app_work_laptop

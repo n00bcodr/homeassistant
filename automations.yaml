@@ -280,6 +280,15 @@
         data: {}
       - service: pyscript.f1constructorstandings
         data: {}
+      - service: homeassistant.reload_config_entry
+        data: {}
+        target:
+          device_id:
+          - dff84bd584c07eb8fe0319805d37fb40
+          - 9f7965add426757cffd817a5c0e0da07
+          entity_id:
+          - weather.home
+          - todo.my_tasks
     default: []
   mode: single
 - id: '1642654396519'
@@ -345,14 +354,6 @@
         - action: URI
           title: Open Repo
           uri: https://github.com/n00bcodr/homeassistant-ireland
-  - wait_for_trigger:
-    - platform: event
-      event_type: mobile_app_notification_action
-      event_data:
-        action: tag_update
-    continue_on_timeout: false
-  - service: shell_command.git_core_update_push
-    data: {}
   mode: single
 - id: '1655814095516'
   alias: "\U0001F3ACCapture Shared URL - Google TV"
@@ -453,8 +454,8 @@
   - choose:
     - conditions:
       - condition: template
-        value_template: '{{(states.media_player.spotify.attributes.source) != ''Theater
-          of Dreams''}}'
+        value_template: '{{(states.media_player.spotify.attributes.source) != ''Pixel
+          8 Pro''}}'
       sequence:
       - service: scene.create
         data:
@@ -480,8 +481,8 @@
           - media_player.spotify
     - conditions:
       - condition: template
-        value_template: '{{(states.media_player.spotify.attributes.source) == ''Theater
-          of Dreams''}}'
+        value_template: '{{(states.media_player.spotify.attributes.source) == ''Pixel
+          8 Pro''}}'
       sequence:
       - service: scene.create
         data:
@@ -796,19 +797,13 @@
           - sensor.washing_machine_state
           to: Cycle Complete
         continue_on_timeout: false
-      - service: notify.all_phones_android
+      - service: notify.all_phones
         data:
           message: at {{ as_timestamp(now()) | timestamp_custom('%-I:%M %p')}}
           data:
             notification_icon: mdi:washing-machine
             icon_url: /local/images/washing_machine.png
             sticky: 'true'
-            tag: wash_cycle
-          title: "\U0001F9FA Wash Cycle Complete"
-      - service: notify.all_phones_ios
-        data:
-          message: at {{ as_timestamp(now()) | timestamp_custom('%-I:%M %p')}}
-          data:
             image: /local/images/washing_machine.png
             tag: wash_cycle
           title: "\U0001F9FA Wash Cycle Complete"
@@ -828,21 +823,14 @@
           - sensor.washing_machine_state
           to: Cycle Complete
         continue_on_timeout: false
-      - service: notify.all_phones_android
+      - service: notify.all_phones
         data:
           message: at {{ as_timestamp(now()) | timestamp_custom('%-I:%M %p')}}
           data:
             notification_icon: mdi:washing-machine
             image: /local/images/washing_machine.png
             tag: wash_cycle
-          title: "\U0001F9FA Dry Cycle Complete"
-      - service: notify.all_phones_ios
-        data:
-          message: at {{ as_timestamp(now()) | timestamp_custom('%-I:%M %p')}}
-          data:
-            image: /local/images/washing_machine.png
             sticky: 'true'
-            tag: wash_cycle
           title: "\U0001F9FA Dry Cycle Complete"
   mode: single
 - id: '1675437001659'
@@ -873,19 +861,15 @@
           data:
             tag: bin_pickup
           message: clear_notification
-      - service: notify.all_phones_android
+      - service: notify.all_phones
         data:
           data:
+            activationMode: foreground
             notification_icon: mdi:trash-can-outline
             icon_url: /local/images/black_bin.png
             tag: bin_pickup
-          message: Pickup is in two days on {{ states.sensor.black_bin.state}}
-          title: Black Bin
-      - service: notify.all_phones_ios
-        data:
-          data:
+            color: black
             image: /local/images/black_bin.png
-            tag: bin_pickup
           message: Pickup is in two days on {{ states.sensor.black_bin.state}}
           title: Black Bin
     - conditions:
@@ -902,20 +886,14 @@
           data:
             tag: bin_pickup
           message: clear_notification
-      - service: notify.all_phones_android
+      - service: notify.all_phones
         data:
           data:
             notification_icon: mdi:trash-can-outline
             icon_url: /local/images/black_bin.png
             color: black
             tag: bin_pickup
-          message: Pickup is tomorrow, {{ states.sensor.black_bin.state}}
-          title: Black Bin
-      - service: notify.all_phones_ios
-        data:
-          data:
             image: /local/images/black_bin.png
-            tag: bin_pickup
           message: Pickup is tomorrow, {{ states.sensor.black_bin.state}}
           title: Black Bin
       alias: Black Bin collection is tomorrow and it is 11 AM
@@ -932,23 +910,16 @@
               data:
                 tag: bin_pickup
               message: clear_notification
-          - service: notify.all_phones_android
+          - service: notify.all_phones
             data:
               data:
-                notification_icon: mdi:trash-can-outline
-                icon_url: /local/images/black_bin.png
+                notification_icon: mdi:trash-can
                 color: black
+                icon_url: /local/images/black_bin.png
                 tag: bin_pickup
                 actions:
                 - action: BIN_OUT
                   title: Yeah, the bin is out!
-              message: Put the Black Bin out.
-              title: Black Bin
-          - service: notify.all_phones_ios
-            data:
-              data:
-                image: /local/images/black_bin.png
-                tag: bin_pickup
               message: Put the Black Bin out.
               title: Black Bin
           - delay:
@@ -977,20 +948,14 @@
           data:
             tag: bin_pickup
           message: clear_notification
-      - service: notify.all_phones_android
+      - service: notify.all_phones
         data:
           data:
             notification_icon: mdi:trash-can
             icon_url: /local/images/blue_bin.png
-            tag: bin_pickup
-            color: blue
-          message: Pickup is in two days on {{ states.sensor.blue_bin.state}}
-          title: Blue Bin
-      - service: notify.all_phones_ios
-        data:
-          data:
             image: /local/images/blue_bin.png
             tag: bin_pickup
+            color: blue
           message: Pickup is in two days on {{ states.sensor.blue_bin.state}}
           title: Blue Bin
     - conditions:
@@ -1007,20 +972,14 @@
           data:
             tag: bin_pickup
           message: clear_notification
-      - service: notify.all_phones_android
+      - service: notify.all_phones
         data:
           data:
             notification_icon: mdi:trash-can
             icon_url: /local/images/blue_bin.png
-            tag: bin_pickup
-            color: blue
-          message: Pickup is tomorrow, {{ states.sensor.blue_bin.state}}
-          title: Blue Bin
-      - service: notify.all_phones_ios
-        data:
-          data:
             image: /local/images/blue_bin.png
             tag: bin_pickup
+            color: blue
           message: Pickup is tomorrow, {{ states.sensor.blue_bin.state}}
           title: Blue Bin
       alias: Blue Bin Collection is tomorrow and it is 11 AM
@@ -1037,7 +996,7 @@
               data:
                 tag: bin_pickup
               message: clear_notification
-          - service: notify.all_phones_android
+          - service: notify.all_phones
             data:
               data:
                 notification_icon: mdi:trash-can
@@ -1047,14 +1006,6 @@
                 actions:
                 - action: BIN_OUT
                   title: Yeah, the bin is out!
-              message: Put the Blue Bin out.
-              title: Blue Bin
-          - service: notify.all_phones_ios
-            data:
-              data:
-                image: /local/images/blue_bin.png
-                tag: bin_pickup
-                color: blue
               message: Put the Blue Bin out.
               title: Blue Bin
           - delay:
@@ -1334,14 +1285,6 @@
   alias: "\U0001F4A1Entrance Light Motion"
   description: ''
   trigger:
-  - platform: device
-    device_id: 88946d0ffcf369169d9dc690798047c2
-    domain: nest
-    type: camera_motion
-  - platform: device
-    device_id: 88946d0ffcf369169d9dc690798047c2
-    domain: nest
-    type: camera_person
   - type: motion
     platform: device
     device_id: 59ae4f51536e6ef0aad9797908c43c4f
@@ -1451,101 +1394,6 @@
       device_name: '{% if is_state(''media_player.spotify'', ''playing'') %} {{state_attr("media_player.spotify",
         "source")}} {%else%}{{ states(''input_select.speakers_spotify'') }}{%endif%}'
   mode: single
-- id: '1688823940913'
-  alias: "⚙️\U0001F4F3Front Door Motion - TV Notification"
-  description: ''
-  trigger:
-  - platform: device
-    device_id: 88946d0ffcf369169d9dc690798047c2
-    domain: nest
-    type: camera_person
-    id: person
-  - platform: device
-    device_id: 88946d0ffcf369169d9dc690798047c2
-    domain: nest
-    type: camera_motion
-    id: motion
-  - platform: device
-    device_id: 88946d0ffcf369169d9dc690798047c2
-    domain: nest
-    type: doorbell_chime
-    id: doorbell
-  condition:
-  - condition: not
-    conditions:
-    - condition: device
-      device_id: 69e4e0f562681b3da86a0c6291d0b11c
-      domain: media_player
-      entity_id: 2e20cbcfddc439650095c2519f3eff3e
-      type: is_off
-  action:
-  - choose:
-    - conditions:
-      - condition: trigger
-        id:
-        - motion
-      sequence:
-      - service: notify.google_tv
-        data:
-          title: Motion Detected
-          message: at the front door
-          data:
-            fontsize: small
-            duration: 8
-            color: black
-            transparency: 50%
-            image: /api/nest/event_media/{{ trigger.event.data.device_id }}/{{ trigger.event.data.nest_event_id
-              }}/thumbnail
-      - service: notify.mobile_app_pixel8pro
-        data:
-          message: Motion
-          data:
-            image: /api/nest/event_media/{{ trigger.event.data.device_id }}/{{ trigger.event.data.nest_event_id
-              }}/thumbnail
-    - conditions:
-      - condition: trigger
-        id:
-        - person
-      sequence:
-      - service: notify.google_tv
-        data:
-          data:
-            fontsize: small
-            duration: 8
-            color: black
-            transparency: 50%
-            image: /api/nest/event_media/{{ trigger.event.data.device_id }}/{{ trigger.event.data.nest_event_id
-              }}/thumbnail
-          message: Someone's at the front door
-      - service: notify.mobile_app_pixel8pro
-        data:
-          data:
-            image: /api/nest/event_media/{{ trigger.event.data.device_id }}/{{ trigger.event.data.nest_event_id
-              }}/thumbnail
-          message: Person
-    - conditions:
-      - condition: trigger
-        id:
-        - doorbell
-      sequence:
-      - service: notify.google_tv
-        data:
-          title: Ding Dong!
-          message: Ding Dong!
-          data:
-            fontsize: small
-            duration: 8
-            color: black
-            transparency: 90%
-            image: /api/nest/event_media/{{ trigger.event.data.device_id }}/{{ trigger.event.data.nest_event_id
-              }}/thumbnail
-      - service: notify.mobile_app_pixel8pro
-        data:
-          data:
-            image: /api/nest/event_media/{{ trigger.event.data.device_id }}/{{ trigger.event.data.nest_event_id
-              }}/thumbnail
-          message: Doorbell
-  mode: single
 - id: '1689331566546'
   alias: "\U0001F3F0Leaving and Arriving Home"
   description: ''
@@ -1588,7 +1436,7 @@
           skip_condition: true
         target:
           entity_id: automation.tag_desk_is_scanned
-        enabled: false
+        enabled: true
     - conditions:
       - condition: and
         conditions:
@@ -1619,74 +1467,9 @@
         target:
           entity_id: automation.den_as_it_was
         enabled: false
-  mode: single
-- id: '1691418078168'
-  alias: Doorbell - Notifications
-  description: ''
-  trigger:
-  - platform: device
-    device_id: 88946d0ffcf369169d9dc690798047c2
-    domain: nest
-    type: camera_motion
-    id: motion
-  - platform: device
-    device_id: 88946d0ffcf369169d9dc690798047c2
-    domain: nest
-    type: camera_person
-    id: person
-  - platform: device
-    device_id: 88946d0ffcf369169d9dc690798047c2
-    domain: nest
-    type: doorbell_chime
-    id: sound
-  condition: []
-  action:
-  - choose:
-    - conditions:
-      - condition: trigger
-        id: motion
-      sequence:
-      - service: notify.mobile_app_pixel8pro
-        data:
-          message: Doorbell Motion
-          title: Doorbell Motion
-          data:
-            car_ui: true
-            notification_icon: mdi:motion-sensor
-            video: /api/nest/event_media/{{ trigger.event.data.device_id }}/{{ trigger.event.data.nest_event_id
-              }}
-            image: /api/nest/event_media/{{ trigger.event.data.device_id }}/{{ trigger.event.data.nest_event_id
-              }}/thumbnail
-    - conditions:
-      - condition: trigger
-        id: person
-      sequence:
-      - service: notify.mobile_app_pixel8pro
-        data:
-          message: Doorbell Person
-          title: Doorbell Person
-          data:
-            car_ui: true
-            notification_icon: mdi:account
-            video: /api/nest/event_media/{{ trigger.event.data.device_id }}/{{ trigger.event.data.nest_event_id
-              }}
-            image: /api/nest/event_media/{{ trigger.event.data.device_id }}/{{ trigger.event.data.nest_event_id
-              }}/thumbnail
-    - conditions:
-      - condition: trigger
-        id: sound
-      sequence:
-      - service: notify.mobile_app_pixel8pro
-        data:
-          message: Doorbell
-          title: Doorbell
-          data:
-            car_ui: true
-            notification_icon: mdi:doorbell
-            video: /api/nest/event_media/{{ trigger.event.data.device_id }}/{{ trigger.event.data.nest_event_id
-              }}
-            image: /api/nest/event_media/{{ trigger.event.data.device_id }}/{{ trigger.event.data.nest_event_id
-              }}/thumbnail
+  - service: script.google_tell_me_a_joke
+    metadata: {}
+    data: {}
   mode: single
 - id: '1691773218286'
   alias: "\U0001F3B5Music Jukebox - Living Room"
@@ -1843,7 +1626,7 @@
     to: 'on'
     for:
       hours: 0
-      minutes: 5
+      minutes: 10
       seconds: 0
   condition:
   - condition: or
@@ -2456,3 +2239,270 @@
     input:
       excluded_devices:
       - null
+- id: '1715598723988'
+  alias: "\U0001F514Doorbell"
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.doorbell_visitor
+    from: 'off'
+    to: 'on'
+    id: doorbell
+  - platform: state
+    entity_id:
+    - binary_sensor.doorbell_person
+    - binary_sensor.porch_motion_occupancy
+    from: 'off'
+    to: 'on'
+    id: person
+  condition: []
+  action:
+  - variables:
+      timestamp: '{{ as_timestamp(trigger.to_state.last_changed) | timestamp_custom(''%Y-%m-%d_%H-%M-%S'')
+        }}'
+      camera_snapshot: '{{ timestamp }}.jpg'
+  - service: notify.all_phones
+    metadata: {}
+    data:
+      message: clear_notification
+      data:
+        tag: doorbell
+    alias: Clear old notifications
+  - alias: Clear old notifications
+    service: persistent_notification.dismiss
+    data:
+      notification_id: camera
+  - service: camera.snapshot
+    metadata: {}
+    data:
+      filename: /config/www/doorbell/{{camera_snapshot}}
+      entity_id: camera.doorbell_snapshots_fluent
+    alias: Take a Camera Snapshot
+  - alias: Choose between motion and doorbell press
+    choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - person
+      sequence:
+      - service: notify.all_phones
+        metadata: {}
+        data:
+          message: "Someone's at the front door \U0001F464"
+          data:
+            ttl: 0
+            tag: doorbell
+            entity_id: camera.doorbell_fluent
+            notification_icon: mdi:doorbell-video
+            activationMode: foreground
+            car_ui: true
+            push:
+              interruption-level: time-sensitive
+              category: camera
+            actions:
+            - action: URI
+              title: Open
+              uri: /lovelace/camera
+              icon: sfsymbols:camera.viewfinder
+            - action: package
+              title: Package
+              icon: sfsymbols:cube.box
+            - action: be_there
+              title: Will be there
+              icon: sfsymbols:person.crop.circle.badge.checkmark
+            image: /local/doorbell/{{camera_snapshot}}
+    - conditions:
+      - condition: trigger
+        id:
+        - doorbell
+      sequence:
+      - service: notify.all_phones
+        metadata: {}
+        data:
+          message: "Doorbell \U0001F514"
+          data:
+            ttl: 0
+            tag: doorbell
+            entity_id: camera.doorbell_fluent
+            notification_icon: mdi:doorbell-video
+            activationMode: foreground
+            car_ui: true
+            push:
+              interruption-level: time-sensitive
+              category: camera
+            actions:
+            - action: URI
+              title: Open
+              uri: /lovelace/camera
+              icon: sfsymbols:camera.viewfinder
+            - action: package
+              title: Package
+              icon: sfsymbols:cube.box
+            - action: be_there
+              title: Will be there
+              icon: sfsymbols:person.crop.circle.badge.checkmark
+            image: /local/doorbell/{{camera_snapshot}}
+  - service: persistent_notification.create
+    data:
+      title: "Someone's at the front door\U0001F464"
+      message: '![image](/local/doorbell/{{camera_snapshot}})
+
+        '
+      notification_id: camera
+  mode: single
+- id: '1716218179726'
+  alias: "⚙️\U0001F4F3Update Weight to Google Sheets"
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.thanuj_weight
+  condition: []
+  action:
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 30
+      milliseconds: 0
+  - service: notify.mobile_app_pixel8pro
+    data:
+      title: '⚖️ Just weighed in! '
+      message: '{{states.sensor.thanuj_weight.state}} KGs'
+      data:
+        tag: weight
+        actions:
+        - action: upload
+          title: Upload
+        - action: ignore
+          title: Ignore
+  - alias: Wait for notification action
+    wait_for_trigger:
+      platform: event
+      event_type: mobile_app_notification_action
+    continue_on_timeout: true
+    timeout:
+      hours: 0
+      minutes: 10
+      seconds: 0
+      milliseconds: 0
+  - alias: Upload reading to google sheets?
+    choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ wait.trigger.event.data.action == ''upload'' }}'
+        alias: If Upload is selected
+      sequence:
+      - service: google_sheets.append_sheet
+        data:
+          config_entry: 4bcb43c8e6f2f8104c4f5b04b9e0afa4
+          data:
+            Basal metabolism: '{{ states.sensor.thanuj_basal_metabolism.state }}'
+            Bmi: '{{ states.sensor.thanuj_bmi.state }}'
+            Body fat: '{{ states.sensor.thanuj_body_fat.state }}'
+            Body score: '{{ states.sensor.thanuj_body_score.state }}'
+            Bone mass: '{{ states.sensor.thanuj_bone_mass.state }}'
+            Lean body mass: '{{ states.sensor.thanuj_lean_body_mass.state }}'
+            Metabolic age: '{{ states.sensor.thanuj_metabolic_age.state }}'
+            Muscle mass: '{{ states.sensor.thanuj_muscle_mass.state }}'
+            Protein: '{{ states.sensor.thanuj_protein.state }}'
+            Visceral fat: '{{ states.sensor.thanuj_visceral_fat.state }}'
+            Water: '{{ states.sensor.thanuj_water.state }}'
+            Weight: '{{ states.sensor.thanuj_weight.state }}'
+      alias: Upload
+    - conditions:
+      - condition: template
+        value_template: '{{ wait.trigger.event.data.action == ''ignore'' }}'
+      sequence:
+      - stop: Selected Don't Upload
+      alias: Don't Upload
+    default:
+    - service: google_sheets.append_sheet
+      data:
+        config_entry: 4bcb43c8e6f2f8104c4f5b04b9e0afa4
+        data:
+          Basal metabolism: '{{ states.sensor.thanuj_basal_metabolism.state }}'
+          Bmi: '{{ states.sensor.thanuj_bmi.state }}'
+          Body fat: '{{ states.sensor.thanuj_body_fat.state }}'
+          Body score: '{{ states.sensor.thanuj_body_score.state }}'
+          Bone mass: '{{ states.sensor.thanuj_bone_mass.state }}'
+          Lean body mass: '{{ states.sensor.thanuj_lean_body_mass.state }}'
+          Metabolic age: '{{ states.sensor.thanuj_metabolic_age.state }}'
+          Muscle mass: '{{ states.sensor.thanuj_muscle_mass.state }}'
+          Protein: '{{ states.sensor.thanuj_protein.state }}'
+          Visceral fat: '{{ states.sensor.thanuj_visceral_fat.state }}'
+          Water: '{{ states.sensor.thanuj_water.state }}'
+          Weight: '{{ states.sensor.thanuj_weight.state }}'
+      alias: Uploads by default if not ignored
+  mode: single
+- id: '1716294352529'
+  alias: "\U0001F3E2 Open Authenticator on Pixel 8 Pro"
+  description: Open Authenticator on Pixel 8 Pro when needed for work
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.work_laptop_frontmost_app
+    to: Ivanti Secure Access Client
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 2
+  - platform: state
+    entity_id:
+    - sensor.work_laptop_frontmost_app
+    to: Citrix Workspace Authenticator
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 2
+  condition:
+  - condition: time
+    after: 07:30:00
+    before: 09:00:00
+    enabled: true
+  action:
+  - service: notify.mobile_app_pixel8pro
+    data:
+      message: command_launch_app
+      data:
+        package_name: com.google.android.apps.authenticator2
+  mode: single
+- id: '1716839209540'
+  alias: ⚙️Notification Actions
+  description: This listens to all notification actions and acts based on the action
+    chosen.
+  trigger:
+  - platform: event
+    event_type: mobile_app_notification_action
+  condition: []
+  action:
+  - alias: Run action based on notification choice
+    choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ wait.trigger.event.data.action == ''package'' }}'
+      sequence:
+      - service: select.select_option
+        data:
+          option: Hi, please leave the package at the door. We will get it later.
+        target:
+          entity_id: select.doorbell_play_quick_reply_message
+      alias: 'Doorbell: Quick Reply | Package'
+    - conditions:
+      - condition: template
+        value_template: '{{ wait.trigger.event.data.action == ''be_there'' }}'
+      sequence:
+      - service: select.select_option
+        data:
+          option: Hi, we will be right there. Please wait a moment
+        target:
+          entity_id: select.doorbell_play_quick_reply_message
+      alias: 'Doorbell: Quick Reply | We will be right there'
+    - conditions:
+      - condition: template
+        value_template: '{{ wait.trigger.event.data.action == ''tag_update'' }}'
+      sequence:
+      - service: shell_command.git_core_update_push
+        data: {}
+      alias: 'Git : Core version push'
+  mode: single

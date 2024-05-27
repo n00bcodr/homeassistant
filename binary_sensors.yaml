@@ -46,3 +46,10 @@
       device_class: update
       value_template: "{{ states.update | selectattr('state', 'eq', 'on') |  rejectattr('entity_id', 'in', integration_entities('hassio')) |  rejectattr('entity_id', 'in', integration_entities('hacs')) | map(attribute='name') | list | count }}"
       availability_template: "{{ states.update | selectattr('state', 'eq', 'on') |  rejectattr('entity_id', 'in', integration_entities('hassio')) |  rejectattr('entity_id', 'in', integration_entities('hacs')) | map(attribute='name') | list | count | int(-1) > -1 }}"
+
+    heater:
+      friendly_name: Heater
+      unique_id: heater
+      device_class: power
+      value_template: >-
+        {{ states('sensor.heater_power') | float > 0 }}

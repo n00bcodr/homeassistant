@@ -144,6 +144,9 @@ views:
         - condition: state
           entity: device_tracker.deco_hilary_s_phone
           state: home
+        - condition: state
+          entity: binary_sensor.heater
+          state: 'on'
       type: conditional
     - chip:
         content_info: name
@@ -214,63 +217,6 @@ views:
     type: custom:mushroom-chips-card
     view_layout:
       column: 2
-  - cards:
-    - badge_color: '{{ ''deep-orange'' if (now() + timedelta(hours=5, minutes=30)).strftime(''%p'')
-        == ''AM'' else ''black'' }}'
-      badge_icon: '{{ ''mdi:weather-sunny'' if (now() + timedelta(hours=5, minutes=30)).strftime(''%p'')
-        == ''AM'' else ''mdi:weather-night'' }}'
-      double_tap_action:
-        action: none
-      fill_container: false
-      hold_action:
-        action: none
-      icon: ''
-      multiline_secondary: true
-      picture: https://i.ebayimg.com/images/g/cSoAAOSwDLVjjxOt/s-l1600.jpg
-      primary: '{{ (now() + timedelta(hours=5, minutes=30)).strftime(''%-I:%M %p'')
-        }}'
-      secondary: '{{ (now() + timedelta(hours=5, minutes=30)).strftime(''%A, %d %B'')
-        }}'
-      tap_action:
-        action: none
-      type: custom:mushroom-template-card
-    - badge_color: '{{ ''deep-orange'' if (now() + timedelta(hours=-7)).strftime(''%p'')
-        == ''AM'' else ''black'' }}'
-      badge_icon: '{{ ''mdi:weather-sunny'' if (now() + timedelta(hours=-7)).strftime(''%p'')
-        == ''AM'' else ''mdi:weather-night'' }}'
-      double_tap_action:
-        action: none
-      fill_container: false
-      hold_action:
-        action: none
-      icon: ''
-      multiline_secondary: true
-      picture: https://i.etsystatic.com/41344024/r/il/211ae8/4778865152/il_794xN.4778865152_95n8.jpg
-      primary: '{{ (now() + timedelta(hours=-7)).strftime(''%-I:%M %p'') }}'
-      secondary: '{{ (now() + timedelta(hours=-7)).strftime(''%A, %d %B'') }}'
-      tap_action:
-        action: none
-      type: custom:mushroom-template-card
-    - badge_color: '{{ ''deep-orange'' if (now() + timedelta(hours=-8)).strftime(''%p'')
-        == ''AM'' else ''black'' }}'
-      badge_icon: '{{ ''mdi:weather-sunny'' if (now() + timedelta(hours=-8)).strftime(''%p'')
-        == ''AM'' else ''mdi:weather-night'' }}'
-      double_tap_action:
-        action: none
-      fill_container: false
-      hold_action:
-        action: none
-      icon: ''
-      multiline_secondary: true
-      picture: https://t4.ftcdn.net/jpg/05/22/35/01/360_F_522350125_mPLuK4cNT6RNN6bvpuKZpLGjqbJr5EiL.jpg
-      primary: '{{ (now() + timedelta(hours=-8)).strftime(''%-I:%M %p'') }}'
-      secondary: '{{ (now() + timedelta(hours=-8)).strftime(''%A, %d %B'') }}'
-      tap_action:
-        action: none
-      type: custom:mushroom-template-card
-    type: horizontal-stack
-    view_layout:
-      column: 1
   - card:
       alignment: center
       chips:
@@ -283,9 +229,13 @@ views:
           navigation_path: '#phone'
         type: entity
         use_entity_picture: false
-      - double_tap_action:
+      - content: "{% if is_state('sensor.pixel8pro_charger_type', 'none') %}\n\n{%\
+          \ else %}\n  {% if is_state('sensor.pixel8pro_battery_level', '100') %}\n\
+          \    Charged\n  {% else %}\n    Full in {{states.sensor.pixel8pro_remaining_charge_time.state}}\
+          \ Minute(s)\n  {% endif %}\n{% endif %}"
+        double_tap_action:
           action: none
-        entity: sensor.pixel8pro_battery_level
+        entity: sensor.pixel8pro_remaining_charge_time
         hold_action:
           action: none
         icon: "{% if is_state('sensor.pixel8pro_charger_type', 'none') %}\n  mdi:power-plug-off\n\
@@ -296,6 +246,7 @@ views:
           \  white\n{% elif is_state('sensor.pixel8pro_charger_type', 'wireless')\
           \ %}\n  orange\n{% elif is_state('sensor.pixel8pro_charger_type', 'ac')\
           \ %}\n  white\n{% else %}\n  disabled\n{% endif %}"
+        picture: ''
         tap_action:
           action: more-info
         type: template
@@ -326,8 +277,65 @@ views:
       type: custom:mushroom-chips-card
     conditions:
     - condition: screen
-      media_query: '(min-width: 768px)'
+      media_query: '(min-width: 0px)'
     type: conditional
+    view_layout:
+      column: 1
+  - cards:
+    - badge_color: '{{ ''deep-orange'' if (now() + timedelta(hours=5, minutes=30)).strftime(''%p'')
+        == ''AM'' else ''black'' }}'
+      badge_icon: '{{ ''mdi:weather-sunny'' if (now() + timedelta(hours=5, minutes=30)).strftime(''%p'')
+        == ''AM'' else ''mdi:weather-night'' }}'
+      double_tap_action:
+        action: none
+      fill_container: false
+      hold_action:
+        action: none
+      icon: ''
+      multiline_secondary: true
+      picture: /local/images/ind.jpg
+      primary: '{{ (now() + timedelta(hours=5, minutes=30)).strftime(''%-I:%M %p'')
+        }}'
+      secondary: '{{ (now() + timedelta(hours=5, minutes=30)).strftime(''%A, %d %B'')
+        }}'
+      tap_action:
+        action: none
+      type: custom:mushroom-template-card
+    - badge_color: '{{ ''deep-orange'' if (now() + timedelta(hours=-7)).strftime(''%p'')
+        == ''AM'' else ''black'' }}'
+      badge_icon: '{{ ''mdi:weather-sunny'' if (now() + timedelta(hours=-7)).strftime(''%p'')
+        == ''AM'' else ''mdi:weather-night'' }}'
+      double_tap_action:
+        action: none
+      fill_container: false
+      hold_action:
+        action: none
+      icon: ''
+      multiline_secondary: true
+      picture: /local/images/can.jpg
+      primary: '{{ (now() + timedelta(hours=-7)).strftime(''%-I:%M %p'') }}'
+      secondary: '{{ (now() + timedelta(hours=-7)).strftime(''%A, %d %B'') }}'
+      tap_action:
+        action: none
+      type: custom:mushroom-template-card
+    - badge_color: '{{ ''deep-orange'' if (now() + timedelta(hours=-8)).strftime(''%p'')
+        == ''AM'' else ''black'' }}'
+      badge_icon: '{{ ''mdi:weather-sunny'' if (now() + timedelta(hours=-8)).strftime(''%p'')
+        == ''AM'' else ''mdi:weather-night'' }}'
+      double_tap_action:
+        action: none
+      fill_container: false
+      hold_action:
+        action: none
+      icon: ''
+      multiline_secondary: true
+      picture: /local/images/usa.jpg
+      primary: '{{ (now() + timedelta(hours=-8)).strftime(''%-I:%M %p'') }}'
+      secondary: '{{ (now() + timedelta(hours=-8)).strftime(''%A, %d %B'') }}'
+      tap_action:
+        action: none
+      type: custom:mushroom-template-card
+    type: horizontal-stack
     view_layout:
       column: 1
   - cards:
@@ -1024,6 +1032,35 @@ views:
       type: custom:bubble-card
     - cards:
       - cards:
+        - entity: sensor.pixel8pro_battery_level
+          fill_container: true
+          icon_color: green
+          layout: vertical
+          name: Battery
+          type: custom:mushroom-entity-card
+        - entity: binary_sensor.pixel8pro_is_charging
+          fill_container: true
+          layout: vertical
+          name: Charging
+          type: custom:mushroom-entity-card
+        - entity: binary_sensor.pixel8pro_wifi_state
+          fill_container: true
+          layout: vertical
+          name: Wi-Fi
+          type: custom:mushroom-entity-card
+        - entity: binary_sensor.pixel8pro_bluetooth_state
+          fill_container: true
+          layout: vertical
+          name: Bluetooth
+          type: custom:mushroom-entity-card
+        - entity: binary_sensor.pixel8pro_mobile_data
+          fill_container: true
+          layout: vertical
+          name: Data
+          type: custom:mushroom-entity-card
+        mode: horizontal
+        type: custom:stack-in-card
+      - cards:
         - alignment: center
           chips:
           - content: "{% if is_state('device_tracker.deco_pixel_8_pro', 'home') %}\n\
@@ -1075,6 +1112,21 @@ views:
             icon_color: primary
             tap_action:
               action: toggle
+            type: entity
+          - content_info: name
+            entity: device_tracker.pixel8pro
+            icon: mdi:volume-high
+            icon_color: red
+            name: Find My Phone
+            tap_action:
+              action: call-service
+              data:
+                data:
+                  channel: alarm_stream
+                  priority: high
+                  ttl: 0
+                message: Find My Phone
+              service: notify.mobile_app_pixel8pro
             type: entity
           type: custom:mushroom-chips-card
         - alignment: center
@@ -1191,6 +1243,8 @@ views:
   - cards:
     - collapsible_controls: true
       entity: light.bed_lamp
+      hold_action:
+        action: more-info
       show_brightness_control: true
       show_color_control: true
       show_color_temp_control: true
@@ -1214,14 +1268,21 @@ views:
       type: horizontal-stack
     - badge_color: ''
       badge_icon: ''
-      entity: switch.heater
-      icon: '{{ iif(is_state(''switch.heater'', ''on''), ''mdi:radiator'', ''mdi:radiator-off'')}}'
-      icon_color: '{{ iif(is_state(''switch.heater'', ''on''), ''red'', ''disabled'')}}'
+      entity: binary_sensor.heater
+      icon: '{{ iif(is_state(''binary_sensor.heater'', ''on''), ''mdi:radiator'',
+        ''mdi:radiator-off'')}}'
+      icon_color: '{{ ''red'' if is_state(''binary_sensor.heater'', ''on'') else ''yellow''
+        if is_state(''switch.heater'', ''on'') else ''disabled'' }}'
       multiline_secondary: false
       primary: Heater
-      secondary: Turned {{states.switch.heater.state}} at {{(as_timestamp(states.switch.heater.last_changed)
+      secondary: Turned {{states.binary_sensor.heater.state}} at {{(as_timestamp(states.binary_sensor.heater.last_changed)
         | timestamp_custom('%-I:%M %p'))}} | {{states.sensor.heater_power.state}}
         W
+      tap_action:
+        action: call-service
+        service: switch.toggle
+        target:
+          entity_id: switch.heater
       type: custom:mushroom-template-card
     - entity: switch.heating_blanket
       tap_action:
@@ -1367,13 +1428,15 @@ views:
   - card:
       alignment: center
       chips:
-      - content_info: name
+      - content_info: last-changed
         entity: binary_sensor.porch_motion_occupancy
+        icon: mdi:doorbell-video
         icon_color: deep-orange
         name: Porch
         type: entity
-      - content_info: name
+      - content_info: last-changed
         entity: binary_sensor.hallway_motion_occupancy
+        icon: mdi:coat-rack
         icon_color: teal
         name: Hallway
         type: entity
@@ -1442,7 +1505,8 @@ views:
       - aspect_ratio: 1/1
         entity: person.darragh_clerkin
         hold_action:
-          action: none
+          action: navigate
+          navigation_path: /lovelace/darragh
         show_entity_picture: true
         show_name: false
         state:
@@ -1475,7 +1539,8 @@ views:
       - aspect_ratio: 1/1
         entity: person.pavanthanuj
         hold_action:
-          action: none
+          action: navigate
+          navigation_path: /lovelace/den
         show_entity_picture: true
         show_name: false
         state:
@@ -1508,7 +1573,8 @@ views:
       - aspect_ratio: 1/1
         entity: person.hilary_harris
         hold_action:
-          action: none
+          action: navigate
+          navigation_path: /lovelace/hilary
         show_entity_picture: true
         show_name: false
         state:
@@ -1772,9 +1838,6 @@ views:
         - 74f7e2ffd3594037b1a2fc4de82d9fea
       - condition: screen
         media_query: '(min-width: 768px)'
-      - condition: state
-        entity: switch.schedule_boiler
-        state: 'on'
       type: conditional
     type: vertical-stack
     view_layout:
@@ -1859,11 +1922,11 @@ views:
           entity_id: switch.kettle
       type: custom:button-card
     - badge_icon: ''
-      entity: switch.kitchen_light
+      entity: light.kitchen_light
       icon: mdi:dome-light
-      icon_color: '{{ iif(is_state(''switch.kitchen_light'', ''on''), ''lime'', ''disabled'')}}'
+      icon_color: '{{ iif(is_state(''light.kitchen_light'', ''on''), ''lime'', ''disabled'')}}'
       primary: Kitchen Light
-      secondary: Turned {{states.switch.kitchen_light.state}} at {{(as_timestamp(states.switch.kitchen_light.last_changed)
+      secondary: Turned {{states.light.kitchen_light.state}} at {{(as_timestamp(states.light.kitchen_light.last_changed)
         |timestamp_custom('%-I:%M %p'))}}
       type: custom:mushroom-template-card
     - cards:
@@ -1887,6 +1950,22 @@ views:
           |timestamp_custom('%-I:%M %p'))}}
         type: custom:mushroom-template-card
       type: horizontal-stack
+    - collapsible_controls: true
+      entity: media_player.kitchen_speaker
+      fill_container: false
+      media_controls:
+      - play_pause_stop
+      - next
+      - previous
+      - shuffle
+      - repeat
+      show_volume_level: true
+      type: custom:mushroom-media-player-card
+      use_media_info: true
+      volume_controls:
+      - volume_mute
+      - volume_set
+      - volume_buttons
     - entity: automation.kitchen_light_presence
       name: "\U0001F4A1Kitchen Motion Light Automation"
       tap_action:
@@ -2161,6 +2240,9 @@ views:
       - condition: state
         entity: media_player.google_tv
         state_not: 'off'
+      - condition: state
+        entity: media_player.google_tv
+        state_not: unavailable
       type: conditional
     - collapsible_controls: true
       entity: media_player.nest_mini
@@ -2296,13 +2378,25 @@ views:
           navigation_path: /lovelace/living-room?anchor=home
         type: template
       type: custom:mushroom-chips-card
-    - camera_image: camera.doorbell
-      camera_view: live
+    - caption_format: '[AGO]'
       entities:
-      - entity: binary_sensor.door_person
-      - entity: binary_sensor.door_bell
-      entity: camera.doorbell
-      type: picture-glance
+      - camera.doorbell_fluent
+      - sensor.doorbell_images
+      - caption_format: '[AGO]'
+        file_name_date_begins: 12
+        file_name_format: YYYYMMDDHHmmss
+        include_images: true
+        path: media-source://media_source/local/Doorbell/
+        preview_video_at: 5
+        recursive: true
+        slideshow_video_end: true
+      file_name_format: YYYY-MM-DD_HH-mm-SS
+      maximum_files: 15
+      menu_alignment: Bottom
+      parsed_date_sort: true
+      show_reload: true
+      show_zoom: true
+      type: custom:gallery-card
     type: vertical-stack
     view_layout:
       column: 3
@@ -2330,32 +2424,21 @@ views:
           action: navigate
           navigation_path: /lovelace/living-room?anchor=home
         type: template
-      - chip:
-          content: "{% if states('counter.bin_outside') == '1' %}\n  Bin Outside!\n\
-            {% else %}\n  Bin Outside?\n{% endif %}"
-          entity: input_button.bin_outside
-          hold_action:
-            action: more-info
-          icon: "{% if states('counter.bin_outside') == '1' %}\n  fas:trash-can-arrow-up\n\
-            {% else %}\n  fas:trash-can\n{% endif %}"
-          icon_color: "{% if states('counter.bin_outside') == '1' %}\n  {% if state_attr(\"\
-            sensor.black_bin\", \"next_collection\") == 1 %}black{% elif state_attr(\"\
-            sensor.blue_bin\", \"next_collection\") == 1 %}blue{% else %}disabled{%\
-            \ endif %}\n{% else %}\n  disabled\n{% endif %}"
-          picture: ''
-          tap_action:
-            action: toggle
-          type: template
-        conditions:
-        - condition: or
-          conditions:
-          - condition: state
-            entity: calendar.blue_bin
-            state: 'on'
-          - condition: state
-            entity: calendar.black_bin
-            state: 'on'
-        type: conditional
+      - content: "{% if states('counter.bin_outside') == '1' %}\n  Bin Outside!\n\
+          {% else %}\n  Bin Outside?\n{% endif %}"
+        entity: input_button.bin_outside
+        hold_action:
+          action: more-info
+        icon: "{% if states('counter.bin_outside') == '1' %}\n  fas:trash-can-arrow-up\n\
+          {% else %}\n  fas:trash-can\n{% endif %}"
+        icon_color: "{% if states('counter.bin_outside') == '1' %}\n  {% if state_attr(\"\
+          sensor.black_bin\", \"next_collection\") == 1 %}black{% elif state_attr(\"\
+          sensor.blue_bin\", \"next_collection\") == 1 %}blue{% else %}disabled{%\
+          \ endif %}\n{% else %}\n  disabled\n{% endif %}"
+        picture: ''
+        tap_action:
+          action: toggle
+        type: template
       - icon: mdi:arrow-up
         icon_color: grey
         tap_action:
@@ -2473,6 +2556,31 @@ views:
   path: living-room
   title: Living Room
   type: custom:vertical-layout
+- cards:
+  - caption_format: '[AGO]'
+    entities:
+    - camera.doorbell_fluent
+    - sensor.doorbell_images
+    - caption_format: '[AGO]'
+      file_name_date_begins: 12
+      file_name_format: YYYYMMDDHHmmss
+      include_images: false
+      path: media-source://media_source/local/Doorbell/
+      preview_video_at: 5
+      recursive: true
+      slideshow_video_end: true
+    file_name_format: YYYY-MM-DD_HH-mm-SS
+    maximum_files: 20
+    menu_alignment: Responsive
+    parsed_date_sort: true
+    show_reload: true
+    show_zoom: true
+    type: custom:gallery-card
+  icon: mdi:doorbell-video
+  path: camera
+  subview: true
+  title: Camera
+  type: panel
 - cards: []
   icon: mdi:washing-machine
   layout: {}
@@ -3091,6 +3199,36 @@ views:
         icon_color: blue-grey
         type: template
       type: custom:mushroom-chips-card
+    - double_tap_action:
+        action: none
+      entity: sensor.harddisk_free_space
+      fill_container: true
+      hold_action:
+        action: none
+      icon: mdi:camera
+      icon_color: '{% if states.sensor.doorbell.state | float > 500.0 %}
+
+        red
+
+        {% elif states.sensor.doorbell.state | float <= 500.0 and states.sensor.doorbell.state
+        | float > 200.0 %}
+
+        orange
+
+        {% elif states.sensor.doorbell.state | float <= 200.0 and states.sensor.doorbell.state
+        | float > 0.0 %}
+
+        green
+
+        {% endif %}
+
+        '
+      multiline_secondary: true
+      primary: '{{states(''sensor.doorbell'')}} MB'
+      secondary: Camera Snapshots
+      tap_action:
+        action: more-info
+      type: custom:mushroom-template-card
     - double_tap_action:
         action: none
       entity: sensor.database_size
@@ -3736,6 +3874,10 @@ views:
         integration: tplink_deco
         options:
           type: custom:mushroom-entity-card
+      - entity_id: device_tracker.yair_s_phone
+        options:
+          name: Yair
+          type: custom:mushroom-entity-card
     show_empty: false
     sort:
       ignore_case: false
@@ -4233,7 +4375,7 @@ views:
       - dark_mode: true
         default_zoom: 15
         entities:
-        - entity: person.hilary_harris
+        - entity: device_tracker.hilary_s_phone
         hours_to_show: 24
         type: map
       style:
@@ -4883,24 +5025,9 @@ views:
   path: updates
   subview: true
   title: Updates
-- badges: []
-  cards:
-  - card:
-      bulk_rename:
-      - from: Battery+
-        to: Battery
-      secondary_info: '{attributes.battery_type_and_quantity}'
-      type: custom:battery-state-card
-    filter:
-      include:
-      - entity_id: /battery_plus/
-        integration: battery_notes
-    sort:
-      method: state
-      numeric: true
-      reverse: false
-    type: custom:auto-entities
+- cards: []
   icon: mdi:test-tube
   path: testing
   title: testing
-  visible: []
+  visible:
+  - user: 74f7e2ffd3594037b1a2fc4de82d9fea

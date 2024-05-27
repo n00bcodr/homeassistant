@@ -11,3 +11,7 @@ intents:
   internetspeed:
     - how fast is [the] internet[?]
     - what is [the] [current] internet speed[?]
+  kettle:
+    - let's make a cup of tea
+    - boil [some] water [for me]
+    - kettle

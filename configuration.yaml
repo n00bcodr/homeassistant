@@ -5,17 +5,20 @@ homeassistant:
   allowlist_external_dirs:
     - /config/.storage
     - /config/
+    - /media/
 
 browser:
+delete:
 python_script:
+influxdb:
 pyscript:
 my:
 battery_notes:
 logger:
   default: critical
-  logs:
-    custom_components.localtuya: debug
-    custom_components.localtuya.pytuya: debug
+  # logs:
+  #   custom_components.localtuya: debug
+  #   custom_components.localtuya.pytuya: debug
 tts:
   - platform: google_translate
 

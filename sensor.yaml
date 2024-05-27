@@ -294,6 +294,27 @@
         icon: >
           mdi:numeric-{{ ((as_timestamp(state_attr("calendar.blue_bin", "start_time")) | as_datetime | as_local).date() - now().date()).days }}
 
+    doorbell_images:
+      friendly_name: Doorbell Image Captures
+      unique_id: doorbell_images
+      value_template: >
+        {{states.sensor.doorbell.attributes.number_of_files}}
+      attribute_templates:
+        path: >
+          {{ states.sensor.doorbell.attributes.path }}
+        filter: >
+          {{ states.sensor.doorbell.attributes.filter }}
+        number_of_files: >
+          {{ states.sensor.doorbell.attributes.number_of_files }}
+        bytes: >
+          {{ states.sensor.doorbell.attributes.bytes }}
+        file_list: >
+          {{ states.sensor.doorbell.attributes.file_list | sort }}
+        unit_of_measurement: >
+          {{ states.sensor.doorbell.attributes.unit_of_measurement }}
+        icon: >
+          {{ states.sensor.doorbell.attributes.icon }}
+
 - platform: formulaone_api
 
 - platform: plex_recently_added
@@ -311,3 +332,24 @@
   port: 32400
   section_types:
     - show
+
+- platform: folder
+  folder: /config/www/doorbell
+
+- platform: influxdb
+  api_version: 1
+  host: a0d7b954-influxdb
+  username: esb
+  password: homeassistant123
+  database: esb
+  verify_ssl: false
+  ssl: false
+  scan_interval: 1800
+  queries:
+    - name: ESB Power
+      unit_of_measurement: kWh
+      value_template: "{{ value | multiply(0.5) }}"
+      group_function: last
+      measurement: '"meter_reading"'
+      field: value
+      where: '"MPRN" = ''10015088780'''

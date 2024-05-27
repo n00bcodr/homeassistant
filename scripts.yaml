@@ -356,3 +356,86 @@ play_thunderstorm_sounds:
       - media_player.pavan_s_nest_hub
   mode: single
   icon: mdi:lightning-bolt-outline
+google_tell_me_a_joke:
+  alias: Google, Tell me a Joke
+  sequence:
+  - service: google_assistant_sdk.send_text_command
+    data:
+      command: tell me a joke
+    response_variable: response
+  - service: notify.mobile_app_pixel8pro
+    metadata: {}
+    data:
+      message: '{{ response.responses[0].text }}'
+      data:
+        car_ui: true
+        tag: joke
+        notification_icon: mdi:emoticon-happy-outline
+  mode: single
+  icon: mdi:emoticon-happy-outline
+delete_camera_files:
+  alias: Delete Camera Files
+  sequence:
+  - variables:
+      service_data: "{\n  \"folder\": \"/config/www/doorbell/\"\n  {% if days is defined
+        %}, \"time\": \"{{ days * 86400 }}\" {% endif %}\n  {% if only_extensions
+        is defined %}, \"only_extensions\": \"{{ only_extensions }}\" {% endif %}\n
+        \ {% if except_extensions is defined %}, \"except_extensions\": \"{{ except_extensions
+        }}\" {% endif %}\n  {% if except_files is defined %}, \"except_files\": \"{{
+        except_files }}\" {% endif %}\n  {% if size is defined %}, \"size\": \"{{
+        size }}\" {% endif %}\n  {% if no_warn is defined %}, \"no_warn\": {{ no_warn
+        }} {% endif %}\n}\n"
+  - service: delete.files_in_folder
+    data: '{{ service_data }}'
+  mode: single
+  fields:
+    folder:
+      selector:
+        text:
+      name: Folder
+      description: Folder to be scanned for the files
+      required: true
+      default: /config/www/doorbell/
+    days:
+      selector:
+        number:
+          min: 1
+          max: 30
+      name: Days
+      description: Number of days to retain the snapshots
+      required: false
+    only_extensions:
+      selector:
+        text:
+      name: Only Extensions
+      description: List of extensions that are allowed to be deleted (comma separated,
+        e.g., ".png,.jpg")
+      required: false
+    except_extensions:
+      selector:
+        text:
+      name: Except Extensions
+      description: List of extensions that are not allowed to be deleted (comma separated,
+        e.g., ".zip,.tar")
+      required: false
+    except_files:
+      selector:
+        text:
+      name: Except Files
+      description: List of specific files that are not allowed to be deleted (comma
+        separated, e.g., "important_file.zip,backup.tar")
+      required: false
+    size:
+      selector:
+        number:
+      name: Size (MB)
+      description: Maximum folder size in MB
+      required: false
+    no_warn:
+      selector:
+        boolean:
+      name: No Warnings
+      description: Disable warnings in logs
+      required: false
+      default: false
+  icon: mdi:delete-circle-outline
