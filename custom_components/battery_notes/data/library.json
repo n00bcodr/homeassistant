@@ -78,6 +78,11 @@
             "battery_type": "CR2032"
         },
         {
+            "manufacturer": "_TZ3000_9eeavbk5",
+            "model": "TS0203",
+            "battery_type": "CR2032"
+        },
+        {
             "manufacturer": "_TZ3000_abci1hiu",
             "model": "TS0044",
             "battery_type": "A23"
@@ -123,6 +128,11 @@
         {
             "manufacturer": "_TZ3000_f2bw0b6k",
             "model": "TS0201",
+            "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "_TZ3000_fa9mlvja",
+            "model": "TS0041",
             "battery_type": "CR2032"
         },
         {
@@ -1234,6 +1244,12 @@
             "battery_type": "MANUAL"
         },
         {
+            "manufacturer": "Ecowitt",
+            "model": "GW1100A",
+            "battery_type": "AA",
+            "battery_quantity": 2
+        },
+        {
             "manufacturer": "ECOWITT",
             "model": "GW1101",
             "battery_type": "AA",
@@ -1720,6 +1736,12 @@
         },
         {
             "manufacturer": "eWeLink",
+            "model": "SNZB-04",
+            "battery_type": "AAA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "eWeLink",
             "model": "TH01",
             "battery_type": "CR2450"
         },
@@ -1942,6 +1964,12 @@
             "manufacturer": "Govee",
             "model": "H5074",
             "battery_type": "CR2477"
+        },
+        {
+            "manufacturer": "Govee",
+            "model": "H5075",
+            "battery_type": "AAA",
+            "battery_quantity": 2
         },
         {
             "manufacturer": "Govee",
@@ -2386,6 +2414,11 @@
             "manufacturer": "Iris",
             "model": "Contact and temperature sensor (IL06_1)",
             "battery_type": "CR2"
+        },
+        {
+            "manufacturer": "Iris",
+            "model": "iL07-01",
+            "battery_type": "CR123"
         },
         {
             "manufacturer": "iRobot",
@@ -2984,6 +3017,11 @@
         },
         {
             "manufacturer": "Onvis",
+            "model": "CT3",
+            "battery_type": "CR2450"
+        },
+        {
+            "manufacturer": "Onvis",
             "model": "HS2",
             "battery_type": "CR2450"
         },
@@ -3186,9 +3224,26 @@
             "battery_type": "18650"
         },
         {
+            "manufacturer": "plant",
+            "model": "by smart",
+            "battery_type": "Rechargeable"
+        },
+        {
             "manufacturer": "Plugwise",
             "model": "168-01",
             "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "Plugwise",
+            "model": "Lisa",
+            "battery_type": "AAA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "Plugwise",
+            "model": "Tom/Floor",
+            "battery_type": "AA",
+            "battery_quantity": 2
         },
         {
             "manufacturer": "Poly-control",
@@ -3521,7 +3576,7 @@
         {
             "manufacturer": "Shelly",
             "model": "Shelly H&T",
-            "battery_type": "CR123A"
+            "battery_type": "MANUAL"
         },
         {
             "manufacturer": "Shelly",
@@ -3535,6 +3590,12 @@
         },
         {
             "manufacturer": "Shelly",
+            "model": "Shelly Plus H&T",
+            "battery_type": "AA",
+            "battery_quantity": 4
+        },
+        {
+            "manufacturer": "Shelly",
             "model": "Shelly Plus Smoke",
             "battery_type": "CR123A"
         },
@@ -3542,6 +3603,12 @@
             "manufacturer": "Shelly",
             "model": "Shelly Valve",
             "battery_type": "Rechargable"
+        },
+        {
+            "manufacturer": "Shelly",
+            "model": "SNSN-0013A",
+            "battery_type": "AA (LR6)",
+            "battery_quantity": 4
         },
         {
             "manufacturer": "Shenzhen Heiman Technology Co., Ltd.",
@@ -3563,6 +3630,11 @@
             "model": "DB1",
             "battery_type": "AA",
             "battery_quantity": 4
+        },
+        {
+            "manufacturer": "Shenzhen Neo Electronics Co., Ltd.",
+            "model": "GED1800",
+            "battery_type": "CR123A"
         },
         {
             "manufacturer": "Shenzhen Neo Electronics Co., Ltd.",
@@ -3893,6 +3965,11 @@
             "manufacturer": "SONOFF",
             "model": "SNZB-02D",
             "battery_type": "CR2450"
+        },
+        {
+            "manufacturer": "SONOFF",
+            "model": "SNZB-02P",
+            "battery_type": "CR2477"
         },
         {
             "manufacturer": "SONOFF",
@@ -4510,6 +4587,11 @@
             "battery_type": "CR2032"
         },
         {
+            "manufacturer": "Tuya",
+            "model": "TS0043",
+            "battery_type": "CR2032"
+        },
+        {
             "manufacturer": "TuYa",
             "model": "TS0044_1",
             "battery_type": "CR2430"
@@ -4768,6 +4850,12 @@
             "manufacturer": "Weenect",
             "model": "pet2",
             "battery_type": "Rechargeable"
+        },
+        {
+            "manufacturer": "Weiser",
+            "model": "GED1800",
+            "battery_type": "AA",
+            "battery_quantity": 4
         },
         {
             "manufacturer": "Wink Inc.",
