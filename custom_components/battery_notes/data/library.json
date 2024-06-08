@@ -555,6 +555,11 @@
         },
         {
             "manufacturer": "American Power Conversion",
+            "model": "Back-UPS RS 900MI",
+            "battery_type": "Rechargeable"
+        },
+        {
+            "manufacturer": "American Power Conversion",
             "model": "Back-UPS XS 1500M",
             "battery_type": "Rechargeable"
         },
@@ -830,6 +835,12 @@
         {
             "manufacturer": "August Home Inc.",
             "model": "ASL6_05/101300/SI",
+            "battery_type": "AA",
+            "battery_quantity": 4
+        },
+        {
+            "manufacturer": "August Home Inc.",
+            "model": "AUG-SL02-M02-G02",
             "battery_type": "AA",
             "battery_quantity": 4
         },
@@ -1126,6 +1137,12 @@
         },
         {
             "manufacturer": "Develco",
+            "model": "Keypad (KEYZB-110)",
+            "battery_type": "AA",
+            "battery_quantity": 4
+        },
+        {
+            "manufacturer": "Develco",
             "model": "KEYZB-110",
             "battery_type": "AA",
             "battery_quantity": 4
@@ -1226,6 +1243,11 @@
         {
             "manufacturer": "Ecolink",
             "model": "H214104",
+            "battery_type": "CR123A"
+        },
+        {
+            "manufacturer": "Ecolink",
+            "model": "PIR Motion Sensor v2.5",
             "battery_type": "CR123A"
         },
         {
@@ -1665,6 +1687,12 @@
             "battery_quantity": 2
         },
         {
+            "manufacturer": "Eve",
+            "model": "Thermo",
+            "battery_type": "AA",
+            "battery_quantity": 2
+        },
+        {
             "manufacturer": "Eve Systems",
             "model": "Eve Door 20EBN9901",
             "battery_type": "LS14250"
@@ -1673,6 +1701,12 @@
             "manufacturer": "Eve Systems",
             "model": "Eve Motion 20EBY9901",
             "battery_type": "AAA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "Eve Systems",
+            "model": "Thermo 20EBP1701",
+            "battery_type": "AA",
             "battery_quantity": 2
         },
         {
@@ -1949,6 +1983,12 @@
             "battery_type": "MANUAL"
         },
         {
+            "manufacturer": "Google",
+            "model": "Topaz-2.9",
+            "battery_type": "AA",
+            "battery_quantity": 6
+        },
+        {
             "manufacturer": "Govee",
             "model": "H5054",
             "battery_type": "AAA",
@@ -2114,6 +2154,12 @@
         },
         {
             "manufacturer": "HomeSeer Technologies",
+            "model": "HS-FS100+",
+            "battery_type": "AAA",
+            "battery_quantity": 3
+        },
+        {
+            "manufacturer": "HomeSeer Technologies",
             "model": "HS-LS100+",
             "battery_type": "LS14250"
         },
@@ -2159,6 +2205,16 @@
             "battery_quantity": 12
         },
         {
+            "manufacturer": "Hunter Douglas",
+            "model": "Vertical Slats, Left Stack",
+            "battery_type": "Rechargeable"
+        },
+        {
+            "manufacturer": "Hunter Douglas",
+            "model": "Vertical Slats, Right Stack",
+            "battery_type": "Rechargeable"
+        },
+        {
             "manufacturer": "iCasa",
             "model": "Zigbee 3.0 Keypad Pulse 8S (ICZB-KPD18S)",
             "battery_type": "CR2450"
@@ -2188,6 +2244,16 @@
             "manufacturer": "IKEA",
             "model": "FYRTUR roller blind (E1757)",
             "battery_type": "Rechargeable"
+        },
+        {
+            "manufacturer": "Ikea",
+            "model": "FYRTUR roller blind, block-out (E1757)",
+            "battery_type": "BRAUNIT Battery pack (rechargeable)"
+        },
+        {
+            "manufacturer": "Ikea",
+            "model": "KADRILJ roller blind (E1926)",
+            "battery_type": "BRAUNIT Battery pack (rechargeable)"
         },
         {
             "manufacturer": "IKEA",
@@ -3473,6 +3539,11 @@
             "battery_type": "CR2"
         },
         {
+            "manufacturer": "Samsung",
+            "model": "SM-A525F",
+            "battery_type": "Rechargeable"
+        },
+        {
             "manufacturer": "samsung",
             "model": "SM-G955U",
             "battery_type": "Rechargeable"
@@ -3485,6 +3556,16 @@
         {
             "manufacturer": "samsung",
             "model": "SM-S918U",
+            "battery_type": "Rechargeable"
+        },
+        {
+            "manufacturer": "Samsung",
+            "model": "SM-T225",
+            "battery_type": "HQ-3565S"
+        },
+        {
+            "manufacturer": "Samsung",
+            "model": "SM-T510",
             "battery_type": "Rechargeable"
         },
         {
@@ -4645,6 +4726,12 @@
             "battery_type": "CR2032"
         },
         {
+            "manufacturer": "TuYa",
+            "model": "Water valve (TS0049)",
+            "battery_type": "AA",
+            "battery_quantity": 4
+        },
+        {
             "manufacturer": "Tuya",
             "model": "WiFi Temperature & Humidity Sensor (q29ebws5adwye1l8)",
             "battery_type": "AAA",
@@ -4711,6 +4798,12 @@
             "model": "zqeaw7pi",
             "battery_type": "AAA",
             "battery_quantity": 2
+        },
+        {
+            "manufacturer": "TuYa",
+            "model": "ZTH08-E",
+            "battery_type": "AAA",
+            "battery_quantity": 3
         },
         {
             "manufacturer": "TUYATEC-xrvzm3yI",
@@ -5138,6 +5231,12 @@
         },
         {
             "manufacturer": "Xiaomi",
+            "model": "LYWSD02MMC",
+            "battery_type": "CR2032",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "Xiaomi",
             "model": "LYWSD03MMC",
             "battery_type": "CR2032"
         },
@@ -5185,6 +5284,11 @@
         {
             "manufacturer": "Xiaomi",
             "model": "Mi Scale V1",
+            "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "Xiaomi",
+            "model": "Mi wireless switch (WXKG01LM)",
             "battery_type": "CR2032"
         },
         {
@@ -5412,6 +5516,12 @@
             "manufacturer": "YoLink",
             "model": "VibrationSensor",
             "battery_type": "AAA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "Yolink",
+            "model": "YS7103",
+            "battery_type": "AA",
             "battery_quantity": 2
         },
         {
