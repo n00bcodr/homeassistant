@@ -320,6 +320,12 @@
             "battery_quantity": 2
         },
         {
+            "manufacturer": "_TZE200_kb5noeto",
+            "model": "TS0601",
+            "battery_type": "AAA",
+            "battery_quantity": 2
+        },
+        {
             "manufacturer": "_TZE200_locansqn",
             "model": "TS0601",
             "battery_type": "AAA",
@@ -5284,6 +5290,11 @@
         {
             "manufacturer": "Xiaomi",
             "model": "Mi Scale V1",
+            "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "Xiaomi",
+            "model": "Mi temperature and humidity sensor (WSDCGQ01LM)",
             "battery_type": "CR2032"
         },
         {
