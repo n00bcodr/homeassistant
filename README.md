@@ -15,7 +15,7 @@
 ---
 # Home Assistant Configuration
 
-I started my Home Assistant Journey with a Raspberry Pi 3, from which I have switched to an old Dell Laptop that I had lying around, for a year. I then migrated my setup to a renewed [HP Mini PC](https://www.amazon.in/gp/product/B09RTMLB15) with Core i7, 16GB RAM which is now the [server back home](https://github.com/n00bcodr/homeassistant) in India. When I was moving to Ireland I bought a Dell OPTIPLEX 3060 Tiny with Core i3 and 20GB RAM and a few hard disks connected with my Movie and TV Show collections.
+I started my Home Assistant Journey with a Raspberry Pi 3, from which I have switched to an old Dell Laptop that I had lying around, for a year. I then migrated my setup to a renewed [HP Mini PC](https://www.amazon.in/gp/product/B09RTMLB15) with Core i7, 16GB RAM which is now the [server back home](https://github.com/n00bcodr/homeassistant-india) in India. When I was moving to Ireland I bought a Dell OPTIPLEX 3060 Tiny with Core i3 and 20GB RAM and a few hard disks connected with my Movie and TV Show collections.
 
 
 ## Things I have configured on the server
@@ -178,9 +178,9 @@ I started my Home Assistant Journey with a Raspberry Pi 3, from which I have swi
 | [Go to Menu](#menu) |
 
 - Some type of plant sensors that would integrate well with HomeAssistant
-- Google Coral for [HomeAssistant back home](https://github.com/n00bcodr/homeassistant)
+- Google Coral for [HomeAssistant back home](https://github.com/n00bcodr/homeassistant-india)
 - NAS
-  
+
 ---
 
 ### <a name="graveyard">Graveyard☠️</a> 

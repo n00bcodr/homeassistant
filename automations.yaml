@@ -280,15 +280,18 @@
         data: {}
       - service: pyscript.f1constructorstandings
         data: {}
-      - service: homeassistant.reload_config_entry
+      - service: rest_command.reload_google_sheets
         data: {}
-        target:
-          device_id:
-          - dff84bd584c07eb8fe0319805d37fb40
-          - 9f7965add426757cffd817a5c0e0da07
-          entity_id:
-          - weather.home
-          - todo.my_tasks
+      - service: rest_command.reload_google_assistant_sdk
+        data: {}
+      - service: rest_command.reload_weather
+        data: {}
+      - service: rest_command.reload_tasks
+        data: {}
+      - service: rest_command.reload_tuya
+        data: {}
+      - service: rest_command.reload_local_tuya
+        data: {}
     default: []
   mode: single
 - id: '1642654396519'
@@ -330,7 +333,7 @@
     event: start
   condition:
   - condition: template
-    value_template: '{{states.sensor.current_version.state > states.sensor.n00bcodr_homeassistant_ireland_latest_tag.state}}'
+    value_template: '{{states.sensor.current_version.state > states.sensor.n00bcodr_homeassistant_latest_tag.state}}'
     enabled: false
   action:
   - delay:
@@ -339,7 +342,7 @@
       seconds: 0
       milliseconds: 0
   - condition: template
-    value_template: '{{states.sensor.current_version.state > states.sensor.n00bcodr_homeassistant_ireland_latest_tag.state}}'
+    value_template: '{{states.sensor.current_version.state > states.sensor.n00bcodr_homeassistant_latest_tag.state}}'
   - service: notify.mobile_app_pixel8pro
     data:
       message: Update tag in GitHub?
@@ -353,7 +356,7 @@
           title: Update!
         - action: URI
           title: Open Repo
-          uri: https://github.com/n00bcodr/homeassistant-ireland
+          uri: https://github.com/n00bcodr/homeassistant
   mode: single
 - id: '1655814095516'
   alias: "\U0001F3ACCapture Shared URL - Google TV"
@@ -1749,52 +1752,13 @@
       action: BIN_OUT
   condition: []
   action:
-  - if:
-    - condition: and
-      conditions:
-      - condition: time
-        after: '21:00:00'
-        before: '12:00:00'
-      - condition: or
-        conditions:
-        - condition: template
-          value_template: '{{(state_attr("sensor.blue_bin", "next_collection")) ==
-            1 }}'
-        - condition: template
-          value_template: '{{(state_attr("sensor.black_bin", "next_collection")) ==
-            1 }}'
-    then:
-    - service: input_button.press
-      target:
-        entity_id:
-        - input_button.bin_outside
-      data: {}
-    - service: counter.increment
-      target:
-        entity_id:
-        - counter.bin_outside
-      data: {}
-    - service: notify.all_phones
-      data:
-        data:
-          tag: bin_pickup
-        message: clear_notification
-    - service: notify.all_phones_android
-      data:
-        data:
-          notification_icon: mdi:delete-empty
-          color: green
-          timeout: 600
-        message: ' '
-        title: The bin is outside.
-    enabled: false
   - choose:
     - conditions:
       - condition: and
         conditions:
         - condition: time
           after: '21:00:00'
-          before: '12:00:00'
+          before: 02:00:00
         - condition: or
           conditions:
           - condition: template
@@ -2058,13 +2022,12 @@
   trigger:
   - platform: state
     entity_id:
-    - sensor.theaterofdreams_theaterofdreams_monitorpowerstate
-    to: PowerOn
-  - platform: numeric_state
-    entity_id:
-    - sensor.theaterofdreams_theaterofdreams_display_display_count
-    above: 0
-  condition: []
+    - sensor.theaterofdreams_theaterofdreams_sessionstate
+    to: Unlocked
+  condition:
+  - condition: state
+    entity_id: switch.workstation
+    state: 'off'
   action:
   - service: switch.turn_on
     metadata: {}
@@ -2093,28 +2056,6 @@
     data: {}
     target:
       entity_id: button.nexus_7_load_start_url
-  mode: single
-- id: '1708553418076'
-  alias: "\U0001F4F3Devices Unavailable!"
-  description: ''
-  trigger:
-  - platform: time
-    at: '20:00:00'
-  condition:
-  - condition: template
-    value_template: '{{states.switch.heating_blanket.state == ''unavailable''}}'
-  action:
-  - service: notify.all_phones_ios
-    data:
-      title: Some Devices are Unavailable!
-      message: switch.heating_blanket is {{states.switch.heating_blanket.state}},
-        light.guest_lamp is {{states.light.guest_lamp.state}}
-      data:
-        push:
-          sound:
-            name: default
-            critical: 1
-            volume: 0.7
   mode: single
 - id: '1708682275062'
   alias: "\U0001F4F3Notify New Wifi Device"
@@ -2269,6 +2210,7 @@
       data:
         tag: doorbell
     alias: Clear old notifications
+    enabled: false
   - alias: Clear old notifications
     service: persistent_notification.dismiss
     data:
@@ -2279,6 +2221,13 @@
       filename: /config/www/doorbell/{{camera_snapshot}}
       entity_id: camera.doorbell_snapshots_fluent
     alias: Take a Camera Snapshot
+  - service: google_generative_ai_conversation.generate_content
+    data:
+      prompt: Very briefly describe what you see in this image from my doorbell camera.
+        Your message needs to be short to fit in a phone notification. Don't describe
+        buildings or cars.
+      image_filename: /config/www/doorbell/{{camera_snapshot}}
+    response_variable: generated_content
   - alias: Choose between motion and doorbell press
     choose:
     - conditions:
@@ -2289,7 +2238,7 @@
       - service: notify.all_phones
         metadata: {}
         data:
-          message: "Someone's at the front door \U0001F464"
+          message: '{{ generated_content.text }}'
           data:
             ttl: 0
             tag: doorbell
@@ -2312,6 +2261,7 @@
               title: Will be there
               icon: sfsymbols:person.crop.circle.badge.checkmark
             image: /local/doorbell/{{camera_snapshot}}
+          title: "Someone's at the front door \U0001F464"
     - conditions:
       - condition: trigger
         id:
@@ -2323,7 +2273,7 @@
           message: "Doorbell \U0001F514"
           data:
             ttl: 0
-            tag: doorbell
+            tag: bell
             entity_id: camera.doorbell_fluent
             notification_icon: mdi:doorbell-video
             activationMode: foreground
@@ -2450,7 +2400,15 @@
   - platform: state
     entity_id:
     - sensor.work_laptop_frontmost_app
-    to: Citrix Workspace Authenticator
+    to: Citrix Workspace Authentication
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 2
+  - platform: state
+    entity_id:
+    - sensor.theaterofdreams_theaterofdreams_activewindow
+    to: Citrix Workspace
     for:
       hours: 0
       minutes: 0
@@ -2459,7 +2417,7 @@
   - condition: time
     after: 07:30:00
     before: 09:00:00
-    enabled: true
+    enabled: false
   action:
   - service: notify.mobile_app_pixel8pro
     data:
@@ -2480,7 +2438,7 @@
     choose:
     - conditions:
       - condition: template
-        value_template: '{{ wait.trigger.event.data.action == ''package'' }}'
+        value_template: '{{ trigger.event.data.action == ''package'' }}'
       sequence:
       - service: select.select_option
         data:
@@ -2490,7 +2448,7 @@
       alias: 'Doorbell: Quick Reply | Package'
     - conditions:
       - condition: template
-        value_template: '{{ wait.trigger.event.data.action == ''be_there'' }}'
+        value_template: '{{ trigger.event.data.action == ''be_there'' }}'
       sequence:
       - service: select.select_option
         data:
@@ -2500,7 +2458,7 @@
       alias: 'Doorbell: Quick Reply | We will be right there'
     - conditions:
       - condition: template
-        value_template: '{{ wait.trigger.event.data.action == ''tag_update'' }}'
+        value_template: '{{ trigger.event.data.action == ''tag_update'' }}'
       sequence:
       - service: shell_command.git_core_update_push
         data: {}

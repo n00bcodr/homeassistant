@@ -48,3 +48,52 @@ pipup_url_on_google_tv:
         }
       }
     }
+
+reload_google_sheets:
+  url: http://192.168.68.168:8123/api/config/config_entries/entry/4bcb43c8e6f2f8104c4f5b04b9e0afa4/reload
+  method: POST
+  headers:
+    authorization: !secret api_bearer_token
+    content-type: application/json
+
+reload_google_assistant_sdk:
+  url: http://192.168.68.168:8123/api/config/config_entries/entry/be2d884072a6244c8c32f94343d3600f/reload
+  method: POST
+  headers:
+    authorization: !secret api_bearer_token
+    content-type: application/json
+
+reload_local_tuya:
+  url: http://192.168.68.168:8123/api/config/config_entries/entry/ed44fc384002c07e7bed7b8257b27c28/reload
+  method: POST
+  headers:
+    authorization: !secret api_bearer_token
+    content-type: application/json
+
+reload_tuya:
+  url: http://192.168.68.168:8123/api/config/config_entries/entry/de6b1a5966d4099a5ba2ca6c92e7d852/reload
+  method: POST
+  headers:
+    authorization: !secret api_bearer_token
+    content-type: application/json
+
+reload_weather:
+  url: http://192.168.68.168:8123/api/config/config_entries/entry/7ed2587caeee318ccb727dd707b2c03d/reload
+  method: POST
+  headers:
+    authorization: !secret api_bearer_token
+    content-type: application/json
+
+reload_tasks:
+  url: http://192.168.68.168:8123/api/config/config_entries/entry/3c843c245beac744ae1ce48e11118b0b/reload
+  method: POST
+  headers:
+    authorization: !secret api_bearer_token
+    content-type: application/json
+
+reload_google_calendar:
+  url: http://192.168.68.168:8123/api/config/config_entries/entry/e4abf68737e0f1a5b92a78b2027beefa/reload
+  method: POST
+  headers:
+    authorization: !secret api_bearer_token
+    content-type: application/json

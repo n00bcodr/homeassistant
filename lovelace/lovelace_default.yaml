@@ -912,11 +912,16 @@ views:
   - cards:
     - back_open: true
       bg_blur: 50
+      button_type: name
       card_type: pop-up
       close_on_click: true
+      'false': []
       hash: '#sleep'
       margin: 18px
       margin_top_mobile: 00px
+      scrolling_effect: false
+      show_icon: false
+      sub_button: []
       type: custom:bubble-card
     - cards:
       - entity: script.play_ocean_sounds
@@ -2390,6 +2395,7 @@ views:
         preview_video_at: 5
         recursive: true
         slideshow_video_end: true
+        video_muted: true
       file_name_format: YYYY-MM-DD_HH-mm-SS
       maximum_files: 15
       menu_alignment: Bottom
@@ -2424,21 +2430,27 @@ views:
           action: navigate
           navigation_path: /lovelace/living-room?anchor=home
         type: template
-      - content: "{% if states('counter.bin_outside') == '1' %}\n  Bin Outside!\n\
-          {% else %}\n  Bin Outside?\n{% endif %}"
-        entity: input_button.bin_outside
-        hold_action:
-          action: more-info
-        icon: "{% if states('counter.bin_outside') == '1' %}\n  fas:trash-can-arrow-up\n\
-          {% else %}\n  fas:trash-can\n{% endif %}"
-        icon_color: "{% if states('counter.bin_outside') == '1' %}\n  {% if state_attr(\"\
-          sensor.black_bin\", \"next_collection\") == 1 %}black{% elif state_attr(\"\
-          sensor.blue_bin\", \"next_collection\") == 1 %}blue{% else %}disabled{%\
-          \ endif %}\n{% else %}\n  disabled\n{% endif %}"
-        picture: ''
-        tap_action:
-          action: toggle
-        type: template
+      - chip:
+          content: "{% if states('counter.bin_outside') == '1' %}\n  Bin Outside!\n\
+            {% else %}\n  Bin Outside?\n{% endif %}"
+          entity: input_button.bin_outside
+          hold_action:
+            action: more-info
+          icon: "{% if states('counter.bin_outside') == '1' %}\n  fas:trash-can-arrow-up\n\
+            {% else %}\n  fas:trash-can\n{% endif %}"
+          icon_color: "{% if states('counter.bin_outside') == '1' %}\n  {% if state_attr(\"\
+            sensor.black_bin\", \"next_collection\") == 1 %}black{% elif state_attr(\"\
+            sensor.blue_bin\", \"next_collection\") == 1 %}blue{% else %}disabled{%\
+            \ endif %}\n{% else %}\n  disabled\n{% endif %}"
+          picture: ''
+          tap_action:
+            action: toggle
+          type: template
+        conditions:
+        - above: 0
+          condition: numeric_state
+          entity: counter.bin_outside
+        type: conditional
       - icon: mdi:arrow-up
         icon_color: grey
         tap_action:
@@ -2581,9 +2593,11 @@ views:
   subview: true
   title: Camera
   type: panel
-- cards: []
+- background: {}
+  cards: []
   icon: mdi:washing-machine
   layout: {}
+  max_columns: 1
   path: utilities
   sections:
   - cards:
@@ -2706,6 +2720,7 @@ views:
   type: sections
 - cards: []
   icon: mdi:play-network-outline
+  max_columns: 4
   path: media
   sections:
   - cards:
@@ -3003,514 +3018,545 @@ views:
         column: 2
     type: grid
   - cards:
-    - card:
-        all_shadows: false
-        date: ddmm
-        entity: sensor.recently_added_tv
-        flag: false
-        image_style: fanart
-        max: 3
-        title: Recently Added TV
-        type: custom:upcoming-media-card
-      conditions:
-      - condition: state
-        entity: binary_sensor.plex_tv_shows
-        state: 'on'
-      type: conditional
-      view_layout:
-        column: 3
-    - card:
-        all_shadows: false
-        date: ddmm
-        entity: sensor.recently_added_movies
-        flag: false
-        image_style: fanart
-        max: 3
-        title: Recently Added Movies
-        type: custom:upcoming-media-card
-      conditions:
-      - condition: state
-        entity: binary_sensor.plex_movies
-        state: 'on'
-      type: conditional
-      view_layout:
-        column: 3
+    - all_shadows: false
+      date: ddmm
+      entity: sensor.recently_added_tv
+      flag: false
+      image_style: fanart
+      max: 3
+      type: custom:upcoming-media-card
+    title: Recently Added TV Shows
     type: grid
+    visibility:
+    - condition: state
+      entity: binary_sensor.plex_tv_shows
+      state: 'on'
+  - cards:
+    - all_shadows: false
+      date: ddmm
+      entity: sensor.recently_added_movies
+      flag: false
+      image_style: fanart
+      max: 3
+      type: custom:upcoming-media-card
+    title: Recently Added Movies
+    type: grid
+    visibility:
+    - condition: state
+      entity: binary_sensor.plex_movies
+      state: 'on'
   title: Media
   type: sections
-- badges: []
-  cards:
+  visible:
+  - user: 03fac29e97844166b40187a8b4c09ded
+  - user: e07f5c6a76fd4886ad5d945ed22f6d4b
+  - user: 74f7e2ffd3594037b1a2fc4de82d9fea
+  - user: 3bfda48930b040d882b7d5cf1566573a
+- icon: mdi:server-network
+  max_columns: 3
+  path: system-monitor
+  sections:
   - cards:
-    - alignment: center
-      chips:
-      - content: Debian
-        icon: mdi:debian
-        icon_color: purple
-        type: template
-      type: custom:mushroom-chips-card
     - cards:
-      - custom_fields:
-          item:
-            card:
-              card_mod:
-                style: "ha-card {\n  box-shadow: none;\n} \n"
-              cards:
-              - entity: sensor.processor_use_percent
-                icon_color: '#01C852'
-                name: CPU
-                primary_info: state
-                secondary_info: name
-                type: custom:mushroom-entity-card
-              - entity: sensor.memory_use_percent
-                icon_color: '#E91E63'
-                name: RAM
-                primary_info: state
-                secondary_info: name
-                type: custom:mushroom-entity-card
-              - entity: sensor.space_used
-                icon_color: '#FF9101'
-                name: Disk
-                primary_info: state
-                secondary_info: name
-                type: custom:mushroom-entity-card
-              - entity: sensor.homeassistant_cpu_speed
-                icon_color: grey
-                name: CPU Speed
-                primary_info: state
-                secondary_info: name
-                type: custom:mushroom-entity-card
-              mode: vertical
-              type: custom:stack-in-card
-          radial:
-            card:
-              apex_config:
-                legend:
+      - alignment: center
+        chips:
+        - content: Debian
+          icon: mdi:debian
+          icon_color: purple
+          type: template
+        type: custom:mushroom-chips-card
+      - cards:
+        - custom_fields:
+            item:
+              card:
+                card_mod:
+                  style: "ha-card {\n  box-shadow: none;\n} \n"
+                cards:
+                - entity: sensor.processor_use_percent
+                  icon_color: '#01C852'
+                  name: CPU
+                  primary_info: state
+                  secondary_info: name
+                  type: custom:mushroom-entity-card
+                - entity: sensor.memory_use_percent
+                  icon_color: '#E91E63'
+                  name: RAM
+                  primary_info: state
+                  secondary_info: name
+                  type: custom:mushroom-entity-card
+                - entity: sensor.space_used
+                  icon_color: '#FF9101'
+                  name: Disk
+                  primary_info: state
+                  secondary_info: name
+                  type: custom:mushroom-entity-card
+                - entity: sensor.homeassistant_cpu_speed
+                  icon_color: grey
+                  name: CPU Speed
+                  primary_info: state
+                  secondary_info: name
+                  type: custom:mushroom-entity-card
+                mode: vertical
+                type: custom:stack-in-card
+            radial:
+              card:
+                apex_config:
+                  legend:
+                    show: false
+                  title:
+                    align: top
+                    floating: true
+                card_mod:
+                  style: "ha-card {\n  box-shadow: none;\n} \n"
+                chart_type: radialBar
+                header:
                   show: false
-                title:
-                  align: top
-                  floating: true
-              card_mod:
-                style: "ha-card {\n  box-shadow: none;\n} \n"
-              chart_type: radialBar
-              header:
-                show: false
-              series:
-              - color: '#01C852'
-                entity: sensor.processor_use_percent
-              - color: '#E91E63'
-                entity: sensor.memory_use_percent
-              - color: '#FF9101'
-                entity: sensor.space_used
-              type: custom:apexcharts-card
-        styles:
-          card:
-          - border: none
-          grid:
-          - grid-template-areas: '''item radial'''
-          - grid-template-columns: 30% 80%
-          - grid-template-rows: 270px
-        type: custom:button-card
-      - card_mod:
-          style: "ha-card {\n  box-shadow: none;\n} \n"
-        cards:
-        - entity: sensor.processor_temperature
-          icon_color: red
-          name: Processor Temperature
-          primary_info: state
-          secondary_info: name
-          type: custom:mushroom-entity-card
-        - entity: sensor.homeassistant_boot_time
-          icon: mdi:clock
-          name: Last Boot
-          primary_info: state
-          secondary_info: name
-          type: custom:mushroom-entity-card
-        mode: horizontal
+                series:
+                - color: '#01C852'
+                  entity: sensor.processor_use_percent
+                - color: '#E91E63'
+                  entity: sensor.memory_use_percent
+                - color: '#FF9101'
+                  entity: sensor.space_used
+                type: custom:apexcharts-card
+          styles:
+            card:
+            - border: none
+            grid:
+            - grid-template-areas: '''item radial'''
+            - grid-template-columns: 30% 80%
+            - grid-template-rows: 270px
+          type: custom:button-card
+        - card_mod:
+            style: "ha-card {\n  box-shadow: none;\n} \n"
+          cards:
+          - entity: sensor.processor_temperature
+            icon_color: red
+            name: Processor Temperature
+            primary_info: state
+            secondary_info: name
+            type: custom:mushroom-entity-card
+          - entity: sensor.homeassistant_boot_time
+            icon: mdi:clock
+            name: Last Boot
+            primary_info: state
+            secondary_info: name
+            type: custom:mushroom-entity-card
+          mode: horizontal
+          type: custom:stack-in-card
+        mode: vertical
         type: custom:stack-in-card
-      mode: vertical
-      type: custom:stack-in-card
-    type: vertical-stack
-  - cards:
+      type: vertical-stack
     - alignment: center
       chips:
-      - content: Internet Speed
-        icon: "{% set speed = states('sensor.speedtest_download') | round %}\n{% if\
-          \ speed < 100 %}\n  mdi:speedometer-slow\n{% elif 100 <= speed <= 300 %}\n\
-          \  mdi:speedometer-medium\n{% else %}\n  mdi:speedometer\n{% endif %}"
-        icon_color: "{% set speed = states('sensor.speedtest_download') | round %}\n\
-          {% if speed < 100 %}\n  red\n{% elif 100 <= speed <= 300 %}\n  orange\n\
-          {% else %}\n  green\n{% endif %}"
-        type: template
-      type: custom:mushroom-chips-card
-    - cards:
-      - entity: sensor.speedtest_download
-        hold_action:
-          action: more-info
-        icon: mdi:download
-        icon_color: "{% set speed = states('sensor.speedtest_download') | round %}\n\
-          {% if speed < 100 %}\n  red\n{% elif 100 <= speed <= 300 %}\n  yellow\n\
-          {% else %}\n  green\n{% endif %}"
-        primary: '{{states.sensor.speedtest_download.state | round }} Mbps'
-        secondary: Download Speed
+      - icon: mdi:format-list-checks
+        icon_color: deep-purple
         tap_action:
           action: call-service
-          data:
-            addon: 6b87c29e_speedtest_addon
-          service: hassio.addon_start
+          service: rest_command.reload_tasks
           target: {}
-        type: custom:mushroom-template-card
-      - entity: sensor.speedtest_upload
-        hold_action:
-          action: more-info
-        icon: mdi:upload
-        icon_color: "{% set speed = states('sensor.speedtest_upload') | round %}\n\
-          {% if speed < 10 %}\n  red\n{% elif 10 <= speed <= 30 %}\n  yellow\n{% else\
-          \ %}\n  green\n{% endif %}"
-        primary: '{{states.sensor.speedtest_upload.state | round }} Mbps'
-        secondary: Upload Speed
-        type: custom:mushroom-template-card
-      type: horizontal-stack
-    - alignment: center
-      chips:
-      - content: Ping
-        icon: "{% if is_state('binary_sensor.192_168_68_1', 'off') or is_state('binary_sensor.8_8_8_8',\
-          \ 'off') %}\n  mdi:lan-disconnect\n{% else %}\n  mdi:lan-connect\n{% endif\
-          \ %}"
-        icon_color: "{% if is_state('binary_sensor.192_168_68_1', 'off') or is_state('binary_sensor.8_8_8_8',\
-          \ 'off') %}\n  red\n{% else %}\n  blue\n{% endif %}"
-        type: template
+        type: action
+      - icon: phu:tuya
+        icon_color: deep-orange
+        tap_action:
+          action: call-service
+          service: rest_command.reload_local_tuya
+          target: {}
+        type: action
+      - icon: mdi:weather-cloudy
+        icon_color: blue
+        tap_action:
+          action: call-service
+          service: rest_command.reload_weather
+          target: {}
+        type: action
       type: custom:mushroom-chips-card
+    type: grid
+  - cards:
     - cards:
-      - entity: binary_sensor.192_168_68_1
-        icon_color: blue
-        name: Deco
-        type: custom:mushroom-entity-card
-      - entity: binary_sensor.8_8_8_8
-        icon_color: blue
-        name: Google
-        type: custom:mushroom-entity-card
-      type: horizontal-stack
-    type: vertical-stack
-  - cards:
-    - alignment: center
-      chips:
-      - content: Storage
-        icon: mdi:memory
-        icon_color: blue-grey
-        type: template
-      type: custom:mushroom-chips-card
-    - double_tap_action:
-        action: none
-      entity: sensor.harddisk_free_space
-      fill_container: true
-      hold_action:
-        action: none
-      icon: mdi:camera
-      icon_color: '{% if states.sensor.doorbell.state | float > 500.0 %}
-
-        red
-
-        {% elif states.sensor.doorbell.state | float <= 500.0 and states.sensor.doorbell.state
-        | float > 200.0 %}
-
-        orange
-
-        {% elif states.sensor.doorbell.state | float <= 200.0 and states.sensor.doorbell.state
-        | float > 0.0 %}
-
-        green
-
-        {% endif %}
-
-        '
-      multiline_secondary: true
-      primary: '{{states(''sensor.doorbell'')}} MB'
-      secondary: Camera Snapshots
-      tap_action:
-        action: more-info
-      type: custom:mushroom-template-card
-    - double_tap_action:
-        action: none
-      entity: sensor.database_size
-      hold_action:
-        action: none
-      icon: mdi:database
-      icon_color: indigo
-      primary_info: state
-      secondary_info: name
-      type: custom:mushroom-entity-card
-    - entity: sensor.home_assistant_log_size
-      icon: mdi:math-log
-      icon_color: deep-orange
-      name: Homeassistant Log Size
-      primary_info: state
-      secondary_info: name
-      type: custom:mushroom-entity-card
-    - double_tap_action:
-        action: url
-        url_path: https://drive.google.com/drive/folders/1iDzbeGS-PLCnsDwG5i3dcOs1g-Ws4BjOhttps://drive.google.com/drive/folders/1iDzbeGS-PLCnsDwG5i3dcOs1g-Ws4BjO
-      entity: sensor.backup_state
-      fill_container: false
-      hold_action:
-        action: none
-      icon: mdi:google-drive
-      icon_color: yellow
-      multiline_secondary: false
-      primary: '{{states.sensor.backup_state.attributes.size_in_google_drive}}'
-      secondary: Google Drive Backup Size
-      tap_action:
-        action: navigate
-        navigation_path: http://homeassistant.local:8123/hassio/ingress/cebe7a76_hassio_google_drive_backup
-      type: custom:mushroom-template-card
-    - double_tap_action:
-        action: navigate
-        navigation_path: /hassio/backups
-      entity: sensor.backup_state
-      fill_container: false
-      icon: mdi:home-assistant
-      icon_color: blue
-      multiline_secondary: false
-      primary: '{{states.sensor.backup_state.attributes.size_in_home_assistant}}'
-      secondary: Homeassistant Local Backup Size
-      tap_action:
-        action: none
-      type: custom:mushroom-template-card
-    - double_tap_action:
-        action: none
-      entity: sensor.harddisk_free_space
-      fill_container: true
-      hold_action:
-        action: none
-      icon: mdi:harddisk
-      icon_color: '{% set percentage = (((states(''sensor.harddisk_free_space'') |
-        float) / (states(''sensor.harddisk_total_space'') | float))*100) | round(2)
-        | float %}
-
-
-
-        {% if percentage > 50.0 %}
-
-        green
-
-        {% elif (percentage <= 50.0) and (percentage > 30.0) %}
-
-        orange
-
-        {% elif (percentage <= 30.0) and (percentage > 0.0) %}
-
-        red
-
-        {% endif %}'
-      multiline_secondary: true
-      primary: '{{states(''sensor.harddisk_used_space'')}} GB'
-      secondary: 'Internal HDD
-
-        {{ (((states(''sensor.harddisk_free_space'') | float) / (states(''sensor.harddisk_total_space'')
-        | float))*100) | round(2)}}% free'
-      tap_action:
-        action: more-info
-      type: custom:mushroom-template-card
-    - double_tap_action:
-        action: none
-      entity: sensor.1tb_free_space
-      fill_container: false
-      hold_action:
-        action: none
-      icon: phu:seagate-ssd
-      icon_color: '{% set percentage = (((states(''sensor.1tb_free_space'') | float)
-        / (states(''sensor.1tb_total_space'') | float))*100) | round(2) | float %}
-
-
-
-        {% if percentage > 50.0 %}
-
-        green
-
-        {% elif (percentage <= 50.0) and (percentage > 30.0) %}
-
-        orange
-
-        {% elif (percentage <= 30.0) and (percentage > 0.0) %}
-
-        red
-
-        {% endif %}'
-      multiline_secondary: true
-      primary: '{{states(''sensor.1tb_used_space'')}} GB'
-      secondary: '1 TB
-
-        {{ (((states(''sensor.1tb_free_space'') | float) / (states(''sensor.1tb_total_space'')
-        | float))*100) | round(2)}}% free'
-      tap_action:
-        action: more-info
-      type: custom:mushroom-template-card
-    - double_tap_action:
-        action: none
-      entity: sensor.5tb_free_space
-      fill_container: true
-      hold_action:
-        action: none
-      icon: phu:seagate-ssd
-      icon_color: '{% set percentage = (((states(''sensor.5tb_free_space'') | float)
-        / (states(''sensor.5tb_total_space'') | float))*100) | round(2) | float %}
-
-
-
-        {% if percentage > 50.0 %}
-
-        green
-
-        {% elif (percentage <= 50.0) and (percentage > 40.0) %}
-
-        orange
-
-        {% elif (percentage <= 40.0) and (percentage > 0.0) %}
-
-        red
-
-        {% endif %}'
-      multiline_secondary: true
-      primary: '{{states(''sensor.5tb_used_space'')}} GB'
-      secondary: '5 TB
-
-        {{ (((states(''sensor.5tb_free_space'') | float) / (states(''sensor.5tb_total_space'')
-        | float))*100) | round(2)}}% free'
-      tap_action:
-        action: more-info
-      type: custom:mushroom-template-card
-    type: vertical-stack
-  - cards:
-    - alignment: center
-      chips:
-      - content: Syncthing
-        icon: mdi:sync
-        icon_color: blue
-        type: template
-      type: custom:mushroom-chips-card
-    - double_tap_action:
-        action: none
-      entity: sensor.syncthing_whatsapp
-      hold_action:
-        action: more-info
-      icon: "{% if states('sensor.syncthing_whatsapp') == 'syncing' %}\n  mdi:folder-sync\n\
-        {% elif states('sensor.syncthing_whatsapp') == 'idle' %}\n  mdi:folder-check\n\
-        {% elif states('sensor.syncthing_whatsapp') == 'paused' %}\n  mdi:folder-clock\n\
-        {% endif %}\n"
-      icon_color: "{% if states('sensor.syncthing_whatsapp') == 'syncing' %}\n  yellow\n\
-        {% elif states('sensor.syncthing_whatsapp') == 'idle' %}\n  green\n{% elif\
-        \ states('sensor.syncthing_whatsapp') == 'paused' %}\n  grey\n{% endif %}\n"
-      multiline_secondary: true
-      primary: Syncthing WhatsApp
-      secondary: 'Files - {{states.sensor.syncthing_whatsapp.attributes.global_files}}
-
-        Local Files - {{states.sensor.syncthing_whatsapp.attributes.local_files}}
-
-        Size - {{ (states.sensor.syncthing_whatsapp.attributes.local_bytes | float
-        / 1024 / 1024 / 1024)  | round(2) }} GB
-
-        '
-      tap_action:
-        action: none
-      type: custom:mushroom-template-card
-    - double_tap_action:
-        action: none
-      entity: sensor.syncthing_camera
-      hold_action:
-        action: more-info
-      icon: "{% if states('sensor.syncthing_camera') == 'syncing' %}\n  mdi:folder-sync\n\
-        {% elif states('sensor.syncthing_camera') == 'idle' %}\n  mdi:folder-check\n\
-        {% endif %}\n"
-      icon_color: "{% if states('sensor.syncthing_camera') == 'syncing' %}\n  yellow\n\
-        {% elif states('sensor.syncthing_camera') == 'idle' %}\n  green\n{% endif\
-        \ %}\n"
-      multiline_secondary: true
-      primary: Syncthing Camera
-      secondary: 'Files - {{states.sensor.syncthing_camera.attributes.global_files}}
-
-        Local Files - {{states.sensor.syncthing_camera.attributes.local_files}}
-
-        Size - {{ (states.sensor.syncthing_camera.attributes.local_bytes | float /
-        1024 / 1024 / 1024)  | round(2) }} GB
-
-        '
-      tap_action:
-        action: none
-      type: custom:mushroom-template-card
-    type: vertical-stack
-  - cards:
-    - alignment: center
-      chips:
-      - content: Git
-        icon: mdi:github
-        icon_color: white
-        type: template
-      type: custom:mushroom-chips-card
-    - cards:
-      - entities:
-        - icon: fab:git
-          name: /n00bcodr/homeassistant-ireland
-          type: weblink
-          url: https://github.com/n00bcodr/homeassistant-ireland
-        - entity: sensor.n00bcodr_homeassistant_ireland_latest_commit
-          icon: mdi:source-commit-end
-          name: Last Commit
-        - type: section
-        - icon: mdi:text
-          name: Suggested Commit - files on {{ now().timestamp() | timestamp_custom('%b
-            %d, %Y - %-I:%M %p') }}
-          state: ''
-          tap_action: none
-          type: custom:template-entity-row
-        - entity: input_text.git_commit_message
-          extend_paper_buttons_row:
-            buttons:
-            - icon: mdi:close
-              tap_action:
-                action: call-service
-                service: input_text.set_value
-                service_data:
-                  value: "\u200E"
-                target:
-                  entity_id: input_text.git_commit_message
-            - icon: fas:paste
-              tap_action:
-                action: call-service
-                service: script.git_commit_copy
-            position: right
-          name: Commit Message
-        - type: section
-        type: entities
       - alignment: center
         chips:
-        - content: Git Push
-          entity: script.git_push
-          icon: mdi:upload-multiple
-          type: template
-        - content: HA Version Update
-          entity: script.git_push_ha_version
-          icon: mdi:package-up
-          picture: ''
+        - content: Internet Speed
+          icon: "{% set speed = states('sensor.speedtest_download') | round %}\n{%\
+            \ if speed < 100 %}\n  mdi:speedometer-slow\n{% elif 100 <= speed <= 300\
+            \ %}\n  mdi:speedometer-medium\n{% else %}\n  mdi:speedometer\n{% endif\
+            \ %}"
+          icon_color: "{% set speed = states('sensor.speedtest_download') | round\
+            \ %}\n{% if speed < 100 %}\n  red\n{% elif 100 <= speed <= 300 %}\n  orange\n\
+            {% else %}\n  green\n{% endif %}"
           type: template
         type: custom:mushroom-chips-card
-      - alignment: center
-        chips:
-        - content: Push Custom Components
-          icon: hacs:hacs
-          icon_color: blue
+      - cards:
+        - entity: sensor.speedtest_download
+          hold_action:
+            action: more-info
+          icon: mdi:download
+          icon_color: "{% set speed = states('sensor.speedtest_download') | round\
+            \ %}\n{% if speed < 100 %}\n  red\n{% elif 100 <= speed <= 300 %}\n  yellow\n\
+            {% else %}\n  green\n{% endif %}"
+          primary: '{{states.sensor.speedtest_download.state | round }} Mbps'
+          secondary: Download Speed
           tap_action:
             action: call-service
-            service: shell_command.git_hacs_update
+            data:
+              addon: 6b87c29e_speedtest_addon
+            service: hassio.addon_start
+            target: {}
+          type: custom:mushroom-template-card
+        - entity: sensor.speedtest_upload
+          hold_action:
+            action: more-info
+          icon: mdi:upload
+          icon_color: "{% set speed = states('sensor.speedtest_upload') | round %}\n\
+            {% if speed < 10 %}\n  red\n{% elif 10 <= speed <= 30 %}\n  yellow\n{%\
+            \ else %}\n  green\n{% endif %}"
+          primary: '{{states.sensor.speedtest_upload.state | round }} Mbps'
+          secondary: Upload Speed
+          type: custom:mushroom-template-card
+        type: horizontal-stack
+      - alignment: center
+        chips:
+        - content: Ping
+          icon: "{% if is_state('binary_sensor.192_168_68_1', 'off') or is_state('binary_sensor.8_8_8_8',\
+            \ 'off') %}\n  mdi:lan-disconnect\n{% else %}\n  mdi:lan-connect\n{% endif\
+            \ %}"
+          icon_color: "{% if is_state('binary_sensor.192_168_68_1', 'off') or is_state('binary_sensor.8_8_8_8',\
+            \ 'off') %}\n  red\n{% else %}\n  blue\n{% endif %}"
           type: template
         type: custom:mushroom-chips-card
-      mode: vertical
-      type: custom:stack-in-card
-    type: vertical-stack
-  icon: mdi:server-network
-  path: system_monitor
+      - cards:
+        - entity: binary_sensor.192_168_68_1
+          icon_color: blue
+          name: Deco
+          type: custom:mushroom-entity-card
+        - entity: binary_sensor.8_8_8_8
+          icon_color: blue
+          name: Google
+          type: custom:mushroom-entity-card
+        type: horizontal-stack
+      type: vertical-stack
+    - cards:
+      - alignment: center
+        chips:
+        - content: Storage
+          icon: mdi:memory
+          icon_color: blue-grey
+          type: template
+        type: custom:mushroom-chips-card
+      - double_tap_action:
+          action: none
+        entity: sensor.harddisk_free_space
+        fill_container: true
+        hold_action:
+          action: none
+        icon: mdi:camera
+        icon_color: '{% if states.sensor.doorbell.state | float > 500.0 %}
+
+          red
+
+          {% elif states.sensor.doorbell.state | float <= 500.0 and states.sensor.doorbell.state
+          | float > 200.0 %}
+
+          orange
+
+          {% elif states.sensor.doorbell.state | float <= 200.0 and states.sensor.doorbell.state
+          | float > 0.0 %}
+
+          green
+
+          {% endif %}
+
+          '
+        multiline_secondary: true
+        primary: '{{states(''sensor.doorbell'')}} MB'
+        secondary: Camera Snapshots
+        tap_action:
+          action: more-info
+        type: custom:mushroom-template-card
+      - double_tap_action:
+          action: none
+        entity: sensor.database_size
+        hold_action:
+          action: none
+        icon: mdi:database
+        icon_color: indigo
+        primary_info: state
+        secondary_info: name
+        type: custom:mushroom-entity-card
+      - entity: sensor.home_assistant_log_size
+        icon: mdi:math-log
+        icon_color: deep-orange
+        name: Homeassistant Log Size
+        primary_info: state
+        secondary_info: name
+        type: custom:mushroom-entity-card
+      - double_tap_action:
+          action: url
+          url_path: https://drive.google.com/drive/folders/1iDzbeGS-PLCnsDwG5i3dcOs1g-Ws4BjOhttps://drive.google.com/drive/folders/1iDzbeGS-PLCnsDwG5i3dcOs1g-Ws4BjO
+        entity: sensor.backup_state
+        fill_container: false
+        hold_action:
+          action: none
+        icon: mdi:google-drive
+        icon_color: yellow
+        multiline_secondary: false
+        primary: '{{states.sensor.backup_state.attributes.size_in_google_drive}}'
+        secondary: Google Drive Backup Size
+        tap_action:
+          action: navigate
+          navigation_path: http://homeassistant.local:8123/hassio/ingress/cebe7a76_hassio_google_drive_backup
+        type: custom:mushroom-template-card
+      - double_tap_action:
+          action: navigate
+          navigation_path: /hassio/backups
+        entity: sensor.backup_state
+        fill_container: false
+        icon: mdi:home-assistant
+        icon_color: blue
+        multiline_secondary: false
+        primary: '{{states.sensor.backup_state.attributes.size_in_home_assistant}}'
+        secondary: Homeassistant Local Backup Size
+        tap_action:
+          action: none
+        type: custom:mushroom-template-card
+      - double_tap_action:
+          action: none
+        entity: sensor.harddisk_free_space
+        fill_container: true
+        hold_action:
+          action: none
+        icon: mdi:harddisk
+        icon_color: '{% set percentage = (((states(''sensor.harddisk_free_space'')
+          | float) / (states(''sensor.harddisk_total_space'') | float))*100) | round(2)
+          | float %}
+
+
+
+          {% if percentage > 50.0 %}
+
+          green
+
+          {% elif (percentage <= 50.0) and (percentage > 30.0) %}
+
+          orange
+
+          {% elif (percentage <= 30.0) and (percentage > 0.0) %}
+
+          red
+
+          {% endif %}'
+        multiline_secondary: true
+        primary: '{{states(''sensor.harddisk_used_space'')}} GB'
+        secondary: 'Internal HDD
+
+          {{ (((states(''sensor.harddisk_free_space'') | float) / (states(''sensor.harddisk_total_space'')
+          | float))*100) | round(2)}}% free'
+        tap_action:
+          action: more-info
+        type: custom:mushroom-template-card
+      - double_tap_action:
+          action: none
+        entity: sensor.1tb_free_space
+        fill_container: false
+        hold_action:
+          action: none
+        icon: phu:seagate-ssd
+        icon_color: '{% set percentage = (((states(''sensor.1tb_free_space'') | float)
+          / (states(''sensor.1tb_total_space'') | float))*100) | round(2) | float
+          %}
+
+
+
+          {% if percentage > 50.0 %}
+
+          green
+
+          {% elif (percentage <= 50.0) and (percentage > 30.0) %}
+
+          orange
+
+          {% elif (percentage <= 30.0) and (percentage > 0.0) %}
+
+          red
+
+          {% endif %}'
+        multiline_secondary: true
+        primary: '{{states(''sensor.1tb_used_space'')}} GB'
+        secondary: '1 TB
+
+          {{ (((states(''sensor.1tb_free_space'') | float) / (states(''sensor.1tb_total_space'')
+          | float))*100) | round(2)}}% free'
+        tap_action:
+          action: more-info
+        type: custom:mushroom-template-card
+      - double_tap_action:
+          action: none
+        entity: sensor.5tb_free_space
+        fill_container: true
+        hold_action:
+          action: none
+        icon: phu:seagate-ssd
+        icon_color: '{% set percentage = (((states(''sensor.5tb_free_space'') | float)
+          / (states(''sensor.5tb_total_space'') | float))*100) | round(2) | float
+          %}
+
+
+
+          {% if percentage > 50.0 %}
+
+          green
+
+          {% elif (percentage <= 50.0) and (percentage > 40.0) %}
+
+          orange
+
+          {% elif (percentage <= 40.0) and (percentage > 0.0) %}
+
+          red
+
+          {% endif %}'
+        multiline_secondary: true
+        primary: '{{states(''sensor.5tb_used_space'')}} GB'
+        secondary: '5 TB
+
+          {{ (((states(''sensor.5tb_free_space'') | float) / (states(''sensor.5tb_total_space'')
+          | float))*100) | round(2)}}% free'
+        tap_action:
+          action: more-info
+        type: custom:mushroom-template-card
+      type: vertical-stack
+    type: grid
+  - cards:
+    - cards:
+      - alignment: center
+        chips:
+        - content: Syncthing
+          icon: mdi:sync
+          icon_color: blue
+          type: template
+        type: custom:mushroom-chips-card
+      - double_tap_action:
+          action: none
+        entity: sensor.syncthing_whatsapp
+        hold_action:
+          action: more-info
+        icon: "{% if states('sensor.syncthing_whatsapp') == 'syncing' %}\n  mdi:folder-sync\n\
+          {% elif states('sensor.syncthing_whatsapp') == 'idle' %}\n  mdi:folder-check\n\
+          {% elif states('sensor.syncthing_whatsapp') == 'paused' %}\n  mdi:folder-clock\n\
+          {% endif %}\n"
+        icon_color: "{% if states('sensor.syncthing_whatsapp') == 'syncing' %}\n \
+          \ yellow\n{% elif states('sensor.syncthing_whatsapp') == 'idle' %}\n  green\n\
+          {% elif states('sensor.syncthing_whatsapp') == 'paused' %}\n  grey\n{% endif\
+          \ %}\n"
+        multiline_secondary: true
+        primary: Syncthing WhatsApp
+        secondary: 'Files - {{states.sensor.syncthing_whatsapp.attributes.global_files}}
+
+          Local Files - {{states.sensor.syncthing_whatsapp.attributes.local_files}}
+
+          Size - {{ (states.sensor.syncthing_whatsapp.attributes.local_bytes | float
+          / 1024 / 1024 / 1024)  | round(2) }} GB
+
+          '
+        tap_action:
+          action: none
+        type: custom:mushroom-template-card
+      - double_tap_action:
+          action: none
+        entity: sensor.syncthing_camera
+        hold_action:
+          action: more-info
+        icon: "{% if states('sensor.syncthing_camera') == 'syncing' %}\n  mdi:folder-sync\n\
+          {% elif states('sensor.syncthing_camera') == 'idle' %}\n  mdi:folder-check\n\
+          {% endif %}\n"
+        icon_color: "{% if states('sensor.syncthing_camera') == 'syncing' %}\n  yellow\n\
+          {% elif states('sensor.syncthing_camera') == 'idle' %}\n  green\n{% endif\
+          \ %}\n"
+        multiline_secondary: true
+        primary: Syncthing Camera
+        secondary: 'Files - {{states.sensor.syncthing_camera.attributes.global_files}}
+
+          Local Files - {{states.sensor.syncthing_camera.attributes.local_files}}
+
+          Size - {{ (states.sensor.syncthing_camera.attributes.local_bytes | float
+          / 1024 / 1024 / 1024)  | round(2) }} GB
+
+          '
+        tap_action:
+          action: none
+        type: custom:mushroom-template-card
+      type: vertical-stack
+    - cards:
+      - alignment: center
+        chips:
+        - content: Git
+          icon: mdi:github
+          icon_color: white
+          type: template
+        type: custom:mushroom-chips-card
+      - cards:
+        - entities:
+          - icon: fab:git
+            name: /n00bcodr/homeassistant
+            type: weblink
+            url: https://github.com/n00bcodr/homeassistant
+          - entity: sensor.n00bcodr_homeassistant_latest_commit
+            icon: mdi:source-commit-end
+            name: Last Commit
+          - type: section
+          - icon: mdi:text
+            name: Suggested Commit - files on {{ now().timestamp() | timestamp_custom('%b
+              %d, %Y - %-I:%M %p') }}
+            state: ''
+            tap_action: none
+            type: custom:template-entity-row
+          - entity: input_text.git_commit_message
+            extend_paper_buttons_row:
+              buttons:
+              - icon: mdi:close
+                tap_action:
+                  action: call-service
+                  service: input_text.set_value
+                  service_data:
+                    value: "\u200E"
+                  target:
+                    entity_id: input_text.git_commit_message
+              - icon: fas:paste
+                tap_action:
+                  action: call-service
+                  service: script.git_commit_copy
+              position: right
+            name: Commit Message
+          - type: section
+          type: entities
+        - alignment: center
+          chips:
+          - content: Git Push
+            entity: script.git_push
+            icon: mdi:upload-multiple
+            type: template
+          - content: HA Version Update
+            entity: script.git_push_ha_version
+            icon: mdi:package-up
+            picture: ''
+            type: template
+          type: custom:mushroom-chips-card
+        - alignment: center
+          chips:
+          - content: Push Custom Components
+            icon: hacs:hacs
+            icon_color: blue
+            tap_action:
+              action: call-service
+              service: shell_command.git_hacs_update
+            type: template
+          type: custom:mushroom-chips-card
+        mode: vertical
+        type: custom:stack-in-card
+      type: vertical-stack
+    type: grid
   title: System Monitor
-  visible:
-  - user: 74f7e2ffd3594037b1a2fc4de82d9fea
-  - user: 03fac29e97844166b40187a8b4c09ded
+  type: sections
 - badges: []
   cards:
   - cards:
@@ -4697,9 +4743,13 @@ views:
     type: grid
   title: Automations
   type: sections
-- cards:
-  - card:
-      card_type: last_result
+- cards: []
+  icon: mdi:racing-helmet
+  max_columns: 5
+  path: formula-1
+  sections:
+  - cards:
+    - card_type: last_result
       f1_font: true
       hide_tracklayout: true
       sensor: sensor.formula_one_sensor_last_result
@@ -4709,27 +4759,23 @@ views:
         show_team: true
       title: Last Race
       type: custom:formulaone-card
-    conditions:
+    type: grid
+    visibility:
     - condition: screen
       media_query: '(min-width: 2000px)'
-    type: conditional
-    view_layout:
-      column: 1
-  - card:
-      card_type: countdown
+  - cards:
+    - card_type: countdown
       date_locale: in
       f1_font: true
       show_raceinfo: true
       title: Next Race
       type: custom:formulaone-card
-    conditions:
+    type: grid
+    visibility:
     - condition: screen
       media_query: '(min-width: 2000px)'
-    type: conditional
-    view_layout:
-      column: 2
-  - card:
-      cards:
+  - cards:
+    - cards:
       - card_type: driver_standings
         f1_font: true
         show_carnumber: true
@@ -4750,28 +4796,24 @@ views:
           points: Points
         type: custom:formulaone-card
       type: vertical-stack
-    conditions:
+    type: grid
+    visibility:
     - condition: screen
       media_query: '(min-width: 2000px)'
-    type: conditional
-    view_layout:
-      column: 4
-  - card:
-      card_type: results
+  - cards:
+    - card_type: results
       f1_font: true
       hide_tracklayout: true
       standings:
         show_flag: true
       title: Race Results
       type: custom:formulaone-card
-    conditions:
+    type: grid
+    visibility:
     - condition: screen
       media_query: '(min-width: 2000px)'
-    type: conditional
-    view_layout:
-      column: 5
-  - card:
-      card_type: schedule
+  - cards:
+    - card_type: schedule
       date_locale: in
       f1_font: true
       sensor: sensor.formula_one_sensor_races
@@ -4779,14 +4821,12 @@ views:
         show_flag: true
       title: Schedule
       type: custom:formulaone-card
-    conditions:
+    type: grid
+    visibility:
     - condition: screen
       media_query: '(min-width: 2000px)'
-    type: conditional
-    view_layout:
-      column: 3
-  - card:
-      options:
+  - cards:
+    - options:
         defaultTabIndex: 1
       styles:
         isFadingIndicator: true
@@ -4875,17 +4915,12 @@ views:
         styles:
           --mdc-theme-primary: tomato
       type: custom:tabbed-card
-    conditions:
+    type: grid
+    visibility:
     - condition: screen
       media_query: '(max-width: 2000px)'
-    type: conditional
-  icon: mdi:racing-helmet
-  path: formula-1
-  subview: false
-  theme: null
-  title: formula-1
-  visible:
-  - user: 74f7e2ffd3594037b1a2fc4de82d9fea
+  title: Formula 1
+  type: sections
 - badges: []
   cards:
   - custom_fields:
@@ -4959,75 +4994,82 @@ views:
   theme: Google Theme
   title: Calvin and Hobbes
   type: panel
-- badges: []
-  cards:
-  - card:
-      title: HACS Available Updates
-      type: entities
-    filter:
-      exclude: []
-      include:
-      - integration: hacs
-        options:
-          type: custom:more-info-card
-        state: 'on'
-    show_empty: false
-    type: custom:auto-entities
-  - card:
-      title: Add-on Updates
-      type: entities
-    filter:
-      exclude:
-      - entity_id: update.home_assistant_core_update
-      - entity_id: update.home_assistant_supervisor_update
-      include:
-      - integration: hassio
-        options:
-          type: custom:more-info-card
-        state: 'on'
-    show_empty: false
-    type: custom:auto-entities
-  - card:
-      entity: update.home_assistant_core_update
-      type: custom:more-info-card
-    conditions:
-    - condition: state
-      entity: update.home_assistant_core_update
-      state: 'on'
-    type: conditional
-  - card:
-      entity: update.home_assistant_supervisor_update
-      type: custom:more-info-card
-    conditions:
-    - condition: state
-      entity: update.home_assistant_supervisor_update
-      state: 'on'
-    type: conditional
-  - card:
-      title: Other Updates
-      type: entities
-    filter:
-      exclude:
-      - entity_id: update.home_assistant_core_update
-      - entity_id: update.home_assistant_supervisor_update
-      - integration: hassio
-        state: 'on'
-      - integration: hacs
-        state: 'on'
-      include:
-      - domain: update
-        options:
-          type: custom:more-info-card
-        state: 'on'
-    show_empty: false
-    type: custom:auto-entities
+- cards: []
   icon: mdi:package-up
+  max_columns: 2
   path: updates
+  sections:
+  - cards:
+    - entity: update.home_assistant_supervisor_update
+      type: custom:more-info-card
+    type: grid
+    visibility:
+    - condition: state
+      entity: update.home_assistant_supervisor_update
+      state: 'on'
+  - cards:
+    - entity: update.home_assistant_core_update
+      type: custom:more-info-card
+    type: grid
+    visibility:
+    - condition: state
+      entity: update.home_assistant_core_update
+      state: 'on'
+  - cards:
+    - card:
+        title: HACS Available Updates
+        type: entities
+      filter:
+        exclude: []
+        include:
+        - integration: hacs
+          options:
+            type: custom:more-info-card
+          state: 'on'
+      show_empty: false
+      type: custom:auto-entities
+    type: grid
+  - cards:
+    - card:
+        title: Add-on Updates
+        type: entities
+      filter:
+        exclude:
+        - entity_id: update.home_assistant_core_update
+        - entity_id: update.home_assistant_supervisor_update
+        include:
+        - integration: hassio
+          options:
+            type: custom:more-info-card
+          state: 'on'
+      show_empty: false
+      type: custom:auto-entities
+    type: grid
+  - cards:
+    - card:
+        title: Other Updates
+        type: entities
+      filter:
+        exclude:
+        - entity_id: update.home_assistant_core_update
+        - entity_id: update.home_assistant_supervisor_update
+        - integration: hassio
+          state: 'on'
+        - integration: hacs
+          state: 'on'
+        include:
+        - domain: update
+          options:
+            type: custom:more-info-card
+          state: 'on'
+      show_empty: false
+      type: custom:auto-entities
+    type: grid
   subview: true
   title: Updates
+  type: sections
 - cards: []
   icon: mdi:test-tube
   path: testing
   title: testing
-  visible:
-  - user: 74f7e2ffd3594037b1a2fc4de82d9fea
+  visible: []

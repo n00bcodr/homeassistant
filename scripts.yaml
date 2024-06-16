@@ -439,3 +439,79 @@ delete_camera_files:
       required: false
       default: false
   icon: mdi:delete-circle-outline
+new_script:
+  alias: New Script
+  sequence:
+  - service: google_generative_ai_conversation.generate_content
+    data:
+      prompt: Very briefly describe what you see in this image from my doorbell camera.
+        Your message needs to be short to fit in a phone notification. Don't describe
+        stationary objects or buildings.
+      image_filename: /config/www/doorbell/2024-06-08_16-24-46.jpg
+    response_variable: generated_content
+  - service: notify.mobile_app_pixel8pro
+    metadata: {}
+    data:
+      message: '{{ generated_content.text }}'
+      data:
+        ttl: 0
+        tag: doorbell
+        entity_id: camera.doorbell_fluent
+        notification_icon: mdi:doorbell-video
+        activationMode: foreground
+        car_ui: true
+        push:
+          interruption-level: time-sensitive
+          category: camera
+        actions:
+        - action: URI
+          title: Open
+          uri: /lovelace/camera
+          icon: sfsymbols:camera.viewfinder
+        - action: package
+          title: Package
+          icon: sfsymbols:cube.box
+        - action: be_there
+          title: Will be there
+          icon: sfsymbols:person.crop.circle.badge.checkmark
+        image: /local/doorbell/2024-06-08_16-24-46.jpg
+      title: "Someone's at the front door \U0001F464"
+  description: ''
+new_scripta:
+  alias: New Scripta
+  sequence:
+  - service: google_generative_ai_conversation.generate_content
+    data:
+      prompt: Very briefly describe what you see in this image from my doorbell camera.
+        Your message needs to be short to fit in a phone notification. Don't describe
+        stationary objects or buildings.
+      image_filename: /config/www/doorbell/2024-06-08_16-24-46.jpg
+    response_variable: generated_content
+  - service: notify.mobile_app_pixel8pro
+    metadata: {}
+    data:
+      message: "Someone's at the front door \U0001F464"
+      data:
+        ttl: 0
+        tag: doorbell
+        entity_id: camera.doorbell_fluent
+        notification_icon: mdi:doorbell-video
+        activationMode: foreground
+        car_ui: true
+        push:
+          interruption-level: time-sensitive
+          category: camera
+        actions:
+        - action: URI
+          title: Open
+          uri: /lovelace/camera
+          icon: sfsymbols:camera.viewfinder
+        - action: package
+          title: Package
+          icon: sfsymbols:cube.box
+        - action: be_there
+          title: Will be there
+          icon: sfsymbols:person.crop.circle.badge.checkmark
+        image: /local/doorbell/{{camera_snapshot}}
+      title: '{{ generated_content.responses[0].text }}'
+  description: ''
