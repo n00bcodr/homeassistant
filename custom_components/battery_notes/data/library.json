@@ -788,6 +788,12 @@
             "battery_type": "Rechargeable"
         },
         {
+            "manufacturer": "Aquara",
+            "model": "AS038",
+            "battery_type": "CR2450",
+            "battery_quantity": 2
+        },
+        {
             "manufacturer": "Arlo",
             "model": "Pro 2",
             "battery_type": "Rechargeable"
@@ -4044,6 +4050,11 @@
             "battery_type": "CR2450"
         },
         {
+            "manufacturer": "SonOff",
+            "model": "SNZB-01",
+            "battery_type": "CR2450"
+        },
+        {
             "manufacturer": "Sonoff",
             "model": "SNZB-02",
             "battery_type": "CR2450"
@@ -4443,12 +4454,22 @@
         },
         {
             "manufacturer": "TuYa",
+            "model": "Door and window sensor (TM001-ZA/TM081)",
+            "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "TuYa",
             "model": "Door sensor (TS0203)",
             "battery_type": "CR2032"
         },
         {
             "manufacturer": "TuYa",
             "model": "Door sensor (ZD08)",
+            "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "TuYa",
+            "model": "Door sensor (ZG-102Z)",
             "battery_type": "CR2032"
         },
         {
@@ -4505,6 +4526,12 @@
         },
         {
             "manufacturer": "TuYa",
+            "model": "Motion sensor with scene switch (TS0202_2)",
+            "battery_type": "AAA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "TuYa",
             "model": "Photoelectric smoke detector (PA-44Z)",
             "battery_type": "PP3"
         },
@@ -4522,6 +4549,12 @@
         {
             "manufacturer": "TuYa",
             "model": "Plant Sensor SGS01 (gvygg3m8)",
+            "battery_type": "AAA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "Tuya",
+            "model": "R459",
             "battery_type": "AAA",
             "battery_quantity": 2
         },
