@@ -31,7 +31,8 @@ I started my Home Assistant Journey with a Raspberry Pi 3, from which I have swi
 * [Filebrowser](https://github.com/filebrowser/filebrowser) to easily browse and edit files on my server
 * [Docker Socket Proxy](https://github.com/Tecnativa/docker-socket-proxy) to control my docker containers from homeassistant (although I rarely use it)
 * [EmulatorJS](https://emulatorjs.org/) to play retro games
-
+* [immich](https://immich.app/) as a Google Photos alternative
+* [Tailscale](https://tailscale.com/) as [subnet router](https://tailscale.com/kb/1019/subnets) this is magic!
 
 **Media**
 * [Plex](https://www.plex.tv/) Media Server to manage all my media
