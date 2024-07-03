@@ -19,6 +19,7 @@ esphome:
 api:
 
 ota:
+  platform: esphome
 
 logger:
 

@@ -42,7 +42,7 @@ frontend:
 
 monitor_docker:
   - name: Docker
-    url: tcp://192.168.68.168:2375
+    url: tcp://192.168.168.168:2375
     switchname: "Docker {name}"
     containers:
       - addon_core_samba

@@ -353,3 +353,24 @@
       measurement: '"meter_reading"'
       field: value
       where: '"MPRN" = ''10015088780'''
+
+- platform: mqtt_room
+  device_id: "77cfe6a4cd1c2a7d3c796948ebbbc208"
+  name: "Pixel8Pro Room"
+  state_topic: "espresense/rooms"
+  timeout: 10
+  away_timeout: 120
+
+- platform: mqtt_room
+  device_id: "pixel"
+  name: "Phone Room"
+  state_topic: "espresense/rooms"
+  timeout: 10
+  away_timeout: 120
+
+- platform: mqtt_room
+  device_id: "opad_pro"
+  name: "iPad Room"
+  state_topic: "espresense/rooms"
+  timeout: 10
+  away_timeout: 120

@@ -23,6 +23,8 @@ _LOGGER: logging.Logger = logging.getLogger(__package__)
 
 class HomeWhizClimateEntity(HomeWhizEntity, ClimateEntity):
     _attr_temperature_unit = UnitOfTemperature.CELSIUS
+    # https://developers.home-assistant.io/blog/2024/01/24/climate-climateentityfeatures-expanded/
+    _enable_turn_on_off_backwards_compatibility = False
 
     def __init__(
         self,
@@ -33,11 +35,15 @@ class HomeWhizClimateEntity(HomeWhizEntity, ClimateEntity):
     ):
         super().__init__(coordinator, device_name, control.key, data)
         self._control = control
+        self._previous_hvac_mode: HVACMode | None = None
 
     @property
     def supported_features(self) -> ClimateEntityFeature:
         features = (
-            ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.FAN_MODE
+            ClimateEntityFeature.TARGET_TEMPERATURE
+            | ClimateEntityFeature.FAN_MODE
+            | ClimateEntityFeature.TURN_OFF
+            | ClimateEntityFeature.TURN_ON
         )
         if self._control.swing.enabled:
             features |= ClimateEntityFeature.SWING_MODE
@@ -62,6 +68,15 @@ class HomeWhizClimateEntity(HomeWhizEntity, ClimateEntity):
         commands = self._control.hvac_mode.set_value(hvac_mode, data)
         for command in commands:
             await self.coordinator.send_command(command)
+
+    async def async_turn_off(self) -> None:
+        self._previous_hvac_mode = self.hvac_mode
+        await self.async_set_hvac_mode(HVACMode.OFF)
+
+    async def async_turn_on(self) -> None:
+        await self.async_set_hvac_mode(
+            self._previous_hvac_mode if self._previous_hvac_mode else HVACMode.HEAT_COOL
+        )
 
     @property
     def target_temperature_step(self) -> float:

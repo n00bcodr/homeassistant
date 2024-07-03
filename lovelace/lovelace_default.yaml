@@ -905,27 +905,27 @@ views:
       close_on_click: true
       hash: '#sun'
       margin: 18px
-      margin_top_mobile: 00px
       type: custom:bubble-card
+      width_desktop: 800px
     - type: custom:horizon-card
     type: vertical-stack
   - cards:
     - back_open: true
       bg_blur: 50
-      button_type: name
       card_type: pop-up
       close_on_click: true
-      'false': []
       hash: '#sleep'
       margin: 18px
       margin_top_mobile: 00px
       scrolling_effect: false
       show_icon: false
+      show_name: false
       sub_button: []
       type: custom:bubble-card
+      width_desktop: 800px
     - cards:
       - entity: script.play_ocean_sounds
-        icon: mdi:beach
+        icon: mdi:waves
         icon_color: brown
         primary: Play Ocean Sounds
         secondary: ''
@@ -949,7 +949,7 @@ views:
           action: toggle
         type: custom:mushroom-template-card
       - entity: script.play_river_sounds
-        icon: mdi:waves
+        icon: mdi:water
         icon_color: light-blue
         primary: Play River Sounds
         secondary: ''
@@ -981,8 +981,8 @@ views:
       close_on_click: true
       hash: '#moon'
       margin: 18px
-      margin_top_mobile: 00px
       type: custom:bubble-card
+      width_desktop: 800px
     - entity: sensor.moon_phase
       layout: icon_state
       show_entity_picture: true
@@ -1007,6 +1007,7 @@ views:
       margin: 18px
       margin_top_mobile: 00px
       type: custom:bubble-card
+      width_desktop: 800px
     - cards:
       - backdrop: true
         entity: weather.home
@@ -1031,10 +1032,10 @@ views:
       close_on_click: false
       hash: '#phone'
       icon: mdi:google
-      margin_top_mobile: 10px
       name: Phone Controls
       shadow_opacity: 80
       type: custom:bubble-card
+      width_desktop: 800px
     - cards:
       - cards:
         - entity: sensor.pixel8pro_battery_level
@@ -2392,12 +2393,9 @@ views:
         file_name_format: YYYYMMDDHHmmss
         include_images: true
         path: media-source://media_source/local/Doorbell/
-        preview_video_at: 5
         recursive: true
-        slideshow_video_end: true
-        video_muted: true
       file_name_format: YYYY-MM-DD_HH-mm-SS
-      maximum_files: 15
+      maximum_files: 10
       menu_alignment: Bottom
       parsed_date_sort: true
       show_reload: true
@@ -2713,6 +2711,9 @@ views:
           secondary_info: name
           type: custom:mushroom-entity-card
         type: horizontal-stack
+      layout_options:
+        grid_columns: 4
+        grid_rows: 6
       type: vertical-stack
     title: "\U0001F9FA Washing Machine"
     type: grid
@@ -3149,11 +3150,27 @@ views:
       type: vertical-stack
     - alignment: center
       chips:
+      - content: Reload Entities
+        double_tap_action:
+          action: none
+        hold_action:
+          action: none
+        icon: mdi:reload
+        tap_action:
+          action: none
+        type: template
       - icon: mdi:format-list-checks
         icon_color: deep-purple
         tap_action:
           action: call-service
           service: rest_command.reload_tasks
+          target: {}
+        type: action
+      - icon: mdi:alpha-t-box-outline
+        icon_color: orange
+        tap_action:
+          action: call-service
+          service: rest_command.reload_tuya
           target: {}
         type: action
       - icon: phu:tuya
@@ -3168,6 +3185,20 @@ views:
         tap_action:
           action: call-service
           service: rest_command.reload_weather
+          target: {}
+        type: action
+      - icon: mdi:calendar
+        icon_color: teal
+        tap_action:
+          action: call-service
+          service: rest_command.reload_google_calendar
+          target: {}
+        type: action
+      - icon: mdi:google-spreadsheet
+        icon_color: lime
+        tap_action:
+          action: call-service
+          service: script.reload_google_sheets
           target: {}
         type: action
       type: custom:mushroom-chips-card
@@ -3225,13 +3256,17 @@ views:
           type: template
         type: custom:mushroom-chips-card
       - cards:
-        - entity: binary_sensor.192_168_68_1
+        - entity: binary_sensor.192_168_168_1
           icon_color: blue
           name: Deco
           type: custom:mushroom-entity-card
         - entity: binary_sensor.8_8_8_8
           icon_color: blue
           name: Google
+          type: custom:mushroom-entity-card
+        - entity: binary_sensor.192_168_68_1
+          icon_color: blue
+          name: Home
           type: custom:mushroom-entity-card
         type: horizontal-stack
       type: vertical-stack
@@ -3245,7 +3280,7 @@ views:
         type: custom:mushroom-chips-card
       - double_tap_action:
           action: none
-        entity: sensor.harddisk_free_space
+        entity: sensor.doorbell
         fill_container: true
         hold_action:
           action: none
@@ -4327,6 +4362,7 @@ views:
       margin: 18px
       margin_top_mobile: 00px
       type: custom:bubble-card
+      width_desktop: 800px
     - cards:
       - card_mod:
           class: content
@@ -4383,6 +4419,7 @@ views:
       margin: 18px
       margin_top_mobile: 00px
       type: custom:bubble-card
+      width_desktop: 800px
     - cards:
       - card_mod:
           class: content
@@ -4453,6 +4490,7 @@ views:
       margin: 18px
       margin_top_mobile: 00px
       type: custom:bubble-card
+      width_desktop: 800px
     - cards:
       - card_mod:
           class: content
@@ -4538,33 +4576,6 @@ views:
               \ {\n  filter: invert(0.95) grayscale(0.95) contrast(95%);\n}\n"
       type: vertical-stack
     type: vertical-stack
-  - entities:
-    - entity: button.nexus_7_bring_to_foreground
-      name: Bring to foreground
-    - entity: switch.nexus_7_kiosk_lock
-      name: Kiosk lock
-    - entity: button.nexus_7_load_start_url
-      name: Load start URL
-    - entity: switch.nexus_7_maintenance_mode
-      name: Maintenance mode
-    - entity: switch.nexus_7_motion_detection
-      name: Motion detection
-    - entity: button.nexus_7_restart_browser
-      name: Restart browser
-    - entity: button.nexus_7_restart_device
-      name: Restart device
-    - entity: number.nexus_7_screen_brightness
-      name: Screen brightness
-    - entity: number.nexus_7_screen_off_timer
-      name: Screen off timer
-    - entity: number.nexus_7_screensaver_brightness
-      name: Screensaver brightness
-    - entity: number.nexus_7_screensaver_timer
-      name: Screensaver timer
-    - entity: button.nexus_7_send_to_background
-      name: Send to background
-    title: Nexus 7
-    type: entities
   icon: mdi:devices
   layout:
     max_cols: 3
@@ -5071,5 +5082,6 @@ views:
 - cards: []
   icon: mdi:test-tube
   path: testing
+  sections: []
   title: testing
   visible: []

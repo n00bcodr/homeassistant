@@ -14,14 +14,15 @@
   action:
   - service: notify.mobile_app_pixel8pro
     data:
-      message: Home Assistant {{states.update.home_assistant_core_update.attributes.latest_version}}
-        is available.
+      message: "{{states.update.home_assistant_core_update.attributes.installed_version\n
+        }} → {{ states.update.home_assistant_core_update.attributes.latest_version
+        }}"
       title: "\U0001F195 Update Available!"
       data:
         notification_icon: mdi:package-up
-        subject: "You are running {{states.update.home_assistant_core_update.attributes.installed_version
-          }}, the latest\n    version is {{ states.update.home_assistant_core_update.attributes.latest_version
-          }}."
+        subject: Home Assistant {{states.update.home_assistant_core_update.attributes.latest_version}}
+          is available.
+        tag: update
         clickAction: /config/dashboard
         icon_url: /local/images/party.png
         sticky: 'true'
@@ -280,7 +281,7 @@
         data: {}
       - service: pyscript.f1constructorstandings
         data: {}
-      - service: rest_command.reload_google_sheets
+      - service: rest_command.reload_google_sheets_music
         data: {}
       - service: rest_command.reload_google_assistant_sdk
         data: {}
@@ -291,6 +292,10 @@
       - service: rest_command.reload_tuya
         data: {}
       - service: rest_command.reload_local_tuya
+        data: {}
+      - service: rest_command.reload_google_sheets_weight
+        data: {}
+      - service: rest_command.reload_google_sheets_weight2
         data: {}
     default: []
   mode: single
@@ -348,6 +353,7 @@
       message: Update tag in GitHub?
       title: Home Assistant Core Updated!
       data:
+        tag: update
         notification_icon: mdi:git
         icon_url: /local/images/HA_logo.png
         color: red
@@ -2228,6 +2234,7 @@
         buildings or cars.
       image_filename: /config/www/doorbell/{{camera_snapshot}}
     response_variable: generated_content
+    enabled: false
   - alias: Choose between motion and doorbell press
     choose:
     - conditions:
@@ -2238,7 +2245,7 @@
       - service: notify.all_phones
         metadata: {}
         data:
-          message: '{{ generated_content.text }}'
+          message: ' '
           data:
             ttl: 0
             tag: doorbell
@@ -2307,8 +2314,11 @@
   trigger:
   - platform: state
     entity_id:
-    - sensor.thanuj_weight
-  condition: []
+    - sensor.mi_scale_weight
+  condition:
+  - condition: numeric_state
+    entity_id: sensor.mi_scale_weight
+    below: 86
   action:
   - delay:
       hours: 0
@@ -2318,7 +2328,7 @@
   - service: notify.mobile_app_pixel8pro
     data:
       title: '⚖️ Just weighed in! '
-      message: '{{states.sensor.thanuj_weight.state}} KGs'
+      message: '{{states.sensor.mi_scale_weight.state}} KGs'
       data:
         tag: weight
         actions:
@@ -2347,18 +2357,18 @@
         data:
           config_entry: 4bcb43c8e6f2f8104c4f5b04b9e0afa4
           data:
-            Basal metabolism: '{{ states.sensor.thanuj_basal_metabolism.state }}'
-            Bmi: '{{ states.sensor.thanuj_bmi.state }}'
-            Body fat: '{{ states.sensor.thanuj_body_fat.state }}'
-            Body score: '{{ states.sensor.thanuj_body_score.state }}'
-            Bone mass: '{{ states.sensor.thanuj_bone_mass.state }}'
-            Lean body mass: '{{ states.sensor.thanuj_lean_body_mass.state }}'
-            Metabolic age: '{{ states.sensor.thanuj_metabolic_age.state }}'
-            Muscle mass: '{{ states.sensor.thanuj_muscle_mass.state }}'
-            Protein: '{{ states.sensor.thanuj_protein.state }}'
-            Visceral fat: '{{ states.sensor.thanuj_visceral_fat.state }}'
-            Water: '{{ states.sensor.thanuj_water.state }}'
-            Weight: '{{ states.sensor.thanuj_weight.state }}'
+            Basal metabolism: '{{ states.sensor.mi_scale_basal_metabolism.state }}'
+            Bmi: '{{ states.sensor.mi_scale_bmi.state }}'
+            Body fat: '{{ states.sensor.mi_scale_body_fat.state }}'
+            Body score: '{{ states.sensor.mi_scale_body_score.state }}'
+            Bone mass: '{{ states.sensor.mi_scale_bone_mass.state }}'
+            Lean body mass: '{{ states.sensor.mi_scale_lean_body_mass.state }}'
+            Metabolic age: '{{ states.sensor.mi_scale_metabolic_age.state }}'
+            Muscle mass: '{{ states.sensor.mi_scale_muscle_mass.state }}'
+            Protein: '{{ states.sensor.mi_scale_protein.state }}'
+            Visceral fat: '{{ states.sensor.mi_scale_visceral_fat.state }}'
+            Water: '{{ states.sensor.mi_scale_water.state }}'
+            Weight: '{{ states.sensor.mi_scale_weight.state }}'
       alias: Upload
     - conditions:
       - condition: template
@@ -2371,19 +2381,25 @@
       data:
         config_entry: 4bcb43c8e6f2f8104c4f5b04b9e0afa4
         data:
-          Basal metabolism: '{{ states.sensor.thanuj_basal_metabolism.state }}'
-          Bmi: '{{ states.sensor.thanuj_bmi.state }}'
-          Body fat: '{{ states.sensor.thanuj_body_fat.state }}'
-          Body score: '{{ states.sensor.thanuj_body_score.state }}'
-          Bone mass: '{{ states.sensor.thanuj_bone_mass.state }}'
-          Lean body mass: '{{ states.sensor.thanuj_lean_body_mass.state }}'
-          Metabolic age: '{{ states.sensor.thanuj_metabolic_age.state }}'
-          Muscle mass: '{{ states.sensor.thanuj_muscle_mass.state }}'
-          Protein: '{{ states.sensor.thanuj_protein.state }}'
-          Visceral fat: '{{ states.sensor.thanuj_visceral_fat.state }}'
-          Water: '{{ states.sensor.thanuj_water.state }}'
-          Weight: '{{ states.sensor.thanuj_weight.state }}'
+          Basal metabolism: '{{ states.sensor.mi_scale_basal_metabolism.state }}'
+          Bmi: '{{ states.sensor.mi_scale_bmi.state }}'
+          Body fat: '{{ states.sensor.mi_scale_body_fat.state }}'
+          Body score: '{{ states.sensor.mi_scale_body_score.state }}'
+          Bone mass: '{{ states.sensor.mi_scale_bone_mass.state }}'
+          Lean body mass: '{{ states.sensor.mi_scale_lean_body_mass.state }}'
+          Metabolic age: '{{ states.sensor.mi_scale_metabolic_age.state }}'
+          Muscle mass: '{{ states.sensor.mi_scale_muscle_mass.state }}'
+          Protein: '{{ states.sensor.mi_scale_protein.state }}'
+          Visceral fat: '{{ states.sensor.mi_scale_visceral_fat.state }}'
+          Water: '{{ states.sensor.mi_scale_water.state }}'
+          Weight: '{{ states.sensor.mi_scale_weight.state }}'
       alias: Uploads by default if not ignored
+    - service: notify.mobile_app_pixel8pro
+      metadata: {}
+      data:
+        message: clear_notification
+        data:
+          tag: weight
   mode: single
 - id: '1716294352529'
   alias: "\U0001F3E2 Open Authenticator on Pixel 8 Pro"
@@ -2463,4 +2479,38 @@
       - service: shell_command.git_core_update_push
         data: {}
       alias: 'Git : Core version push'
+  mode: single
+- id: '1718996843066'
+  alias: Darragh's Weight Tracking
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.mi_scale_weight
+  condition:
+  - condition: numeric_state
+    entity_id: sensor.mi_scale_weight
+    above: 86
+  action:
+  - service: google_sheets.append_sheet
+    data:
+      config_entry: 70169feef8a863b382a05cc09db71fb1
+      data:
+        Basal metabolism: '{{ states.sensor.mi_scale_basal_metabolism.state }}'
+        Bmi: '{{ states.sensor.mi_scale_bmi.state }}'
+        Body fat: '{{ states.sensor.mi_scale_body_fat.state }}'
+        Body score: '{{ states.sensor.mi_scale_body_score.state }}'
+        Bone mass: '{{ states.sensor.mi_scale_bone_mass.state }}'
+        Lean body mass: '{{ states.sensor.mi_scale_lean_body_mass.state }}'
+        Metabolic age: '{{ states.sensor.mi_scale_metabolic_age.state }}'
+        Muscle mass: '{{ states.sensor.mi_scale_muscle_mass.state }}'
+        Protein: '{{ states.sensor.mi_scale_protein.state }}'
+        Visceral fat: '{{ states.sensor.mi_scale_visceral_fat.state }}'
+        Water: '{{ states.sensor.mi_scale_water.state }}'
+        Weight: '{{ states.sensor.mi_scale_weight.state }}'
+    alias: Upload Weight
+  - service: notify.mobile_app_op7t
+    data:
+      title: '⚖️ Just weighed in! '
+      message: '{{states.sensor.mi_scale_weight.state}} KGs'
   mode: single

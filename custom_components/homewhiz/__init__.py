@@ -1,3 +1,4 @@
+import asyncio
 import logging
 
 from dacite import from_dict
@@ -11,6 +12,8 @@ from homeassistant.components.bluetooth import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EVENT_HOMEASSISTANT_STOP
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.requirements import RequirementsNotFound
+from homeassistant.util.package import install_package, is_installed
 
 from .api import IdExchangeResponse
 from .bluetooth import HomewhizBluetoothUpdateCoordinator
@@ -39,6 +42,9 @@ async def setup_bluetooth(
     address: str | None, entry: ConfigEntry, hass: HomeAssistant
 ) -> bool:
     _LOGGER.info("Setting up bluetooth connection")
+
+    if not entry.unique_id:
+        return False
 
     coordinator = hass.data.setdefault(DOMAIN, {})[
         entry.entry_id
@@ -72,8 +78,19 @@ async def setup_bluetooth(
     return True
 
 
+def _lazy_install_awsiotsdk() -> None:
+    custom_required_packages = ["awsiotsdk"]
+    for pkg in custom_required_packages:
+        if not is_installed(pkg) and not install_package(pkg):
+            raise RequirementsNotFound(DOMAIN, [pkg])
+
+
 async def setup_cloud(entry: ConfigEntry, hass: HomeAssistant) -> bool:
     _LOGGER.info("Setting up cloud connection")
+
+    loop = asyncio.get_event_loop()
+    lazy_install_awsiotsdk_task = loop.run_in_executor(None, _lazy_install_awsiotsdk)
+    await lazy_install_awsiotsdk_task
 
     ids = from_dict(IdExchangeResponse, entry.data["ids"])
     cloud_config = from_dict(CloudConfig, entry.data["cloud_config"])
@@ -81,7 +98,8 @@ async def setup_cloud(entry: ConfigEntry, hass: HomeAssistant) -> bool:
         entry.entry_id
     ] = HomewhizCloudUpdateCoordinator(hass, ids.appId, cloud_config, entry)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-    hass.async_create_task(coordinator.connect())
+    entry.async_create_task(hass, coordinator.connect())
+    _LOGGER.info("Setup cloud connection successfully")
     return True
 
 
