@@ -289,6 +289,11 @@
             "battery_quantity": 2
         },
         {
+            "manufacturer": "_TZE200_68nvbio9",
+            "model": "TS0601",
+            "battery_type": "Rechargeable"
+        },
+        {
             "manufacturer": "_TZE200_a8sdabtg",
             "model": "TS0601",
             "battery_type": "AAA",
@@ -571,6 +576,12 @@
         },
         {
             "manufacturer": "American Power Conversion",
+            "model": "Back-UPS NS 1250 LCD",
+            "battery_type": "UB1280",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "American Power Conversion",
             "model": "Back-UPS RS 900MI",
             "battery_type": "Rechargeable"
         },
@@ -833,6 +844,11 @@
         {
             "manufacturer": "Aubess",
             "model": "IH-K665",
+            "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "Aubess",
+            "model": "Water leak sensor (IH-K665)",
             "battery_type": "CR2032"
         },
         {
@@ -2275,6 +2291,11 @@
             "battery_type": "Rechargeable"
         },
         {
+            "manufacturer": "Husqvarna AB",
+            "model": "TBD",
+            "battery_type": "9V"
+        },
+        {
             "manufacturer": "iCasa",
             "model": "Zigbee 3.0 Keypad Pulse 8S (ICZB-KPD18S)",
             "battery_type": "CR2450"
@@ -2591,6 +2612,18 @@
         },
         {
             "manufacturer": "Kwikset",
+            "model": "914C",
+            "battery_type": "AA",
+            "battery_quantity": 4
+        },
+        {
+            "manufacturer": "Kwikset",
+            "model": "916",
+            "battery_type": "AA",
+            "battery_quantity": 4
+        },
+        {
+            "manufacturer": "Kwikset",
             "model": "HALO-01",
             "battery_type": "AA",
             "battery_quantity": 4
@@ -2721,6 +2754,11 @@
             "model": "A001082",
             "battery_type": "AAA",
             "battery_quantity": 2
+        },
+        {
+            "manufacturer": "Loginovo",
+            "model": "Smart button (ZG-101ZL)",
+            "battery_type": "CR2032"
         },
         {
             "manufacturer": "Loginovo",
@@ -3887,6 +3925,11 @@
         },
         {
             "manufacturer": "Signify Netherlands B.V.",
+            "model": "Hue secure contact sensor (SOC001)",
+            "battery_type": "CR2 Lithium"
+        },
+        {
+            "manufacturer": "Signify Netherlands B.V.",
             "model": "Hue Smart button (ROM001)",
             "battery_type": "CR2032"
         },
@@ -4003,6 +4046,16 @@
             "manufacturer": "smarthjemmet.dk",
             "model": "[Multi switch from Smarthjemmet.dk](https://smarthjemmet.dk) (MULTI-ZIG-SW)",
             "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "SmartLabs, Inc",
+            "model": "2844-222 (0x10, 0x16)",
+            "battery_type": "9-volt"
+        },
+        {
+            "manufacturer": "SmartLabs, Inc",
+            "model": "2845-222 (0x10, 0x11)",
+            "battery_type": "AAA"
         },
         {
             "manufacturer": "smartlife",
@@ -4236,6 +4289,28 @@
             "battery_type": "Rechargeable"
         },
         {
+            "manufacturer": "Springs Window Fashions",
+            "model": "BRZ1",
+            "battery_type": "CR2430"
+        },
+        {
+            "manufacturer": "Springs Window Fashions",
+            "model": "CSZ1",
+            "battery_type": "AA",
+            "battery_quantity": 8
+        },
+        {
+            "manufacturer": "Springs Window Fashions",
+            "model": "MCZ1",
+            "battery_type": "AAA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "Springs Window Fashions",
+            "model": "VCZ1",
+            "battery_type": "CR2439"
+        },
+        {
             "manufacturer": "Sure Petcare",
             "model": "Cat flap",
             "battery_type": "AA",
@@ -4381,6 +4456,12 @@
         {
             "manufacturer": "Third Reality",
             "model": "Temperature and humidity sensor (3RTHS24BZ)",
+            "battery_type": "AAA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "Third Reality",
+            "model": "Water sensor (3RWS18BZ)",
             "battery_type": "AAA",
             "battery_quantity": 2
         },
@@ -4671,6 +4752,12 @@
         },
         {
             "manufacturer": "Tuya",
+            "model": "PIR Sensor (tuadvwloutnzat2p)",
+            "battery_type": "AAA",
+            "battery_quantity": 3
+        },
+        {
+            "manufacturer": "Tuya",
             "model": "PIR Sensor (XFD2nSDKxFlGV5sV)",
             "battery_type": "AAA",
             "battery_quantity": 3
@@ -4702,6 +4789,12 @@
             "manufacturer": "TuYa",
             "model": "Security remote control (TS0215A_remote)",
             "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "Tuya",
+            "model": "SGS01 (gvygg3m8)",
+            "battery_type": "AAA",
+            "battery_quantity": 2
         },
         {
             "manufacturer": "TuYa",
@@ -4892,6 +4985,12 @@
             "manufacturer": "TuYa",
             "model": "TV02-Zigbee",
             "battery_type": "AA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "Tuya",
+            "model": "Vibration sensor (TS0210)",
+            "battery_type": "AAA",
             "battery_quantity": 2
         },
         {
@@ -5167,6 +5266,11 @@
             "model": "YD.LO1",
             "battery_type": "AA",
             "battery_quantity": 4
+        },
+        {
+            "manufacturer": "X-Sense",
+            "model": "XS01-M",
+            "battery_type": "CR123A"
         },
         {
             "manufacturer": "Xiaomi",
@@ -5505,6 +5609,12 @@
             "manufacturer": "Xiaomi",
             "model": "MiJia wireless switch (WXKG01LM)",
             "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "Xiaomi",
+            "model": "MJYD02YL",
+            "battery_type": "AA",
+            "battery_quantity": 3
         },
         {
             "manufacturer": "Xiaomi",

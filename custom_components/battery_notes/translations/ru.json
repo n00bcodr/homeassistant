@@ -47,7 +47,8 @@
             "already_configured": "Устройство уже настроено"
         },
         "error": {
-            "unknown": "Произошла неизвестная ошибка."
+            "unknown": "Произошла неизвестная ошибка.",
+            "unconfigurable_entity": "Невозможно добавить этот элемент в Battery Notes."
         }
     },
     "options": {

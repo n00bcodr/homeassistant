@@ -47,7 +47,8 @@
             "already_configured": "Device is already configured"
         },
         "error": {
-            "unknown": "Unknown error occurred."
+            "unknown": "Unknown error occurred.",
+            "unconfigurable_entity": "It is not possible to add this entity to Battery Notes."
         }
     },
     "options": {
@@ -152,7 +153,7 @@
                     "name": "Device"
                 },
                 "entity_id": {
-                    "description": "Entity that has had its battery replaced.",
+                    "description": "Entity that has had its battery replaced (only used for entity associated battery notes).",
                     "name": "Entity"
                 },
                 "datetime_replaced": {
