@@ -2967,6 +2967,18 @@
         },
         {
             "manufacturer": "Moes",
+            "model": "Thermostat radiator valve (TV01-ZB)",
+            "battery_type": "AA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "Moes",
+            "model": "Thermostat radiator valve (ZTRV-ZX-TV01-MS)",
+            "battery_type": "AA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "Moes",
             "model": "Thermostatic radiator valve (BRT-100-TRV)",
             "battery_type": "AA",
             "battery_quantity": 2
@@ -4056,6 +4068,11 @@
             "manufacturer": "SmartLabs, Inc",
             "model": "2845-222 (0x10, 0x11)",
             "battery_type": "AAA"
+        },
+        {
+            "manufacturer": "SmartLabs_Inc",
+            "model": "2842_222_0x10_0x01",
+            "battery_type": "PP3"
         },
         {
             "manufacturer": "smartlife",

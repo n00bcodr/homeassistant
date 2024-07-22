@@ -1,0 +1,65 @@
+sidebar_editable: false
+title: "Welcome Home!"
+order:
+  - item: Overview
+
+  - item: Tablet
+
+  - item: hacs
+
+  - item: Studio Code Server
+
+  - item: Media
+
+  - item: Calendar
+
+  - new_item: true
+    item: Automations
+    href: "/config/automation/dashboard"
+    icon: mdi:robot-confused-outline
+
+  - new_item: true
+    item: Tags
+    href: "/config/tags"
+    icon: mdi:nfc-variant
+    bottom: true
+
+  - new_item: true
+    item: Integrations
+    href: "/config/integrations"
+    icon: mdi:cogs
+    bottom: true
+
+  - new_item: true
+    item: Supervisor
+    href: "/hassio/dashboard"
+    icon: mdi:home-assistant
+    bottom: true
+
+  - new_item: true
+    item: Server Controls
+    href: "/developer-tools/yaml"
+    icon: mdi:restart
+    bottom: true
+
+  - new_item: true
+    item: Developer Tools
+    href: "/developer-tools/state"
+    icon: mdi:hammer
+    bottom: true
+
+  - item: Settings
+    bottom: true
+
+  - item: map
+    hide: true
+  - item: Logbook
+    hide: true
+  - item: History
+    hide: true
+  - item: Shopping List
+    hide: true
+  - item: energy
+    hide: true
+  - item: To-do lists
+    hide: true

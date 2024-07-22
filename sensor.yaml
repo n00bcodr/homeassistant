@@ -44,11 +44,6 @@
           mdi:washing-machine-alert
         {% endif %}
 
-    magic_cube_active_face:
-      unique_id: magic_cube_active_face
-      friendly_name: "Magic Cube Active Face"
-      value_template: "{{states.sensor.magic_cube_action.attributes.side}}"
-
     count_automations:
       friendly_name: "Automation Count"
       value_template: "{{ states.automation | count }}"
@@ -234,7 +229,7 @@
 
     1tb_ssd_free_space:
       friendly_name: "1TB SSD Free Space"
-      unique_id: 1tb_harddisk_free_space
+      unique_id: 1tb_ssd_free_space
       unit_of_measurement: "GB"
       icon_template: mdi:harddisk
       value_template: >
@@ -246,7 +241,7 @@
       unit_of_measurement: "GB"
       icon_template: mdi:harddisk
       value_template: >
-        {{ ((states('sensor.1tb_total_space') | float) - ( states('sensor.1tb_free_space') | float ) | round(2)) }}
+        {{ ((states('sensor.1tb_ssd_total_space') | float) - ( states('sensor.1tb_ssd_free_space') | float ) | round(2)) }}
 
     5tb_total_space:
       friendly_name: "5TB Hard Disk Total Space"

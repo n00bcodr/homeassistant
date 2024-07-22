@@ -299,25 +299,6 @@
         data: {}
     default: []
   mode: single
-- id: '1642654396519'
-  alias: "⚙️\U0001F4F3Low battery level detection & notification for all battery sensors"
-  description: ''
-  use_blueprint:
-    path: sbyx/low-battery-level-detection-notification-for-all-battery-sensors.yaml
-    input:
-      actions:
-      - service: notify.mobile_app_pixel8pro
-        data:
-          message: '{{sensors}}'
-          data:
-            notification_icon: mdi:battery-alert
-            color: red
-            sticky: 'true'
-      threshold: 15
-      exclude:
-        entity_id:
-        - sensor.hilary_s_phone_battery_level
-        - sensor.op7t_battery_level
 - id: '1654855874344'
   alias: ⚙️Convert Lovelace configuration to yaml
   description: ''
@@ -1204,38 +1185,40 @@
     id: radarr
   condition: []
   action:
-  - delay:
-      hours: 0
-      minutes: 0
-      seconds: 40
-      milliseconds: 0
-  - choose:
-    - conditions:
-      - condition: trigger
-        id:
-        - sonarr
-      sequence:
-      - service: notify.mobile_app_pixel8pro
-        data:
-          message: '{{ state_attr( "sensor.recently_added_tv", "data")[1].title }}
-            - {{ state_attr( "sensor.recently_added_tv", "data")[1].number }} is downloaded
-            and now available on Plex.'
+  - sequence:
+    - service: script.plex_library_refresh
+      data: {}
+    - delay:
+        hours: 0
+        minutes: 1
+        seconds: 0
+        milliseconds: 0
+    - choose:
+      - conditions:
+        - condition: trigger
+          id:
+          - sonarr
+        sequence:
+        - service: notify.mobile_app_pixel8pro
           data:
-            notification_icon: mdi:television-box
-            image: '{{ state_attr( "sensor.recently_added_tv", "data")[1].fanart}}'
-    - conditions:
-      - condition: trigger
-        id:
-        - radarr
-      sequence:
-      - service: notify.mobile_app_pixel8pro
-        data:
-          message: '{{ state_attr( "sensor.recently_added_movies", "data")[1].title
-            }} - {{ state_attr( "sensor.recently_added_movies", "data")[1].number
-            }} is downloaded and now available on Plex.'
+            message: <b>{{ state_attr( "sensor.recently_added_tv", "data")[1].title
+              }} - {{ state_attr( "sensor.recently_added_tv", "data")[1].number }}
+              </b> is downloaded and now available on Plex.
+            data:
+              notification_icon: mdi:television-box
+              image: '{{ state_attr( "sensor.recently_added_tv", "data")[1].fanart}}'
+      - conditions:
+        - condition: trigger
+          id:
+          - radarr
+        sequence:
+        - service: notify.mobile_app_pixel8pro
           data:
-            notification_icon: mdi:movie-check
-            image: '{{ state_attr( "sensor.recently_added_movies", "data")[1].fanart}}'
+            message: <b> {{ state_attr( "sensor.recently_added_movies", "data")[1].title
+              }}</b> is downloaded and now available on Plex.
+            data:
+              notification_icon: mdi:movie-check
+              image: '{{ state_attr( "sensor.recently_added_movies", "data")[1].fanart}}'
   mode: restart
 - id: '1684417211214'
   alias: "\U0001F4A1Synchronize states - String Lights"
@@ -1446,6 +1429,9 @@
         target:
           entity_id: automation.tag_desk_is_scanned
         enabled: true
+      - service: script.google_tell_me_a_joke
+        metadata: {}
+        data: {}
     - conditions:
       - condition: and
         conditions:
@@ -1476,9 +1462,9 @@
         target:
           entity_id: automation.den_as_it_was
         enabled: false
-  - service: script.google_tell_me_a_joke
-    metadata: {}
-    data: {}
+      - service: script.google_tell_me_a_joke
+        metadata: {}
+        data: {}
   mode: single
 - id: '1691773218286'
   alias: "\U0001F3B5Music Jukebox - Living Room"
@@ -1769,10 +1755,10 @@
           conditions:
           - condition: template
             value_template: '{{(state_attr("sensor.blue_bin", "next_collection"))
-              == 1 }}'
+              == 0 }}'
           - condition: template
             value_template: '{{(state_attr("sensor.black_bin", "next_collection"))
-              == 1 }}'
+              == 0 }}'
       sequence:
       - service: input_button.press
         target:
@@ -1798,14 +1784,19 @@
           message: ' '
           title: The bin is outside.
     - conditions:
-      - condition: or
+      - condition: and
         conditions:
-        - condition: template
-          value_template: '{{(state_attr("sensor.blue_bin", "next_collection")) ==
-            0 }}'
-        - condition: template
-          value_template: '{{(state_attr("sensor.black_bin", "next_collection")) ==
-            0 }}'
+        - condition: time
+          after: 09:00:00
+          before: '21:00:00'
+        - condition: or
+          conditions:
+          - condition: template
+            value_template: '{{(state_attr("sensor.blue_bin", "next_collection"))
+              == 0 }}'
+          - condition: template
+            value_template: '{{(state_attr("sensor.black_bin", "next_collection"))
+              == 0 }}'
       sequence:
       - service: counter.reset
         target:
@@ -2209,18 +2200,6 @@
       timestamp: '{{ as_timestamp(trigger.to_state.last_changed) | timestamp_custom(''%Y-%m-%d_%H-%M-%S'')
         }}'
       camera_snapshot: '{{ timestamp }}.jpg'
-  - service: notify.all_phones
-    metadata: {}
-    data:
-      message: clear_notification
-      data:
-        tag: doorbell
-    alias: Clear old notifications
-    enabled: false
-  - alias: Clear old notifications
-    service: persistent_notification.dismiss
-    data:
-      notification_id: camera
   - service: camera.snapshot
     metadata: {}
     data:
@@ -2246,6 +2225,7 @@
         metadata: {}
         data:
           message: ' '
+          title: "Someone's at the front door \U0001F464"
           data:
             ttl: 0
             tag: doorbell
@@ -2253,6 +2233,7 @@
             notification_icon: mdi:doorbell-video
             activationMode: foreground
             car_ui: true
+            channel: Doorbell
             push:
               interruption-level: time-sensitive
               category: camera
@@ -2268,7 +2249,6 @@
               title: Will be there
               icon: sfsymbols:person.crop.circle.badge.checkmark
             image: /local/doorbell/{{camera_snapshot}}
-          title: "Someone's at the front door \U0001F464"
     - conditions:
       - condition: trigger
         id:
@@ -2285,6 +2265,7 @@
             notification_icon: mdi:doorbell-video
             activationMode: foreground
             car_ui: true
+            channel: Doorbell
             push:
               interruption-level: time-sensitive
               category: camera
@@ -2300,13 +2281,11 @@
               title: Will be there
               icon: sfsymbols:person.crop.circle.badge.checkmark
             image: /local/doorbell/{{camera_snapshot}}
-  - service: persistent_notification.create
-    data:
-      title: "Someone's at the front door\U0001F464"
-      message: '![image](/local/doorbell/{{camera_snapshot}})
-
-        '
-      notification_id: camera
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 5
+      milliseconds: 0
   mode: single
 - id: '1716218179726'
   alias: "⚙️\U0001F4F3Update Weight to Google Sheets"
@@ -2513,4 +2492,141 @@
     data:
       title: '⚖️ Just weighed in! '
       message: '{{states.sensor.mi_scale_weight.state}} KGs'
+  mode: single
+- id: '1720523835406'
+  alias: "\U0001F50BBattery Notes - Battery Threshold"
+  description: ''
+  trigger:
+  - platform: event
+    event_type: battery_notes_battery_threshold
+    event_data:
+      battery_low: true
+    id: low
+    alias: Battery went low
+  - platform: event
+    event_type: battery_notes_battery_threshold
+    event_data:
+      battery_low: false
+    id: high
+    alias: Battery went high
+  condition:
+  - condition: template
+    value_template: '{{ trigger.event.data.device_id not in excluded_devices}}'
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - low
+      sequence:
+      - if:
+        - condition: template
+          value_template: '{{ low_notification }}'
+        then:
+        - service: persistent_notification.create
+          data:
+            title: '{{ trigger.event.data.device_name }} Battery Low
+
+              '
+            notification_id: battery_notes_threshold {{ trigger.event.data.device_id
+              }}-{{ trigger.event.data.source_entity_id }}
+            message: 'The device has a battery level of {{ trigger.event.data.battery_level
+              }}% {{ ''\n'' -}} You need {{ trigger.event.data.battery_quantity }}×
+              {{ trigger.event.data.battery_type }}
+
+              '
+        - service: notify.mobile_app_pixel8pro
+          data:
+            title: '{{ trigger.event.data.device_name }} Battery Low
+
+              '
+            message: 'The device has a battery level of {{ trigger.event.data.battery_level
+              }}% {{ ''\n'' -}} You need {{ trigger.event.data.battery_quantity }}×
+              {{ trigger.event.data.battery_type }}
+
+              '
+            data:
+              tag: battery
+              notification_icon: mdi:battery-alert
+              color: red
+      - alias: Run user on low actions
+        choose: []
+        default: []
+    - conditions:
+      - condition: trigger
+        id:
+        - high
+      sequence:
+      - if:
+        - condition: template
+          value_template: '{{ low_notification }}'
+        then:
+        - service: persistent_notification.dismiss
+          data:
+            notification_id: battery_notes_threshold {{ trigger.event.data.device_id
+              }}-{{ trigger.event.data.source_entity_id }}
+      - alias: Run user on high actions
+        choose: []
+        default: []
+  variables:
+    low_notification: true
+    high_notification: true
+    excluded_devices:
+    - null
+  mode: queued
+- id: '1720633512902'
+  alias: ⚙️Magic Cube
+  description: ''
+  use_blueprint:
+    path: SirGoodenough/Zigbee2MQTT-Xiaomi_Cube_Controller_MQTT_Triggered.yaml
+    input:
+      topic: zigbee2mqtt/MagicCube
+      rotate_cw_face_4:
+      - service: media_player.volume_up
+        metadata: {}
+        data: {}
+        target:
+          entity_id: media_player.spotify
+      rotate_ccw_face_4:
+      - service: media_player.volume_down
+        target:
+          entity_id:
+          - media_player.spotify
+        data: {}
+      doubletap_face_4:
+      - service: media_player.media_play_pause
+        metadata: {}
+        data: {}
+        target:
+          entity_id: media_player.spotify
+      doubletap_face_1:
+      - service: light.toggle
+        metadata: {}
+        data: {}
+        target:
+          entity_id: light.light
+      rotate_cw_face_1:
+      - service: light.turn_on
+        metadata: {}
+        target:
+          entity_id: light.light
+        data:
+          brightness_pct: '{{ relative_degrees | float }}'
+      rotate_ccw_face_1:
+      - service: light.turn_on
+        metadata: {}
+        target:
+          entity_id: light.light
+        data:
+          brightness_pct: '{{ relative_degrees | float }}'
+- id: '1721641858827'
+  alias: "\U0001F50BBattery Notes - Check Battery Low"
+  description: ''
+  trigger:
+  - platform: time
+    at: '10:00:00'
+  condition: []
+  action:
+  - service: battery_notes.check_battery_low
+    data: {}
   mode: single

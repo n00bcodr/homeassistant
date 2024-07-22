@@ -7,6 +7,12 @@ homeassistant:
     - /config/
     - /media/
 
+logger:
+  default: critical
+  # logs:
+  #   custom_components.localtuya: debug
+  #   custom_components.localtuya.pytuya: debug
+
 browser:
 delete:
 python_script:
@@ -14,14 +20,6 @@ influxdb:
 pyscript:
 my:
 battery_notes:
-logger:
-  default: critical
-  # logs:
-  #   custom_components.localtuya: debug
-  #   custom_components.localtuya.pytuya: debug
-tts:
-  - platform: google_translate
-
 automation: !include automations.yaml
 binary_sensor: !include binary_sensors.yaml
 command_line: !include command_line.yaml
@@ -36,29 +34,16 @@ script: !include scripts.yaml
 shell_command: !include shell_command.yaml
 sensor: !include sensor.yaml
 template: !include template.yaml
+monitor_docker: !include monitor_docker.yaml
+
+tts:
+  - platform: google_translate
 
 frontend:
   themes: !include_dir_merge_named themes
-
-monitor_docker:
-  - name: Docker
-    url: tcp://192.168.168.168:2375
-    switchname: "Docker {name}"
-    containers:
-      - addon_core_samba
-      - homebridge-homebridge-1
-      - homer
-      - filebrowser
-      - flaresolverr
-      - Tautulli
-    rename:
-      tautulli: Tautulli
-      addon_core_samba: Samba
-      homebridge-homebridge-1: HomeBridge
-    monitored_conditions:
-      - containers_running
-      - containers_total
-      - memory
+  extra_module_url:
+    - /local/card-mod.js
+    - /config/www/community/lovelace-card-mod/card-mod.js
 
 #mariadb config
 recorder:

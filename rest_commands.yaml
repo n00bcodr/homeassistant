@@ -1,5 +1,5 @@
 pipup_image_on_google_tv:
-  url: http://192.168.0.121:7979/notify
+  url: http://192.168.168.11:7979/notify
   content_type: "application/json"
   verify_ssl: false
   method: "post"
@@ -24,7 +24,7 @@ pipup_image_on_google_tv:
     }
 
 pipup_url_on_google_tv:
-  url: http://192.168.0.121:7979/notify
+  url: http://192.168.168.11:7979/notify
   content_type: "application/json"
   verify_ssl: false
   method: "post"

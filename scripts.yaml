@@ -370,6 +370,7 @@ google_tell_me_a_joke:
       data:
         car_ui: true
         tag: joke
+        timeout: 3600
         notification_icon: mdi:emoticon-happy-outline
   mode: single
   icon: mdi:emoticon-happy-outline
@@ -384,3 +385,18 @@ reload_google_sheets:
     data: {}
   description: ''
   icon: mdi:google-spreadsheet
+reboot_internet_router:
+  alias: "\U0001F501Restart Internet Router"
+  sequence:
+  - service: tplink_deco.reboot_deco
+    metadata: {}
+    data:
+      device_id:
+      - 60c630b563ff326822df1afede0d8a98
+      - 27596033b966ae3aefeffbd2852c6ad2
+  description: ''
+  icon: mdi:restart
+  fields:
+    field:
+      selector:
+        text:
