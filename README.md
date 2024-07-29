@@ -172,7 +172,7 @@ I started my Home Assistant Journey with a Raspberry Pi 3, from which I have swi
 ![Lovelace 5](https://github.com/n00bcodr/homeassistant/blob/master/screenshots/5.png?raw=true "Lovelace 5")
 ![Lovelace 6](https://github.com/n00bcodr/homeassistant/blob/master/screenshots/6.png?raw=true "Lovelace 6")
 ![Lovelace 7](https://github.com/n00bcodr/homeassistant/blob/master/screenshots/7.png?raw=true "Lovelace 7")
-
+![Lovelace 8](https://github.com/n00bcodr/homeassistant/blob/master/screenshots/8.png?raw=true "Lovelace 8")
 
 ---
 ### <a name="wishlist">Wishlist</a> 
