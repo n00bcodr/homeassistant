@@ -591,6 +591,24 @@
             "battery_type": "Rechargeable"
         },
         {
+            "manufacturer": "AMV FritzBox",
+            "model": "FRITZ!DECT 302",
+            "battery_type": "AA",
+            "battery_quantity": 3
+        },
+        {
+            "manufacturer": "AMV FritzBox",
+            "model": "FRITZ!DECT 350",
+            "battery_type": "AAA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "AMV FritzBox",
+            "model": "FRITZ!DECT 440",
+            "battery_type": "AAA",
+            "battery_quantity": 2
+        },
+        {
             "manufacturer": "APC",
             "model": "Back-UPS XS 1500M",
             "battery_type": "Rechargeable"
@@ -649,6 +667,11 @@
             "manufacturer": "Aqara",
             "model": "AS006",
             "battery_type": "CR1632"
+        },
+        {
+            "manufacturer": "Aqara",
+            "model": "AS008",
+            "battery_type": "CR2032"
         },
         {
             "manufacturer": "Aqara",
@@ -1267,6 +1290,11 @@
             "battery_type": "Rechargeable"
         },
         {
+            "manufacturer": "Eaton",
+            "model": "Ellipse ECO 650",
+            "battery_type": "Rechargeable"
+        },
+        {
             "manufacturer": "ecobee",
             "model": "ecobee Room Sensor",
             "battery_type": "CR2032"
@@ -1732,7 +1760,22 @@
         },
         {
             "manufacturer": "Eufy Security",
+            "model": "T8113-V",
+            "battery_type": "Rechargeable"
+        },
+        {
+            "manufacturer": "Eufy Security",
+            "model": "T8160",
+            "battery_type": "Rechargeable"
+        },
+        {
+            "manufacturer": "Eufy Security",
             "model": "T8210",
+            "battery_type": "Rechargeable"
+        },
+        {
+            "manufacturer": "Eufy Security",
+            "model": "T8210C",
             "battery_type": "Rechargeable"
         },
         {
@@ -2019,6 +2062,11 @@
             "manufacturer": "Fyta",
             "model": "Plant",
             "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "GE",
+            "model": "Hinge PIN Door Sensor, 500S",
+            "battery_type": "CR123A"
         },
         {
             "manufacturer": "GE/Enbrighten",
@@ -2624,6 +2672,12 @@
         },
         {
             "manufacturer": "Kwikset",
+            "model": "99120-021",
+            "battery_type": "AA",
+            "battery_quantity": 4
+        },
+        {
+            "manufacturer": "Kwikset",
             "model": "HALO-01",
             "battery_type": "AA",
             "battery_quantity": 4
@@ -3219,6 +3273,12 @@
         },
         {
             "manufacturer": "OpenEpaperLink",
+            "model": "M3 2.9\"",
+            "battery_type": "CR2450",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "OpenEpaperLink",
             "model": "ST\u2010GR16000 1.54\"",
             "battery_type": "CR2450"
         },
@@ -3804,6 +3864,11 @@
         },
         {
             "manufacturer": "Shelly",
+            "model": "gen1 (SHHT-1)",
+            "battery_type": "CR123A"
+        },
+        {
+            "manufacturer": "Shelly",
             "model": "Shelly Button1",
             "battery_type": "Rechargable"
         },
@@ -4257,6 +4322,11 @@
             "model": "SNZB-04",
             "battery_type": "AAA",
             "battery_quantity": 2
+        },
+        {
+            "manufacturer": "Sonoff",
+            "model": "SNZB-05P",
+            "battery_type": "CR2477"
         },
         {
             "manufacturer": "Sonoff",
@@ -5778,6 +5848,12 @@
             "battery_quantity": 4
         },
         {
+            "manufacturer": "Yale",
+            "model": "YRL256",
+            "battery_type": "AA",
+            "battery_quantity": 4
+        },
+        {
             "manufacturer": "Yeelight",
             "model": "ble YLAI003",
             "battery_type": "CR2032"
@@ -5837,6 +5913,12 @@
         },
         {
             "manufacturer": "Zooz",
+            "model": "Q Sensor",
+            "battery_type": "CR123A",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "Zooz",
             "model": "ZAC38",
             "battery_type": "Rechargeable"
         },
@@ -5850,6 +5932,11 @@
             "manufacturer": "Zooz",
             "model": "ZEN37",
             "battery_type": "LIR2032"
+        },
+        {
+            "manufacturer": "Zooz",
+            "model": "ZEN37 800LR",
+            "battery_type": "Rechargeable"
         },
         {
             "manufacturer": "Zooz",
@@ -5881,7 +5968,7 @@
         {
             "manufacturer": "Zooz",
             "model": "ZSE42",
-            "battery_type": "CR2032"
+            "battery_type": "MANUAL"
         },
         {
             "manufacturer": "Zooz",
