@@ -7,7 +7,7 @@ work:
     text: Oh yeah!
     type: plain
   action:
-    service: homeassistant.turn_on
+    action: homeassistant.turn_on
     data:
       entity_id:
         - switch.workstation
@@ -20,7 +20,7 @@ kettle:
     text: Sure!
     type: plain
   action:
-    service: homeassistant.turn_on
+    action: homeassistant.turn_on
     data:
       entity_id:
         - switch.kettle

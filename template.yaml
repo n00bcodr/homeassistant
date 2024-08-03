@@ -9,7 +9,7 @@
         {% endif %}
       state: "{{ states('sensor.pixel8pro_ringer_mode') }}"
       select_option:
-        - service: notify.mobile_app_pixel8pro
+        - action: notify.mobile_app_pixel8pro
           data:
             message: command_ringer_mode
             data:
@@ -22,7 +22,7 @@
       unique_id: pixel_update_sensors
       icon: mdi:cellphone-arrow-down-variant
       press:
-        - service: notify.mobile_app_pixel8pro
+        - action: notify.mobile_app_pixel8pro
           data:
             message: command_update_sensors
 
@@ -30,7 +30,7 @@
       unique_id: pixel_update_location
       icon: mdi:map-marker-down
       press:
-        - service: notify.mobile_app_pixel8pro
+        - action: notify.mobile_app_pixel8pro
           data:
             message: request_location_update
 
@@ -38,7 +38,7 @@
       unique_id: pixel_open_mobile_app
       icon: mdi:home-assistant
       press:
-        - service: notify.mobile_app_pixel8pro
+        - action: notify.mobile_app_pixel8pro
           data:
             message: command_webview
 
@@ -51,7 +51,7 @@
       min: 0
       max: 7
       set_value:
-        - service: notify.mobile_app_pixel8pro
+        - action: notify.mobile_app_pixel8pro
           data:
             message: command_volume_level
             data:
@@ -67,7 +67,7 @@
       min: 0
       max: 7
       set_value:
-        - service: notify.mobile_app_pixel8pro
+        - action: notify.mobile_app_pixel8pro
           data:
             message: command_volume_level
             data:
@@ -83,7 +83,7 @@
       min: 0
       max: 25
       set_value:
-        - service: notify.mobile_app_pixel8pro
+        - action: notify.mobile_app_pixel8pro
           data:
             message: command_volume_level
             data:
@@ -99,7 +99,7 @@
       min: 0
       max: 7
       set_value:
-        - service: notify.mobile_app_pixel8pro
+        - action: notify.mobile_app_pixel8pro
           data:
             message: command_volume_level
             data:
@@ -115,7 +115,7 @@
       min: 0
       max: 7
       set_value:
-        - service: notify.mobile_app_pixel8pro
+        - action: notify.mobile_app_pixel8pro
           data:
             message: command_volume_level
             data:
@@ -131,7 +131,7 @@
       min: 0
       max: 7
       set_value:
-        - service: notify.mobile_app_pixel8pro
+        - action: notify.mobile_app_pixel8pro
           data:
             message: command_volume_level
             data:

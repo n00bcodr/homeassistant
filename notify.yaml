@@ -9,9 +9,7 @@
   platform: group
   services:
     - service: mobile_app_pavan_thanujs_ipad_3rd_gen
-    - service: mobile_app_pavans_ipad_pro
     - service: mobile_app_hilary_s_phone
-    - service: mobile_app_work_laptop
 
 - name: all_phones
   platform: group
@@ -21,5 +19,3 @@
     - service: mobile_app_op7t
     - service: mobile_app_hilary_s_phone
     - service: mobile_app_pavan_thanujs_ipad_3rd_gen
-    - service: mobile_app_pavans_ipad_pro
-    - service: mobile_app_work_laptop

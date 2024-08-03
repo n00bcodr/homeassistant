@@ -12,7 +12,7 @@
       seconds: 0
   condition: []
   action:
-  - service: notify.mobile_app_pixel8pro
+  - action: notify.mobile_app_pixel8pro
     data:
       message: "{{states.update.home_assistant_core_update.attributes.installed_version\n
         }} → {{ states.update.home_assistant_core_update.attributes.latest_version
@@ -35,7 +35,7 @@
     entity_id: input_select.speakers_spotify
   condition: []
   action:
-  - service: script.spotify_start
+  - action: script.spotify_start
   mode: single
 - id: movies_on_plex
   alias: "\U0001F3ACMovies"
@@ -58,7 +58,7 @@
           state: Plex
           attribute: source
       sequence:
-      - service: media_player.select_source
+      - action: media_player.select_source
         target:
           entity_id: media_player.google_tv
         data:
@@ -66,7 +66,7 @@
       - wait_template: '{{ not is_state(''media_player.plex_plex_for_android_tv_google_tv'',
           ''unavailable'') }}'
         timeout: 00:00:10
-      - service: media_player.play_media
+      - action: media_player.play_media
         target:
           entity_id: media_player.plex_plex_for_android_tv_google_tv
         data:
@@ -78,7 +78,7 @@
         state: Plex
         attribute: source
       sequence:
-      - service: media_player.play_media
+      - action: media_player.play_media
         target:
           entity_id: media_player.plex_plex_for_android_tv_google_tv
         data:
@@ -86,7 +86,7 @@
           media_content_type: '{{ media_content_type }}'
     default: []
     enabled: true
-  - service: media_player.play_media
+  - action: media_player.play_media
     target:
       entity_id: media_player.plex_plex_for_android_tv_google_tv
     data:
@@ -168,7 +168,7 @@
   action:
   - variables:
       uri: '{{ tags[trigger.event.data.tag_id].uri }}'
-  - service: spotcast.start
+  - action: spotcast.start
     data:
       device_name: '{% if is_state(''media_player.spotify'', ''playing'') %} {{state_attr("media_player.spotify",
         "source")}} {%else%}{{ states(''input_select.speakers_spotify'') }}{%endif%}'
@@ -232,19 +232,19 @@
     value_template: '{{ trigger.event.data.tag_id in tags }}'
   action:
   - variables:
-      service: '{{ tags[trigger.event.data.tag_id].service }}'
-  - service: '{{ service }}'
+      action: '{{ tags[trigger.event.data.tag_id].service }}'
+  - action: '{{ action }}'
     target:
       entity_id: media_player.spotify
   mode: restart
   variables:
     tags:
       previous:
-        service: media_player.media_previous_track
+        action: media_player.media_previous_track
       play/pause:
-        service: media_player.media_play_pause
+        action: media_player.media_play_pause
       next:
-        service: media_player.media_next_track
+        action: media_player.media_next_track
 - id: '1636123727125'
   alias: ⚙️Shopping list update
   description: ''
@@ -253,7 +253,7 @@
     entity_id: input_text.shopping_list
   condition: []
   action:
-  - service: script.add_shopping_list
+  - action: script.add_shopping_list
     data: {}
   mode: single
 - id: '1638974963835'
@@ -277,25 +277,25 @@
       - condition: trigger
         id: start
       sequence:
-      - service: pyscript.f1driverstandings
+      - action: pyscript.f1driverstandings
         data: {}
-      - service: pyscript.f1constructorstandings
+      - action: pyscript.f1constructorstandings
         data: {}
-      - service: rest_command.reload_google_sheets_music
+      - action: rest_command.reload_google_sheets_music
         data: {}
-      - service: rest_command.reload_google_assistant_sdk
+      - action: rest_command.reload_google_assistant_sdk
         data: {}
-      - service: rest_command.reload_weather
+      - action: rest_command.reload_weather
         data: {}
-      - service: rest_command.reload_tasks
+      - action: rest_command.reload_tasks
         data: {}
-      - service: rest_command.reload_tuya
+      - action: rest_command.reload_tuya
         data: {}
-      - service: rest_command.reload_local_tuya
+      - action: rest_command.reload_local_tuya
         data: {}
-      - service: rest_command.reload_google_sheets_weight
+      - action: rest_command.reload_google_sheets_weight
         data: {}
-      - service: rest_command.reload_google_sheets_weight2
+      - action: rest_command.reload_google_sheets_weight2
         data: {}
     default: []
   mode: single
@@ -308,7 +308,7 @@
     event_data: {}
   condition: []
   action:
-  - service: shell_command.lovelace_default_convert
+  - action: shell_command.lovelace_default_convert
     data: {}
   mode: single
 - id: '1655137751596'
@@ -329,7 +329,7 @@
       milliseconds: 0
   - condition: template
     value_template: '{{states.sensor.current_version.state > states.sensor.n00bcodr_homeassistant_latest_tag.state}}'
-  - service: notify.mobile_app_pixel8pro
+  - action: notify.mobile_app_pixel8pro
     data:
       message: Update tag in GitHub?
       title: Home Assistant Core Updated!
@@ -359,7 +359,7 @@
         value_template: '{{ trigger.event.data|regex_search(''com.netflix'', ignorecase=TRUE)
           }}'
       sequence:
-      - service: input_text.set_value
+      - action: input_text.set_value
         data:
           value: '{{ trigger.event.data.text|regex_findall_index(find=''(http.*)'',
             ignorecase=TRUE) }}
@@ -372,7 +372,7 @@
         value_template: '{{ trigger.event.data|regex_search(''com.amazon'', ignorecase=TRUE)
           }}'
       sequence:
-      - service: input_text.set_value
+      - action: input_text.set_value
         data:
           value: '{{ trigger.event.data.text|regex_findall_index(find=''(http.*)'',
             ignorecase=true)|replace ("&ref_=atv_dp_share_seas&r=web", "") }}
@@ -385,7 +385,7 @@
         value_template: '{{ trigger.event.data|regex_search(''startv.hotstar'', ignorecase=TRUE)
           }}'
       sequence:
-      - service: input_text.set_value
+      - action: input_text.set_value
         data:
           value: '{{ trigger.event.data.text|regex_findall_index(find=''(http.*)'',
             ignorecase=TRUE) }}
@@ -398,7 +398,7 @@
         value_template: '{{ trigger.event.data|regex_search(''youtu.be'', ignorecase=TRUE)
           }}'
       sequence:
-      - service: input_text.set_value
+      - action: input_text.set_value
         data:
           value: '{{ trigger.event.data.url|regex_findall_index(find=''(http.*)'',
             ignorecase=TRUE) }}
@@ -407,14 +407,14 @@
         target:
           entity_id: input_text.ccgtv_share_url
     default:
-    - service: notify.persistent_notification
+    - action: notify.persistent_notification
       data:
         message: '{{ states(''input_text.ccgtv_share_url'') }}'
-  - service: androidtv.adb_command
+  - action: androidtv.adb_command
     data:
       entity_id: media_player.google_tv
       command: HOME
-  - service: script.load_share_url_googletv
+  - action: script.load_share_url_googletv
     data: {}
   mode: single
 - id: '1670537821206'
@@ -447,7 +447,7 @@
         value_template: '{{(states.media_player.spotify.attributes.source) != ''Pixel
           8 Pro''}}'
       sequence:
-      - service: scene.create
+      - action: scene.create
         data:
           scene_id: den_as_it_was
           snapshot_entities:
@@ -456,7 +456,7 @@
           - media_player.spotify
           - light.shapes
           - climate.heater
-      - service: homeassistant.turn_off
+      - action: homeassistant.turn_off
         data: {}
         target:
           entity_id:
@@ -464,7 +464,7 @@
           - light.shapes
           - light.light
           - climate.heater
-      - service: media_player.media_pause
+      - action: media_player.media_pause
         data: {}
         target:
           entity_id:
@@ -474,14 +474,14 @@
         value_template: '{{(states.media_player.spotify.attributes.source) == ''Pixel
           8 Pro''}}'
       sequence:
-      - service: scene.create
+      - action: scene.create
         data:
           scene_id: den_as_it_was
           snapshot_entities:
           - switch.workstation
           - light.light
           - light.shapes
-      - service: homeassistant.turn_off
+      - action: homeassistant.turn_off
         data: {}
         target:
           entity_id:
@@ -520,7 +520,7 @@
             entity_id: light.light
             state: 'on'
           sequence:
-          - service: homeassistant.turn_off
+          - action: homeassistant.turn_off
             data: {}
             target:
               entity_id: light.light
@@ -529,7 +529,7 @@
             entity_id: light.light
             state: 'off'
           sequence:
-          - service: light.turn_on
+          - action: light.turn_on
             data:
               color_temp: 153
               brightness_pct: 100
@@ -546,7 +546,7 @@
             entity_id: light.light
             state: 'on'
           sequence:
-          - service: homeassistant.turn_off
+          - action: homeassistant.turn_off
             target:
               entity_id: light.light
             data: {}
@@ -555,7 +555,7 @@
             entity_id: light.light
             state: 'off'
           sequence:
-          - service: light.turn_on
+          - action: light.turn_on
             data:
               color_temp: 500
               brightness_pct: 100
@@ -575,7 +575,7 @@
     to: 'on'
   condition: []
   action:
-  - service: scene.turn_on
+  - action: scene.turn_on
     data: {}
     entity_id: scene.den_as_it_was
   mode: single
@@ -609,7 +609,7 @@
         minutes: 5
         seconds: 0
   action:
-  - service: notify.mobile_app_pixel8pro
+  - action: notify.mobile_app_pixel8pro
     data:
       title: Are you there?
       message: 'No motion detected in Den in the last 5 minutes. '
@@ -645,7 +645,7 @@
         entity_id: input_boolean.den
         state: 'off'
       sequence:
-      - service: automation.trigger
+      - action: automation.trigger
         target:
           entity_id: automation.den_as_it_was
         data: {}
@@ -654,7 +654,7 @@
         entity_id: input_boolean.den
         state: 'on'
       sequence:
-      - service: homeassistant.turn_on
+      - action: homeassistant.turn_on
         data: {}
         target:
           entity_id: switch.workstation
@@ -676,7 +676,7 @@
     to: 'on'
   condition: []
   action:
-  - service: notify.mobile_app_pixel8pro
+  - action: notify.mobile_app_pixel8pro
     data:
       data:
         tag: den_off
@@ -735,7 +735,7 @@
         id:
         - presence
       sequence:
-      - service: light.turn_on
+      - action: light.turn_on
         data:
           color_temp: 500
           brightness: 255
@@ -746,7 +746,7 @@
         id:
         - clear
       sequence:
-      - service: homeassistant.turn_off
+      - action: homeassistant.turn_off
         data: {}
         target:
           entity_id: light.living_room_lamp
@@ -775,7 +775,7 @@
       - condition: trigger
         id: wash
       sequence:
-      - service: notify.all_phones
+      - action: notify.all_phones
         data:
           data:
             tag: wash_cycle
@@ -787,7 +787,7 @@
           - sensor.washing_machine_state
           to: Cycle Complete
         continue_on_timeout: false
-      - service: notify.all_phones
+      - action: notify.all_phones
         data:
           message: at {{ as_timestamp(now()) | timestamp_custom('%-I:%M %p')}}
           data:
@@ -801,7 +801,7 @@
       - condition: trigger
         id: dry
       sequence:
-      - service: notify.all_phones
+      - action: notify.all_phones
         data:
           data:
             tag: wash_cycle
@@ -813,7 +813,7 @@
           - sensor.washing_machine_state
           to: Cycle Complete
         continue_on_timeout: false
-      - service: notify.all_phones
+      - action: notify.all_phones
         data:
           message: at {{ as_timestamp(now()) | timestamp_custom('%-I:%M %p')}}
           data:
@@ -834,7 +834,11 @@
   - platform: time
     at: '21:00:00'
     id: night
-  condition: []
+  condition:
+  - alias: Check if the collection is in the next two days
+    condition: template
+    value_template: '{{((state_attr("sensor.black_bin", "next_collection")) or (state_attr("sensor.blue_bin",
+      "next_collection")))  <= 2 }}'
   action:
   - choose:
     - conditions:
@@ -846,12 +850,12 @@
         id:
         - morning
       sequence:
-      - service: notify.all_phones
+      - action: notify.all_phones
         data:
           data:
             tag: bin_pickup
           message: clear_notification
-      - service: notify.all_phones
+      - action: notify.all_phones
         data:
           data:
             activationMode: foreground
@@ -871,12 +875,12 @@
         id:
         - morning
       sequence:
-      - service: notify.all_phones
+      - action: notify.all_phones
         data:
           data:
             tag: bin_pickup
           message: clear_notification
-      - service: notify.all_phones
+      - action: notify.all_phones
         data:
           data:
             notification_icon: mdi:trash-can-outline
@@ -895,12 +899,12 @@
       sequence:
       - repeat:
           sequence:
-          - service: notify.all_phones
+          - action: notify.all_phones
             data:
               data:
                 tag: bin_pickup
               message: clear_notification
-          - service: notify.all_phones
+          - action: notify.all_phones
             data:
               data:
                 notification_icon: mdi:trash-can
@@ -933,12 +937,12 @@
         id:
         - morning
       sequence:
-      - service: notify.all_phones
+      - action: notify.all_phones
         data:
           data:
             tag: bin_pickup
           message: clear_notification
-      - service: notify.all_phones
+      - action: notify.all_phones
         data:
           data:
             notification_icon: mdi:trash-can
@@ -957,12 +961,12 @@
         id:
         - morning
       sequence:
-      - service: notify.all_phones
+      - action: notify.all_phones
         data:
           data:
             tag: bin_pickup
           message: clear_notification
-      - service: notify.all_phones
+      - action: notify.all_phones
         data:
           data:
             notification_icon: mdi:trash-can
@@ -981,12 +985,12 @@
       sequence:
       - repeat:
           sequence:
-          - service: notify.all_phones
+          - action: notify.all_phones
             data:
               data:
                 tag: bin_pickup
               message: clear_notification
-          - service: notify.all_phones
+          - action: notify.all_phones
             data:
               data:
                 notification_icon: mdi:trash-can
@@ -1038,12 +1042,12 @@
       - condition: trigger
         id: 'on'
       sequence:
-      - service: timer.start
+      - action: timer.start
         data:
           duration: 01:30:00
         target:
           entity_id: timer.heating
-      - service: notify.mobile_app_pixel8pro
+      - action: notify.mobile_app_pixel8pro
         data:
           message: "\U0001F525 Heating"
           data:
@@ -1058,17 +1062,17 @@
             - action: URI
               title: Switch
               uri: entityId:switch.heating
-            - service: switch.turn_off
+            - action: switch.turn_off
               entity_id: switch.heating
     - conditions:
       - condition: trigger
         id: 'off'
       sequence:
-      - service: timer.cancel
+      - action: timer.cancel
         data: {}
         target:
           entity_id: timer.heating
-      - service: notify.mobile_app_pixel8pro
+      - action: notify.mobile_app_pixel8pro
         data:
           message: clear_notification
           data:
@@ -1087,12 +1091,12 @@
     entity_id: switch.heating
     state: 'on'
   action:
-  - service: switch.turn_off
+  - action: switch.turn_off
     data: {}
     target:
       entity_id: switch.heating
     enabled: true
-  - service: notify.all_phones_android
+  - action: notify.all_phones_android
     data:
       message: at  {{ as_timestamp(now()) | timestamp_custom('%-I:%M %p')}}
       title: "\U0001F525 Turned off"
@@ -1126,7 +1130,7 @@
       entity_id: sensor.hallway_motion_illuminance
       below: 40
   action:
-  - service: homeassistant.turn_on
+  - action: homeassistant.turn_on
     data: {}
     target:
       entity_id:
@@ -1143,7 +1147,7 @@
       minutes: 1
       seconds: 0
       milliseconds: 0
-  - service: homeassistant.turn_off
+  - action: homeassistant.turn_off
     data: {}
     target:
       entity_id: switch.string_lights
@@ -1165,7 +1169,7 @@
     to: 'off'
   condition: []
   action:
-  - service: script.plex_library_refresh
+  - action: script.plex_library_refresh
     data: {}
   mode: queued
   max: 10
@@ -1178,15 +1182,19 @@
     - sensor.sonarr_queue
     to: '0'
     id: sonarr
+    from:
+    enabled: true
   - platform: state
     entity_id:
     - sensor.radarr_queue
     to: '0'
     id: radarr
+    from:
+    enabled: true
   condition: []
   action:
   - sequence:
-    - service: script.plex_library_refresh
+    - action: script.plex_library_refresh
       data: {}
     - delay:
         hours: 0
@@ -1199,7 +1207,7 @@
           id:
           - sonarr
         sequence:
-        - service: notify.mobile_app_pixel8pro
+        - action: notify.mobile_app_pixel8pro
           data:
             message: <b>{{ state_attr( "sensor.recently_added_tv", "data")[1].title
               }} - {{ state_attr( "sensor.recently_added_tv", "data")[1].number }}
@@ -1212,7 +1220,7 @@
           id:
           - radarr
         sequence:
-        - service: notify.mobile_app_pixel8pro
+        - action: notify.mobile_app_pixel8pro
           data:
             message: <b> {{ state_attr( "sensor.recently_added_movies", "data")[1].title
               }}</b> is downloaded and now available on Plex.
@@ -1253,7 +1261,7 @@
         after: '21:00:00'
         before: 04:00:00
       sequence:
-      - service: cover.close_cover
+      - action: cover.close_cover
         data: {}
         target:
           entity_id: cover.curtains
@@ -1268,7 +1276,7 @@
         after: 06:00:00
         before: '11:59:00'
       sequence:
-      - service: cover.open_cover
+      - action: cover.open_cover
         data: {}
         target:
           entity_id: cover.curtains
@@ -1287,7 +1295,7 @@
     before: sunrise
     after: sunset
   action:
-  - service: homeassistant.turn_on
+  - action: homeassistant.turn_on
     data: {}
     target:
       entity_id: switch.porch_light
@@ -1296,7 +1304,7 @@
       minutes: 0
       seconds: 50
       milliseconds: 0
-  - service: homeassistant.turn_off
+  - action: homeassistant.turn_off
     data: {}
     target:
       entity_id: switch.porch_light
@@ -1330,14 +1338,14 @@
       - condition: trigger
         id: speedtest
       sequence:
-      - service: hassio.addon_start
+      - action: hassio.addon_start
         data:
           addon: 6b87c29e_speedtest_addon
     - conditions:
       - condition: trigger
         id: homewhiz
       sequence:
-      - service: homeassistant.reload_config_entry
+      - action: homeassistant.reload_config_entry
         target:
           entity_id:
           - select.bob_state
@@ -1374,7 +1382,7 @@
     - input_text.text_spotify
   condition: []
   action:
-  - service: spotcast.start
+  - action: spotcast.start
     data:
       force_playback: false
       random_song: false
@@ -1416,20 +1424,20 @@
           minutes: 0
           seconds: 30
           milliseconds: 0
-      - service: notify.mobile_app_pixel8pro
+      - action: notify.mobile_app_pixel8pro
         data:
           message: command_activity
           data:
             intent_uri: https://waze.com/ul?favorite=work&navigate=yes
             intent_package_name: com.waze
             intent_action: android.intent.action.VIEW
-      - service: automation.trigger
+      - action: automation.trigger
         data:
           skip_condition: true
         target:
           entity_id: automation.tag_desk_is_scanned
         enabled: true
-      - service: script.google_tell_me_a_joke
+      - action: script.google_tell_me_a_joke
         metadata: {}
         data: {}
     - conditions:
@@ -1442,7 +1450,7 @@
           entity_id: person.pavanthanuj
           state: Work
       sequence:
-      - service: notify.mobile_app_pixel8pro
+      - action: notify.mobile_app_pixel8pro
         data:
           message: command_activity
           data:
@@ -1456,13 +1464,13 @@
           event: enter
         continue_on_timeout: true
         enabled: false
-      - service: automation.trigger
+      - action: automation.trigger
         data:
           skip_condition: true
         target:
           entity_id: automation.den_as_it_was
         enabled: false
-      - service: script.google_tell_me_a_joke
+      - action: script.google_tell_me_a_joke
         metadata: {}
         data: {}
   mode: single
@@ -1478,7 +1486,7 @@
   action:
   - variables:
       uri: '{{ tags[trigger.event.data.tag_id].uri }}'
-  - service: spotcast.start
+  - action: spotcast.start
     data:
       device_name: '{% if is_state(''remote.google_tv'', ''on'') %} {{''Google TV''}}
         {%else%}{{''Nest Mini''}}{%endif%}'
@@ -1491,7 +1499,7 @@
       entity_id: remote.google_tv
       state: 'on'
     then:
-    - service: media_player.select_source
+    - action: media_player.select_source
       data:
         source: Spotify
       target:
@@ -1537,7 +1545,7 @@
         id:
         - presence
       sequence:
-      - service: homeassistant.turn_on
+      - action: homeassistant.turn_on
         data: {}
         target:
           entity_id: switch.kitchen_light
@@ -1554,7 +1562,7 @@
       - condition: state
         entity_id: binary_sensor.kitchen_presence
         state: 'off'
-      - service: homeassistant.turn_off
+      - action: homeassistant.turn_off
         data: {}
         target:
           entity_id: switch.kitchen_light
@@ -1581,7 +1589,7 @@
         id:
         - sunrise
       sequence:
-      - service: telegram_bot.send_message
+      - action: telegram_bot.send_message
         data:
           target:
           - -1002143785244
@@ -1593,7 +1601,7 @@
             GoComics URL</a>'
           parse_mode: html
     default:
-    - service: notify.mobile_app_pixel8pro
+    - action: notify.mobile_app_pixel8pro
       data:
         message: ''
         data:
@@ -1637,7 +1645,7 @@
       entity_id: light.shapes
       domain: light
   action:
-  - service: script.bed_routine_script
+  - action: script.bed_routine_script
     data: {}
   mode: single
 - id: '1699609843837'
@@ -1677,14 +1685,14 @@
           value_template: '{{ states(''sensor.pixel8pro_ringer_mode'') != ''vibrate''
             }}'
       sequence:
-      - service: notify.mobile_app_pixel8pro
+      - action: notify.mobile_app_pixel8pro
         data:
           message: command_ringer_mode
           data:
             command: vibrate
         alias: Silence Phone when at Work
       - alias: Send Notification
-        service: notify.mobile_app_pixel8pro
+        action: notify.mobile_app_pixel8pro
         data:
           message: Shhh..
           data:
@@ -1701,13 +1709,13 @@
             }}'
       sequence:
       - alias: Ringer when leaving work
-        service: notify.mobile_app_pixel8pro
+        action: notify.mobile_app_pixel8pro
         data:
           message: command_ringer_mode
           data:
             command: normal
       - alias: Send Notification
-        service: notify.mobile_app_pixel8pro
+        action: notify.mobile_app_pixel8pro
         data:
           data:
             notification_icon: mdi:volume-high
@@ -1722,7 +1730,7 @@
     tag_id: c37fef6a-a97d-4b46-83a9-f563b9f9a61d
   condition: []
   action:
-  - service: homeassistant.turn_off
+  - action: homeassistant.turn_off
     data: {}
     target:
       entity_id:
@@ -1760,22 +1768,16 @@
             value_template: '{{(state_attr("sensor.black_bin", "next_collection"))
               == 0 }}'
       sequence:
-      - service: input_button.press
+      - action: input_boolean.turn_on
         target:
-          entity_id:
-          - input_button.bin_outside
+          entity_id: input_boolean.bin
         data: {}
-      - service: counter.increment
-        target:
-          entity_id:
-          - counter.bin_outside
-        data: {}
-      - service: notify.all_phones
+      - action: notify.all_phones
         data:
           data:
             tag: bin_pickup
           message: clear_notification
-      - service: notify.all_phones_android
+      - action: notify.all_phones_android
         data:
           data:
             notification_icon: mdi:delete-empty
@@ -1784,24 +1786,18 @@
           message: ' '
           title: The bin is outside.
     - conditions:
-      - condition: and
+      - condition: or
         conditions:
-        - condition: time
-          after: 09:00:00
-          before: '21:00:00'
-        - condition: or
-          conditions:
-          - condition: template
-            value_template: '{{(state_attr("sensor.blue_bin", "next_collection"))
-              == 0 }}'
-          - condition: template
-            value_template: '{{(state_attr("sensor.black_bin", "next_collection"))
-              == 0 }}'
+        - condition: template
+          value_template: '{{(state_attr("sensor.blue_bin", "next_collection")) !=
+            0 }}'
+        - condition: template
+          value_template: '{{(state_attr("sensor.black_bin", "next_collection")) !=
+            0 }}'
       sequence:
-      - service: counter.reset
+      - action: input_boolean.turn_off
         target:
-          entity_id:
-          - counter.bin_outside
+          entity_id: input_boolean.bin
         data: {}
   mode: single
 - id: '1701294630770'
@@ -1824,7 +1820,7 @@
         id:
         - tag
       sequence:
-      - service: spotcast.start
+      - action: spotcast.start
         data:
           limit: 20
           force_playback: true
@@ -1844,7 +1840,7 @@
           id:
           - phone
       sequence:
-      - service: spotcast.start
+      - action: spotcast.start
         data:
           limit: 20
           force_playback: false
@@ -1875,7 +1871,7 @@
     discovery_id: 0x70ac08fffe71ecfc action_on
   condition: []
   action:
-  - service: media_player.media_play_pause
+  - action: media_player.media_play_pause
     target:
       entity_id: media_player.darragh_s_nest_hub
     data: {}
@@ -1913,7 +1909,7 @@
         id:
         - single
       sequence:
-      - service: homeassistant.toggle
+      - action: homeassistant.toggle
         data: {}
         target:
           entity_id: light.bed_lamp
@@ -1922,7 +1918,7 @@
         id:
         - double
       sequence:
-      - service: homeassistant.toggle
+      - action: homeassistant.toggle
         data: {}
         target:
           entity_id: switch.heater
@@ -1931,7 +1927,7 @@
         id:
         - hold
       sequence:
-      - service: homeassistant.toggle
+      - action: homeassistant.toggle
         data: {}
         target:
           entity_id: switch.heating_blanket
@@ -1976,7 +1972,7 @@
         id:
         - close
       sequence:
-      - service: cover.open_cover
+      - action: cover.open_cover
         data: {}
         target:
           entity_id: cover.curtains
@@ -1985,7 +1981,7 @@
         id:
         - open
       sequence:
-      - service: cover.close_cover
+      - action: cover.close_cover
         data: {}
         target:
           entity_id: cover.curtains
@@ -1994,7 +1990,7 @@
         id:
         - hold
       sequence:
-      - service: cover.stop_cover
+      - action: cover.stop_cover
         data: {}
         target:
           entity_id: cover.curtains
@@ -2008,7 +2004,7 @@
     hours: '3'
   condition: []
   action:
-  - service: hassio.addon_start
+  - action: hassio.addon_start
     metadata: {}
     data:
       addon: 6b87c29e_speedtest_addon
@@ -2026,7 +2022,7 @@
     entity_id: switch.workstation
     state: 'off'
   action:
-  - service: switch.turn_on
+  - action: switch.turn_on
     metadata: {}
     data: {}
     target:
@@ -2048,7 +2044,7 @@
       minutes: 0
       seconds: 20
       milliseconds: 0
-  - service: button.press
+  - action: button.press
     metadata: {}
     data: {}
     target:
@@ -2072,7 +2068,7 @@
     wait_template: '{{ states(id) not in [''unknown'', ''unavailable''] }}'
     timeout:
       minutes: 1
-  - service: notify.mobile_app_pixel8pro
+  - action: notify.mobile_app_pixel8pro
     data:
       title: '{{ state_attr(id, ''friendly_name'') or id }} connected to WiFi'
       message: "{{ id }} connected to {{ state_attr(id, 'interface') }} {{\n  state_attr(id,
@@ -2094,7 +2090,7 @@
     event_type: battery_notes_battery_increased
   condition: []
   action:
-  - service: battery_notes.set_battery_replaced
+  - action: battery_notes.set_battery_replaced
     data:
       device_id: '{{ trigger.event.data.device_id }}'
   mode: queued
@@ -2135,7 +2131,7 @@
             entity_id: media_player.bathroom_speaker
             state: playing
           sequence:
-          - service: media_player.media_pause
+          - action: media_player.media_pause
             target:
               entity_id: media_player.spotify
             data: {}
@@ -2144,7 +2140,7 @@
             entity_id: media_player.bathroom_speaker
             state: paused
           sequence:
-          - service: media_player.media_play
+          - action: media_player.media_play
             target:
               entity_id: media_player.bathroom_speaker
             data: {}
@@ -2159,7 +2155,7 @@
   - condition: template
     value_template: '{{trigger.event.data.device_name != ''Porch Motion''}}'
   action:
-  - service: persistent_notification.create
+  - action: persistent_notification.create
     data:
       title: '{{ trigger.event.data.device_name }} Battery Increased
 
@@ -2200,13 +2196,13 @@
       timestamp: '{{ as_timestamp(trigger.to_state.last_changed) | timestamp_custom(''%Y-%m-%d_%H-%M-%S'')
         }}'
       camera_snapshot: '{{ timestamp }}.jpg'
-  - service: camera.snapshot
+  - action: camera.snapshot
     metadata: {}
     data:
       filename: /config/www/doorbell/{{camera_snapshot}}
       entity_id: camera.doorbell_snapshots_fluent
     alias: Take a Camera Snapshot
-  - service: google_generative_ai_conversation.generate_content
+  - action: google_generative_ai_conversation.generate_content
     data:
       prompt: Very briefly describe what you see in this image from my doorbell camera.
         Your message needs to be short to fit in a phone notification. Don't describe
@@ -2221,7 +2217,7 @@
         id:
         - person
       sequence:
-      - service: notify.all_phones
+      - action: notify.all_phones
         metadata: {}
         data:
           message: ' '
@@ -2254,7 +2250,7 @@
         id:
         - doorbell
       sequence:
-      - service: notify.all_phones
+      - action: notify.all_phones
         metadata: {}
         data:
           message: "Doorbell \U0001F514"
@@ -2304,7 +2300,7 @@
       minutes: 0
       seconds: 30
       milliseconds: 0
-  - service: notify.mobile_app_pixel8pro
+  - action: notify.mobile_app_pixel8pro
     data:
       title: '⚖️ Just weighed in! '
       message: '{{states.sensor.mi_scale_weight.state}} KGs'
@@ -2332,7 +2328,7 @@
         value_template: '{{ wait.trigger.event.data.action == ''upload'' }}'
         alias: If Upload is selected
       sequence:
-      - service: google_sheets.append_sheet
+      - action: google_sheets.append_sheet
         data:
           config_entry: 4bcb43c8e6f2f8104c4f5b04b9e0afa4
           data:
@@ -2356,7 +2352,7 @@
       - stop: Selected Don't Upload
       alias: Don't Upload
     default:
-    - service: google_sheets.append_sheet
+    - action: google_sheets.append_sheet
       data:
         config_entry: 4bcb43c8e6f2f8104c4f5b04b9e0afa4
         data:
@@ -2373,52 +2369,12 @@
           Water: '{{ states.sensor.mi_scale_water.state }}'
           Weight: '{{ states.sensor.mi_scale_weight.state }}'
       alias: Uploads by default if not ignored
-    - service: notify.mobile_app_pixel8pro
+    - action: notify.mobile_app_pixel8pro
       metadata: {}
       data:
         message: clear_notification
         data:
           tag: weight
-  mode: single
-- id: '1716294352529'
-  alias: "\U0001F3E2 Open Authenticator on Pixel 8 Pro"
-  description: Open Authenticator on Pixel 8 Pro when needed for work
-  trigger:
-  - platform: state
-    entity_id:
-    - sensor.work_laptop_frontmost_app
-    to: Ivanti Secure Access Client
-    for:
-      hours: 0
-      minutes: 0
-      seconds: 2
-  - platform: state
-    entity_id:
-    - sensor.work_laptop_frontmost_app
-    to: Citrix Workspace Authentication
-    for:
-      hours: 0
-      minutes: 0
-      seconds: 2
-  - platform: state
-    entity_id:
-    - sensor.theaterofdreams_theaterofdreams_activewindow
-    to: Citrix Workspace
-    for:
-      hours: 0
-      minutes: 0
-      seconds: 2
-  condition:
-  - condition: time
-    after: 07:30:00
-    before: 09:00:00
-    enabled: false
-  action:
-  - service: notify.mobile_app_pixel8pro
-    data:
-      message: command_launch_app
-      data:
-        package_name: com.google.android.apps.authenticator2
   mode: single
 - id: '1716839209540'
   alias: ⚙️Notification Actions
@@ -2435,7 +2391,7 @@
       - condition: template
         value_template: '{{ trigger.event.data.action == ''package'' }}'
       sequence:
-      - service: select.select_option
+      - action: select.select_option
         data:
           option: Hi, please leave the package at the door. We will get it later.
         target:
@@ -2445,7 +2401,7 @@
       - condition: template
         value_template: '{{ trigger.event.data.action == ''be_there'' }}'
       sequence:
-      - service: select.select_option
+      - action: select.select_option
         data:
           option: Hi, we will be right there. Please wait a moment
         target:
@@ -2455,7 +2411,7 @@
       - condition: template
         value_template: '{{ trigger.event.data.action == ''tag_update'' }}'
       sequence:
-      - service: shell_command.git_core_update_push
+      - action: shell_command.git_core_update_push
         data: {}
       alias: 'Git : Core version push'
   mode: single
@@ -2471,7 +2427,7 @@
     entity_id: sensor.mi_scale_weight
     above: 86
   action:
-  - service: google_sheets.append_sheet
+  - action: google_sheets.append_sheet
     data:
       config_entry: 70169feef8a863b382a05cc09db71fb1
       data:
@@ -2488,7 +2444,7 @@
         Water: '{{ states.sensor.mi_scale_water.state }}'
         Weight: '{{ states.sensor.mi_scale_weight.state }}'
     alias: Upload Weight
-  - service: notify.mobile_app_op7t
+  - action: notify.mobile_app_op7t
     data:
       title: '⚖️ Just weighed in! '
       message: '{{states.sensor.mi_scale_weight.state}} KGs'
@@ -2523,7 +2479,7 @@
         - condition: template
           value_template: '{{ low_notification }}'
         then:
-        - service: persistent_notification.create
+        - action: persistent_notification.create
           data:
             title: '{{ trigger.event.data.device_name }} Battery Low
 
@@ -2535,7 +2491,7 @@
               {{ trigger.event.data.battery_type }}
 
               '
-        - service: notify.mobile_app_pixel8pro
+        - action: notify.mobile_app_pixel8pro
           data:
             title: '{{ trigger.event.data.device_name }} Battery Low
 
@@ -2561,7 +2517,7 @@
         - condition: template
           value_template: '{{ low_notification }}'
         then:
-        - service: persistent_notification.dismiss
+        - action: persistent_notification.dismiss
           data:
             notification_id: battery_notes_threshold {{ trigger.event.data.device_id
               }}-{{ trigger.event.data.source_entity_id }}
@@ -2582,38 +2538,38 @@
     input:
       topic: zigbee2mqtt/MagicCube
       rotate_cw_face_4:
-      - service: media_player.volume_up
+      - action: media_player.volume_up
         metadata: {}
         data: {}
         target:
           entity_id: media_player.spotify
       rotate_ccw_face_4:
-      - service: media_player.volume_down
+      - action: media_player.volume_down
         target:
           entity_id:
           - media_player.spotify
         data: {}
       doubletap_face_4:
-      - service: media_player.media_play_pause
+      - action: media_player.media_play_pause
         metadata: {}
         data: {}
         target:
           entity_id: media_player.spotify
       doubletap_face_1:
-      - service: light.toggle
+      - action: light.toggle
         metadata: {}
         data: {}
         target:
           entity_id: light.light
       rotate_cw_face_1:
-      - service: light.turn_on
+      - action: light.turn_on
         metadata: {}
         target:
           entity_id: light.light
         data:
           brightness_pct: '{{ relative_degrees | float }}'
       rotate_ccw_face_1:
-      - service: light.turn_on
+      - action: light.turn_on
         metadata: {}
         target:
           entity_id: light.light
@@ -2627,6 +2583,6 @@
     at: '10:00:00'
   condition: []
   action:
-  - service: battery_notes.check_battery_low
+  - action: battery_notes.check_battery_low
     data: {}
   mode: single

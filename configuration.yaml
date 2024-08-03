@@ -9,14 +9,9 @@ homeassistant:
 
 logger:
   default: critical
-  # logs:
-  #   custom_components.localtuya: debug
-  #   custom_components.localtuya.pytuya: debug
 
-browser:
 delete:
 python_script:
-influxdb:
 pyscript:
 my:
 battery_notes:

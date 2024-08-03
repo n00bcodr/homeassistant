@@ -1,19 +1,23 @@
 - name: Docker
   url: tcp://192.168.168.168:2375
-  switchname: "Docker {name}"
-  containers:
-    - addon_core_samba
-    - homebridge-homebridge-1
-    - homar
-    - filebrowser
-    - flaresolverr
-    - Tautulli
+  switchname: "Monitor Docker {name}"
+  sensorname: "Monitor Docker {name} {sensor}"
   buttonenabled: True
+  rename_entity: True
   rename:
     tautulli: Tautulli
     addon_core_samba: Samba
-    homebridge-homebridge-1: HomeBridge
+    homebridge: HomeBridge
+    addon_6b87c29e_speedtest_addon: "SpeedTest Addon"
   monitored_conditions:
+    - version
     - containers_running
     - containers_total
+    - state
+    - status
     - memory
+    - containers_cpu_percentage
+    - containers_1cpu_percentage
+    - cpu_percentage
+    - 1cpu_percentage
+    - allinone

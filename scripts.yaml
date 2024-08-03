@@ -1,7 +1,7 @@
 spotify_start:
   alias: 'Spotify: Start Playback'
   sequence:
-  - service: spotcast.start
+  - action: spotcast.start
     data:
       device_name: '{{ states(''input_select.speakers_spotify'') }}'
       force_playback: true
@@ -10,29 +10,29 @@ spotify_start:
 add_shopping_list:
   alias: Add Shopping Item
   sequence:
-  - service: shopping_list.add_item
+  - action: shopping_list.add_item
     data:
       name: '{{ states(''input_text.shopping_list'') }}'
   mode: single
 check_shopping_list:
   alias: Check all Shopping Item
   sequence:
-  - service: shopping_list.complete_all
+  - action: shopping_list.complete_all
     data: {}
   mode: single
 clear_shopping_list:
   alias: Clear all Shopping Item
   sequence:
-  - service: shopping_list.clear_completed_items
+  - action: shopping_list.clear_completed_items
     data: {}
   mode: single
 update_all_phone_sensors:
   alias: Update all phone sensors
   sequence:
-  - service: notify.all_phones_android
+  - action: notify.all_phones_android
     data:
       message: command_update_sensors
-  - service: notify.all_phones_ios
+  - action: notify.all_phones_ios
     data:
       message: request_location_update
   mode: single
@@ -40,21 +40,21 @@ update_all_phone_sensors:
 git_push:
   alias: Git Push
   sequence:
-  - service: shell_command.git_commit_push
+  - action: shell_command.git_commit_push
     data: {}
   mode: single
   icon: mdi:git
 git_push_ha_version:
   alias: Git Push - Core Update
   sequence:
-  - service: shell_command.git_core_update_push
+  - action: shell_command.git_core_update_push
     data: {}
   mode: single
   icon: mdi:git
 git_commit_copy:
   alias: Git Commit Message Copy
   sequence:
-  - service: input_text.set_value
+  - action: input_text.set_value
     data:
       value: "\U0001F4C1 files on {{ now().timestamp() | timestamp_custom('%b %d,
         %Y - %-I:%M %p') }}"
@@ -71,7 +71,7 @@ load_share_url_googletv:
         value_template: '{{ states(''input_text.ccgtv_share_url'') is match(''http.*primevideo'',
           ignorecase=False) }}'
       sequence:
-      - service: androidtv.adb_command
+      - action: androidtv.adb_command
         data:
           entity_id: media_player.google_tv
           command: am start -a android.intent.action.VIEW -n com.amazon.amazonvideo.livingroom/com.amazon.ignition.IgnitionActivity
@@ -81,7 +81,7 @@ load_share_url_googletv:
         value_template: '{{ states(''input_text.ccgtv_share_url'') is match(''http.*netflix.com'',
           ignorecase=False) }}'
       sequence:
-      - service: androidtv.adb_command
+      - action: androidtv.adb_command
         data:
           entity_id: media_player.google_tv
           command: am start -n com.netflix.ninja/.MainActivity -a android.intent.action.VIEW
@@ -94,7 +94,7 @@ load_share_url_googletv:
         value_template: '{{ states(''input_text.ccgtv_share_url'') is match(''http.*youtu*'',
           ignorecase=False) }}'
       sequence:
-      - service: androidtv.adb_command
+      - action: androidtv.adb_command
         data:
           entity_id: media_player.google_tv
           command: am start -a android.intent.action.VIEW -d "{{states('input_text.ccgtv_share_url')
@@ -108,7 +108,7 @@ bed_routine_script:
   - variables:
       action_yes: '{{ ''YES_'' ~ context.id }}'
       action_no: '{{ ''NO_'' ~ context.id }}'
-  - service: notify.mobile_app_pixel8pro
+  - action: notify.mobile_app_pixel8pro
     data:
       message: Going to Bed?
       data:
@@ -141,7 +141,7 @@ bed_routine_script:
       - condition: template
         value_template: '{{ wait.trigger.event.data.action == action_yes }}'
       sequence:
-      - service: homeassistant.turn_off
+      - action: homeassistant.turn_off
         data: {}
         target:
           entity_id:
@@ -154,7 +154,7 @@ bed_routine_script:
         value_template: '{{ wait.trigger.event.data.action == action_no }}'
       sequence:
       - stop: ''
-  - service: homeassistant.turn_off
+  - action: homeassistant.turn_off
     data: {}
     target:
       entity_id:
@@ -162,7 +162,7 @@ bed_routine_script:
       - light.shapes
       - light.chandelier
       - light.led_strip
-  - service: notify.mobile_app_pixel8pro
+  - action: notify.mobile_app_pixel8pro
     data:
       message: clear_notification
       data:
@@ -172,11 +172,11 @@ bed_routine_script:
 play_ocean_sounds:
   alias: Play Ocean Sounds
   sequence:
-  - service: google_assistant_sdk.send_text_command
+  - action: google_assistant_sdk.send_text_command
     data:
       media_player: media_player.pavan_s_nest_hub
       command: Play ocean sounds on Pavan's Nest Hub
-  - service: media_player.volume_set
+  - action: media_player.volume_set
     data:
       volume_level: 0.35
     target:
@@ -187,7 +187,7 @@ play_ocean_sounds:
       minutes: 0
       seconds: 0
       milliseconds: 0
-  - service: media_player.media_stop
+  - action: media_player.media_stop
     data: {}
     target:
       entity_id: media_player.pavan_s_nest_hub
@@ -196,11 +196,11 @@ play_ocean_sounds:
 play_forest_sounds:
   alias: Play Forest Sounds
   sequence:
-  - service: google_assistant_sdk.send_text_command
+  - action: google_assistant_sdk.send_text_command
     data:
       media_player: media_player.pavan_s_nest_hub
       command: Play forest sounds on Pavan's Nest Hub
-  - service: media_player.volume_set
+  - action: media_player.volume_set
     data:
       volume_level: 0.35
     target:
@@ -211,7 +211,7 @@ play_forest_sounds:
       minutes: 0
       seconds: 0
       milliseconds: 0
-  - service: media_player.media_stop
+  - action: media_player.media_stop
     data: {}
     target:
       entity_id:
@@ -221,11 +221,11 @@ play_forest_sounds:
 play_river_sounds:
   alias: Play River Sounds
   sequence:
-  - service: google_assistant_sdk.send_text_command
+  - action: google_assistant_sdk.send_text_command
     data:
       media_player: media_player.pavan_s_nest_hub
       command: Play river sounds on Pavan's Nest Hub
-  - service: media_player.volume_set
+  - action: media_player.volume_set
     data:
       volume_level: 0.35
     target:
@@ -235,7 +235,7 @@ play_river_sounds:
       minutes: 0
       seconds: 0
       milliseconds: 0
-  - service: media_player.media_stop
+  - action: media_player.media_stop
     data: {}
     target:
       entity_id: media_player.pavan_s_nest_hub
@@ -244,11 +244,11 @@ play_river_sounds:
 play_white_noise:
   alias: Play White Noise
   sequence:
-  - service: google_assistant_sdk.send_text_command
+  - action: google_assistant_sdk.send_text_command
     data:
       media_player: media_player.pavan_s_nest_hub
       command: Play white noise on Pavan's Nest Hub
-  - service: media_player.volume_set
+  - action: media_player.volume_set
     data:
       volume_level: 0.35
     target:
@@ -258,7 +258,7 @@ play_white_noise:
       minutes: 0
       seconds: 0
       milliseconds: 0
-  - service: media_player.media_stop
+  - action: media_player.media_stop
     data: {}
     target:
       entity_id: media_player.pavan_s_nest_hub
@@ -267,11 +267,11 @@ play_white_noise:
 play_night_sounds:
   alias: Play Night Sounds
   sequence:
-  - service: google_assistant_sdk.send_text_command
+  - action: google_assistant_sdk.send_text_command
     data:
       media_player: media_player.pavan_s_nest_hub
       command: Play Country night sounds on Pavan's Nest Hub
-  - service: media_player.volume_set
+  - action: media_player.volume_set
     data:
       volume_level: 0.35
     target:
@@ -282,7 +282,7 @@ play_night_sounds:
       minutes: 0
       seconds: 0
       milliseconds: 0
-  - service: media_player.media_stop
+  - action: media_player.media_stop
     data: {}
     target:
       entity_id:
@@ -292,13 +292,13 @@ play_night_sounds:
 plex_library_refresh:
   alias: Plex Library Refresh
   sequence:
-  - service: plex.refresh_library
+  - action: plex.refresh_library
     data:
       library_name: Movies
-  - service: plex.refresh_library
+  - action: plex.refresh_library
     data:
       library_name: Music
-  - service: plex.refresh_library
+  - action: plex.refresh_library
     data:
       library_name: TV Shows
   mode: single
@@ -311,7 +311,7 @@ play_spotify_on_phone:
       | regex_search(''Galaxy Buds|Pixel Buds'', ignorecase=True) }}
 
       '
-  - service: notify.mobile_app_pixel8pro
+  - action: notify.mobile_app_pixel8pro
     data:
       message: command_launch_app
       data:
@@ -323,7 +323,7 @@ play_spotify_on_phone:
       seconds: 2
       milliseconds: 0
   - alias: Play Music
-    service: notify.mobile_app_pixel8pro
+    action: notify.mobile_app_pixel8pro
     data:
       message: command_media
       data:
@@ -334,11 +334,11 @@ play_spotify_on_phone:
 play_thunderstorm_sounds:
   alias: Play Thunderstorm Sounds
   sequence:
-  - service: google_assistant_sdk.send_text_command
+  - action: google_assistant_sdk.send_text_command
     data:
       media_player: media_player.pavan_s_nest_hub
       command: Play thunderstorm sounds on Pavan's Nest Hub
-  - service: media_player.volume_set
+  - action: media_player.volume_set
     data:
       volume_level: 0.35
     target:
@@ -349,7 +349,7 @@ play_thunderstorm_sounds:
       minutes: 0
       seconds: 0
       milliseconds: 0
-  - service: media_player.media_stop
+  - action: media_player.media_stop
     data: {}
     target:
       entity_id:
@@ -359,11 +359,11 @@ play_thunderstorm_sounds:
 google_tell_me_a_joke:
   alias: Google, Tell me a Joke
   sequence:
-  - service: google_assistant_sdk.send_text_command
+  - action: google_assistant_sdk.send_text_command
     data:
       command: tell me a joke
     response_variable: response
-  - service: notify.mobile_app_pixel8pro
+  - action: notify.mobile_app_pixel8pro
     metadata: {}
     data:
       message: '{{ response.responses[0].text }}'
@@ -377,18 +377,18 @@ google_tell_me_a_joke:
 reload_google_sheets:
   alias: "\U0001F504️Reload Google Sheets"
   sequence:
-  - service: rest_command.reload_google_sheets_music
+  - action: rest_command.reload_google_sheets_music
     data: {}
-  - service: rest_command.reload_google_sheets_weight
+  - action: rest_command.reload_google_sheets_weight
     data: {}
-  - service: rest_command.reload_google_sheets_weight2
+  - action: rest_command.reload_google_sheets_weight2
     data: {}
   description: ''
   icon: mdi:google-spreadsheet
 reboot_internet_router:
   alias: "\U0001F501Restart Internet Router"
   sequence:
-  - service: tplink_deco.reboot_deco
+  - action: tplink_deco.reboot_deco
     metadata: {}
     data:
       device_id:

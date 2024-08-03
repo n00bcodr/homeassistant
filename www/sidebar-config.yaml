@@ -1,4 +1,4 @@
-sidebar_editable: false
+sidebar_editable: true
 title: "Welcome Home!"
 order:
   - item: Overview

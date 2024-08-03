@@ -195,6 +195,14 @@
       value_template: >
         {{ ((states('sensor.harddisk_total_space') | float) - (states('sensor.harddisk_free_space') | float) | round(2))}}
 
+    harddisk_percentage_used:
+      friendly_name: "Hard Disk Percentage Used"
+      unique_id: harddisk_percentage
+      unit_of_measurement: "%"
+      icon_template: mdi:harddisk
+      value_template: >
+        {{ (((states('sensor.harddisk_used_space') | float) / (states('sensor.harddisk_total_space') | float))*100) | round(2) | float }}
+
     1tb_total_space:
       friendly_name: "1TB Hard Disk Total Space"
       unique_id: 1tb_harddisk_total_space
@@ -218,6 +226,14 @@
       icon_template: mdi:harddisk
       value_template: >
         {{ ((states('sensor.1tb_total_space') | float) - ( states('sensor.1tb_free_space') | float ) | round(2)) }}
+
+    1tb_percentage_used:
+      friendly_name: "1TB Hard Disk Percentage Used"
+      unique_id: 1tb_percenmtage
+      unit_of_measurement: "%"
+      icon_template: mdi:harddisk
+      value_template: >
+        {{ (((states('sensor.1tb_used_space') | float) / (states('sensor.1tb_total_space') | float))*100) | round(2) | float }}
 
     1tb_ssd_total_space:
       friendly_name: "1TB SSD Total Space"
@@ -243,6 +259,14 @@
       value_template: >
         {{ ((states('sensor.1tb_ssd_total_space') | float) - ( states('sensor.1tb_ssd_free_space') | float ) | round(2)) }}
 
+    1tb_ssd_percentage_used:
+      friendly_name: "1TB SSD Percentage Used"
+      unique_id: 1tb_ssd_percenmtage
+      unit_of_measurement: "%"
+      icon_template: mdi:harddisk
+      value_template: >
+        {{ (((states('sensor.1tb_ssd_used_space') | float) / (states('sensor.1tb_ssd_total_space') | float))*100) | round(2) | float }}
+
     5tb_total_space:
       friendly_name: "5TB Hard Disk Total Space"
       unique_id: 5tb_harddisk_total_space
@@ -266,6 +290,14 @@
       icon_template: mdi:harddisk
       value_template: >
         {{ ((states('sensor.5tb_total_space') | float) - ( states('sensor.5tb_free_space') | float) | round(2)) }}
+
+    5tb_percentage_used:
+      friendly_name: "5TB Percentage Used"
+      unique_id: 5tb_percenmtage
+      unit_of_measurement: "%"
+      icon_template: mdi:harddisk
+      value_template: >
+        {{ (((states('sensor.5tb_used_space') | float) / (states('sensor.5tb_total_space') | float))*100) | round(2) | float }}
 
     black_bin:
       friendly_name: Black Bin Pickup
@@ -330,42 +362,3 @@
 
 - platform: folder
   folder: /config/www/doorbell
-
-- platform: influxdb
-  api_version: 1
-  host: a0d7b954-influxdb
-  username: esb
-  password: homeassistant123
-  database: esb
-  verify_ssl: false
-  ssl: false
-  scan_interval: 1800
-  queries:
-    - name: ESB Power
-      unit_of_measurement: kWh
-      value_template: "{{ value | multiply(0.5) }}"
-      group_function: last
-      measurement: '"meter_reading"'
-      field: value
-      where: '"MPRN" = ''10015088780'''
-
-- platform: mqtt_room
-  device_id: "77cfe6a4cd1c2a7d3c796948ebbbc208"
-  name: "Pixel8Pro Room"
-  state_topic: "espresense/rooms"
-  timeout: 10
-  away_timeout: 120
-
-- platform: mqtt_room
-  device_id: "pixel"
-  name: "Phone Room"
-  state_topic: "espresense/rooms"
-  timeout: 10
-  away_timeout: 120
-
-- platform: mqtt_room
-  device_id: "opad_pro"
-  name: "iPad Room"
-  state_topic: "espresense/rooms"
-  timeout: 10
-  away_timeout: 120
