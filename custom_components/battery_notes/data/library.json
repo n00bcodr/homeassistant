@@ -163,6 +163,12 @@
             "battery_type": "CR2032"
         },
         {
+            "manufacturer": "_TZ3000_kky16aay",
+            "model": "TS0222",
+            "battery_type": "AA",
+            "battery_quantity": 4
+        },
+        {
             "manufacturer": "_TZ3000_kstbkt6a",
             "model": "TS0207",
             "battery_type": "CR2032"
@@ -346,6 +352,11 @@
             "model": "TS0601",
             "battery_type": "AA",
             "battery_quantity": 2
+        },
+        {
+            "manufacturer": "_TZE200_pay2byax",
+            "model": "TS0601",
+            "battery_type": "CR2032"
         },
         {
             "manufacturer": "_TZE200_yjjdcqsq",
@@ -657,6 +668,24 @@
             "manufacturer": "Apple",
             "model": "MacBookPro18,1",
             "battery_type": "Rechargeable"
+        },
+        {
+            "manufacturer": "Apple",
+            "model": "iPad",
+            "battery_type": "Rechargeable",
+            "model_match_method": "startswith"
+        },
+        {
+            "manufacturer": "Apple",
+            "model": "iPhone",
+            "battery_type": "Rechargeable",
+            "model_match_method": "startswith"
+        },
+        {
+            "manufacturer": "Apple",
+            "model": "MacBook",
+            "battery_type": "Rechargeable",
+            "model_match_method": "startswith"
         },
         {
             "manufacturer": "Aqara",
@@ -2237,6 +2266,11 @@
             "battery_quantity": 2
         },
         {
+            "manufacturer": "HHCC Plant Technology Co. Ltd",
+            "model": "HHCCJCY10",
+            "battery_type": "CR2032"
+        },
+        {
             "manufacturer": "Hive",
             "model": "Heating thermostat remote control (SLT3B)",
             "battery_type": "AA",
@@ -3353,6 +3387,12 @@
             "battery_type": "CR2450"
         },
         {
+            "manufacturer": "OWON",
+            "model": "THS317-ET",
+            "battery_type": "AAA",
+            "battery_quantity": 2
+        },
+        {
             "manufacturer": "Paulmann",
             "model": "Smart switch 4 buttons white (501.34)",
             "battery_type": "CR2450"
@@ -4416,6 +4456,13 @@
             "battery_quantity": 4
         },
         {
+            "manufacturer": "Sure Petcare",
+            "model": "Feeder",
+            "battery_type": "C",
+            "battery_quantity": 4,
+            "model_match_method": "startswith"
+        },
+        {
             "manufacturer": "SwitchBot",
             "model": "W1101500",
             "battery_type": "AAA",
@@ -4468,6 +4515,12 @@
         },
         {
             "manufacturer": "switchbot",
+            "model": "WoLockPro",
+            "battery_type": "AA",
+            "battery_quantity": 4
+        },
+        {
+            "manufacturer": "switchbot",
             "model": "WoPresence",
             "battery_type": "AAA",
             "battery_quantity": 2
@@ -4503,6 +4556,13 @@
             "battery_quantity": 2
         },
         {
+            "manufacturer": "tado\u00b0 GmbH",
+            "model": "Smart Thermostat X",
+            "model_id": "RU04",
+            "battery_type": "AAA",
+            "battery_quantity": 3
+        },
+        {
             "manufacturer": "Tedee",
             "model": "Tedee GO",
             "battery_type": "CR123A",
@@ -4533,6 +4593,12 @@
             "model": "3RSB015BZ",
             "battery_type": "AA",
             "battery_quantity": 4
+        },
+        {
+            "manufacturer": "Third Reality",
+            "model": "Door sensor (3RDS17BZ)",
+            "battery_type": "AAA",
+            "battery_quantity": 2
         },
         {
             "manufacturer": "Third Reality",
