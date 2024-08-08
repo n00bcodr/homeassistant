@@ -1851,14 +1851,6 @@
           ignore_fully_played: false
           device_name: Friday
   mode: single
-- id: '1701438113238'
-  alias: "⚙️\U0001F4A1Google TV and LED Strip"
-  description: ''
-  use_blueprint:
-    path: adchevrier/synchronize-the-on-off-state-of-2-entities.yaml
-    input:
-      entity_1: remote.google_tv
-      entity_2: light.tv_led_strip
 - id: '1704124907970'
   alias: Darragh's Button
   description: ''
@@ -2202,6 +2194,94 @@
       filename: /config/www/doorbell/{{camera_snapshot}}
       entity_id: camera.doorbell_snapshots_fluent
     alias: Take a Camera Snapshot
+  - parallel:
+    - alias: Choose between motion and doorbell press
+      choose:
+      - conditions:
+        - condition: trigger
+          id:
+          - person
+        sequence:
+        - action: notify.all_phones
+          metadata: {}
+          data:
+            message: ' '
+            title: "Someone's at the front door \U0001F464"
+            data:
+              ttl: 0
+              tag: doorbell
+              entity_id: camera.doorbell_fluent
+              notification_icon: mdi:doorbell-video
+              activationMode: foreground
+              car_ui: true
+              channel: Doorbell
+              push:
+                interruption-level: time-sensitive
+                category: camera
+              actions:
+              - action: URI
+                title: Open
+                uri: /lovelace/camera
+                icon: sfsymbols:camera.viewfinder
+              - action: package
+                title: Package
+                icon: sfsymbols:cube.box
+              - action: be_there
+                title: Will be there
+                icon: sfsymbols:person.crop.circle.badge.checkmark
+              image: /local/doorbell/{{camera_snapshot}}
+      - conditions:
+        - condition: trigger
+          id:
+          - doorbell
+        sequence:
+        - action: notify.all_phones
+          metadata: {}
+          data:
+            message: "Doorbell \U0001F514"
+            data:
+              ttl: 0
+              tag: bell
+              entity_id: camera.doorbell_fluent
+              notification_icon: mdi:doorbell-video
+              activationMode: foreground
+              car_ui: true
+              channel: Doorbell
+              push:
+                interruption-level: time-sensitive
+                category: camera
+              actions:
+              - action: URI
+                title: Open
+                uri: /lovelace/camera
+                icon: sfsymbols:camera.viewfinder
+              - action: package
+                title: Package
+                icon: sfsymbols:cube.box
+              - action: be_there
+                title: Will be there
+                icon: sfsymbols:person.crop.circle.badge.checkmark
+              image: /local/doorbell/{{camera_snapshot}}
+    - if:
+      - condition: not
+        conditions:
+        - condition: state
+          entity_id: media_player.google_tv
+          state: 'off'
+      then:
+      - action: notify.google_tv
+        data:
+          message: Someone's at the front door
+          title: ''
+          data:
+            duration: 4
+            position: top-right
+            fontsize: medium
+            color: teal
+            transparency: 50%
+            image:
+              path: /config/www/doorbell/{{camera_snapshot}}
+      alias: Send Notification on Google TV if it is on.
   - action: google_generative_ai_conversation.generate_content
     data:
       prompt: Very briefly describe what you see in this image from my doorbell camera.
@@ -2210,73 +2290,6 @@
       image_filename: /config/www/doorbell/{{camera_snapshot}}
     response_variable: generated_content
     enabled: false
-  - alias: Choose between motion and doorbell press
-    choose:
-    - conditions:
-      - condition: trigger
-        id:
-        - person
-      sequence:
-      - action: notify.all_phones
-        metadata: {}
-        data:
-          message: ' '
-          title: "Someone's at the front door \U0001F464"
-          data:
-            ttl: 0
-            tag: doorbell
-            entity_id: camera.doorbell_fluent
-            notification_icon: mdi:doorbell-video
-            activationMode: foreground
-            car_ui: true
-            channel: Doorbell
-            push:
-              interruption-level: time-sensitive
-              category: camera
-            actions:
-            - action: URI
-              title: Open
-              uri: /lovelace/camera
-              icon: sfsymbols:camera.viewfinder
-            - action: package
-              title: Package
-              icon: sfsymbols:cube.box
-            - action: be_there
-              title: Will be there
-              icon: sfsymbols:person.crop.circle.badge.checkmark
-            image: /local/doorbell/{{camera_snapshot}}
-    - conditions:
-      - condition: trigger
-        id:
-        - doorbell
-      sequence:
-      - action: notify.all_phones
-        metadata: {}
-        data:
-          message: "Doorbell \U0001F514"
-          data:
-            ttl: 0
-            tag: bell
-            entity_id: camera.doorbell_fluent
-            notification_icon: mdi:doorbell-video
-            activationMode: foreground
-            car_ui: true
-            channel: Doorbell
-            push:
-              interruption-level: time-sensitive
-              category: camera
-            actions:
-            - action: URI
-              title: Open
-              uri: /lovelace/camera
-              icon: sfsymbols:camera.viewfinder
-            - action: package
-              title: Package
-              icon: sfsymbols:cube.box
-            - action: be_there
-              title: Will be there
-              icon: sfsymbols:person.crop.circle.badge.checkmark
-            image: /local/doorbell/{{camera_snapshot}}
   - delay:
       hours: 0
       minutes: 0

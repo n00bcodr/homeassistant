@@ -1,9 +1,16 @@
 - name: Docker
-  url: tcp://192.168.168.168:2375
+  url: http://192.168.168.168:2375
   switchname: "Monitor Docker {name}"
   sensorname: "Monitor Docker {name} {sensor}"
   buttonenabled: True
   rename_entity: True
+  containers_exclude:
+    - hassio_audio
+    - hassio_cli
+    - hassio_dns
+    - hassio_multicast
+    - hassio_observer
+    - hassio_supervisor
   rename:
     tautulli: Tautulli
     addon_core_samba: Samba
