@@ -803,6 +803,12 @@
         },
         {
             "manufacturer": "Aqara",
+            "model": "Water leak sensor T1",
+            "model_id": "SJCGQ12LM",
+            "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "Aqara",
             "model": "Wireless mini switch (WXKG11LM)",
             "battery_type": "CR2032"
         },
@@ -1460,6 +1466,13 @@
             "model": "TEMPERATURE_SENSOR",
             "battery_type": "AA",
             "battery_quantity": 2
+        },
+        {
+            "manufacturer": "Ember",
+            "model": "Ember Mug 2 (14oz)",
+            "model_id": "",
+            "hw_version": "10",
+            "battery_type": "Rechargeable"
         },
         {
             "manufacturer": "eQ-3",
@@ -2660,6 +2673,11 @@
             "battery_type": "CR2"
         },
         {
+            "manufacturer": "Iris",
+            "model": "Motion Sensor (iL07_1)",
+            "battery_type": "CR123A"
+        },
+        {
             "manufacturer": "iRobot",
             "model": "c975840",
             "battery_type": "Rechargeable"
@@ -2915,6 +2933,11 @@
             "manufacturer": "LUMI",
             "model": "lumi.remote.b686opcn01",
             "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "LUMI",
+            "model": "lumi.sen_ill.agl01",
+            "battery_type": "CR2450"
         },
         {
             "manufacturer": "LUMI",
@@ -3301,6 +3324,11 @@
         },
         {
             "manufacturer": "OpenEpaperLink",
+            "model": "M2 1.54\"",
+            "battery_type": "CR2450"
+        },
+        {
+            "manufacturer": "OpenEpaperLink",
             "model": "M2 2.9\"",
             "battery_type": "CR2450",
             "battery_quantity": 2
@@ -3664,6 +3692,11 @@
         {
             "manufacturer": "Ring",
             "model": "Spotlight Cam Plus",
+            "battery_type": "Rechargeable"
+        },
+        {
+            "manufacturer": "Ring",
+            "model": "Stick Up Cam (3rd Gen)",
             "battery_type": "Rechargeable"
         },
         {
@@ -4668,6 +4701,11 @@
         },
         {
             "manufacturer": "Tile",
+            "model": "T1101",
+            "battery_type": "Cr2032"
+        },
+        {
+            "manufacturer": "Tile",
             "model": "T1301N",
             "battery_type": "CR2032"
         },
@@ -4963,6 +5001,13 @@
             "manufacturer": "TuYa",
             "model": "Smart knob (ERS-10TZBVK-AA)",
             "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "Tuya",
+            "model": "Smart pet feeder AL",
+            "model_id": "xaw628wk93zqlr80",
+            "battery_type": "AA",
+            "battery_quantity": 4
         },
         {
             "manufacturer": "Tuya",
