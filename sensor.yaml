@@ -4,45 +4,30 @@
       unique_id: washing_machine_state
       friendly_name: "Washing Machine State"
       value_template: >
-        {% set state = states.sensor.bob_sub_state.state %}
-        {% if state == 'washer_substate_program_started' or state == 'unavailable' %}
-          Idle
-        {% elif state == 'washer_substate_washing' %}
-          Washing
-        {% elif state == 'washer_substate_drying' %}
-          Drying
-        {% elif state == 'washer_substate_rinsing' %}
-          Rinsing
-        {% elif state == 'washer_substate_spin' %}
-          Spinning
-        {% elif state == 'washer_substate_paused' %}
-          Paused
-        {% elif state == 'washer_substate_remove_laundry' %}
-          Cycle Complete
-        {% else %}
-          {{ state }}
-        {% endif %}
+        {% set state_map = {
+          'washer_substate_program_started': 'Idle',
+          'unavailable': 'Idle',
+          'washer_substate_washing': 'Washing',
+          'washer_substate_drying': 'Drying',
+          'washer_substate_rinsing': 'Rinsing',
+          'washer_substate_spin': 'Spinning',
+          'washer_substate_paused': 'Paused',
+          'washer_substate_remove_laundry': 'Cycle Complete'
+        } %}
+        {{ state_map.get(states('sensor.bob_sub_state'), states('sensor.bob_sub_state')) }}
+
       icon_template: >
-        {% set state = states.sensor.bob_sub_state.state %}
-        {% if state == 'washer_substate_program_started' %}
-          mdi:washing-machine-off
-        {% elif state == 'unavailable' %}
-          mdi:washing-machine-alert
-        {% elif state == 'washer_substate_drying' %}
-          mdi:tumble-dryer
-        {% elif state == 'washer_substate_washing' %}
-          mdi:water
-        {% elif state == 'washer_substate_rinsing' %}
-          mdi:water-circle
-        {% elif state == 'washer_substate_spin' %}
-          fas:spinner
-        {% elif state == 'washer_substate_paused' %}
-          mdi:pause-box-outline
-        {% elif state == 'washer_substate_remove_laundry' %}
-          mdi:washing-machine
-        {% else %}
-          mdi:washing-machine-alert
-        {% endif %}
+        {% set icon_map = {
+          'washer_substate_program_started': 'mdi:washing-machine-off',
+          'unavailable': 'mdi:washing-machine-alert',
+          'washer_substate_drying': 'mdi:tumble-dryer',
+          'washer_substate_washing': 'mdi:water',
+          'washer_substate_rinsing': 'mdi:water-circle',
+          'washer_substate_spin': 'fas:spinner',
+          'washer_substate_paused': 'mdi:pause-box-outline',
+          'washer_substate_remove_laundry': 'mdi:washing-machine'
+        } %}
+        {{ icon_map.get(states('sensor.bob_sub_state'), 'mdi:washing-machine-alert') }}
 
     count_automations:
       friendly_name: "Automation Count"
@@ -171,134 +156,6 @@
       value_template: "{{ iif(is_state('binary_sensor.vibration_vibration', 'on'), 'Away', 'At Desk') }}"
       icon_template: "{{ iif(is_state('binary_sensor.vibration_vibration', 'on'), 'mdi:account-off', 'mdi:table-chair') }}"
 
-    harddisk_total_space:
-      friendly_name: "Hard Disk Total Space"
-      unique_id: harddisk_total_space
-      unit_of_measurement: "GB"
-      icon_template: mdi:harddisk
-      value_template: >
-        {{ state_attr('sensor.sonarr_disk_space', '/')|regex_findall_index(find='(/.*G)') | replace ("G", "")| replace ("/", "")}}
-
-    harddisk_free_space:
-      friendly_name: "Hard Disk Free Space"
-      unique_id: harddisk_free_space
-      unit_of_measurement: "GB"
-      icon_template: mdi:harddisk
-      value_template: >
-        {{ state_attr('sensor.sonarr_disk_space', '/')|regex_findall_index(find='(.*/)')  | replace ("G", "")| replace ("/", "")}}
-
-    harddisk_used_space:
-      friendly_name: "Hard Disk Used Space"
-      unique_id: harddisk_used_space
-      unit_of_measurement: "GB"
-      icon_template: mdi:harddisk
-      value_template: >
-        {{ ((states('sensor.harddisk_total_space') | float) - (states('sensor.harddisk_free_space') | float) | round(2))}}
-
-    harddisk_percentage_used:
-      friendly_name: "Hard Disk Percentage Used"
-      unique_id: harddisk_percentage
-      unit_of_measurement: "%"
-      icon_template: mdi:harddisk
-      value_template: >
-        {{ (((states('sensor.harddisk_used_space') | float) / (states('sensor.harddisk_total_space') | float))*100) | round(2) | float }}
-
-    1tb_total_space:
-      friendly_name: "1TB Hard Disk Total Space"
-      unique_id: 1tb_harddisk_total_space
-      unit_of_measurement: "GB"
-      icon_template: mdi:harddisk
-      value_template: >
-        {{ state_attr('sensor.sonarr_disk_space', '/media/pt/1TB') |regex_findall_index(find='(/.*G)') | replace ("G", "")| replace ("/", "")}}
-
-    1tb_free_space:
-      friendly_name: "1TB Hard Disk Free Space"
-      unique_id: 1tb_harddisk_free_space
-      unit_of_measurement: "GB"
-      icon_template: mdi:harddisk
-      value_template: >
-        {{ state_attr('sensor.sonarr_disk_space', '/media/pt/1TB') |regex_findall_index(find='(.*/)') | replace ("G", "")| replace ("/", "")}}
-
-    1tb_used_space:
-      friendly_name: "1TB Hard Disk Used Space"
-      unique_id: 1tb_harddisk_used_space
-      unit_of_measurement: "GB"
-      icon_template: mdi:harddisk
-      value_template: >
-        {{ ((states('sensor.1tb_total_space') | float) - ( states('sensor.1tb_free_space') | float ) | round(2)) }}
-
-    1tb_percentage_used:
-      friendly_name: "1TB Hard Disk Percentage Used"
-      unique_id: 1tb_percenmtage
-      unit_of_measurement: "%"
-      icon_template: mdi:harddisk
-      value_template: >
-        {{ (((states('sensor.1tb_used_space') | float) / (states('sensor.1tb_total_space') | float))*100) | round(2) | float }}
-
-    1tb_ssd_total_space:
-      friendly_name: "1TB SSD Total Space"
-      unique_id: 1tb_ssd_total_space
-      unit_of_measurement: "GB"
-      icon_template: mdi:harddisk
-      value_template: >
-        {{ state_attr('sensor.sonarr_disk_space', '/media/pt/1TB_SSD') |regex_findall_index(find='(/.*G)') | replace ("G", "")| replace ("/", "")}}
-
-    1tb_ssd_free_space:
-      friendly_name: "1TB SSD Free Space"
-      unique_id: 1tb_ssd_free_space
-      unit_of_measurement: "GB"
-      icon_template: mdi:harddisk
-      value_template: >
-        {{ state_attr('sensor.sonarr_disk_space', '/media/pt/1TB_SSD') |regex_findall_index(find='(.*/)') | replace ("G", "")| replace ("/", "")}}
-
-    1tb_ssd_used_space:
-      friendly_name: "1TB SSD Used Space"
-      unique_id: 1tb_ssd_used_space
-      unit_of_measurement: "GB"
-      icon_template: mdi:harddisk
-      value_template: >
-        {{ ((states('sensor.1tb_ssd_total_space') | float) - ( states('sensor.1tb_ssd_free_space') | float ) | round(2)) }}
-
-    1tb_ssd_percentage_used:
-      friendly_name: "1TB SSD Percentage Used"
-      unique_id: 1tb_ssd_percenmtage
-      unit_of_measurement: "%"
-      icon_template: mdi:harddisk
-      value_template: >
-        {{ (((states('sensor.1tb_ssd_used_space') | float) / (states('sensor.1tb_ssd_total_space') | float))*100) | round(2) | float }}
-
-    5tb_total_space:
-      friendly_name: "5TB Hard Disk Total Space"
-      unique_id: 5tb_harddisk_total_space
-      unit_of_measurement: "GB"
-      icon_template: mdi:harddisk
-      value_template: >
-        {{ state_attr('sensor.sonarr_disk_space', '/media/pt/5TB') |regex_findall_index(find='(/.*G)') | replace ("G", "")| replace ("/", "")}}
-
-    5tb_free_space:
-      friendly_name: "5TB Hard Disk Free Space"
-      unique_id: 5tb_harddisk_free_space
-      unit_of_measurement: "GB"
-      icon_template: mdi:harddisk
-      value_template: >
-        {{ state_attr('sensor.sonarr_disk_space', '/media/pt/5TB') |regex_findall_index(find='(.*/)') | replace ("G", "")| replace ("/", "")}}
-
-    5tb_used_space:
-      friendly_name: "5TB Hard Disk Used Space"
-      unique_id: 5tb_harddisk_used_space
-      unit_of_measurement: "GB"
-      icon_template: mdi:harddisk
-      value_template: >
-        {{ ((states('sensor.5tb_total_space') | float) - ( states('sensor.5tb_free_space') | float) | round(2)) }}
-
-    5tb_percentage_used:
-      friendly_name: "5TB Percentage Used"
-      unique_id: 5tb_percenmtage
-      unit_of_measurement: "%"
-      icon_template: mdi:harddisk
-      value_template: >
-        {{ (((states('sensor.5tb_used_space') | float) / (states('sensor.5tb_total_space') | float))*100) | round(2) | float }}
-
     black_bin:
       friendly_name: Black Bin Pickup
       unique_id: black_bin_pickup
@@ -345,17 +202,17 @@
 - platform: formulaone_api
 
 - platform: plex_recently_added
-  name: Recently Added Movies # will create sensor.recently_added_movies
+  name: Recently Added Movies
   token: !secret plex_token
-  host: !secret plex_host
+  host: !secret host
   port: 32400
   section_types:
     - movie
 
 - platform: plex_recently_added
-  name: Recently Added TV # will create sensor.recently_added_tv
+  name: Recently Added TV
   token: !secret plex_token
-  host: !secret plex_host
+  host: !secret host
   port: 32400
   section_types:
     - show

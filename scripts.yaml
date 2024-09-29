@@ -400,3 +400,35 @@ reboot_internet_router:
     field:
       selector:
         text:
+tv_seek:
+  alias: TV Seek
+  fields:
+    seek_amount:
+      name: Seek Amount
+      description: In seconds. Can be negative.
+      selector:
+        text:
+  sequence:
+  - data: {}
+    target:
+      entity_id:
+      - media_player.google_tv_cast
+      - media_player.google_tv_remote
+    action: media_player.media_play_pause
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 0
+      milliseconds: 500
+  - data:
+      seek_position: "{% if is_state('media_player.jellyfin_tv', 'playing') %}\n  {{
+        state_attr(\"media_player.jellyfin_tv\", \"media_position\")|int +\n  (seek_amount|default(-30)|int(-30))
+        }}\n{% else %}\n  {{ state_attr(\"media_player.google_tv_cast\", \"media_position\")|int
+        +\n  (seek_amount|default(-30)|int(-30)) }}\n{% endif %}"
+    target:
+      entity_id: "{% if is_state('media_player.jellyfin_tv', 'playing') %}\n  media_player.jellyfin_tv\n{%
+        else %}\n  media_player.google_tv_cast\n{% endif %}\n"
+    action: media_player.media_seek
+  mode: single
+  icon: mdi:fast-forward
+  description: ''

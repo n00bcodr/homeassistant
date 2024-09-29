@@ -7,8 +7,6 @@ order:
 
   - item: hacs
 
-  - item: Studio Code Server
-
   - item: Media
 
   - item: Calendar
@@ -18,11 +16,11 @@ order:
     href: "/config/automation/dashboard"
     icon: mdi:robot-confused-outline
 
-  - new_item: true
-    item: Tags
-    href: "/config/tags"
-    icon: mdi:nfc-variant
-    bottom: true
+  # - new_item: true
+  #   item: Tags
+  #   href: "/config/tags"
+  #   icon: mdi:nfc-variant
+  #   bottom: true
 
   - new_item: true
     item: Integrations
@@ -42,8 +40,7 @@ order:
     icon: mdi:restart
     bottom: true
 
-  - new_item: true
-    item: Developer Tools
+  - item: Developer Tools
     href: "/developer-tools/state"
     icon: mdi:hammer
     bottom: true

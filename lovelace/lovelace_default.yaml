@@ -62,7 +62,6 @@ button_card_templates:
 swipe_nav:
   animate: fade
   enable_mouse_swipe: true
-  skip_tabs: 2
 title: Mad House
 views:
 - cards:
@@ -144,7 +143,7 @@ views:
         service: homeassistant.update_entity
         target:
           entity_id: weather.home
-      entity: weather.home
+      entity: weather.forecast_home
       show_conditions: true
       show_temperature: true
       tap_action:
@@ -296,6 +295,10 @@ views:
             \ 34% 24%, 34% 100%, 100% 100%, 100% 0%); }\n}      \n"
       chips:
       - content_info: state
+        double_tap_action:
+          action: assist
+          pipeline_id: preferred
+          start_listening: true
         entity: sensor.pixel8pro_battery_level
         icon: phu:google-pixel
         icon_color: blue
@@ -340,6 +343,20 @@ views:
         entity: binary_sensor.galaxy_watch4_classic_is_charging
         icon_color: amber
         type: entity
+      - entity: sensor.toothbrush_battery_plus
+        icon: mdi:toothbrush
+        icon_color: red
+        type: entity
+      - chip:
+          entity: sensor.toothbrush
+          icon: mdi:power-plug
+          icon_color: orange
+          type: template
+        conditions:
+        - condition: state
+          entity: sensor.toothbrush
+          state: charging
+        type: conditional
       - entity: sensor.hilary_s_phone_last_update_trigger
         hold_action:
           action: more-info
@@ -356,6 +373,43 @@ views:
     type: conditional
     view_layout:
       column: 1
+  - content: "<hr>\n<h3>\U0001F4A4Total Sleep: {{ ((states.sensor.sleep.state | float)\
+      \ // 3600) | int }} hours, {{ (((states.sensor.sleep.state | float) % 3600)\
+      \ // 60) | int }} minutes \U0001F6CC</h3>\n\n**{{ ((states.sensor.light_sleep.state\
+      \ | float) + (states.sensor.deep_sleep.state | float) + (states.sensor.rem_sleep.state\
+      \ | float)) // 3600 | int }} hours{{ \", \" if (((states.sensor.light_sleep.state\
+      \ | float) + (states.sensor.deep_sleep.state | float) + (states.sensor.rem_sleep.state\
+      \ | float)) % 3600) // 60 != 0 else \"\" }}{{ (((states.sensor.light_sleep.state\
+      \ | float) + (states.sensor.deep_sleep.state | float) + (states.sensor.rem_sleep.state\
+      \ | float)) % 3600) // 60 | int if (((states.sensor.light_sleep.state | float)\
+      \ + (states.sensor.deep_sleep.state | float) + (states.sensor.rem_sleep.state\
+      \ | float)) % 3600) // 60 != 0 else \"\" }} minutes**\n\n  - \U0001F4F1 **Time\
+      \ to sleep:**\n\_\_\_\_\U0001F552 {% if ((states.sensor.awake_time.state | float)\
+      \ // 3600) | int > 0 %}{{ ((states.sensor.awake_time.state | float) // 3600)\
+      \ | int }} hours, {% endif %}{{ (((states.sensor.awake_time.state | float) %\
+      \ 3600) // 60) | int }} minutes\n    \n  - \U0001F315 **Light Sleep:**\n\_\_\
+      \_\_\U0001F552 {% if ((states.sensor.light_sleep.state | float) // 3600) | int\
+      \ > 0 %}{{ ((states.sensor.light_sleep.state | float) // 3600) | int }} hours,\
+      \ {% endif %}{{ (((states.sensor.light_sleep.state | float) % 3600) // 60) |\
+      \ int }} minutes\n\n  - \U0001F311 **Deep Sleep:**\n\_\_\_\_\U0001F552  {% if\
+      \ ((states.sensor.deep_sleep.state | float) // 3600) | int > 0 %}{{ ((states.sensor.deep_sleep.state\
+      \ | float) // 3600) | int }} hours, {% endif %}{{ (((states.sensor.deep_sleep.state\
+      \ | float) % 3600) // 60) | int }} minutes\n\n  - \U0001F300 **REM Sleep:**\n\
+      \_\_\_\_\U0001F552 {% if ((states.sensor.rem_sleep.state | float) // 3600) |\
+      \ int > 0 %}{{ ((states.sensor.rem_sleep.state | float) // 3600) | int }} hours,\
+      \ {% endif %}{{ (((states.sensor.rem_sleep.state | float) % 3600) // 60) | int\
+      \ }} minutes"
+    title: "\U0001F319 Last Night's Sleep Summary"
+    type: markdown
+    view_layout:
+      column: 1
+    visibility:
+    - condition: state
+      entity: schedule.card
+      state: 'on'
+    - condition: state
+      entity: sensor.deep_sleep
+      state_not: unavailable
   - cards:
     - badge_color: '{{ ''deep-orange'' if (now() + timedelta(hours=5, minutes=30)).strftime(''%p'')
         == ''AM'' else ''black'' }}'
@@ -419,11 +473,8 @@ views:
           style: "ha-card {\n  {% if is_state(config.entity, 'on') %}\n     background:\
             \ rgba(var(--rgb-green), 0.2);\n  {%- else -%}\n  {%- endif %}\n}\n"
         double_tap_action:
-          action: call-service
-          data: {}
-          service: homeassistant.turn_on
-          target:
-            entity_id: group.den
+          action: perform-action
+          perform_action: homeassistant.turn_on
         entity: group.den
         fill_container: false
         hold_action:
@@ -1157,7 +1208,7 @@ views:
       column: 3
   - cards:
     - back_open: true
-      bg_blur: 50
+      bg_blur: '40'
       card_type: pop-up
       close_on_click: true
       hash: '#sun'
@@ -1170,7 +1221,7 @@ views:
     type: vertical-stack
   - cards:
     - back_open: true
-      bg_blur: 50
+      bg_blur: 0
       card_type: pop-up
       close_on_click: true
       hash: '#sleep'
@@ -1236,7 +1287,7 @@ views:
     type: vertical-stack
   - cards:
     - back_open: true
-      bg_blur: 50
+      bg_blur: 0
       bg_opacity: '50'
       card_type: pop-up
       close_on_click: true
@@ -1246,24 +1297,17 @@ views:
       show_header: false
       type: custom:bubble-card
       width_desktop: 800px
-    - entity: sensor.moon_phase
-      layout: icon_state
-      show_entity_picture: true
-      show_name: false
-      show_state: true
-      size: 80%
-      styles:
-        card:
-        - border-radius: 50px
-        state:
-        - justify-self: center
-        - font-size: 20px
-        - font-weight: bold
-      type: custom:button-card
+    - card_mod:
+        style: "ha-card \n  .moon-img-svg {\n    width: 140px;\n    height: 140px;\n\
+          \  }\n  .primary {\n    font-weight: bold;\n  }\n  .secondary {\n    font-weight:\
+          \ bold;\n  }\n.entity-row {\n    flex-direction: column;\n}\n"
+      entity: sensor.moon
+      language: en
+      type: custom:tsmoon-card
     type: vertical-stack
   - cards:
     - back_open: true
-      bg_blur: 50
+      bg_blur: 0
       card_type: pop-up
       close_on_click: true
       hash: '#weather'
@@ -1275,32 +1319,24 @@ views:
       show_name: false
       type: custom:bubble-card
       width_desktop: 800px
-    - cards:
-      - backdrop: true
-        entity: weather.home
-        name: ' '
-        secondary_info:
-        - precipitation_probability
-        type: custom:simple-weather-card
-      - current: false
-        details: true
-        entity: weather.home
-        forecast: true
-        hourly_forecast: true
-        number_of_forecasts: '7'
-        type: custom:weather-card
-      type: vertical-stack
+    - current: true
+      details: true
+      entity: weather.forecast_home
+      forecast: true
+      forecast_type: hourly
+      hourly_forecast: true
+      number_of_forecasts: '7'
+      type: custom:weather-card
     type: vertical-stack
   - cards:
     - back_open: true
-      bg_blur: 80
-      bg_opacity: 100
+      bg_blur: '40'
       card_type: pop-up
       close_on_click: false
       hash: '#phone'
       icon: mdi:google
       name: Phone Controls
-      shadow_opacity: 80
+      shadow_opacity: '0'
       show_header: true
       type: custom:bubble-card
       width_desktop: 800px
@@ -1486,14 +1522,6 @@ views:
   - user: 74f7e2ffd3594037b1a2fc4de82d9fea
   - user: 5e94cdd892054937b560071ed6662cb8
 - cards:
-  - image: https://github.com/n00bcodr/LMI-Weekly-Menu/blob/main/weekly_menu.jpg?raw=true
-    type: picture
-  icon: mdi:menu
-  path: menu
-  subview: true
-  title: Menu
-  type: panel
-- cards:
   - cards:
     - card_mod:
         style: 'ha-card { border-radius: 8px;background: none;box-shadow: none;--ha-card-border-width:
@@ -1523,79 +1551,6 @@ views:
       type: custom:mini-graph-card
     mode: horizontal
     type: custom:stack-in-card
-  - card_mod:
-      style:
-        .: "ha-state-icon {\n  animation: clip 2s linear infinite;\n}\n@keyframes\
-          \ clip {\n  50% { clip-path: polygon(0 0, 55% 0, 100% 100%, 0 100%); }\n\
-          }\n"
-        mushroom-shape-icon$: ".shape {\n  --shape-animation: motion 2s linear infinite;\n\
-          }\n@keyframes motion {\n  0%, 100% { --shape-color: rgba(var(--rgb-blue),\
-          \ 0.3); }\n  50% { --shape-color: rgba(var(--rgb-blue), 0.2); }\n}\n"
-    icon: mdi:motion-sensor
-    icon_color: blue
-    primary: Motion
-    type: custom:mushroom-template-card
-  - cards:
-    - card_mod:
-        style:
-          .: "ha-card {\n --icon-size: 100px;\n background: transparent !important;\n\
-            \ border: 0px !important;\n align-items: center;\n}\nmushroom-badge-icon\
-            \ {\n  --badge-icon-size: 0px;\n  --badge-size: 0px;\n}          \n"
-          mushroom-shape-avatar$: ".picture {\n  display: flex;\n  border-radius:\
-            \ 50%;\n  {% if states(config.entity) == 'home' %}\n    animation: pinggreen\
-            \ 4s infinite;\n    border: 4px solid #77c66e\n  {% else %}\n    animation:\
-            \ pingred 4s infinite;\n    border: 4px solid #EF4F1A\n  {% endif %}\n\
-            }\n@keyframes pinggreen {\n  0% {box-shadow: 0 0 8px 8px rgba(var(--rgb-green),\
-            \ 0.9);}\n  100% {box-shadow: 0 0 5px 20px transparent;}\n}\n@keyframes\
-            \ pingred {\n  0% {box-shadow: 0 0 8px 8px rgba(var(--rgb-red), 0.9);}\n\
-            \  100% {box-shadow: 0 0 5px 20px transparent;}\n}\n"
-      entity: person.darragh_clerkin
-      icon_type: entity-picture
-      layout: vertical
-      primary_info: none
-      secondary_info: none
-      type: custom:mushroom-person-card
-    - card_mod:
-        style:
-          .: "ha-card {\n --icon-size: 100px;\n background: transparent !important;\n\
-            \ border: 0px !important;\n align-items: center;\n}\nmushroom-badge-icon\
-            \ {\n  --badge-icon-size: 0px;\n  --badge-size: 0px;\n} \n"
-          mushroom-shape-avatar$: ".picture {\n  display: flex;\n  border-radius:\
-            \ 50%;\n  {% if states(config.entity) == 'home' %}\n    animation: pinggreen\
-            \ 4s infinite;\n    border: 4px solid #77c66e\n  {% else %}\n    animation:\
-            \ pingred 4s infinite;\n    border: 4px solid #EF4F1A\n  {% endif %}\n\
-            }\n@keyframes pinggreen {\n  0% {box-shadow: 0 0 8px 8px rgba(var(--rgb-green),\
-            \ 0.9);}\n  100% {box-shadow: 0 0 5px 20px transparent;}\n}\n@keyframes\
-            \ pingred {\n  0% {box-shadow: 0 0 8px 8px rgba(var(--rgb-red), 0.9);}\n\
-            \  100% {box-shadow: 0 0 5px 20px transparent;}\n}\n"
-      entity: person.pavanthanuj
-      icon_type: entity-picture
-      primary_info: none
-      secondary_info: none
-      type: custom:mushroom-person-card
-    - card_mod:
-        style:
-          .: "ha-card {\n --icon-size: 100px;\n background: transparent !important;\n\
-            \ border: 0px !important;\n align-items: center;\n}\nmushroom-badge-icon\
-            \ {\n  --badge-icon-size: 0px;\n  --badge-size: 0px;\n} \n"
-          mushroom-shape-avatar$: ".picture {\n  display: flex;\n  border-radius:\
-            \ 50%;\n  {% if states(config.entity) == 'home' %}\n    animation: pinggreen\
-            \ 4s infinite;\n    border: 4px solid #77c66e\n  {% else %}\n    animation:\
-            \ pingred 4s infinite;\n    border: 4px solid #EF4F1A\n  {% endif %}\n\
-            }\n@keyframes pinggreen {\n  0% {box-shadow: 0 0 8px 8px rgba(var(--rgb-green),\
-            \ 0.9);}\n  100% {box-shadow: 0 0 5px 20px transparent;}\n}\n@keyframes\
-            \ pingred {\n  0% {box-shadow: 0 0 8px 8px rgba(var(--rgb-red), 0.9);}\n\
-            \  100% {box-shadow: 0 0 5px 20px transparent;}\n}\n"
-      entity: person.hilary_harris
-      icon_type: entity-picture
-      primary_info: none
-      secondary_info: none
-      type: custom:mushroom-person-card
-    columns: 3
-    square: false
-    type: grid
-    view_layout:
-      column: 1
   - cards:
     - cards:
       - color_type: blank-card
@@ -1717,6 +1672,288 @@ views:
     type: vertical-stack
     view_layout:
       column: 1
+  - cards:
+    - card_mod:
+        style:
+          .: "ha-card {\n --icon-size: 100px;\n background: transparent !important;\n\
+            \ border: 0px !important;\n align-items: center;\n}\nmushroom-badge-icon\
+            \ {\n  --badge-icon-size: 0px;\n  --badge-size: 0px;\n}          \n"
+          mushroom-shape-avatar$: ".picture {\n  display: flex;\n  border-radius:\
+            \ 50%;\n  {% if states(config.entity) == 'home' %}\n    animation: pinggreen\
+            \ 4s infinite;\n    border: 4px solid #77c66e\n  {% else %}\n    animation:\
+            \ pingred 4s infinite;\n    border: 4px solid #EF4F1A\n  {% endif %}\n\
+            }\n@keyframes pinggreen {\n  0% {box-shadow: 0 0 8px 8px rgba(var(--rgb-green),\
+            \ 0.9);}\n  100% {box-shadow: 0 0 5px 20px transparent;}\n}\n@keyframes\
+            \ pingred {\n  0% {box-shadow: 0 0 8px 8px rgba(var(--rgb-red), 0.9);}\n\
+            \  100% {box-shadow: 0 0 5px 20px transparent;}\n}\n"
+      entity: person.darragh_clerkin
+      icon_type: entity-picture
+      layout: vertical
+      primary_info: none
+      secondary_info: none
+      type: custom:mushroom-person-card
+    - card_mod:
+        style:
+          .: "ha-card {\n --icon-size: 100px;\n background: transparent !important;\n\
+            \ border: 0px !important;\n align-items: center;\n}\nmushroom-badge-icon\
+            \ {\n  --badge-icon-size: 0px;\n  --badge-size: 0px;\n} \n"
+          mushroom-shape-avatar$: ".picture {\n  display: flex;\n  border-radius:\
+            \ 50%;\n  {% if states(config.entity) == 'home' %}\n    animation: pinggreen\
+            \ 4s infinite;\n    border: 4px solid #77c66e\n  {% else %}\n    animation:\
+            \ pingred 4s infinite;\n    border: 4px solid #EF4F1A\n  {% endif %}\n\
+            }\n@keyframes pinggreen {\n  0% {box-shadow: 0 0 8px 8px rgba(var(--rgb-green),\
+            \ 0.9);}\n  100% {box-shadow: 0 0 5px 20px transparent;}\n}\n@keyframes\
+            \ pingred {\n  0% {box-shadow: 0 0 8px 8px rgba(var(--rgb-red), 0.9);}\n\
+            \  100% {box-shadow: 0 0 5px 20px transparent;}\n}\n"
+      entity: person.pavanthanuj
+      icon_type: entity-picture
+      primary_info: none
+      secondary_info: none
+      type: custom:mushroom-person-card
+    - card_mod:
+        style:
+          .: "ha-card {\n --icon-size: 100px;\n background: transparent !important;\n\
+            \ border: 0px !important;\n align-items: center;\n}\nmushroom-badge-icon\
+            \ {\n  --badge-icon-size: 0px;\n  --badge-size: 0px;\n} \n"
+          mushroom-shape-avatar$: ".picture {\n  display: flex;\n  border-radius:\
+            \ 50%;\n  {% if states(config.entity) == 'home' %}\n    animation: pinggreen\
+            \ 4s infinite;\n    border: 4px solid #77c66e\n  {% else %}\n    animation:\
+            \ pingred 4s infinite;\n    border: 4px solid #EF4F1A\n  {% endif %}\n\
+            }\n@keyframes pinggreen {\n  0% {box-shadow: 0 0 8px 8px rgba(var(--rgb-green),\
+            \ 0.9);}\n  100% {box-shadow: 0 0 5px 20px transparent;}\n}\n@keyframes\
+            \ pingred {\n  0% {box-shadow: 0 0 8px 8px rgba(var(--rgb-red), 0.9);}\n\
+            \  100% {box-shadow: 0 0 5px 20px transparent;}\n}\n"
+      entity: person.hilary_harris
+      icon_type: entity-picture
+      primary_info: none
+      secondary_info: none
+      type: custom:mushroom-person-card
+    columns: 3
+    square: false
+    type: grid
+    view_layout:
+      column: 1
+  - cards:
+    - custom_actions:
+      - icon: mdi:power
+        name: power
+        styles: ":host {\n  --icon-color: crimson;\n}"
+        tap_action:
+          action: key
+          key: POWER
+        type: button
+      - autofill_entity_id: true
+        haptics: false
+        icon: ''
+        label: '{{ (value * 100 ) | int }}%'
+        name: slider
+        range:
+        - 0
+        - 1
+        step: 0.01
+        styles: ":host {\n  height: 30px;\n  border-radius: 20px;  \n  --color: #4285F4;\n\
+          \  --background-height: 20px;\n  --thumb-border-radius: 0;\n}\n.icon {\n\
+          \  display: none;\n}\n.label {\n  {% if not states(config.entity, 'on')\
+          \ %}\n  display: none;\n  {% endif %}\n  transform: var(--icon-transform);\n\
+          \  font-size: 14px;\n  color: var(--primary-text-color);\n}\n.tooltip {\n\
+          \  display: none;\n}"
+        tap_action:
+          action: perform-action
+          data:
+            volume_level: '{{ value | float }}'
+          perform_action: media_player.volume_set
+        type: slider
+        value_attribute: volume_level
+        value_from_hass_delay: 100
+        vertical: false
+      custom_icons: []
+      keyboard_id: media_player.google_tv
+      media_player_id: media_player.google_tv
+      remote_id: remote.google_tv
+      rows:
+      - - power
+        - home
+      - - slider
+        - volume_mute
+      styles: "remote-button {\n  --size: 35px;\n  color: var(--secondary-text-color);\n\
+        }\n"
+      type: custom:android-tv-card
+    - entities:
+      - card_type: horizontal-stack
+        cards:
+        - entity: media_player.google_tv
+          entity_picture: /local/icons/netflix.png
+          tap_action:
+            service: media_player.select_source
+            service_data:
+              entity_id: media_player.google_tv
+              source: Netflix
+          template: logo_button
+          type: custom:button-card
+        - entity: media_player.google_tv
+          entity_picture: /local/icons/prime.png
+          tap_action:
+            service: media_player.select_source
+            service_data:
+              entity_id: media_player.google_tv
+              source: Prime Video
+          template: logo_button
+          type: custom:button-card
+        - entity: media_player.google_tv
+          entity_picture: /local/icons/youtube.png
+          tap_action:
+            service: media_player.select_source
+            service_data:
+              entity_id: media_player.google_tv
+              source: YouTube
+          template: logo_button
+          type: custom:button-card
+        type: custom:hui-element
+      - card_type: horizontal-stack
+        cards:
+        - entity: media_player.google_tv
+          entity_picture: /local/icons/plex.png
+          tap_action:
+            service: media_player.select_source
+            service_data:
+              entity_id: media_player.google_tv
+              source: Plex
+          template: logo_button
+          type: custom:button-card
+        - entity: media_player.google_tv
+          entity_picture: /local/icons/disney.png
+          tap_action:
+            service: media_player.select_source
+            service_data:
+              entity_id: media_player.google_tv
+              source: Disney+ Hotstar
+          template: logo_button
+          type: custom:button-card
+        - entity: media_player.google_tv
+          entity_picture: /local/icons/spotify.png
+          tap_action:
+            service: media_player.select_source
+            service_data:
+              entity_id: media_player.google_tv
+              source: Spotify
+          template: logo_button
+          type: custom:button-card
+        type: custom:hui-element
+      - card_type: horizontal-stack
+        cards:
+        - entity: media_player.google_tv
+          entity_picture: /local/icons/JioCinema.png
+          styles:
+            entity_picture:
+            - width: 80%
+          tap_action:
+            service: media_player.select_source
+            service_data:
+              entity_id: media_player.google_tv
+              source: Jio Cinema
+          template: logo_button
+          type: custom:button-card
+        - entity: media_player.google_tv
+          entity_picture: /local/icons/jellyfin.png
+          styles:
+            entity_picture:
+            - width: 70%
+          tap_action:
+            service: media_player.select_source
+            service_data:
+              entity_id: media_player.google_tv
+              source: Jellyfin
+          template: logo_button
+          type: custom:button-card
+        - entity: media_player.google_tv
+          entity_picture: /local/icons/expressvpn.png
+          styles:
+            entity_picture:
+            - width: 70%
+          tap_action:
+            service: media_player.select_source
+            service_data:
+              entity_id: media_player.google_tv
+              source: Express VPN
+          template: logo_button
+          type: custom:button-card
+        type: custom:hui-element
+      show_header_toggle: false
+      type: entities
+    - custom_actions:
+      - icon: mdi:checkbox-blank-circle
+        name: center
+        styles: ":host {\n  --icon-color: rgb(94, 94, 94);\n  --size: 100px;\n  background:\
+          \ rgb(31, 31, 31);\n  border-radius: 100px;\n  margin: -70px;\n  padding:\
+          \ 70px;\n}"
+        tap_action:
+          action: key
+          key: DPAD_CENTER
+        type: button
+      - hold_action:
+          action: repeat
+        icon: mdi:chevron-up
+        name: up
+        styles: ":host {\n  --icon-color: rgb(197, 199, 197);\n  z-index: 2;\n  top:\
+          \ 55px;\n  height: 90px;\n  width: 300px;\n}"
+        tap_action:
+          action: key
+          key: DPAD_UP
+        type: button
+      - hold_action:
+          action: repeat
+        icon: mdi:chevron-down
+        name: down
+        styles: ":host {\n  --icon-color: rgb(197, 199, 197);\n  z-index: 2;\n  bottom:\
+          \ 55px;\n  height: 90px;\n  width: 300px;\n}"
+        tap_action:
+          action: key
+          key: DPAD_DOWN
+        type: button
+      - hold_action:
+          action: repeat
+        icon: mdi:chevron-left
+        name: left
+        styles: ":host {\n  --icon-color: rgb(197, 199, 197);\n  z-index: 2;\n  left:\
+          \ 30px;\n  height: 170px;\n  width: 90px;\n}"
+        tap_action:
+          action: key
+          key: DPAD_LEFT
+        type: button
+      - hold_action:
+          action: repeat
+        icon: mdi:chevron-right
+        name: right
+        styles: ":host {\n  --icon-color: rgb(197, 199, 197);\n  z-index: 2;\n  right:\
+          \ 30px;\n  height: 170px;\n  width: 90px;\n}"
+        tap_action:
+          action: key
+          key: DPAD_RIGHT
+        type: button
+      keyboard_id: media_player.google_tv
+      media_player_id: media_player.google_tv
+      remote_id: remote.google_tv_remote
+      rows:
+      - - back
+        - keyboard
+        - settings
+      - - '{{ "navigation_buttons" if match_media("(min-width: 768px)") else "touchpad"
+          }}'
+        - - captions
+          - null
+          - audio_track
+          - null
+          - info
+      - - previous
+        - play_pause
+        - next
+      styles: "#row-1 {\n  justify-content: justify;\n}\n#row-2 {\n  justify-content:\
+        \ center;\n}\n#row-3 {\n  justify-content: center;\n}\n#row-4 {\n  justify-content:\
+        \ center;\n}\n#row-5 {\n  justify-content: right;\n}\n#row-6 {\n  justify-content:\
+        \ justify;\n}\nremote-button {\n  --size: 35px;\n  color: var(--secondary-text-color);\n\
+        }\n"
+      type: custom:android-tv-card
+    type: custom:stack-in-card
   icon: mdi:test-tube
   path: testing
   sections: []
@@ -1737,39 +1974,6 @@ views:
   - artwork: full-cover
     entity: media_player.darragh_s_nest_hub
     type: custom:mini-media-player
-  - card:
-      cards:
-      - content: "The temperature in Mug is **{{states.sensor.ember_mug_current_temp.state\
-          \ | round (0)}}\xB0C** and it is {% if is_state('sensor.ember_mug_state',\
-          \ 'heating') %}  heating to {{ states.number.ember_mug_target_temp.state\
-          \ }}\xB0C {% elif is_state('sensor.ember_mug_state', 'cooling') %} cooling\
-          \ to {{ states.number.ember_mug_target_temp.state }}\xB0C\n{% elif is_state('sensor.ember_mug_state',\
-          \ 'perfect') %} perfect {% elif is_state('sensor.ember_mug_state', 'empty')\
-          \ %} empty. {% endif %}\n<br>\nThe battery is at <b>{{states.sensor.ember_mug_battery_percent.state|\
-          \ round (0)}}%</b> and the mug is {{'Charging' if is_state('binary_sensor.ember_mug_power',\
-          \ 'on') else 'Not Charging' }}"
-        type: markdown
-      - display_mode: buttons
-        entity: number.ember_mug_target_temp
-        name: Target Temperature
-        primary_info: state
-        secondary_info: name
-        type: custom:mushroom-number-card
-      - collapsible_controls: true
-        entity: light.ember_mug_led
-        fill_container: true
-        icon: mdi:coffee
-        name: Mug Light
-        show_brightness_control: false
-        show_color_control: true
-        type: custom:mushroom-light-card
-        use_light_color: true
-      type: vertical-stack
-    conditions:
-    - condition: state
-      entity: sensor.ember_mug_state
-      state_not: unavailable
-    type: conditional
   icon: mdi:face-man
   path: darragh
   title: Darragh
@@ -1846,100 +2050,164 @@ views:
     - entity: media_player.samsung_tv
       type: custom:mushroom-media-player-card
     - card:
-        button_style:
-          color: var(--secondary-text-color)
         custom_actions:
-          slider:
-            style:
-              --background-height: 8px
-              --border-radius: 50px
-              --color: dodgerblue
-              --height: 10px
-        custom_keys:
-          back:
+        - autofill_entity_id: true
+          haptics: false
+          icon: ''
+          label: '{{ (value * 100 ) | int }}%'
+          name: slider
+          range:
+          - 0
+          - 1
+          step: 0.01
+          styles: ":host {\n  height: 30px;\n  border-radius: 20px;  \n  --color:\
+            \ #4285F4;\n  --background-height: 20px;\n  --thumb-border-radius: 0;\n\
+            }\n.icon {\n  display: none;\n}\n.label {\n  {% if not states(config.entity,\
+            \ 'on') %}\n  display: none;\n  {% endif %}\n  transform: var(--icon-transform);\n\
+            \  font-size: 14px;\n  color: var(--primary-text-color);\n}\n.tooltip\
+            \ {\n  display: none;\n}"
+          tap_action:
+            action: perform-action
             data:
-              command: KEY_RETURN
-            service: remote.send_command
+              volume_level: '{{ value | float }}'
+            perform_action: media_player.volume_set
+          type: slider
+          value_attribute: volume_level
+          value_from_hass_delay: 100
+          vertical: false
+        - icon: mdi:minus-circle-outline
+          name: poweroff
+          styles: ":host {\n  --icon-color: crimson;\n  --size: 35px;\n}         \
+            \   "
+          tap_action:
+            action: perform-action
+            data: {}
+            perform_action: media_player.turn_off
             target:
-              entity_id: remote.samsung_tv
-          center:
-            data:
-              command: KEY_ENTER
-            service: remote.send_command
-            target:
-              entity_id: remote.samsung_tv
-          channel_down:
+              entity_id: media_player.samsung_tv
+          type: button
+        - icon: mdi:arrow-down-circle
+          name: channel_down
+          tap_action:
+            action: none
             data:
               command: KEY_CHDOWN
             target:
               entity_id: remote.samsung_tv
-          channel_up:
+          type: button
+        - icon: mdi:arrow-up-circle
+          name: channel_up
+          tap_action:
+            action: none
             data:
               command: KEY_CHUP
             target:
               entity_id: remote.samsung_tv
-          down:
-            data:
-              command: KEY_DOWN
-            service: remote.send_command
-            target:
-              entity_id: remote.samsung_tv
-          home:
-            data:
-              command: KEY_HOME
-            service: remote.send_command
-            target:
-              entity_id: remote.samsung_tv
-          left:
-            data:
-              command: KEY_LEFT
-            service: remote.send_command
-            target:
-              entity_id: remote.samsung_tv
-          mute:
+          type: button
+        - icon: mdi:volume-mute
+          name: volume_mute
+          styles: ":host {\n  color: grey;\n  --size: 35px;\n}"
+          tap_action:
+            action: none
             data:
               command: KEY_MUTE
-            icon: mdi:volume-mute
-            style:
-              --size: 35px
-              color: grey
             target:
               entity_id: remote.samsung_tv
-          power:
-            data: {}
-            icon: mdi:power
-            service: media_player.turn_on
-            style:
-              color: green
-            target:
-              entity_id: media_player.samsung_tv
-          power_off:
-            data: {}
-            icon: mdi:minus-circle-outline
-            service: media_player.turn_off
-            style:
-              --size: 35px
-              color: crimson
-            target:
-              entity_id: media_player.samsung_tv
-          right:
+          type: button
+        - icon: mdi:keyboard-backspace
+          name: back
+          tap_action:
+            action: perform-action
             data:
-              command: KEY_RIGHT
-            service: remote.send_command
+              command: KEY_RETURN
+            perform_action: remote.send_command
             target:
               entity_id: remote.samsung_tv
-          up:
+          type: button
+        - icon: mdi:home
+          name: home
+          tap_action:
+            action: perform-action
+            data:
+              command: KEY_HOME
+            perform_action: remote.send_command
+            target:
+              entity_id: remote.samsung_tv
+          type: button
+        - icon: mdi:power
+          name: power
+          styles: ":host {\n  --icon-color: green;\n}"
+          tap_action:
+            action: perform-action
+            data: {}
+            perform_action: media_player.turn_on
+            target:
+              entity_id: media_player.samsung_tv
+          type: button
+        - hold_action:
+            action: repeat
+          icon: mdi:chevron-up
+          name: up
+          tap_action:
+            action: perform-action
             data:
               command: KEY_UP
-            service: remote.send_command
+            perform_action: remote.send_command
             target:
               entity_id: remote.samsung_tv
+          type: button
+        - hold_action:
+            action: repeat
+          icon: mdi:chevron-down
+          name: down
+          tap_action:
+            action: perform-action
+            data:
+              command: KEY_DOWN
+            perform_action: remote.send_command
+            target:
+              entity_id: remote.samsung_tv
+          type: button
+        - hold_action:
+            action: repeat
+          icon: mdi:chevron-left
+          name: left
+          tap_action:
+            action: perform-action
+            data:
+              command: KEY_LEFT
+            perform_action: remote.send_command
+            target:
+              entity_id: remote.samsung_tv
+          type: button
+        - hold_action:
+            action: repeat
+          icon: mdi:chevron-right
+          name: right
+          tap_action:
+            action: perform-action
+            data:
+              command: KEY_RIGHT
+            perform_action: remote.send_command
+            target:
+              entity_id: remote.samsung_tv
+          type: button
+        - icon: mdi:checkbox-blank-circle
+          name: center
+          tap_action:
+            action: perform-action
+            data:
+              command: KEY_ENTER
+            perform_action: remote.send_command
+            target:
+              entity_id: remote.samsung_tv
+          type: button
         media_player_id: media_player.samsung_tv
         rows:
         - - power
-          - power_off
-        - - volume_slider
-          - mute
+          - poweroff
+        - - slider
+          - volume_mute
         - - - channel_up
             - null
             - channel_down
@@ -1956,16 +2224,26 @@ views:
     type: vertical-stack
     view_layout:
       column: 2
-  - artwork: full-cover
-    entity: media_player.hilary_s_nest_hub
-    toggle_power: true
-    type: custom:mini-media-player
   icon: mdi:face-woman-profile
   path: hilary
   title: Hilary
   type: custom:vertical-layout
   visible:
   - user: e07f5c6a76fd4886ad5d945ed22f6d4b
+- cards:
+  - hold_action:
+      action: none
+    image: https://github.com/n00bcodr/LMI-Weekly-Menu/blob/main/weekly_menu.jpg?raw=true
+    tap_action:
+      action: none
+    type: picture
+  icon: mdi:menu
+  path: menu
+  subview: true
+  title: Menu
+  type: panel
+  visible:
+  - user: 74f7e2ffd3594037b1a2fc4de82d9fea
 - cards:
   - anchor_id: home
     offset: -50
@@ -2044,61 +2322,104 @@ views:
       - 74f7e2ffd3594037b1a2fc4de82d9fea
     type: conditional
   - cards:
-    - card_mod:
-        style:
-          .: "ha-card {\n --icon-size: 100px;\n background: transparent !important;\n\
-            \ border: 0px !important;\n align-items: center;\n}\nmushroom-badge-icon\
-            \ {\n  --badge-icon-size: 0px;\n  --badge-size: 0px;\n}          \n"
-          mushroom-shape-avatar$: ".picture {\n  display: flex;\n  border-radius:\
-            \ 50%;\n  {% if states(config.entity) == 'home' %}\n    animation: pinggreen\
-            \ 4s infinite;\n    border: 4px solid #77c66e\n  {% else %}\n    animation:\
-            \ pingred 4s infinite;\n    border: 4px solid #EF4F1A\n  {% endif %}\n\
-            }\n@keyframes pinggreen {\n  0% {box-shadow: 0 0 8px 8px rgba(var(--rgb-green),\
-            \ 0.9);}\n  100% {box-shadow: 0 0 5px 20px transparent;}\n}\n@keyframes\
-            \ pingred {\n  0% {box-shadow: 0 0 8px 8px rgba(var(--rgb-red), 0.9);}\n\
-            \  100% {box-shadow: 0 0 5px 20px transparent;}\n}\n"
+    - aspect_ratio: 1/1
       entity: person.darragh_clerkin
-      icon_type: entity-picture
-      layout: vertical
-      primary_info: none
-      secondary_info: none
-      type: custom:mushroom-person-card
-    - card_mod:
-        style:
-          .: "ha-card {\n --icon-size: 100px;\n background: transparent !important;\n\
-            \ border: 0px !important;\n align-items: center;\n}\nmushroom-badge-icon\
-            \ {\n  --badge-icon-size: 0px;\n  --badge-size: 0px;\n} \n"
-          mushroom-shape-avatar$: ".picture {\n  display: flex;\n  border-radius:\
-            \ 50%;\n  {% if states(config.entity) == 'home' %}\n    animation: pinggreen\
-            \ 4s infinite;\n    border: 4px solid #77c66e\n  {% else %}\n    animation:\
-            \ pingred 4s infinite;\n    border: 4px solid #EF4F1A\n  {% endif %}\n\
-            }\n@keyframes pinggreen {\n  0% {box-shadow: 0 0 8px 8px rgba(var(--rgb-green),\
-            \ 0.9);}\n  100% {box-shadow: 0 0 5px 20px transparent;}\n}\n@keyframes\
-            \ pingred {\n  0% {box-shadow: 0 0 8px 8px rgba(var(--rgb-red), 0.9);}\n\
-            \  100% {box-shadow: 0 0 5px 20px transparent;}\n}\n"
+      hold_action:
+        action: none
+      show_entity_picture: true
+      show_name: false
+      state:
+      - styles:
+          entity_picture:
+          - border-color: '#77c66e'
+        value: home
+      - styles:
+          entity_picture:
+          - border-color: '#EF4F1A'
+          - opacity: 0.8
+        value: not_home
+      - styles:
+          entity_picture:
+          - border-color: deepskyblue
+        value: Work
+      styles:
+        card:
+        - --ha-card-background: transparent;
+        - --ha-card-box-shadow: none;
+        entity_picture:
+        - clip-path: circle()
+        - width: 80%
+        - border: 5px solid
+        - border-radius: 900px
+        - opacity: 1
+      tap_action:
+        action: none
+      type: custom:button-card
+    - aspect_ratio: 1/1
       entity: person.pavanthanuj
-      icon_type: entity-picture
-      primary_info: none
-      secondary_info: none
-      type: custom:mushroom-person-card
-    - card_mod:
-        style:
-          .: "ha-card {\n --icon-size: 100px;\n background: transparent !important;\n\
-            \ border: 0px !important;\n align-items: center;\n}\nmushroom-badge-icon\
-            \ {\n  --badge-icon-size: 0px;\n  --badge-size: 0px;\n} \n"
-          mushroom-shape-avatar$: ".picture {\n  display: flex;\n  border-radius:\
-            \ 50%;\n  {% if states(config.entity) == 'home' %}\n    animation: pinggreen\
-            \ 4s infinite;\n    border: 4px solid #77c66e\n  {% else %}\n    animation:\
-            \ pingred 4s infinite;\n    border: 4px solid #EF4F1A\n  {% endif %}\n\
-            }\n@keyframes pinggreen {\n  0% {box-shadow: 0 0 8px 8px rgba(var(--rgb-green),\
-            \ 0.9);}\n  100% {box-shadow: 0 0 5px 20px transparent;}\n}\n@keyframes\
-            \ pingred {\n  0% {box-shadow: 0 0 8px 8px rgba(var(--rgb-red), 0.9);}\n\
-            \  100% {box-shadow: 0 0 5px 20px transparent;}\n}\n"
+      hold_action:
+        action: none
+      show_entity_picture: true
+      show_name: false
+      state:
+      - styles:
+          entity_picture:
+          - border-color: '#77c66e'
+        value: home
+      - styles:
+          entity_picture:
+          - border-color: '#EF4F1A'
+          - opacity: 0.8
+        value: not_home
+      - styles:
+          entity_picture:
+          - border-color: deepskyblue
+        value: Work
+      styles:
+        card:
+        - --ha-card-background: transparent;
+        - --ha-card-box-shadow: none;
+        entity_picture:
+        - clip-path: circle()
+        - width: 80%
+        - border: 5px solid
+        - border-radius: 900px
+        - opacity: 1
+      tap_action:
+        action: none
+      type: custom:button-card
+    - aspect_ratio: 1/1
       entity: person.hilary_harris
-      icon_type: entity-picture
-      primary_info: none
-      secondary_info: none
-      type: custom:mushroom-person-card
+      hold_action:
+        action: none
+      show_entity_picture: true
+      show_name: false
+      state:
+      - styles:
+          entity_picture:
+          - border-color: '#77c66e'
+        value: home
+      - styles:
+          entity_picture:
+          - border-color: '#EF4F1A'
+          - opacity: 0.8
+        value: not_home
+      - styles:
+          entity_picture:
+          - border-color: deepskyblue
+        value: Work
+      styles:
+        card:
+        - --ha-card-background: transparent;
+        - --ha-card-box-shadow: none;
+        entity_picture:
+        - clip-path: circle()
+        - width: 80%
+        - border: 5px solid
+        - border-radius: 900px
+      tap_action:
+        action: none
+      type: custom:button-card
     columns: 3
     square: false
     type: grid
@@ -2663,161 +2984,226 @@ views:
       volume_controls: []
     - card:
         cards:
-        - collapsible_controls: false
-          entity: light.tv_led_strip
-          show_brightness_control: true
-          show_color_control: true
-          type: custom:mushroom-light-card
-          use_light_color: true
-        - cards:
-          - button_style:
-              --size: 35px
-              color: var(--secondary-text-color)
-            custom_actions:
-              slider:
-                style:
-                  --background-height: 5px
-                  --border-radius: 40px
-                  --color: var(--secondary-text-color)
-                  --height: 10px
-            custom_keys:
-              power:
-                style:
-                  color: crimson
-            keyboard_id: media_player.google_tv
-            media_player_id: media_player.google_tv
-            remote_id: remote.google_tv
-            rows:
-            - - power
-              - home
-            - - volume_slider
-              - volume_mute
-            type: custom:android-tv-card
-          - entities:
-            - card_type: horizontal-stack
-              cards:
-              - entity: media_player.google_tv
-                entity_picture: /local/icons/netflix.png
-                tap_action:
-                  service: media_player.select_source
-                  service_data:
-                    entity_id: media_player.google_tv
-                    source: Netflix
-                template: logo_button
-                type: custom:button-card
-              - entity: media_player.google_tv
-                entity_picture: /local/icons/prime.png
-                tap_action:
-                  service: media_player.select_source
-                  service_data:
-                    entity_id: media_player.google_tv
-                    source: Prime Video
-                template: logo_button
-                type: custom:button-card
-              - entity: media_player.google_tv
-                entity_picture: /local/icons/youtube.png
-                tap_action:
-                  service: media_player.select_source
-                  service_data:
-                    entity_id: media_player.google_tv
-                    source: YouTube
-                template: logo_button
-                type: custom:button-card
-              type: custom:hui-element
-            - card_type: horizontal-stack
-              cards:
-              - entity: media_player.google_tv
-                entity_picture: /local/icons/plex.png
-                tap_action:
-                  service: media_player.select_source
-                  service_data:
-                    entity_id: media_player.google_tv
-                    source: Plex
-                template: logo_button
-                type: custom:button-card
-              - entity: media_player.google_tv
-                entity_picture: /local/icons/disney.png
-                tap_action:
-                  service: media_player.select_source
-                  service_data:
-                    entity_id: media_player.google_tv
-                    source: Hotstar
-                template: logo_button
-                type: custom:button-card
-              - entity: media_player.google_tv
-                entity_picture: /local/icons/spotify.png
-                tap_action:
-                  service: media_player.select_source
-                  service_data:
-                    entity_id: media_player.google_tv
-                    source: Spotify
-                template: logo_button
-                type: custom:button-card
-              type: custom:hui-element
-            - card_type: horizontal-stack
-              cards:
-              - entity: media_player.google_tv
-                entity_picture: /local/icons/expressvpn.png
-                styles:
-                  entity_picture:
-                  - width: 70%
-                tap_action:
-                  service: media_player.select_source
-                  service_data:
-                    entity_id: media_player.google_tv
-                    source: Express VPN
-                template: logo_button
-                type: custom:button-card
-              - entity: media_player.google_tv
-                entity_picture: /local/icons/F1.png
-                tap_action:
-                  service: media_player.select_source
-                  service_data:
-                    entity_id: media_player.google_tv
-                    source: F1 TV
-                template: logo_button
-                type: custom:button-card
-              - entity: media_player.google_tv
-                entity_picture: /local/icons/sonyliv.png
-                styles:
-                  entity_picture:
-                  - width: 40%
-                tap_action:
-                  service: media_player.select_source
-                  service_data:
-                    entity_id: media_player.google_tv
-                    source: SonyLIV
-                template: logo_button
-                type: custom:button-card
-              type: custom:hui-element
-            show_header_toggle: false
-            type: entities
-          - button_style:
-              --size: 35px
-              color: var(--secondary-text-color)
-            keyboard_id: media_player.google_tv
-            media_player_id: media_player.google_tv
-            remote_id: remote.google_tv
-            rows:
-            - - back
-              - keyboard
+        - custom_actions:
+          - icon: mdi:power
+            name: power
+            styles: ":host {\n  --icon-color: crimson;\n}"
+            tap_action:
+              action: key
+              key: POWER
+            type: button
+          - autofill_entity_id: true
+            haptics: false
+            icon: ''
+            label: '{{ (value * 100 ) /4 | int }}'
+            name: slider
+            range:
+            - 0
+            - 1
+            step: 0.01
+            styles: ":host {\n  height: 30px;\n  border-radius: 20px;  \n  --color:\
+              \ #4285F4;\n  --background-height: 20px;\n  --thumb-border-radius: 0;\n\
+              }\n.icon {\n  display: none;\n}\n.label {\n  {% if not states(config.entity,\
+              \ 'on') %}\n  display: none;\n  {% endif %}\n  transform: var(--icon-transform);\n\
+              \  font-size: 14px;\n  color: var(--primary-text-color);\n}\n.tooltip\
+              \ {\n  display: none;\n}"
+            tap_action:
+              action: perform-action
+              data:
+                volume_level: '{{ value | float }}'
+              perform_action: media_player.volume_set
+            type: slider
+            value_attribute: volume_level
+            value_from_hass_delay: 100
+            vertical: false
+          custom_icons: []
+          keyboard_id: media_player.google_tv
+          media_player_id: media_player.google_tv
+          remote_id: remote.google_tv
+          rows:
+          - - power
+            - home
+          - - slider
+            - volume_mute
+          styles: "remote-button {\n  --size: 35px;\n  color: var(--secondary-text-color);\n\
+            }\n"
+          type: custom:android-tv-card
+        - entities:
+          - card_type: horizontal-stack
+            cards:
+            - entity: media_player.google_tv
+              entity_picture: /local/icons/netflix.png
+              tap_action:
+                service: media_player.select_source
+                service_data:
+                  entity_id: media_player.google_tv
+                  source: Netflix
+              template: logo_button
+              type: custom:button-card
+            - entity: media_player.google_tv
+              entity_picture: /local/icons/prime.png
+              tap_action:
+                service: media_player.select_source
+                service_data:
+                  entity_id: media_player.google_tv
+                  source: Prime Video
+              template: logo_button
+              type: custom:button-card
+            - entity: media_player.google_tv
+              entity_picture: /local/icons/youtube.png
+              tap_action:
+                service: media_player.select_source
+                service_data:
+                  entity_id: media_player.google_tv
+                  source: YouTube
+              template: logo_button
+              type: custom:button-card
+            type: custom:hui-element
+          - card_type: horizontal-stack
+            cards:
+            - entity: media_player.google_tv
+              entity_picture: /local/icons/plex.png
+              tap_action:
+                service: media_player.select_source
+                service_data:
+                  entity_id: media_player.google_tv
+                  source: Plex
+              template: logo_button
+              type: custom:button-card
+            - entity: media_player.google_tv
+              entity_picture: /local/icons/disney.png
+              tap_action:
+                service: media_player.select_source
+                service_data:
+                  entity_id: media_player.google_tv
+                  source: Disney+ Hotstar
+              template: logo_button
+              type: custom:button-card
+            - entity: media_player.google_tv
+              entity_picture: /local/icons/spotify.png
+              tap_action:
+                service: media_player.select_source
+                service_data:
+                  entity_id: media_player.google_tv
+                  source: Spotify
+              template: logo_button
+              type: custom:button-card
+            type: custom:hui-element
+          - card_type: horizontal-stack
+            cards:
+            - entity: media_player.google_tv
+              entity_picture: /local/icons/JioCinema.png
+              styles:
+                entity_picture:
+                - width: 80%
+              tap_action:
+                service: media_player.select_source
+                service_data:
+                  entity_id: media_player.google_tv
+                  source: Jio Cinema
+              template: logo_button
+              type: custom:button-card
+            - entity: media_player.google_tv
+              entity_picture: /local/icons/jellyfin.png
+              styles:
+                entity_picture:
+                - width: 70%
+              tap_action:
+                service: media_player.select_source
+                service_data:
+                  entity_id: media_player.google_tv
+                  source: Jellyfin
+              template: logo_button
+              type: custom:button-card
+            - entity: media_player.google_tv
+              entity_picture: /local/icons/expressvpn.png
+              styles:
+                entity_picture:
+                - width: 70%
+              tap_action:
+                service: media_player.select_source
+                service_data:
+                  entity_id: media_player.google_tv
+                  source: Express VPN
+              template: logo_button
+              type: custom:button-card
+            type: custom:hui-element
+          show_header_toggle: false
+          type: entities
+        - custom_actions:
+          - icon: mdi:checkbox-blank-circle
+            name: center
+            styles: ":host {\n  --icon-color: rgb(94, 94, 94);\n  --size: 100px;\n\
+              \  background: rgb(31, 31, 31);\n  border-radius: 100px;\n  margin:\
+              \ -70px;\n  padding: 70px;\n}"
+            tap_action:
+              action: key
+              key: DPAD_CENTER
+            type: button
+          - hold_action:
+              action: repeat
+            icon: mdi:chevron-up
+            name: up
+            styles: ":host {\n  --icon-color: rgb(197, 199, 197);\n  z-index: 2;\n\
+              \  top: 55px;\n  height: 90px;\n  width: 300px;\n}"
+            tap_action:
+              action: key
+              key: DPAD_UP
+            type: button
+          - hold_action:
+              action: repeat
+            icon: mdi:chevron-down
+            name: down
+            styles: ":host {\n  --icon-color: rgb(197, 199, 197);\n  z-index: 2;\n\
+              \  bottom: 55px;\n  height: 90px;\n  width: 300px;\n}"
+            tap_action:
+              action: key
+              key: DPAD_DOWN
+            type: button
+          - hold_action:
+              action: repeat
+            icon: mdi:chevron-left
+            name: left
+            styles: ":host {\n  --icon-color: rgb(197, 199, 197);\n  z-index: 2;\n\
+              \  left: 30px;\n  height: 170px;\n  width: 90px;\n}"
+            tap_action:
+              action: key
+              key: DPAD_LEFT
+            type: button
+          - hold_action:
+              action: repeat
+            icon: mdi:chevron-right
+            name: right
+            styles: ":host {\n  --icon-color: rgb(197, 199, 197);\n  z-index: 2;\n\
+              \  right: 30px;\n  height: 170px;\n  width: 90px;\n}"
+            tap_action:
+              action: key
+              key: DPAD_RIGHT
+            type: button
+          keyboard_id: media_player.google_tv
+          media_player_id: media_player.google_tv
+          remote_id: remote.google_tv_remote
+          rows:
+          - - back
+            - keyboard
+            - settings
+          - - '{{ "navigation_buttons" if match_media("(min-width: 1000px)") else
+              "touchpad" }}'
+            - - captions
               - null
-            - - '{{ "navigation_buttons" if match_media("(min-width: 768px)") else
-                "navigation_touchpad" }}'
-              - - captions
-                - null
-                - audio_track
-                - null
-                - info
-            - - previous
-              - play_pause
-              - next
+              - audio_track
               - null
-            touchpad_style:
-              opacity: 0.5
-            type: custom:android-tv-card
-          type: custom:stack-in-card
-        type: vertical-stack
+              - info
+          - - previous
+            - play_pause
+            - next
+          styles: "#row-1 {\n  justify-content: justify;\n}\n#row-2 {\n  justify-content:\
+            \ center;\n}\n#row-3 {\n  justify-content: justify;\n}\n#row-4 {\n  justify-content:\
+            \ justify;\n}\n#row-5 {\n  justify-content: right;\n}\n#row-6 {\n  justify-content:\
+            \ justify;\n}\nremote-button {\n  --size: 35px;\n  color: var(--secondary-text-color);\n\
+            }\n"
+          type: custom:android-tv-card
+        type: custom:stack-in-card
       conditions:
       - condition: state
         entity: media_player.google_tv
@@ -2892,7 +3278,7 @@ views:
       card_mod:
         style: "ha-card {\n  {% if is_state(config.entity, 'on') %}\n     background:\
           \ rgba(255, 255, 0, 0.2);\n  {%- else -%}\n  {%- endif %}\n}\n"
-      entity: switch.string_lights
+      entity: light.string_lights
       icon: '{{ iif(is_state(''switch.string_lights'', ''on''), ''mdi:string-lights'',
         ''mdi:string-lights-off'')}}'
       icon_color: '{{ iif(is_state(''switch.string_lights'', ''on''), ''yellow'',
@@ -2910,16 +3296,16 @@ views:
       card_mod:
         style: "ha-card {\n  {% if is_state(config.entity, 'on') %}\n     background:\
           \ rgba(255, 255, 0, 0.2);\n  {%- else -%}\n  {%- endif %}\n}\n"
-      entity: switch.hallway_chandelier
-      icon: '{{ iif(is_state(''switch.hallway_chandelier'', ''on''), ''mdi:chandelier'',
+      entity: light.hallway_chandelier
+      icon: '{{ iif(is_state(''light.hallway_chandelier'', ''on''), ''mdi:chandelier'',
         ''mdi:chandelier'')}}'
-      icon_color: '{{ iif(is_state(''switch.hallway_chandelier'', ''on''), ''yellow'',
+      icon_color: '{{ iif(is_state(''light.hallway_chandelier'', ''on''), ''yellow'',
         ''disabled'')}}'
       picture: ''
       primary: Chandelier
-      secondary: 'Turned {{states.switch.hallway_chandelier.state}} at
+      secondary: 'Turned {{states.light.hallway_chandelier.state}} at
 
-        {{(as_timestamp(states.switch.hallway_chandelier.last_changed) |
+        {{(as_timestamp(states.light.hallway_chandelier.last_changed) |
 
         timestamp_custom(''%-I:%M %p''))}}'
       type: custom:mushroom-template-card
@@ -2928,15 +3314,15 @@ views:
       card_mod:
         style: "ha-card {\n  {% if is_state(config.entity, 'on') %}\n     background:\
           \ rgba(255, 255, 0, 0.2);\n  {%- else -%}\n  {%- endif %}\n}\n"
-      entity: switch.porch_light
-      icon: '{{ iif(is_state(''switch.porch_light'', ''on''), ''mdi:lightbulb-on'',
+      entity: light.porch_light
+      icon: '{{ iif(is_state(''light.porch_light'', ''on''), ''mdi:lightbulb-on'',
         ''mdi:lightbulb-off-outline'')}}'
-      icon_color: '{{ iif(is_state(''switch.porch_light'', ''on''), ''yellow'', ''disabled'')}}'
+      icon_color: '{{ iif(is_state(''light.porch_light'', ''on''), ''yellow'', ''disabled'')}}'
       picture: ''
       primary: Porch Light
-      secondary: 'Turned {{states.switch.porch_light.state}} at
+      secondary: 'Turned {{states.light.porch_light.state}} at
 
-        {{(as_timestamp(states.switch.porch_light.last_changed) |
+        {{(as_timestamp(states.light.porch_light.last_changed) |
 
         timestamp_custom(''%-I:%M %p''))}}'
       type: custom:mushroom-template-card
@@ -2980,10 +3366,9 @@ views:
         path: media-source://media_source/local/Doorbell/
         recursive: true
       file_name_format: YYYY-MM-DD_HH-mm-SS
-      maximum_files: 30
+      maximum_files: 15
       menu_alignment: Bottom
       parsed_date_sort: true
-      show_reload: true
       show_zoom: true
       type: custom:gallery-card
     type: vertical-stack
@@ -3199,6 +3584,9 @@ views:
   path: utilities
   sections:
   - cards:
+    - heading: "\U0001F9FA Washing Machine"
+      heading_style: title
+      type: heading
     - cards:
       - double_tap_action:
           action: none
@@ -3365,8 +3753,9 @@ views:
           secondary_info: name
           type: custom:mushroom-entity-card
         type: horizontal-stack
+      layout_options:
+        grid_columns: full
       type: vertical-stack
-    title: "\U0001F9FA Washing Machine"
     type: grid
   title: Utilities
   type: sections
@@ -3440,7 +3829,7 @@ views:
           action: none
         hold_action:
           action: none
-        picture: https://cdn.jsdelivr.net/gh/loganmarchione/homelab-svg-assets@0.3.2/assets/sonarr.svg
+        picture: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg/sonarr.svg
         primary: Sonarr
         secondary: ''
         tap_action:
@@ -3451,7 +3840,7 @@ views:
           action: none
         hold_action:
           action: none
-        picture: https://cdn.jsdelivr.net/gh/loganmarchione/homelab-svg-assets@0.3.2/assets/radarr.svg
+        picture: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg/radarr.svg
         primary: Radarr
         secondary: ''
         tap_action:
@@ -3463,7 +3852,7 @@ views:
         hold_action:
           action: none
         icon: ''
-        picture: https://static-00.iconduck.com/assets.00/plex-icon-512x512-mi6sd8ol.png
+        picture: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg/plex.svg
         primary: Plex
         secondary: ''
         tap_action:
@@ -3475,7 +3864,19 @@ views:
         hold_action:
           action: none
         icon: ''
-        picture: https://cdn.jsdelivr.net/gh/loganmarchione/homelab-svg-assets@0.3.2/assets/prowlarr.svg
+        picture: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg/jellyfin.svg
+        primary: Jellyfin
+        secondary: ''
+        tap_action:
+          action: url
+          url_path: http://homeassistant.local:8096/
+        type: custom:mushroom-template-card
+      - double_tap_action:
+          action: none
+        hold_action:
+          action: none
+        icon: ''
+        picture: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg/prowlarr.svg
         primary: Prowlarr
         secondary: ''
         tap_action:
@@ -3486,7 +3887,7 @@ views:
           action: none
         hold_action:
           action: none
-        picture: https://tautulli.com/images/logo-circle.png
+        picture: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg/tautulli.svg
         primary: Tautulli
         secondary: ''
         tap_action:
@@ -3498,7 +3899,7 @@ views:
         hold_action:
           action: none
         icon: ''
-        picture: https://cdn.jsdelivr.net/gh/loganmarchione/homelab-svg-assets@0.3.2/assets/syncthing.svg
+        picture: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg/syncthing.svg
         primary: Syncthing
         secondary: ''
         tap_action:
@@ -3510,7 +3911,7 @@ views:
         hold_action:
           action: none
         icon: ''
-        picture: https://cdn.jsdelivr.net/gh/loganmarchione/homelab-svg-assets@0.3.2/assets/portainer.svg
+        picture: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg/portainer.svg
         primary: Portainer
         secondary: ''
         tap_action:
@@ -3522,7 +3923,7 @@ views:
         hold_action:
           action: none
         icon: ''
-        picture: https://cdn.jsdelivr.net/gh/loganmarchione/homelab-svg-assets@0.3.2/assets/filebrowser.svg
+        picture: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg/filebrowser.svg
         primary: File Browser
         secondary: ''
         tap_action:
@@ -3534,7 +3935,7 @@ views:
         hold_action:
           action: none
         icon: ''
-        picture: https://cdn.jsdelivr.net/gh/loganmarchione/homelab-svg-assets@0.3.2/assets/transmission.svg
+        picture: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg/transmission.svg
         primary: Transmission
         secondary: ''
         tap_action:
@@ -3577,6 +3978,18 @@ views:
           action: url
           url_path: http://homeassistant.local:2283/
         type: custom:mushroom-template-card
+      - double_tap_action:
+          action: none
+        hold_action:
+          action: none
+        icon: ''
+        picture: https://raw.githubusercontent.com/home-assistant/iOS/master/icons/dev.png
+        primary: HomeAssistant India
+        secondary: ''
+        tap_action:
+          action: url
+          url_path: http://192.168.68.168:8123/
+        type: custom:mushroom-template-card
       columns: 2
       square: false
       type: grid
@@ -3604,6 +4017,42 @@ views:
         column: 1
     type: grid
   - cards:
+    - double_tap_action:
+        action: none
+      entity: input_select.media_service
+      hold_action:
+        action: none
+      icon: '{% if is_state(config.entity, ''Plex'') %}
+
+        mdi:plex
+
+        {% else %}
+
+        phu:jellyfin
+
+        {% endif %}'
+      icon_color: '{% if is_state(config.entity, ''Plex'') %}
+
+        yellow
+
+        {% else %}
+
+        purple
+
+        {% endif %}'
+      layout_options:
+        grid_columns: 4
+        grid_rows: 1
+      primary: '{{states(config.entity)}}'
+      secondary: ''
+      tap_action:
+        action: perform-action
+        data:
+          cycle: true
+        perform_action: input_select.select_next
+        target:
+          entity_id: input_select.media_service
+      type: custom:mushroom-template-card
     - cards:
       - double_tap_action:
           action: none
@@ -3664,41 +4113,124 @@ views:
         show_empty: false
         sort:
           ignore_case: false
-          method: domain
+          method: state
           reverse: false
         type: custom:auto-entities
       type: vertical-stack
       view_layout:
         column: 2
+      visibility:
+      - condition: state
+        entity: input_select.media_service
+        state: Plex
+    - cards:
+      - double_tap_action:
+          action: none
+        fill_container: true
+        hold_action:
+          action: none
+        icon: phu:jellyfin
+        icon_color: purple
+        picture: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg/jellyfin.svg
+        primary: Refresh Libraries
+        secondary: ''
+        tap_action:
+          action: call-service
+          perform_action: button.press
+          target:
+            entity_id: button.jellyfin_rescan_libraries
+        type: custom:mushroom-template-card
+      - card:
+          type: entities
+        filter:
+          exclude:
+          - state: unavailable
+          - entity_id: '*rescan*'
+          - entity_id: '*widget*'
+          include:
+          - name: /[Jj]elly/
+        show_empty: false
+        sort:
+          ignore_case: false
+          method: state
+          numeric: false
+          reverse: false
+        type: custom:auto-entities
+      type: vertical-stack
+      view_layout:
+        column: 2
+      visibility:
+      - condition: state
+        entity: input_select.media_service
+        state: Jellyfin
     type: grid
   - cards:
-    - all_shadows: false
-      date: ddmm
+    - collapse: 3
+      date: dd-mm-yy
+      deep_link: true
+      enable_tooltips: true
+      enable_trailers: true
+      entity: sensor.jellyfin_episodes
+      flag: false
+      image_style: fanart
+      type: custom:upcoming-media-card
+      visibility:
+      - condition: state
+        entity: input_select.media_service
+        state: Jellyfin
+    - collapse: 3
+      date: dd-mm-yy
+      deep_link: true
+      enable_tooltips: true
+      enable_trailers: true
+      entity: sensor.jellyfin_movies
+      flag: false
+      image_style: fanart
+      line2_text: "\u2B50 $rating"
+      line3_text: "\u231B$runtime"
+      type: custom:upcoming-media-card
+      visibility:
+      - condition: state
+        entity: input_select.media_service
+        state: Jellyfin
+    - collapse: 3
+      date: dd-mm-yy
+      deep_link: true
+      enable_tooltips: true
+      enable_trailers: true
       entity: sensor.recently_added_tv
       flag: false
       image_style: fanart
-      max: 3
       type: custom:upcoming-media-card
-    title: Recently Added TV Shows
-    type: grid
-    visibility:
-    - condition: state
-      entity: binary_sensor.plex_tv_shows
-      state: 'on'
-  - cards:
+      visibility:
+      - condition: state
+        entity: input_select.media_service
+        state: Plex
     - all_shadows: false
+      collapse: 3
       date: ddmm
       entity: sensor.recently_added_movies
       flag: false
       image_style: fanart
-      max: 3
       type: custom:upcoming-media-card
-    title: Recently Added Movies
+      visibility:
+      - condition: state
+        entity: input_select.media_service
+        state: Plex
+    column_span: 2
+    type: grid
+  - cards:
+    - default_type: active
+      display_mode: full
+      hide_add_torrent: true
+      hide_turtle: true
+      hide_type: true
+      type: custom:transmission-card
     type: grid
     visibility:
-    - condition: state
-      entity: binary_sensor.plex_movies
-      state: 'on'
+    - above: 0
+      condition: numeric_state
+      entity: sensor.transmission_active_torrents
   title: Media
   type: sections
   visible:
@@ -3742,7 +4274,7 @@ views:
                   primary_info: state
                   secondary_info: name
                   type: custom:mushroom-entity-card
-                - entity: sensor.harddisk_percentage
+                - entity: sensor.system_monitor_disk_use_percent
                   icon_color: '#FF9101'
                   name: Disk
                   primary_info: state
@@ -3775,14 +4307,14 @@ views:
                 - color: '#E91E63'
                   entity: sensor.memory_use_percent
                 - color: '#FF9101'
-                  entity: sensor.harddisk_percentage
+                  entity: sensor.system_monitor_disk_use_percent
                 type: custom:apexcharts-card
           styles:
             card:
             - border: none
             grid:
             - grid-template-areas: '''item radial'''
-            - grid-template-columns: 35% 75%
+            - grid-template-columns: 30% 80%
             - grid-template-rows: 270px
           type: custom:button-card
         - card_mod:
@@ -3867,10 +4399,10 @@ views:
             action: none
           hold_action:
             action: none
-          icon: "{% if is_state('binary_sensor.192_168_168_1', 'off') or is_state('binary_sensor.192_168_68_1',\
+          icon: "{% if is_state('binary_sensor.192_168_168_1', 'off') or is_state('binary_sensor.100_71_205_101',\
             \ 'off') or is_state('binary_sensor.8_8_8_8', 'off') %}\n  mdi:lan-disconnect\n\
             {% else %}\n  mdi:lan-connect\n{% endif %}"
-          icon_color: "{% if is_state('binary_sensor.192_168_168_1', 'off') or is_state('binary_sensor.192_168_68_1',\
+          icon_color: "{% if is_state('binary_sensor.192_168_168_1', 'off') or is_state('binary_sensor.100_71_205_101',\
             \ 'off') or is_state('binary_sensor.8_8_8_8', 'off') %}\n  red\n{% else\
             \ %}\n  blue\n{% endif %}"
           tap_action:
@@ -3889,7 +4421,7 @@ views:
             type: custom:mushroom-entity-card
           type: horizontal-stack
         - cards:
-          - entity: binary_sensor.192_168_68_1
+          - entity: binary_sensor.100_71_205_101
             icon_color: blue
             name: Tailscale India
             type: custom:mushroom-entity-card
@@ -3919,14 +4451,12 @@ views:
         entity: sensor.syncthing_whatsapp
         hold_action:
           action: more-info
-        icon: "{% if states('sensor.syncthing_whatsapp') == 'syncing' %}\n  mdi:folder-sync\n\
-          {% elif states('sensor.syncthing_whatsapp') == 'idle' %}\n  mdi:folder-check\n\
-          {% elif states('sensor.syncthing_whatsapp') == 'paused' %}\n  mdi:folder-clock\n\
-          {% endif %}\n"
-        icon_color: "{% if states('sensor.syncthing_whatsapp') == 'syncing' %}\n \
-          \ yellow\n{% elif states('sensor.syncthing_whatsapp') == 'idle' %}\n  green\n\
-          {% elif states('sensor.syncthing_whatsapp') == 'paused' %}\n  grey\n{% endif\
-          \ %}\n"
+        icon: "{% if states(config.entity) == 'syncing' %}\n  mdi:folder-sync\n{%\
+          \ elif states(config.entity) == 'idle' %}\n  mdi:folder-check\n{% elif states(config.entity)\
+          \ == 'paused' %}\n  mdi:folder-clock\n{% endif %}\n"
+        icon_color: "{% if states(config.entity) == 'syncing' %}\n  yellow\n{% elif\
+          \ states(config.entity) == 'idle' %}\n  green\n{% elif states(config.entity)\
+          \ == 'paused' %}\n  grey\n{% endif %}\n"
         multiline_secondary: true
         primary: Syncthing WhatsApp
         secondary: 'Files - {{states.sensor.syncthing_whatsapp.attributes.global_files}}
@@ -3940,31 +4470,8 @@ views:
         tap_action:
           action: none
         type: custom:mushroom-template-card
-      - double_tap_action:
-          action: none
-        entity: sensor.syncthing_camera
-        hold_action:
-          action: more-info
-        icon: "{% if states('sensor.syncthing_camera') == 'syncing' %}\n  mdi:folder-sync\n\
-          {% elif states('sensor.syncthing_camera') == 'idle' %}\n  mdi:folder-check\n\
-          {% endif %}\n"
-        icon_color: "{% if states('sensor.syncthing_camera') == 'syncing' %}\n  yellow\n\
-          {% elif states('sensor.syncthing_camera') == 'idle' %}\n  green\n{% endif\
-          \ %}\n"
-        multiline_secondary: true
-        primary: Syncthing Camera
-        secondary: 'Files - {{states.sensor.syncthing_camera.attributes.global_files}}
-
-          Local Files - {{states.sensor.syncthing_camera.attributes.local_files}}
-
-          Size - {{ (states.sensor.syncthing_camera.attributes.local_bytes | float
-          / 1024 / 1024 / 1024)  | round(2) }} GB
-
-          '
-        tap_action:
-          action: none
-        type: custom:mushroom-template-card
       type: vertical-stack
+    column_span: 1
     type: grid
   - cards:
     - cards:
@@ -4220,17 +4727,17 @@ views:
               '
           double_tap_action:
             action: none
-          entity: sensor.harddisk_used_space
+          entity: sensor.system_monitor_disk_use
           fill_container: false
           hold_action:
             action: none
           icon: mdi:harddisk
-          icon_color: "{% set value = states('sensor.harddisk_percentage') | float\
-            \ %} {% if value >= 0.00 and value <= 50.99 %}\n  green\n{% elif value\
-            \ >= 51 and value <= 70.99 %}\n  orange\n{% elif value >= 71.00 and value\
-            \ <= 100 %}\n  red\n{% endif %}"
+          icon_color: "{% set value = states('sensor.system_monitor_disk_use_percent')\
+            \ | float %} {% if value >= 0.00 and value <= 50.99 %}\n  green\n{% elif\
+            \ value >= 51 and value <= 70.99 %}\n  orange\n{% elif value >= 71.00\
+            \ and value <= 100 %}\n  red\n{% endif %}"
           multiline_secondary: true
-          primary: '{{states(''sensor.harddisk_used_space'')}} GB'
+          primary: '{{states(''sensor.system_monitor_disk_use'')}} GB'
           secondary: Hard Disk
           tap_action:
             action: more-info
@@ -4244,7 +4751,7 @@ views:
               \ 100%, rgba(0,0,0,0));}\n"
           decimal: 1
           entities:
-          - entity: sensor.harddisk_percentage
+          - entity: sensor.system_monitor_disk_use_percent
           height: 30px
           positions:
             icon: 'off'
@@ -4273,17 +4780,17 @@ views:
               '
           double_tap_action:
             action: none
-          entity: sensor.1tb_used_space
+          entity: sensor.system_monitor_disk_use_media_1tb
           fill_container: false
           hold_action:
             action: none
           icon: phu:seagate-ssd
-          icon_color: "{% set value = states('sensor.1tb_percentage') | float %} {%\
-            \ if value >= 0.00 and value <= 50.99 %}\n  green\n{% elif value >= 51\
-            \ and value <= 70.99 %}\n  orange\n{% elif value >= 71.00 and value <=\
-            \ 100 %}\n  red\n{% endif %}"
+          icon_color: "{% set value = states('sensor.system_monitor_disk_usage_media_1tb')\
+            \ | float %} {% if value >= 0.00 and value <= 50.99 %}\n  green\n{% elif\
+            \ value >= 51 and value <= 70.99 %}\n  orange\n{% elif value >= 71.00\
+            \ and value <= 100 %}\n  red\n{% endif %}"
           multiline_secondary: true
-          primary: '{{states(''sensor.1tb_used_space'')}} GB'
+          primary: '{{states(''sensor.system_monitor_disk_use_media_1tb'')}} GB'
           secondary: 1 TB
           tap_action:
             action: more-info
@@ -4297,7 +4804,7 @@ views:
               \ 100%, rgba(0,0,0,0));}\n"
           decimal: 1
           entities:
-          - entity: sensor.1tb_percentage
+          - entity: sensor.system_monitor_disk_usage_media_1tb
           height: 30px
           positions:
             icon: 'off'
@@ -4326,17 +4833,17 @@ views:
               '
           double_tap_action:
             action: none
-          entity: sensor.1tb_ssd_used_space
+          entity: sensor.system_monitor_disk_use_media_1tb_ssd
           fill_container: false
           hold_action:
             action: none
           icon: phu:seagate-ssd-m2
-          icon_color: "{% set value = states('sensor.1tb_ssd_percentage') | float\
-            \ %} {% if value >= 0.00 and value <= 50.99 %}\n  green\n{% elif value\
-            \ >= 51 and value <= 70.99 %}\n  orange\n{% elif value >= 71.00 and value\
-            \ <= 100 %}\n  Red\n{% endif %}"
+          icon_color: "{% set value = states('sensor.system_monitor_disk_usage_media_1tb_ssd')\
+            \ | float %} {% if value >= 0.00 and value <= 50.99 %}\n  green\n{% elif\
+            \ value >= 51 and value <= 70.99 %}\n  orange\n{% elif value >= 71.00\
+            \ and value <= 100 %}\n  red\n{% endif %}"
           multiline_secondary: true
-          primary: '{{states(''sensor.1tb_ssd_used_space'')}} GB'
+          primary: '{{states(''sensor.system_monitor_disk_use_media_1tb_ssd'')}} GB'
           secondary: 1 TB SSD
           tap_action:
             action: more-info
@@ -4350,7 +4857,7 @@ views:
               \ 100%, rgba(0,0,0,0));}\n"
           decimal: 1
           entities:
-          - entity: sensor.1tb_ssd_percentage
+          - entity: sensor.system_monitor_disk_usage_media_1tb_ssd
           height: 30px
           positions:
             icon: 'off'
@@ -4379,17 +4886,17 @@ views:
               '
           double_tap_action:
             action: none
-          entity: sensor.5tb_used_space
+          entity: sensor.system_monitor_disk_use_media_5tb
           fill_container: false
           hold_action:
             action: none
           icon: phu:seagate-ssd
-          icon_color: "{% set value = states('sensor.5tb_percentage') | float %} {%\
-            \ if value >= 0.00 and value <= 50.99 %}\n  green\n{% elif value >= 51\
-            \ and value <= 70.99 %}\n  orange\n{% elif value >= 71.00 and value <=\
-            \ 100 %}\n  Red\n{% endif %}"
+          icon_color: "{% set value = states('sensor.system_monitor_disk_usage_media_5tb')\
+            \ | float %} {% if value >= 0.00 and value <= 50.99 %}\n  green\n{% elif\
+            \ value >= 51 and value <= 70.99 %}\n  orange\n{% elif value >= 71.00\
+            \ and value <= 100 %}\n  red\n{% endif %}"
           multiline_secondary: true
-          primary: '{{states(''sensor.5tb_used_space'')}} GB'
+          primary: '{{states(''sensor.system_monitor_disk_use_media_5tb'')}} GB'
           secondary: 5TB
           tap_action:
             action: more-info
@@ -4403,7 +4910,7 @@ views:
               \ 100%, rgba(0,0,0,0));}\n"
           decimal: 1
           entities:
-          - entity: sensor.5tb_percentage
+          - entity: sensor.system_monitor_disk_usage_media_5tb
           height: 30px
           positions:
             icon: 'off'
@@ -4631,25 +5138,40 @@ views:
         state_color: true
         type: entities
       type: vertical-stack
-    - card:
-        head:
+    - cards:
+      - alignment: center
+        chips:
+        - content: Docker
+          double_tap_action:
+            action: none
+          hold_action:
+            action: none
           icon: mdi:docker
           icon_color: blue
-          primary: Docker Containers
-          secondary: 'Total: {{ expand(integration_entities(''monitor_docker'')) |
-            selectattr(''entity_id'',''search'',''switch'') | list | count}}, Running:
-            {{expand(integration_entities(''monitor_docker''))|selectattr(''entity_id'',''search'',''switch'')|selectattr(''state'',''search'',''on'')|list|count}},
-            Stopped: {{expand(integration_entities(''monitor_docker''))|selectattr(''entity_id'',''search'',''switch'')|selectattr(''state'',''search'',''off'')|list|count}}'
-          type: custom:mushroom-template-card
-        padding: 1
-        type: custom:fold-entity-row
-      filter:
-        include:
-        - domain: switch
-          entity_id: '*docker*'
-      sort:
-        method: state
-      type: custom:auto-entities
+          tap_action:
+            action: none
+          type: template
+        type: custom:mushroom-chips-card
+      - card:
+          head:
+            icon: mdi:docker
+            icon_color: blue
+            primary: Docker Containers
+            secondary: 'Total: {{ expand(integration_entities(''monitor_docker''))
+              | selectattr(''entity_id'',''search'',''switch'') | list | count}},
+              Running: {{expand(integration_entities(''monitor_docker''))|selectattr(''entity_id'',''search'',''switch'')|selectattr(''state'',''search'',''on'')|list|count}},
+              Stopped: {{expand(integration_entities(''monitor_docker''))|selectattr(''entity_id'',''search'',''switch'')|selectattr(''state'',''search'',''off'')|list|count}}'
+            type: custom:mushroom-template-card
+          padding: 1
+          type: custom:fold-entity-row
+        filter:
+          include:
+          - domain: switch
+            entity_id: '*docker*'
+        sort:
+          method: state
+        type: custom:auto-entities
+      type: vertical-stack
     - cards:
       - alignment: center
         chips:
@@ -4733,8 +5255,6 @@ views:
   title: System Monitor
   type: sections
   visible:
-  - user: 03fac29e97844166b40187a8b4c09ded
-  - user: e07f5c6a76fd4886ad5d945ed22f6d4b
   - user: 74f7e2ffd3594037b1a2fc4de82d9fea
 - cards:
   - cards:
@@ -4958,7 +5478,7 @@ views:
           icon: '{% set bl = states(entity) | int %}
 
             {% set is_charging = states(''sensor.hilary_s_phone_battery_state'') ==
-            ''Charging'' %}
+            ''charging'' %}
 
             mdi:battery{% if is_charging %}-charging{% endif %}{% if bl < 10 %}-outline
 
@@ -5432,18 +5952,9 @@ views:
       name: '# Zones'
       type: entity
     type: custom:mushroom-chips-card
-  - card:
-      content: Snapshots are stale! Please visit the "Home Assistant Google Drive
-        Backup" add-on status page for details.
-      title: Stale Snapshots!
-      type: markdown
-    conditions:
-    - entity: binary_sensor.backups_stale
-      state: 'on'
-    type: conditional
   - cards:
     - back_open: true
-      bg_blur: 50
+      bg_blur: 0
       card_type: pop-up
       hash: '#darragh'
       margin: 18px
@@ -5501,7 +6012,7 @@ views:
     type: vertical-stack
   - cards:
     - back_open: true
-      bg_blur: 50
+      bg_blur: 0
       card_type: pop-up
       hash: '#hilary'
       margin: 18px
@@ -5573,7 +6084,7 @@ views:
     type: vertical-stack
   - cards:
     - back_open: true
-      bg_blur: 50
+      bg_blur: 0
       card_type: pop-up
       hash: '#pavan'
       margin: 18px
@@ -5682,6 +6193,8 @@ views:
   path: automations
   sections:
   - cards:
+    - heading: "\U0001F916 Automations"
+      type: heading
     - styles:
         --mdc-icon-size: 25px
         --mdc-tab-color-default: var(--primary-text-color)
@@ -5828,8 +6341,9 @@ views:
         styles:
           --mdc-theme-primary: grey
       type: custom:tabbed-card
-    title: "\U0001F916 Automations"
   - cards:
+    - heading: "\U0001F4DD Scripts"
+      type: heading
     - card:
         show_header_toggle: false
         type: entities
@@ -5841,7 +6355,6 @@ views:
         method: last_triggered
         reverse: false
       type: custom:auto-entities
-    title: "\U0001F4DD Scripts"
     type: grid
   title: Automations
   type: sections
@@ -6125,12 +6638,13 @@ views:
       state: 'on'
   - cards:
     - card:
-        title: HACS Available Updates
+        title: HACS Updates
         type: entities
       filter:
         exclude: []
         include:
-        - integration: hacs
+        - domain: update
+          integration: hacs
           options:
             type: custom:more-info-card
           state: 'on'
@@ -6176,5 +6690,22 @@ views:
   subview: true
   title: Updates
   type: sections
+  visible:
+  - user: 74f7e2ffd3594037b1a2fc4de82d9fea
+- cards:
+  - elements:
+    - entity: light.shapes
+      icon: mdi:hexagon-multiple
+      style:
+        left: 48%
+        top: 65%
+      tap_action:
+        action: toggle
+      type: icon
+    image: /local/floorplan.svg
+    type: picture-elements
+  path: floor-plan
+  title: Floor Plan
+  type: panel
   visible:
   - user: 74f7e2ffd3594037b1a2fc4de82d9fea

@@ -11,11 +11,35 @@
     - hassio_multicast
     - hassio_observer
     - hassio_supervisor
+    - immich_redis
+    - immich_postgres
+    - immich_machine_learning
+    - mongo
+    - flaresolverr
+    - myspotify-server-1
+    - addon_a0d7b954_aircast
+    - addon_core_mariadb
+    - addon_core_matter_server
+    - addon_a0d7b954_aircast
+    - addon_a0d7b954_ftp
+    - addon_core_configurator
+    - addon_a0d7b954_phpmyadmin
   rename:
     tautulli: Tautulli
     addon_core_samba: Samba
     homebridge: HomeBridge
     addon_6b87c29e_speedtest_addon: "SpeedTest Addon"
+    myspotify-web-1: "My Spotify"
+    addon_core_mosquitto: MQTT
+    addon_45df7312_zigbee2mqtt: Zigbee2MQTT
+    addon_a0d7b954_vscode: "VScode Addon"
+    addon_5c53de3b_esphome: "ESP Home Addon"
+    addon_a0d7b954_ssh: "SSH Addon"
+    addon_db21ed7f_filebrowse: "Filebrowser Addon"
+    addon_cebe7a76_hassio_google_drive_backup: "Google Drive Backup Addon"
+    addon_cb646a50_get: "Download HACS"
+    immich_server: Immich
+
   monitored_conditions:
     - version
     - containers_running
