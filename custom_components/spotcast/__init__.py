@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-__version__ = "3.8.2"
+__version__ = "3.9.0"
 
 import collections
 import logging
@@ -43,6 +43,7 @@ from .const import (
     SCHEMA_WS_CASTDEVICES,
     SCHEMA_WS_DEVICES,
     SCHEMA_WS_PLAYER,
+    CONF_START_POSITION,
     SERVICE_START_COMMAND_SCHEMA,
     SPOTCAST_CONFIG_SCHEMA,
     WS_TYPE_SPOTCAST_ACCOUNTS,
@@ -62,6 +63,7 @@ from .helpers import (
     get_spotify_media_player,
     is_empty_str,
     is_valid_uri,
+    url_to_spotify_uri,
 )
 from .spotcast_controller import SpotcastController
 
@@ -143,7 +145,7 @@ def setup(hass: ha_core.HomeAssistant, config: collections.OrderedDict) -> bool:
             me_resp = client._get("me")  # pylint: disable=W0212
             spotify_media_player = get_spotify_media_player(
                 hass, me_resp["id"])
-            resp = get_spotify_devices(spotify_media_player)
+            resp = get_spotify_devices(spotify_media_player, hass)
             connection.send_message(
                 websocket_api.result_message(msg["id"], resp))
 
@@ -220,6 +222,7 @@ def setup(hass: ha_core.HomeAssistant, config: collections.OrderedDict) -> bool:
         start_volume = call.data.get(CONF_START_VOL)
         spotify_device_id = call.data.get(CONF_SPOTIFY_DEVICE_ID)
         position = call.data.get(CONF_OFFSET)
+        start_position = call.data.get(CONF_START_POSITION)
         force_playback = call.data.get(CONF_FORCE_PLAYBACK)
         account = call.data.get(CONF_SPOTIFY_ACCOUNT)
         ignore_fully_played = call.data.get(CONF_IGNORE_FULLY_PLAYED)
@@ -241,6 +244,14 @@ def setup(hass: ha_core.HomeAssistant, config: collections.OrderedDict) -> bool:
             # remove ? from badly formatted URI
             uri = uri.split("?")[0]
 
+            if uri.startswith("http"):
+                try:
+                    u = url_to_spotify_uri(uri)
+                    _LOGGER.debug("converted web URL %s to spotify URI %s", uri, u)
+                    uri = u
+                except ValueError:
+                    _LOGGER.error("invalid web URL provided, could not convert to spotify URI: %s", uri)
+
             if not is_valid_uri(uri):
                 _LOGGER.error("Invalid URI provided, aborting casting")
                 return
@@ -257,6 +268,9 @@ def setup(hass: ha_core.HomeAssistant, config: collections.OrderedDict) -> bool:
                 account, spotify_device_id, device_name, entity_id
             )
 
+        if start_position is not None:
+            start_position *= 1000
+
         if (
             is_empty_str(uri)
             and len(
@@ -271,6 +285,7 @@ def setup(hass: ha_core.HomeAssistant, config: collections.OrderedDict) -> bool:
                             episodeName,
                             audiobookName,
                             genreName,
+                            category, 
                         ],
                     )
                 )
@@ -302,6 +317,7 @@ def setup(hass: ha_core.HomeAssistant, config: collections.OrderedDict) -> bool:
                 random_song,
                 position,
                 ignore_fully_played,
+                start_position,
             )
         else:
             searchResults = []
@@ -331,6 +347,7 @@ def setup(hass: ha_core.HomeAssistant, config: collections.OrderedDict) -> bool:
                 random_song,
                 position,
                 ignore_fully_played,
+                start_position,
             )
 
             if len(searchResults) > 1:

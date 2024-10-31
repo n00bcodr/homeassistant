@@ -35,32 +35,32 @@ var TSMoonCard = (function (exports) {
      * Copyright 2019 Google LLC
      * SPDX-License-Identifier: BSD-3-Clause
      */
-    const t=globalThis,e$1=t.ShadowRoot&&(void 0===t.ShadyCSS||t.ShadyCSS.nativeShadow)&&"adoptedStyleSheets"in Document.prototype&&"replace"in CSSStyleSheet.prototype,s=Symbol(),o$2=new WeakMap;let n$3 = class n{constructor(t,e,o){if(this._$cssResult$=!0,o!==s)throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");this.cssText=t,this.t=e;}get styleSheet(){let t=this.o;const s=this.t;if(e$1&&void 0===t){const e=void 0!==s&&1===s.length;e&&(t=o$2.get(s)),void 0===t&&((this.o=t=new CSSStyleSheet).replaceSync(this.cssText),e&&o$2.set(s,t));}return t}toString(){return this.cssText}};const r$3=t=>new n$3("string"==typeof t?t:t+"",void 0,s),i$1=(t,...e)=>{const o=1===t.length?t[0]:e.reduce(((e,s,o)=>e+(t=>{if(!0===t._$cssResult$)return t.cssText;if("number"==typeof t)return t;throw Error("Value passed to 'css' function must be a 'css' function result: "+t+". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.")})(s)+t[o+1]),t[0]);return new n$3(o,t,s)},S$1=(s,o)=>{if(e$1)s.adoptedStyleSheets=o.map((t=>t instanceof CSSStyleSheet?t:t.styleSheet));else for(const e of o){const o=document.createElement("style"),n=t.litNonce;void 0!==n&&o.setAttribute("nonce",n),o.textContent=e.cssText,s.appendChild(o);}},c$2=e$1?t=>t:t=>t instanceof CSSStyleSheet?(t=>{let e="";for(const s of t.cssRules)e+=s.cssText;return r$3(e)})(t):t;
+    const t$1=globalThis,e$2=t$1.ShadowRoot&&(void 0===t$1.ShadyCSS||t$1.ShadyCSS.nativeShadow)&&"adoptedStyleSheets"in Document.prototype&&"replace"in CSSStyleSheet.prototype,s$1=Symbol(),o$3=new WeakMap;let n$3 = class n{constructor(t,e,o){if(this._$cssResult$=!0,o!==s$1)throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");this.cssText=t,this.t=e;}get styleSheet(){let t=this.o;const s=this.t;if(e$2&&void 0===t){const e=void 0!==s&&1===s.length;e&&(t=o$3.get(s)),void 0===t&&((this.o=t=new CSSStyleSheet).replaceSync(this.cssText),e&&o$3.set(s,t));}return t}toString(){return this.cssText}};const r$5=t=>new n$3("string"==typeof t?t:t+"",void 0,s$1),i$3=(t,...e)=>{const o=1===t.length?t[0]:e.reduce(((e,s,o)=>e+(t=>{if(!0===t._$cssResult$)return t.cssText;if("number"==typeof t)return t;throw Error("Value passed to 'css' function must be a 'css' function result: "+t+". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.")})(s)+t[o+1]),t[0]);return new n$3(o,t,s$1)},S$1=(s,o)=>{if(e$2)s.adoptedStyleSheets=o.map((t=>t instanceof CSSStyleSheet?t:t.styleSheet));else for(const e of o){const o=document.createElement("style"),n=t$1.litNonce;void 0!==n&&o.setAttribute("nonce",n),o.textContent=e.cssText,s.appendChild(o);}},c$2=e$2?t=>t:t=>t instanceof CSSStyleSheet?(t=>{let e="";for(const s of t.cssRules)e+=s.cssText;return r$5(e)})(t):t;
 
     /**
      * @license
      * Copyright 2017 Google LLC
      * SPDX-License-Identifier: BSD-3-Clause
-     */const{is:i,defineProperty:e,getOwnPropertyDescriptor:r$2,getOwnPropertyNames:h$2,getOwnPropertySymbols:o$1,getPrototypeOf:n$2}=Object,a=globalThis,c$1=a.trustedTypes,l=c$1?c$1.emptyScript:"",p=a.reactiveElementPolyfillSupport,d=(t,s)=>t,u={toAttribute(t,s){switch(s){case Boolean:t=t?l:null;break;case Object:case Array:t=null==t?t:JSON.stringify(t);}return t},fromAttribute(t,s){let i=t;switch(s){case Boolean:i=null!==t;break;case Number:i=null===t?null:Number(t);break;case Object:case Array:try{i=JSON.parse(t);}catch(t){i=null;}}return i}},f$2=(t,s)=>!i(t,s),y={attribute:!0,type:String,converter:u,reflect:!1,hasChanged:f$2};Symbol.metadata??=Symbol("metadata"),a.litPropertyMetadata??=new WeakMap;class b extends HTMLElement{static addInitializer(t){this._$Ei(),(this.l??=[]).push(t);}static get observedAttributes(){return this.finalize(),this._$Eh&&[...this._$Eh.keys()]}static createProperty(t,s=y){if(s.state&&(s.attribute=!1),this._$Ei(),this.elementProperties.set(t,s),!s.noAccessor){const i=Symbol(),r=this.getPropertyDescriptor(t,i,s);void 0!==r&&e(this.prototype,t,r);}}static getPropertyDescriptor(t,s,i){const{get:e,set:h}=r$2(this.prototype,t)??{get(){return this[s]},set(t){this[s]=t;}};return {get(){return e?.call(this)},set(s){const r=e?.call(this);h.call(this,s),this.requestUpdate(t,r,i);},configurable:!0,enumerable:!0}}static getPropertyOptions(t){return this.elementProperties.get(t)??y}static _$Ei(){if(this.hasOwnProperty(d("elementProperties")))return;const t=n$2(this);t.finalize(),void 0!==t.l&&(this.l=[...t.l]),this.elementProperties=new Map(t.elementProperties);}static finalize(){if(this.hasOwnProperty(d("finalized")))return;if(this.finalized=!0,this._$Ei(),this.hasOwnProperty(d("properties"))){const t=this.properties,s=[...h$2(t),...o$1(t)];for(const i of s)this.createProperty(i,t[i]);}const t=this[Symbol.metadata];if(null!==t){const s=litPropertyMetadata.get(t);if(void 0!==s)for(const[t,i]of s)this.elementProperties.set(t,i);}this._$Eh=new Map;for(const[t,s]of this.elementProperties){const i=this._$Eu(t,s);void 0!==i&&this._$Eh.set(i,t);}this.elementStyles=this.finalizeStyles(this.styles);}static finalizeStyles(s){const i=[];if(Array.isArray(s)){const e=new Set(s.flat(1/0).reverse());for(const s of e)i.unshift(c$2(s));}else void 0!==s&&i.push(c$2(s));return i}static _$Eu(t,s){const i=s.attribute;return !1===i?void 0:"string"==typeof i?i:"string"==typeof t?t.toLowerCase():void 0}constructor(){super(),this._$Ep=void 0,this.isUpdatePending=!1,this.hasUpdated=!1,this._$Em=null,this._$Ev();}_$Ev(){this._$ES=new Promise((t=>this.enableUpdating=t)),this._$AL=new Map,this._$E_(),this.requestUpdate(),this.constructor.l?.forEach((t=>t(this)));}addController(t){(this._$EO??=new Set).add(t),void 0!==this.renderRoot&&this.isConnected&&t.hostConnected?.();}removeController(t){this._$EO?.delete(t);}_$E_(){const t=new Map,s=this.constructor.elementProperties;for(const i of s.keys())this.hasOwnProperty(i)&&(t.set(i,this[i]),delete this[i]);t.size>0&&(this._$Ep=t);}createRenderRoot(){const t=this.shadowRoot??this.attachShadow(this.constructor.shadowRootOptions);return S$1(t,this.constructor.elementStyles),t}connectedCallback(){this.renderRoot??=this.createRenderRoot(),this.enableUpdating(!0),this._$EO?.forEach((t=>t.hostConnected?.()));}enableUpdating(t){}disconnectedCallback(){this._$EO?.forEach((t=>t.hostDisconnected?.()));}attributeChangedCallback(t,s,i){this._$AK(t,i);}_$EC(t,s){const i=this.constructor.elementProperties.get(t),e=this.constructor._$Eu(t,i);if(void 0!==e&&!0===i.reflect){const r=(void 0!==i.converter?.toAttribute?i.converter:u).toAttribute(s,i.type);this._$Em=t,null==r?this.removeAttribute(e):this.setAttribute(e,r),this._$Em=null;}}_$AK(t,s){const i=this.constructor,e=i._$Eh.get(t);if(void 0!==e&&this._$Em!==e){const t=i.getPropertyOptions(e),r="function"==typeof t.converter?{fromAttribute:t.converter}:void 0!==t.converter?.fromAttribute?t.converter:u;this._$Em=e,this[e]=r.fromAttribute(s,t.type),this._$Em=null;}}requestUpdate(t,s,i){if(void 0!==t){if(i??=this.constructor.getPropertyOptions(t),!(i.hasChanged??f$2)(this[t],s))return;this.P(t,s,i);}!1===this.isUpdatePending&&(this._$ES=this._$ET());}P(t,s,i){this._$AL.has(t)||this._$AL.set(t,s),!0===i.reflect&&this._$Em!==t&&(this._$Ej??=new Set).add(t);}async _$ET(){this.isUpdatePending=!0;try{await this._$ES;}catch(t){Promise.reject(t);}const t=this.scheduleUpdate();return null!=t&&await t,!this.isUpdatePending}scheduleUpdate(){return this.performUpdate()}performUpdate(){if(!this.isUpdatePending)return;if(!this.hasUpdated){if(this.renderRoot??=this.createRenderRoot(),this._$Ep){for(const[t,s]of this._$Ep)this[t]=s;this._$Ep=void 0;}const t=this.constructor.elementProperties;if(t.size>0)for(const[s,i]of t)!0!==i.wrapped||this._$AL.has(s)||void 0===this[s]||this.P(s,this[s],i);}let t=!1;const s=this._$AL;try{t=this.shouldUpdate(s),t?(this.willUpdate(s),this._$EO?.forEach((t=>t.hostUpdate?.())),this.update(s)):this._$EU();}catch(s){throw t=!1,this._$EU(),s}t&&this._$AE(s);}willUpdate(t){}_$AE(t){this._$EO?.forEach((t=>t.hostUpdated?.())),this.hasUpdated||(this.hasUpdated=!0,this.firstUpdated(t)),this.updated(t);}_$EU(){this._$AL=new Map,this.isUpdatePending=!1;}get updateComplete(){return this.getUpdateComplete()}getUpdateComplete(){return this._$ES}shouldUpdate(t){return !0}update(t){this._$Ej&&=this._$Ej.forEach((t=>this._$EC(t,this[t]))),this._$EU();}updated(t){}firstUpdated(t){}}b.elementStyles=[],b.shadowRootOptions={mode:"open"},b[d("elementProperties")]=new Map,b[d("finalized")]=new Map,p?.({ReactiveElement:b}),(a.reactiveElementVersions??=[]).push("2.0.4");
+     */const{is:i$2,defineProperty:e$1,getOwnPropertyDescriptor:r$4,getOwnPropertyNames:h$1,getOwnPropertySymbols:o$2,getPrototypeOf:n$2}=Object,a$1=globalThis,c$1=a$1.trustedTypes,l$1=c$1?c$1.emptyScript:"",p$1=a$1.reactiveElementPolyfillSupport,d$1=(t,s)=>t,u$1={toAttribute(t,s){switch(s){case Boolean:t=t?l$1:null;break;case Object:case Array:t=null==t?t:JSON.stringify(t);}return t},fromAttribute(t,s){let i=t;switch(s){case Boolean:i=null!==t;break;case Number:i=null===t?null:Number(t);break;case Object:case Array:try{i=JSON.parse(t);}catch(t){i=null;}}return i}},f$1=(t,s)=>!i$2(t,s),y$1={attribute:!0,type:String,converter:u$1,reflect:!1,hasChanged:f$1};Symbol.metadata??=Symbol("metadata"),a$1.litPropertyMetadata??=new WeakMap;class b extends HTMLElement{static addInitializer(t){this._$Ei(),(this.l??=[]).push(t);}static get observedAttributes(){return this.finalize(),this._$Eh&&[...this._$Eh.keys()]}static createProperty(t,s=y$1){if(s.state&&(s.attribute=!1),this._$Ei(),this.elementProperties.set(t,s),!s.noAccessor){const i=Symbol(),r=this.getPropertyDescriptor(t,i,s);void 0!==r&&e$1(this.prototype,t,r);}}static getPropertyDescriptor(t,s,i){const{get:e,set:h}=r$4(this.prototype,t)??{get(){return this[s]},set(t){this[s]=t;}};return {get(){return e?.call(this)},set(s){const r=e?.call(this);h.call(this,s),this.requestUpdate(t,r,i);},configurable:!0,enumerable:!0}}static getPropertyOptions(t){return this.elementProperties.get(t)??y$1}static _$Ei(){if(this.hasOwnProperty(d$1("elementProperties")))return;const t=n$2(this);t.finalize(),void 0!==t.l&&(this.l=[...t.l]),this.elementProperties=new Map(t.elementProperties);}static finalize(){if(this.hasOwnProperty(d$1("finalized")))return;if(this.finalized=!0,this._$Ei(),this.hasOwnProperty(d$1("properties"))){const t=this.properties,s=[...h$1(t),...o$2(t)];for(const i of s)this.createProperty(i,t[i]);}const t=this[Symbol.metadata];if(null!==t){const s=litPropertyMetadata.get(t);if(void 0!==s)for(const[t,i]of s)this.elementProperties.set(t,i);}this._$Eh=new Map;for(const[t,s]of this.elementProperties){const i=this._$Eu(t,s);void 0!==i&&this._$Eh.set(i,t);}this.elementStyles=this.finalizeStyles(this.styles);}static finalizeStyles(s){const i=[];if(Array.isArray(s)){const e=new Set(s.flat(1/0).reverse());for(const s of e)i.unshift(c$2(s));}else void 0!==s&&i.push(c$2(s));return i}static _$Eu(t,s){const i=s.attribute;return !1===i?void 0:"string"==typeof i?i:"string"==typeof t?t.toLowerCase():void 0}constructor(){super(),this._$Ep=void 0,this.isUpdatePending=!1,this.hasUpdated=!1,this._$Em=null,this._$Ev();}_$Ev(){this._$ES=new Promise((t=>this.enableUpdating=t)),this._$AL=new Map,this._$E_(),this.requestUpdate(),this.constructor.l?.forEach((t=>t(this)));}addController(t){(this._$EO??=new Set).add(t),void 0!==this.renderRoot&&this.isConnected&&t.hostConnected?.();}removeController(t){this._$EO?.delete(t);}_$E_(){const t=new Map,s=this.constructor.elementProperties;for(const i of s.keys())this.hasOwnProperty(i)&&(t.set(i,this[i]),delete this[i]);t.size>0&&(this._$Ep=t);}createRenderRoot(){const t=this.shadowRoot??this.attachShadow(this.constructor.shadowRootOptions);return S$1(t,this.constructor.elementStyles),t}connectedCallback(){this.renderRoot??=this.createRenderRoot(),this.enableUpdating(!0),this._$EO?.forEach((t=>t.hostConnected?.()));}enableUpdating(t){}disconnectedCallback(){this._$EO?.forEach((t=>t.hostDisconnected?.()));}attributeChangedCallback(t,s,i){this._$AK(t,i);}_$EC(t,s){const i=this.constructor.elementProperties.get(t),e=this.constructor._$Eu(t,i);if(void 0!==e&&!0===i.reflect){const r=(void 0!==i.converter?.toAttribute?i.converter:u$1).toAttribute(s,i.type);this._$Em=t,null==r?this.removeAttribute(e):this.setAttribute(e,r),this._$Em=null;}}_$AK(t,s){const i=this.constructor,e=i._$Eh.get(t);if(void 0!==e&&this._$Em!==e){const t=i.getPropertyOptions(e),r="function"==typeof t.converter?{fromAttribute:t.converter}:void 0!==t.converter?.fromAttribute?t.converter:u$1;this._$Em=e,this[e]=r.fromAttribute(s,t.type),this._$Em=null;}}requestUpdate(t,s,i){if(void 0!==t){if(i??=this.constructor.getPropertyOptions(t),!(i.hasChanged??f$1)(this[t],s))return;this.P(t,s,i);}!1===this.isUpdatePending&&(this._$ES=this._$ET());}P(t,s,i){this._$AL.has(t)||this._$AL.set(t,s),!0===i.reflect&&this._$Em!==t&&(this._$Ej??=new Set).add(t);}async _$ET(){this.isUpdatePending=!0;try{await this._$ES;}catch(t){Promise.reject(t);}const t=this.scheduleUpdate();return null!=t&&await t,!this.isUpdatePending}scheduleUpdate(){return this.performUpdate()}performUpdate(){if(!this.isUpdatePending)return;if(!this.hasUpdated){if(this.renderRoot??=this.createRenderRoot(),this._$Ep){for(const[t,s]of this._$Ep)this[t]=s;this._$Ep=void 0;}const t=this.constructor.elementProperties;if(t.size>0)for(const[s,i]of t)!0!==i.wrapped||this._$AL.has(s)||void 0===this[s]||this.P(s,this[s],i);}let t=!1;const s=this._$AL;try{t=this.shouldUpdate(s),t?(this.willUpdate(s),this._$EO?.forEach((t=>t.hostUpdate?.())),this.update(s)):this._$EU();}catch(s){throw t=!1,this._$EU(),s}t&&this._$AE(s);}willUpdate(t){}_$AE(t){this._$EO?.forEach((t=>t.hostUpdated?.())),this.hasUpdated||(this.hasUpdated=!0,this.firstUpdated(t)),this.updated(t);}_$EU(){this._$AL=new Map,this.isUpdatePending=!1;}get updateComplete(){return this.getUpdateComplete()}getUpdateComplete(){return this._$ES}shouldUpdate(t){return !0}update(t){this._$Ej&&=this._$Ej.forEach((t=>this._$EC(t,this[t]))),this._$EU();}updated(t){}firstUpdated(t){}}b.elementStyles=[],b.shadowRootOptions={mode:"open"},b[d$1("elementProperties")]=new Map,b[d$1("finalized")]=new Map,p$1?.({ReactiveElement:b}),(a$1.reactiveElementVersions??=[]).push("2.0.4");
 
     /**
      * @license
      * Copyright 2017 Google LLC
      * SPDX-License-Identifier: BSD-3-Clause
      */
-    const n$1=globalThis,c=n$1.trustedTypes,h$1=c?c.createPolicy("lit-html",{createHTML:t=>t}):void 0,f$1="$lit$",v=`lit$${Math.random().toFixed(9).slice(2)}$`,m="?"+v,_=`<${m}>`,w=document,lt=()=>w.createComment(""),st=t=>null===t||"object"!=typeof t&&"function"!=typeof t,g=Array.isArray,$=t=>g(t)||"function"==typeof t?.[Symbol.iterator],x="[ \t\n\f\r]",T=/<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,E=/-->/g,k=/>/g,O=RegExp(`>|${x}(?:([^\\s"'>=/]+)(${x}*=${x}*(?:[^ \t\n\f\r"'\`<>=]|("|')|))|$)`,"g"),S=/'/g,j=/"/g,M=/^(?:script|style|textarea|title)$/i,P=t=>(i,...s)=>({_$litType$:t,strings:i,values:s}),ke=P(1),R=Symbol.for("lit-noChange"),D=Symbol.for("lit-nothing"),V=new WeakMap,I=w.createTreeWalker(w,129);function N(t,i){if(!g(t)||!t.hasOwnProperty("raw"))throw Error("invalid template strings array");return void 0!==h$1?h$1.createHTML(i):i}const U=(t,i)=>{const s=t.length-1,e=[];let h,o=2===i?"<svg>":3===i?"<math>":"",n=T;for(let i=0;i<s;i++){const s=t[i];let r,l,c=-1,a=0;for(;a<s.length&&(n.lastIndex=a,l=n.exec(s),null!==l);)a=n.lastIndex,n===T?"!--"===l[1]?n=E:void 0!==l[1]?n=k:void 0!==l[2]?(M.test(l[2])&&(h=RegExp("</"+l[2],"g")),n=O):void 0!==l[3]&&(n=O):n===O?">"===l[0]?(n=h??T,c=-1):void 0===l[1]?c=-2:(c=n.lastIndex-l[2].length,r=l[1],n=void 0===l[3]?O:'"'===l[3]?j:S):n===j||n===S?n=O:n===E||n===k?n=T:(n=O,h=void 0);const u=n===O&&t[i+1].startsWith("/>")?" ":"";o+=n===T?s+_:c>=0?(e.push(r),s.slice(0,c)+f$1+s.slice(c)+v+u):s+v+(-2===c?i:u);}return [N(t,o+(t[s]||"<?>")+(2===i?"</svg>":3===i?"</math>":"")),e]};class B{constructor({strings:t,_$litType$:i},s){let e;this.parts=[];let h=0,o=0;const n=t.length-1,r=this.parts,[l,a]=U(t,i);if(this.el=B.createElement(l,s),I.currentNode=this.el.content,2===i||3===i){const t=this.el.content.firstChild;t.replaceWith(...t.childNodes);}for(;null!==(e=I.nextNode())&&r.length<n;){if(1===e.nodeType){if(e.hasAttributes())for(const t of e.getAttributeNames())if(t.endsWith(f$1)){const i=a[o++],s=e.getAttribute(t).split(v),n=/([.?@])?(.*)/.exec(i);r.push({type:1,index:h,name:n[2],strings:s,ctor:"."===n[1]?Y:"?"===n[1]?Z:"@"===n[1]?q:G}),e.removeAttribute(t);}else t.startsWith(v)&&(r.push({type:6,index:h}),e.removeAttribute(t));if(M.test(e.tagName)){const t=e.textContent.split(v),i=t.length-1;if(i>0){e.textContent=c?c.emptyScript:"";for(let s=0;s<i;s++)e.append(t[s],lt()),I.nextNode(),r.push({type:2,index:++h});e.append(t[i],lt());}}}else if(8===e.nodeType)if(e.data===m)r.push({type:2,index:h});else {let t=-1;for(;-1!==(t=e.data.indexOf(v,t+1));)r.push({type:7,index:h}),t+=v.length-1;}h++;}}static createElement(t,i){const s=w.createElement("template");return s.innerHTML=t,s}}function z(t,i,s=t,e){if(i===R)return i;let h=void 0!==e?s.o?.[e]:s.l;const o=st(i)?void 0:i._$litDirective$;return h?.constructor!==o&&(h?._$AO?.(!1),void 0===o?h=void 0:(h=new o(t),h._$AT(t,s,e)),void 0!==e?(s.o??=[])[e]=h:s.l=h),void 0!==h&&(i=z(t,h._$AS(t,i.values),h,e)),i}class F{constructor(t,i){this._$AV=[],this._$AN=void 0,this._$AD=t,this._$AM=i;}get parentNode(){return this._$AM.parentNode}get _$AU(){return this._$AM._$AU}u(t){const{el:{content:i},parts:s}=this._$AD,e=(t?.creationScope??w).importNode(i,!0);I.currentNode=e;let h=I.nextNode(),o=0,n=0,r=s[0];for(;void 0!==r;){if(o===r.index){let i;2===r.type?i=new et(h,h.nextSibling,this,t):1===r.type?i=new r.ctor(h,r.name,r.strings,this,t):6===r.type&&(i=new K(h,this,t)),this._$AV.push(i),r=s[++n];}o!==r?.index&&(h=I.nextNode(),o++);}return I.currentNode=w,e}p(t){let i=0;for(const s of this._$AV)void 0!==s&&(void 0!==s.strings?(s._$AI(t,s,i),i+=s.strings.length-2):s._$AI(t[i])),i++;}}class et{get _$AU(){return this._$AM?._$AU??this.v}constructor(t,i,s,e){this.type=2,this._$AH=D,this._$AN=void 0,this._$AA=t,this._$AB=i,this._$AM=s,this.options=e,this.v=e?.isConnected??!0;}get parentNode(){let t=this._$AA.parentNode;const i=this._$AM;return void 0!==i&&11===t?.nodeType&&(t=i.parentNode),t}get startNode(){return this._$AA}get endNode(){return this._$AB}_$AI(t,i=this){t=z(this,t,i),st(t)?t===D||null==t||""===t?(this._$AH!==D&&this._$AR(),this._$AH=D):t!==this._$AH&&t!==R&&this._(t):void 0!==t._$litType$?this.$(t):void 0!==t.nodeType?this.T(t):$(t)?this.k(t):this._(t);}O(t){return this._$AA.parentNode.insertBefore(t,this._$AB)}T(t){this._$AH!==t&&(this._$AR(),this._$AH=this.O(t));}_(t){this._$AH!==D&&st(this._$AH)?this._$AA.nextSibling.data=t:this.T(w.createTextNode(t)),this._$AH=t;}$(t){const{values:i,_$litType$:s}=t,e="number"==typeof s?this._$AC(t):(void 0===s.el&&(s.el=B.createElement(N(s.h,s.h[0]),this.options)),s);if(this._$AH?._$AD===e)this._$AH.p(i);else {const t=new F(e,this),s=t.u(this.options);t.p(i),this.T(s),this._$AH=t;}}_$AC(t){let i=V.get(t.strings);return void 0===i&&V.set(t.strings,i=new B(t)),i}k(t){g(this._$AH)||(this._$AH=[],this._$AR());const i=this._$AH;let s,e=0;for(const h of t)e===i.length?i.push(s=new et(this.O(lt()),this.O(lt()),this,this.options)):s=i[e],s._$AI(h),e++;e<i.length&&(this._$AR(s&&s._$AB.nextSibling,e),i.length=e);}_$AR(t=this._$AA.nextSibling,i){for(this._$AP?.(!1,!0,i);t&&t!==this._$AB;){const i=t.nextSibling;t.remove(),t=i;}}setConnected(t){void 0===this._$AM&&(this.v=t,this._$AP?.(t));}}class G{get tagName(){return this.element.tagName}get _$AU(){return this._$AM._$AU}constructor(t,i,s,e,h){this.type=1,this._$AH=D,this._$AN=void 0,this.element=t,this.name=i,this._$AM=e,this.options=h,s.length>2||""!==s[0]||""!==s[1]?(this._$AH=Array(s.length-1).fill(new String),this.strings=s):this._$AH=D;}_$AI(t,i=this,s,e){const h=this.strings;let o=!1;if(void 0===h)t=z(this,t,i,0),o=!st(t)||t!==this._$AH&&t!==R,o&&(this._$AH=t);else {const e=t;let n,r;for(t=h[0],n=0;n<h.length-1;n++)r=z(this,e[s+n],i,n),r===R&&(r=this._$AH[n]),o||=!st(r)||r!==this._$AH[n],r===D?t=D:t!==D&&(t+=(r??"")+h[n+1]),this._$AH[n]=r;}o&&!e&&this.j(t);}j(t){t===D?this.element.removeAttribute(this.name):this.element.setAttribute(this.name,t??"");}}class Y extends G{constructor(){super(...arguments),this.type=3;}j(t){this.element[this.name]=t===D?void 0:t;}}class Z extends G{constructor(){super(...arguments),this.type=4;}j(t){this.element.toggleAttribute(this.name,!!t&&t!==D);}}class q extends G{constructor(t,i,s,e,h){super(t,i,s,e,h),this.type=5;}_$AI(t,i=this){if((t=z(this,t,i,0)??D)===R)return;const s=this._$AH,e=t===D&&s!==D||t.capture!==s.capture||t.once!==s.once||t.passive!==s.passive,h=t!==D&&(s===D||e);e&&this.element.removeEventListener(this.name,this,s),h&&this.element.addEventListener(this.name,this,t),this._$AH=t;}handleEvent(t){"function"==typeof this._$AH?this._$AH.call(this.options?.host??this.element,t):this._$AH.handleEvent(t);}}class K{constructor(t,i,s){this.element=t,this.type=6,this._$AN=void 0,this._$AM=i,this.options=s;}get _$AU(){return this._$AM._$AU}_$AI(t){z(this,t);}}const Re=n$1.litHtmlPolyfillSupport;Re?.(B,et),(n$1.litHtmlVersions??=[]).push("3.2.0");const Q=(t,i,s)=>{const e=s?.renderBefore??i;let h=e._$litPart$;if(void 0===h){const t=s?.renderBefore??null;e._$litPart$=h=new et(i.insertBefore(lt(),t),t,void 0,s??{});}return h._$AI(t),h};
+    const t=globalThis,i$1=t.trustedTypes,s=i$1?i$1.createPolicy("lit-html",{createHTML:t=>t}):void 0,e="$lit$",h=`lit$${Math.random().toFixed(9).slice(2)}$`,o$1="?"+h,n$1=`<${o$1}>`,r$3=document,l=()=>r$3.createComment(""),c=t=>null===t||"object"!=typeof t&&"function"!=typeof t,a=Array.isArray,u=t=>a(t)||"function"==typeof t?.[Symbol.iterator],d="[ \t\n\f\r]",f=/<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,v=/-->/g,_=/>/g,m=RegExp(`>|${d}(?:([^\\s"'>=/]+)(${d}*=${d}*(?:[^ \t\n\f\r"'\`<>=]|("|')|))|$)`,"g"),p=/'/g,g=/"/g,$=/^(?:script|style|textarea|title)$/i,y=t=>(i,...s)=>({_$litType$:t,strings:i,values:s}),x=y(1),T=Symbol.for("lit-noChange"),E=Symbol.for("lit-nothing"),A=new WeakMap,C=r$3.createTreeWalker(r$3,129);function P(t,i){if(!a(t)||!t.hasOwnProperty("raw"))throw Error("invalid template strings array");return void 0!==s?s.createHTML(i):i}const V=(t,i)=>{const s=t.length-1,o=[];let r,l=2===i?"<svg>":3===i?"<math>":"",c=f;for(let i=0;i<s;i++){const s=t[i];let a,u,d=-1,y=0;for(;y<s.length&&(c.lastIndex=y,u=c.exec(s),null!==u);)y=c.lastIndex,c===f?"!--"===u[1]?c=v:void 0!==u[1]?c=_:void 0!==u[2]?($.test(u[2])&&(r=RegExp("</"+u[2],"g")),c=m):void 0!==u[3]&&(c=m):c===m?">"===u[0]?(c=r??f,d=-1):void 0===u[1]?d=-2:(d=c.lastIndex-u[2].length,a=u[1],c=void 0===u[3]?m:'"'===u[3]?g:p):c===g||c===p?c=m:c===v||c===_?c=f:(c=m,r=void 0);const x=c===m&&t[i+1].startsWith("/>")?" ":"";l+=c===f?s+n$1:d>=0?(o.push(a),s.slice(0,d)+e+s.slice(d)+h+x):s+h+(-2===d?i:x);}return [P(t,l+(t[s]||"<?>")+(2===i?"</svg>":3===i?"</math>":"")),o]};class N{constructor({strings:t,_$litType$:s},n){let r;this.parts=[];let c=0,a=0;const u=t.length-1,d=this.parts,[f,v]=V(t,s);if(this.el=N.createElement(f,n),C.currentNode=this.el.content,2===s||3===s){const t=this.el.content.firstChild;t.replaceWith(...t.childNodes);}for(;null!==(r=C.nextNode())&&d.length<u;){if(1===r.nodeType){if(r.hasAttributes())for(const t of r.getAttributeNames())if(t.endsWith(e)){const i=v[a++],s=r.getAttribute(t).split(h),e=/([.?@])?(.*)/.exec(i);d.push({type:1,index:c,name:e[2],strings:s,ctor:"."===e[1]?H:"?"===e[1]?I:"@"===e[1]?L:k}),r.removeAttribute(t);}else t.startsWith(h)&&(d.push({type:6,index:c}),r.removeAttribute(t));if($.test(r.tagName)){const t=r.textContent.split(h),s=t.length-1;if(s>0){r.textContent=i$1?i$1.emptyScript:"";for(let i=0;i<s;i++)r.append(t[i],l()),C.nextNode(),d.push({type:2,index:++c});r.append(t[s],l());}}}else if(8===r.nodeType)if(r.data===o$1)d.push({type:2,index:c});else {let t=-1;for(;-1!==(t=r.data.indexOf(h,t+1));)d.push({type:7,index:c}),t+=h.length-1;}c++;}}static createElement(t,i){const s=r$3.createElement("template");return s.innerHTML=t,s}}function S(t,i,s=t,e){if(i===T)return i;let h=void 0!==e?s._$Co?.[e]:s._$Cl;const o=c(i)?void 0:i._$litDirective$;return h?.constructor!==o&&(h?._$AO?.(!1),void 0===o?h=void 0:(h=new o(t),h._$AT(t,s,e)),void 0!==e?(s._$Co??=[])[e]=h:s._$Cl=h),void 0!==h&&(i=S(t,h._$AS(t,i.values),h,e)),i}class M{constructor(t,i){this._$AV=[],this._$AN=void 0,this._$AD=t,this._$AM=i;}get parentNode(){return this._$AM.parentNode}get _$AU(){return this._$AM._$AU}u(t){const{el:{content:i},parts:s}=this._$AD,e=(t?.creationScope??r$3).importNode(i,!0);C.currentNode=e;let h=C.nextNode(),o=0,n=0,l=s[0];for(;void 0!==l;){if(o===l.index){let i;2===l.type?i=new R(h,h.nextSibling,this,t):1===l.type?i=new l.ctor(h,l.name,l.strings,this,t):6===l.type&&(i=new z(h,this,t)),this._$AV.push(i),l=s[++n];}o!==l?.index&&(h=C.nextNode(),o++);}return C.currentNode=r$3,e}p(t){let i=0;for(const s of this._$AV)void 0!==s&&(void 0!==s.strings?(s._$AI(t,s,i),i+=s.strings.length-2):s._$AI(t[i])),i++;}}class R{get _$AU(){return this._$AM?._$AU??this._$Cv}constructor(t,i,s,e){this.type=2,this._$AH=E,this._$AN=void 0,this._$AA=t,this._$AB=i,this._$AM=s,this.options=e,this._$Cv=e?.isConnected??!0;}get parentNode(){let t=this._$AA.parentNode;const i=this._$AM;return void 0!==i&&11===t?.nodeType&&(t=i.parentNode),t}get startNode(){return this._$AA}get endNode(){return this._$AB}_$AI(t,i=this){t=S(this,t,i),c(t)?t===E||null==t||""===t?(this._$AH!==E&&this._$AR(),this._$AH=E):t!==this._$AH&&t!==T&&this._(t):void 0!==t._$litType$?this.$(t):void 0!==t.nodeType?this.T(t):u(t)?this.k(t):this._(t);}O(t){return this._$AA.parentNode.insertBefore(t,this._$AB)}T(t){this._$AH!==t&&(this._$AR(),this._$AH=this.O(t));}_(t){this._$AH!==E&&c(this._$AH)?this._$AA.nextSibling.data=t:this.T(r$3.createTextNode(t)),this._$AH=t;}$(t){const{values:i,_$litType$:s}=t,e="number"==typeof s?this._$AC(t):(void 0===s.el&&(s.el=N.createElement(P(s.h,s.h[0]),this.options)),s);if(this._$AH?._$AD===e)this._$AH.p(i);else {const t=new M(e,this),s=t.u(this.options);t.p(i),this.T(s),this._$AH=t;}}_$AC(t){let i=A.get(t.strings);return void 0===i&&A.set(t.strings,i=new N(t)),i}k(t){a(this._$AH)||(this._$AH=[],this._$AR());const i=this._$AH;let s,e=0;for(const h of t)e===i.length?i.push(s=new R(this.O(l()),this.O(l()),this,this.options)):s=i[e],s._$AI(h),e++;e<i.length&&(this._$AR(s&&s._$AB.nextSibling,e),i.length=e);}_$AR(t=this._$AA.nextSibling,i){for(this._$AP?.(!1,!0,i);t&&t!==this._$AB;){const i=t.nextSibling;t.remove(),t=i;}}setConnected(t){void 0===this._$AM&&(this._$Cv=t,this._$AP?.(t));}}class k{get tagName(){return this.element.tagName}get _$AU(){return this._$AM._$AU}constructor(t,i,s,e,h){this.type=1,this._$AH=E,this._$AN=void 0,this.element=t,this.name=i,this._$AM=e,this.options=h,s.length>2||""!==s[0]||""!==s[1]?(this._$AH=Array(s.length-1).fill(new String),this.strings=s):this._$AH=E;}_$AI(t,i=this,s,e){const h=this.strings;let o=!1;if(void 0===h)t=S(this,t,i,0),o=!c(t)||t!==this._$AH&&t!==T,o&&(this._$AH=t);else {const e=t;let n,r;for(t=h[0],n=0;n<h.length-1;n++)r=S(this,e[s+n],i,n),r===T&&(r=this._$AH[n]),o||=!c(r)||r!==this._$AH[n],r===E?t=E:t!==E&&(t+=(r??"")+h[n+1]),this._$AH[n]=r;}o&&!e&&this.j(t);}j(t){t===E?this.element.removeAttribute(this.name):this.element.setAttribute(this.name,t??"");}}class H extends k{constructor(){super(...arguments),this.type=3;}j(t){this.element[this.name]=t===E?void 0:t;}}class I extends k{constructor(){super(...arguments),this.type=4;}j(t){this.element.toggleAttribute(this.name,!!t&&t!==E);}}class L extends k{constructor(t,i,s,e,h){super(t,i,s,e,h),this.type=5;}_$AI(t,i=this){if((t=S(this,t,i,0)??E)===T)return;const s=this._$AH,e=t===E&&s!==E||t.capture!==s.capture||t.once!==s.once||t.passive!==s.passive,h=t!==E&&(s===E||e);e&&this.element.removeEventListener(this.name,this,s),h&&this.element.addEventListener(this.name,this,t),this._$AH=t;}handleEvent(t){"function"==typeof this._$AH?this._$AH.call(this.options?.host??this.element,t):this._$AH.handleEvent(t);}}class z{constructor(t,i,s){this.element=t,this.type=6,this._$AN=void 0,this._$AM=i,this.options=s;}get _$AU(){return this._$AM._$AU}_$AI(t){S(this,t);}}const j=t.litHtmlPolyfillSupport;j?.(N,R),(t.litHtmlVersions??=[]).push("3.2.1");const B=(t,i,s)=>{const e=s?.renderBefore??i;let h=e._$litPart$;if(void 0===h){const t=s?.renderBefore??null;e._$litPart$=h=new R(i.insertBefore(l(),t),t,void 0,s??{});}return h._$AI(t),h};
 
     /**
      * @license
      * Copyright 2017 Google LLC
      * SPDX-License-Identifier: BSD-3-Clause
-     */class h extends b{constructor(){super(...arguments),this.renderOptions={host:this},this.o=void 0;}createRenderRoot(){const t=super.createRenderRoot();return this.renderOptions.renderBefore??=t.firstChild,t}update(t){const e=this.render();this.hasUpdated||(this.renderOptions.isConnected=this.isConnected),super.update(t),this.o=Q(e,this.renderRoot,this.renderOptions);}connectedCallback(){super.connectedCallback(),this.o?.setConnected(!0);}disconnectedCallback(){super.disconnectedCallback(),this.o?.setConnected(!1);}render(){return R}}h._$litElement$=!0,h["finalized"]=!0,globalThis.litElementHydrateSupport?.({LitElement:h});const f=globalThis.litElementPolyfillSupport;f?.({LitElement:h});(globalThis.litElementVersions??=[]).push("4.1.0");
+     */let r$2 = class r extends b{constructor(){super(...arguments),this.renderOptions={host:this},this._$Do=void 0;}createRenderRoot(){const t=super.createRenderRoot();return this.renderOptions.renderBefore??=t.firstChild,t}update(t){const s=this.render();this.hasUpdated||(this.renderOptions.isConnected=this.isConnected),super.update(t),this._$Do=B(s,this.renderRoot,this.renderOptions);}connectedCallback(){super.connectedCallback(),this._$Do?.setConnected(!0);}disconnectedCallback(){super.disconnectedCallback(),this._$Do?.setConnected(!1);}render(){return T}};r$2._$litElement$=!0,r$2["finalized"]=!0,globalThis.litElementHydrateSupport?.({LitElement:r$2});const i=globalThis.litElementPolyfillSupport;i?.({LitElement:r$2});(globalThis.litElementVersions??=[]).push("4.1.1");
 
     /**
      * @license
      * Copyright 2017 Google LLC
      * SPDX-License-Identifier: BSD-3-Clause
-     */const o={attribute:!0,type:String,converter:u,reflect:!1,hasChanged:f$2},r$1=(t=o,e,r)=>{const{kind:n,metadata:i}=r;let s=globalThis.litPropertyMetadata.get(i);if(void 0===s&&globalThis.litPropertyMetadata.set(i,s=new Map),s.set(r.name,t),"accessor"===n){const{name:o}=r;return {set(r){const n=e.get.call(this);e.set.call(this,r),this.requestUpdate(o,n,t);},init(e){return void 0!==e&&this.P(o,void 0,t),e}}}if("setter"===n){const{name:o}=r;return function(r){const n=this[o];e.call(this,r),this.requestUpdate(o,n,t);}}throw Error("Unsupported decorator location: "+n)};function n(t){return (e,o)=>"object"==typeof o?r$1(t,e,o):((t,e,o)=>{const r=e.hasOwnProperty(o);return e.constructor.createProperty(o,r?{...t,wrapped:!0}:t),r?Object.getOwnPropertyDescriptor(e,o):void 0})(t,e,o)}
+     */const o={attribute:!0,type:String,converter:u$1,reflect:!1,hasChanged:f$1},r$1=(t=o,e,r)=>{const{kind:n,metadata:i}=r;let s=globalThis.litPropertyMetadata.get(i);if(void 0===s&&globalThis.litPropertyMetadata.set(i,s=new Map),s.set(r.name,t),"accessor"===n){const{name:o}=r;return {set(r){const n=e.get.call(this);e.set.call(this,r),this.requestUpdate(o,n,t);},init(e){return void 0!==e&&this.P(o,void 0,t),e}}}if("setter"===n){const{name:o}=r;return function(r){const n=this[o];e.call(this,r),this.requestUpdate(o,n,t);}}throw Error("Unsupported decorator location: "+n)};function n(t){return (e,o)=>"object"==typeof o?r$1(t,e,o):((t,e,o)=>{const r=e.hasOwnProperty(o);return e.constructor.createProperty(o,r?{...t,wrapped:!0}:t),r?Object.getOwnPropertyDescriptor(e,o):void 0})(t,e,o)}
 
     /**
      * @license
@@ -68,7 +68,7 @@ var TSMoonCard = (function (exports) {
      * SPDX-License-Identifier: BSD-3-Clause
      */function r(r){return n({...r,state:!0,attribute:!1})}
 
-    var styles = i$1 `
+    var styles = i$3 `
 
 .truncate {
     white-space: nowrap;
@@ -224,26 +224,26 @@ var TSMoonCard = (function (exports) {
         }
     };
 
-    var common$7 = {
+    var common$b = {
     	version: "Versió",
     	title: "Sol i Lluna Mínim",
     	title_card: "Targeta Sol amb Lluna",
     	description: "Targeta per mostrar l'estat del sol i la lluna.",
     	invalid_configuration: "Configuració no vàlida"
     };
-    var editor$7 = {
+    var editor$b = {
     	moon_entity: "Entitat de la Lluna (Opcional)"
     };
-    var errors$7 = {
+    var errors$b = {
     	missing_moon_entity: "Falta moon_entity a la configuració",
     	invalid_icon_type: "Els colors següents de la configuració no són vàlids:"
     };
-    var card$7 = {
+    var card$b = {
     	moon_phase: "Fase de Lluna",
     	moon_rise: "Sortida de Lluna",
     	moon_set: "Posta de Lluna"
     };
-    var moon$7 = {
+    var moon$b = {
     	new_moon: "Lluna Nova",
     	waxing_crescent: "Lluna Nova Visible",
     	first_quarter: "Quart Creixent",
@@ -254,43 +254,90 @@ var TSMoonCard = (function (exports) {
     	waning_crescent: "Lluna Minvant"
     };
     var ca = {
-    	common: common$7,
-    	editor: editor$7,
-    	errors: errors$7,
-    	card: card$7,
-    	moon: moon$7
+    	common: common$b,
+    	editor: editor$b,
+    	errors: errors$b,
+    	card: card$b,
+    	moon: moon$b
     };
 
     var ca$1 = /*#__PURE__*/Object.freeze({
         __proto__: null,
-        card: card$7,
-        common: common$7,
+        card: card$b,
+        common: common$b,
         default: ca,
-        editor: editor$7,
-        errors: errors$7,
-        moon: moon$7
+        editor: editor$b,
+        errors: errors$b,
+        moon: moon$b
     });
 
-    var common$6 = {
+    var common$a = {
+    	version: "Verze",
+    	title: "Minimal Sun Moon",
+    	title_card: "Karta Minimal Sun Moon",
+    	description: "Minimální karta na vykreslení stavu slunce a měsíce.",
+    	invalid_configuration: "Neplatná konfigurace"
+    };
+    var editor$a = {
+    	moon_entity: "Entita měsíce (volitelné)"
+    };
+    var errors$a = {
+    	missing_moon_entity: "moon_entity chybí v konfiguraci",
+    	invalid_icon_type: "Následující barvy ve vaší konfiguraci jsou neplatné:"
+    };
+    var card$a = {
+    	moon_phase: "Fáze měsíce",
+    	moon_rise: "Východ měsíce",
+    	moon_set: "Západ měsíce"
+    };
+    var moon$a = {
+    	new_moon: "Nov",
+    	waxing_crescent: "Dorůstající srpek",
+    	first_quarter: "První čtvrt",
+    	waxing_gibbous: "Dorůstající měsíc",
+    	full_moon: "Úplněk",
+    	waning_gibbous: "Couvající měsíc",
+    	last_quarter: "Poslední čtvrt",
+    	waning_crescent: "Ubývající srpek"
+    };
+    var cz = {
+    	common: common$a,
+    	editor: editor$a,
+    	errors: errors$a,
+    	card: card$a,
+    	moon: moon$a
+    };
+
+    var cz$1 = /*#__PURE__*/Object.freeze({
+        __proto__: null,
+        card: card$a,
+        common: common$a,
+        default: cz,
+        editor: editor$a,
+        errors: errors$a,
+        moon: moon$a
+    });
+
+    var common$9 = {
     	version: "Version",
     	title: "Sonne | Mond Karte",
     	title_card: "Minimal Sonne | Mond Karte",
     	description: "Eine minimalistische Karte, um den Stand der Sonne und des Mondes darzustellen.",
     	invalid_configuration: "Ungültige Konfiguration"
     };
-    var editor$6 = {
+    var editor$9 = {
     	moon_entity: "Mondentität (Optional)"
     };
-    var errors$6 = {
+    var errors$9 = {
     	missing_moon_entity: "Die Mondentität (moon_entity) fehlt in der Konfiguration!",
     	invalid_icon_type: "Die folgenden Farben in der Konfiguration sind ungültig:"
     };
-    var card$6 = {
+    var card$9 = {
     	moon_phase: "Mondphase",
     	moon_rise: "Mondaufgang",
     	moon_set: "Monduntergang"
     };
-    var moon$6 = {
+    var moon$9 = {
     	new_moon: "Neumond",
     	waxing_crescent: "Zunehmende Mondsichel",
     	first_quarter: "Erstes Viertel",
@@ -301,43 +348,43 @@ var TSMoonCard = (function (exports) {
     	waning_crescent: "Abnehmende Mondsichel"
     };
     var de = {
-    	common: common$6,
-    	editor: editor$6,
-    	errors: errors$6,
-    	card: card$6,
-    	moon: moon$6
+    	common: common$9,
+    	editor: editor$9,
+    	errors: errors$9,
+    	card: card$9,
+    	moon: moon$9
     };
 
     var de$1 = /*#__PURE__*/Object.freeze({
         __proto__: null,
-        card: card$6,
-        common: common$6,
+        card: card$9,
+        common: common$9,
         default: de,
-        editor: editor$6,
-        errors: errors$6,
-        moon: moon$6
+        editor: editor$9,
+        errors: errors$9,
+        moon: moon$9
     });
 
-    var common$5 = {
+    var common$8 = {
     	version: "Version",
     	title: "Minimal Sun Moon",
     	title_card: "Minimal Sun Moon Card",
     	description: "A minimal card to render the state of the sun and moon.",
     	invalid_configuration: "Invalid configuration"
     };
-    var editor$5 = {
+    var editor$8 = {
     	moon_entity: "Moon entity (Optional)"
     };
-    var errors$5 = {
+    var errors$8 = {
     	missing_moon_entity: "moon_entity is missing in configuration",
     	invalid_icon_type: "The following colors in your configuration are invalid:"
     };
-    var card$5 = {
+    var card$8 = {
     	moon_phase: "Moon Phase",
     	moon_rise: "Moon Rise",
     	moon_set: "Moon Set"
     };
-    var moon$5 = {
+    var moon$8 = {
     	new_moon: "New Moon",
     	waxing_crescent: "Waxing Crescent",
     	first_quarter: "First Quarter",
@@ -348,43 +395,43 @@ var TSMoonCard = (function (exports) {
     	waning_crescent: "Waning Crescent"
     };
     var en = {
-    	common: common$5,
-    	editor: editor$5,
-    	errors: errors$5,
-    	card: card$5,
-    	moon: moon$5
+    	common: common$8,
+    	editor: editor$8,
+    	errors: errors$8,
+    	card: card$8,
+    	moon: moon$8
     };
 
     var en$1 = /*#__PURE__*/Object.freeze({
         __proto__: null,
-        card: card$5,
-        common: common$5,
+        card: card$8,
+        common: common$8,
         default: en,
-        editor: editor$5,
-        errors: errors$5,
-        moon: moon$5
+        editor: editor$8,
+        errors: errors$8,
+        moon: moon$8
     });
 
-    var common$4 = {
+    var common$7 = {
     	version: "Versión",
     	title: "Sol y Luna Mínimo",
     	title_card: "Tarjeta Sol con Luna",
     	description: "Tarjeta para mostrar el estado del sol y la luna.",
     	invalid_configuration: "Configuración inválida"
     };
-    var editor$4 = {
+    var editor$7 = {
     	moon_entity: "Entidad de la Luna (Opcional)"
     };
-    var errors$4 = {
+    var errors$7 = {
     	missing_moon_entity: "Falta moon_entity en la configuración",
     	invalid_icon_type: "Configuración no válida:"
     };
-    var card$4 = {
+    var card$7 = {
     	moon_phase: "Fase Lunar",
     	moon_rise: "Salida de la Luna",
     	moon_set: "Puesta de la Luna"
     };
-    var moon$4 = {
+    var moon$7 = {
     	new_moon: "Luna Nueva",
     	waxing_crescent: "Cuarto Creciente",
     	first_quarter: "Cuarto Creciente",
@@ -395,43 +442,43 @@ var TSMoonCard = (function (exports) {
     	waning_crescent: "Cuarto Menguante"
     };
     var es = {
-    	common: common$4,
-    	editor: editor$4,
-    	errors: errors$4,
-    	card: card$4,
-    	moon: moon$4
+    	common: common$7,
+    	editor: editor$7,
+    	errors: errors$7,
+    	card: card$7,
+    	moon: moon$7
     };
 
     var es$1 = /*#__PURE__*/Object.freeze({
         __proto__: null,
-        card: card$4,
-        common: common$4,
+        card: card$7,
+        common: common$7,
         default: es,
-        editor: editor$4,
-        errors: errors$4,
-        moon: moon$4
+        editor: editor$7,
+        errors: errors$7,
+        moon: moon$7
     });
 
-    var common$3 = {
+    var common$6 = {
     	version: "Version",
     	title: "Phases de la lune",
     	title_card: "Simple carte des phases de la lune",
     	description: "Une simple carte pour afficher la phase de la lune",
     	invalid_configuration: "Invalid configuration"
     };
-    var editor$3 = {
+    var editor$6 = {
     	moon_entity: "Entité de la lune"
     };
-    var errors$3 = {
+    var errors$6 = {
     	missing_moon_entity: "Sensor de la lune manquant",
     	invalid_icon_type: "Type d'icone incorect"
     };
-    var card$3 = {
+    var card$6 = {
     	moon_phase: "Phase lunaire",
     	moon_rise: "Coucher",
     	moon_set: "Lever"
     };
-    var moon$3 = {
+    var moon$6 = {
     	new_moon: "Nouvelle lune",
     	waxing_crescent: "Premier croissant",
     	first_quarter: "Premier quartier",
@@ -442,21 +489,68 @@ var TSMoonCard = (function (exports) {
     	waning_crescent: "Dernier croissant"
     };
     var fr = {
-    	common: common$3,
-    	editor: editor$3,
-    	errors: errors$3,
-    	card: card$3,
-    	moon: moon$3
+    	common: common$6,
+    	editor: editor$6,
+    	errors: errors$6,
+    	card: card$6,
+    	moon: moon$6
     };
 
     var fr$1 = /*#__PURE__*/Object.freeze({
         __proto__: null,
-        card: card$3,
-        common: common$3,
+        card: card$6,
+        common: common$6,
         default: fr,
-        editor: editor$3,
-        errors: errors$3,
-        moon: moon$3
+        editor: editor$6,
+        errors: errors$6,
+        moon: moon$6
+    });
+
+    var common$5 = {
+    	version: "Verzió",
+    	title: "Minimális Nap Hold",
+    	title_card: "Minimális Nap Hold kártya",
+    	description: "Egy minimális kártya a nap és a hold állapotának megjelenítéséhez.",
+    	invalid_configuration: "Érvénytelen konfiguráció"
+    };
+    var editor$5 = {
+    	moon_entity: "Hold entitás (opcionális)"
+    };
+    var errors$5 = {
+    	missing_moon_entity: "A moon_entity hiányzik a konfigurációból",
+    	invalid_icon_type: "A konfigurációban szereplő következő színek érvénytelenek:"
+    };
+    var card$5 = {
+    	moon_phase: "Holdfázis",
+    	moon_rise: "Holdkelte",
+    	moon_set: "Holdnyugta"
+    };
+    var moon$5 = {
+    	new_moon: "Újhold",
+    	waxing_crescent: "Növekvő holdsarló",
+    	first_quarter: "Első negyed",
+    	waxing_gibbous: "Növőhold fázis",
+    	full_moon: "Telihold",
+    	waning_gibbous: "Fogyóhold fázis",
+    	last_quarter: "Utolsó negyed",
+    	waning_crescent: "Csökkenő holdsarló"
+    };
+    var hu = {
+    	common: common$5,
+    	editor: editor$5,
+    	errors: errors$5,
+    	card: card$5,
+    	moon: moon$5
+    };
+
+    var hu$1 = /*#__PURE__*/Object.freeze({
+        __proto__: null,
+        card: card$5,
+        common: common$5,
+        default: hu,
+        editor: editor$5,
+        errors: errors$5,
+        moon: moon$5
     });
 
     var it = {
@@ -477,26 +571,26 @@ var TSMoonCard = (function (exports) {
         default: nb
     });
 
-    var common$2 = {
+    var common$4 = {
     	version: "Versie",
     	title: "Minimale zon-maan",
     	title_card: "Minimale Sun Moon-kaart",
     	description: "Een minimale kaart om de toestand van de zon en de maan weer te geven.",
     	invalid_configuration: "Ongeldige configuratie"
     };
-    var editor$2 = {
+    var editor$4 = {
     	moon_entity: "Maanentiteit (optioneel)"
     };
-    var errors$2 = {
+    var errors$4 = {
     	missing_moon_entity: "maanentiteit ontbreekt in de configuratie",
     	invalid_icon_type: "De volgende kleuren in uw configuratie zijn ongeldig:"
     };
-    var card$2 = {
+    var card$4 = {
     	moon_phase: "Maanfase",
     	moon_rise: "Maanopkomst",
     	moon_set: "Maanondergang"
     };
-    var moon$2 = {
+    var moon$4 = {
     	new_moon: "Nieuwemaan",
     	waxing_crescent: "Jonge maansikkel",
     	first_quarter: "Eerste kwartier",
@@ -507,21 +601,21 @@ var TSMoonCard = (function (exports) {
     	waning_crescent: "Asgrauwe maan"
     };
     var nl = {
-    	common: common$2,
-    	editor: editor$2,
-    	errors: errors$2,
-    	card: card$2,
-    	moon: moon$2
+    	common: common$4,
+    	editor: editor$4,
+    	errors: errors$4,
+    	card: card$4,
+    	moon: moon$4
     };
 
     var nl$1 = /*#__PURE__*/Object.freeze({
         __proto__: null,
-        card: card$2,
-        common: common$2,
+        card: card$4,
+        common: common$4,
         default: nl,
-        editor: editor$2,
-        errors: errors$2,
-        moon: moon$2
+        editor: editor$4,
+        errors: errors$4,
+        moon: moon$4
     });
 
     var pl = {
@@ -533,82 +627,73 @@ var TSMoonCard = (function (exports) {
         default: pl
     });
 
-    var common$1 = {
-    	version: "Verzió",
-    	title: "Minimális Nap Hold",
-    	title_card: "Minimális Nap Hold kártya",
-    	description: "Egy minimális kártya a nap és a hold állapotának megjelenítéséhez.",
-    	invalid_configuration: "Érvénytelen konfiguráció"
+    var common$3 = {
+    	version: "Versão",
+    	title: "Fases da Lua",
+    	title_card: "Cartão das fases da lua",
+    	description: "Um cartão minimalista para exibir as fases da lua e do sol.",
+    	invalid_configuration: "Configuração Inválida"
     };
-    var editor$1 = {
-    	moon_entity: "Hold entitás (opcionális)"
+    var editor$3 = {
+    	moon_entity: "Entidade Lua (Opcional)"
     };
-    var errors$1 = {
-    	missing_moon_entity: "A moon_entity hiányzik a konfigurációból",
-    	invalid_icon_type: "A konfigurációban szereplő következő színek érvénytelenek:"
+    var errors$3 = {
+    	missing_moon_entity: "A entidade moon_entity está em falta na configuração",
+    	invalid_icon_type: "As seguintes cores na configuração são inválidas:"
     };
-    var card$1 = {
-    	moon_phase: "Holdfázis",
-    	moon_rise: "Holdkelte",
-    	moon_set: "Holdnyugta"
+    var card$3 = {
+    	moon_phase: "Fase da Lua",
+    	moon_rise: "Nascer da Lua",
+    	moon_set: "Pôr da Lua"
     };
-    var moon$1 = {
-    	new_moon: "Újhold",
-    	waxing_crescent: "Növekvő holdsarló",
-    	first_quarter: "Első negyed",
-    	waxing_gibbous: "Növőhold fázis",
-    	full_moon: "Telihold",
-    	waning_gibbous: "Fogyóhold fázis",
-    	last_quarter: "Utolsó negyed",
-    	waning_crescent: "Csökkenő holdsarló"
+    var moon$3 = {
+    	new_moon: "Lua Nova",
+    	waxing_crescent: "Lua Crescente",
+    	first_quarter: "Quarto Crescente",
+    	waxing_gibbous: "Crescente Gibosa",
+    	full_moon: "Lua Cheia",
+    	waning_gibbous: "Minguante Gibosa",
+    	last_quarter: "Quarto Minguante",
+    	waning_crescent: "Lua Minguante"
     };
-    var hu = {
-    	common: common$1,
-    	editor: editor$1,
-    	errors: errors$1,
-    	card: card$1,
-    	moon: moon$1
-    };
-
-    var hu$1 = /*#__PURE__*/Object.freeze({
-        __proto__: null,
-        card: card$1,
-        common: common$1,
-        default: hu,
-        editor: editor$1,
-        errors: errors$1,
-        moon: moon$1
-    });
-
     var pt = {
-    	
+    	common: common$3,
+    	editor: editor$3,
+    	errors: errors$3,
+    	card: card$3,
+    	moon: moon$3
     };
 
     var pt$1 = /*#__PURE__*/Object.freeze({
         __proto__: null,
-        default: pt
+        card: card$3,
+        common: common$3,
+        default: pt,
+        editor: editor$3,
+        errors: errors$3,
+        moon: moon$3
     });
 
-    var common = {
+    var common$2 = {
     	version: "Versão",
     	title: "Fases da Lua",
     	title_card: "Card das fases da lua",
     	description: "Um cartão minimalista para exibir as fases da lua e do sol.",
     	invalid_configuration: "Configuração Inválida"
     };
-    var editor = {
+    var editor$2 = {
     	moon_entity: "Entidade Lua (Opcional)"
     };
-    var errors = {
+    var errors$2 = {
     	missing_moon_entity: "moon_entity está em falta na configuração",
     	invalid_icon_type: "As seguintes cores na configuração são inválidas:"
     };
-    var card = {
+    var card$2 = {
     	moon_phase: "Fase da Lua",
     	moon_rise: "Nascer da Lua",
     	moon_set: "Pôr da Lua"
     };
-    var moon = {
+    var moon$2 = {
     	new_moon: "Lua Nova",
     	waxing_crescent: "Lua Crescente",
     	first_quarter: "Quarto Crescente",
@@ -619,6 +704,100 @@ var TSMoonCard = (function (exports) {
     	waning_crescent: "Lua Minguante"
     };
     var ptBR = {
+    	common: common$2,
+    	editor: editor$2,
+    	errors: errors$2,
+    	card: card$2,
+    	moon: moon$2
+    };
+
+    var pt_BR = /*#__PURE__*/Object.freeze({
+        __proto__: null,
+        card: card$2,
+        common: common$2,
+        default: ptBR,
+        editor: editor$2,
+        errors: errors$2,
+        moon: moon$2
+    });
+
+    var common$1 = {
+    	version: "Версия",
+    	title: "Фазы луны",
+    	title_card: "Минималистическая карточка лунных фаз",
+    	description: "Минималистичная карточка для отображения состояния луны.",
+    	invalid_configuration: "Ошибка в конфигурации"
+    };
+    var editor$1 = {
+    	moon_entity: "Сенсор лунных фаз (Опционально)"
+    };
+    var errors$1 = {
+    	missing_moon_entity: "Отсутствует датчик (сенсор) лунных фаз в конфигурации",
+    	invalid_icon_type: "В конфигурации указан некорретный тип иконки"
+    };
+    var card$1 = {
+    	moon_phase: "Лунная фаза",
+    	moon_rise: "Восход луны",
+    	moon_set: "Заход луны"
+    };
+    var moon$1 = {
+    	new_moon: "Новолуние",
+    	waxing_crescent: "Растущий серп",
+    	first_quarter: "Первая четверть",
+    	waxing_gibbous: "Растущая луна",
+    	full_moon: "Полнолуние",
+    	waning_gibbous: "Убывающая луна",
+    	last_quarter: "Последняя четверть",
+    	waning_crescent: "Убывающий серп"
+    };
+    var ru = {
+    	common: common$1,
+    	editor: editor$1,
+    	errors: errors$1,
+    	card: card$1,
+    	moon: moon$1
+    };
+
+    var ru$1 = /*#__PURE__*/Object.freeze({
+        __proto__: null,
+        card: card$1,
+        common: common$1,
+        default: ru,
+        editor: editor$1,
+        errors: errors$1,
+        moon: moon$1
+    });
+
+    var common = {
+    	version: "Verzia",
+    	title: "Minimal Sun Moon",
+    	title_card: "Karta Minimal Sun Moon",
+    	description: "Minimálna karta na vykreslenie stavu slnka a mesiaca.",
+    	invalid_configuration: "Neplatná konfigurácia"
+    };
+    var editor = {
+    	moon_entity: "Entita Mesiaca (voliteľné)"
+    };
+    var errors = {
+    	missing_moon_entity: "moon_entity v konfigurácii chýba",
+    	invalid_icon_type: "Nasledujúce farby vo vašej konfigurácii sú neplatné:"
+    };
+    var card = {
+    	moon_phase: "Fáza Mesiaca",
+    	moon_rise: "Mesiac východ",
+    	moon_set: "Mesiac západ"
+    };
+    var moon = {
+    	new_moon: "Nový Mesiac",
+    	waxing_crescent: "Rastúci polmesiac",
+    	first_quarter: "Prvá štvrtina",
+    	waxing_gibbous: "Rastúci mesiac",
+    	full_moon: "Plný mesiac",
+    	waning_gibbous: "Ubúdajúci mesiac",
+    	last_quarter: "Posledná štvrtina",
+    	waning_crescent: "Ubúdajúci polmesiac"
+    };
+    var sk = {
     	common: common,
     	editor: editor,
     	errors: errors,
@@ -626,11 +805,11 @@ var TSMoonCard = (function (exports) {
     	moon: moon
     };
 
-    var pt_BR = /*#__PURE__*/Object.freeze({
+    var sk$1 = /*#__PURE__*/Object.freeze({
         __proto__: null,
         card: card,
         common: common,
-        default: ptBR,
+        default: sk,
         editor: editor,
         errors: errors,
         moon: moon
@@ -639,17 +818,20 @@ var TSMoonCard = (function (exports) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const languages = {
         ca: ca$1,
+        cz: cz$1,
         de: de$1,
         en: en$1,
         es: es$1,
         fr: fr$1,
+        hu: hu$1,
         it: it$1,
         nb: nb$1,
         nl: nl$1,
         pl: pl$1,
-        hu: hu$1,
         pt: pt$1,
         pt_BR,
+        ru: ru$1,
+        sk: sk$1,
     };
     function localize(key, locale) {
         let translated;
@@ -669,1261 +851,1275 @@ var TSMoonCard = (function (exports) {
         return translated;
     }
 
-    var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : "object" !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
-
     function getDefaultExportFromCjs (x) {
     	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
     }
 
-    var dayjs_min = {exports: {}};
+    var dayjs_min$1 = {exports: {}};
 
-    (function (module, exports) {
-    	!function(t,e){module.exports=e();}(commonjsGlobal,(function(){var t=1e3,e=6e4,n=36e5,r="millisecond",i="second",s="minute",u="hour",a="day",o="week",c="month",f="quarter",h="year",d="date",l="Invalid Date",$=/^(\d{4})[-/]?(\d{1,2})?[-/]?(\d{0,2})[Tt\s]*(\d{1,2})?:?(\d{1,2})?:?(\d{1,2})?[.:]?(\d+)?$/,y=/\[([^\]]+)]|Y{1,4}|M{1,4}|D{1,2}|d{1,4}|H{1,2}|h{1,2}|a|A|m{1,2}|s{1,2}|Z{1,2}|SSS/g,M={name:"en",weekdays:"Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday".split("_"),months:"January_February_March_April_May_June_July_August_September_October_November_December".split("_"),ordinal:function(t){var e=["th","st","nd","rd"],n=t%100;return "["+t+(e[(n-20)%10]||e[n]||e[0])+"]"}},m=function(t,e,n){var r=String(t);return !r||r.length>=e?t:""+Array(e+1-r.length).join(n)+t},v={s:m,z:function(t){var e=-t.utcOffset(),n=Math.abs(e),r=Math.floor(n/60),i=n%60;return (e<=0?"+":"-")+m(r,2,"0")+":"+m(i,2,"0")},m:function t(e,n){if(e.date()<n.date())return -t(n,e);var r=12*(n.year()-e.year())+(n.month()-e.month()),i=e.clone().add(r,c),s=n-i<0,u=e.clone().add(r+(s?-1:1),c);return +(-(r+(n-i)/(s?i-u:u-i))||0)},a:function(t){return t<0?Math.ceil(t)||0:Math.floor(t)},p:function(t){return {M:c,y:h,w:o,d:a,D:d,h:u,m:s,s:i,ms:r,Q:f}[t]||String(t||"").toLowerCase().replace(/s$/,"")},u:function(t){return void 0===t}},g="en",D={};D[g]=M;var p="$isDayjsObject",S=function(t){return t instanceof _||!(!t||!t[p])},w=function t(e,n,r){var i;if(!e)return g;if("string"==typeof e){var s=e.toLowerCase();D[s]&&(i=s),n&&(D[s]=n,i=s);var u=e.split("-");if(!i&&u.length>1)return t(u[0])}else {var a=e.name;D[a]=e,i=a;}return !r&&i&&(g=i),i||!r&&g},O=function(t,e){if(S(t))return t.clone();var n="object"==typeof e?e:{};return n.date=t,n.args=arguments,new _(n)},b=v;b.l=w,b.i=S,b.w=function(t,e){return O(t,{locale:e.$L,utc:e.$u,x:e.$x,$offset:e.$offset})};var _=function(){function M(t){this.$L=w(t.locale,null,!0),this.parse(t),this.$x=this.$x||t.x||{},this[p]=!0;}var m=M.prototype;return m.parse=function(t){this.$d=function(t){var e=t.date,n=t.utc;if(null===e)return new Date(NaN);if(b.u(e))return new Date;if(e instanceof Date)return new Date(e);if("string"==typeof e&&!/Z$/i.test(e)){var r=e.match($);if(r){var i=r[2]-1||0,s=(r[7]||"0").substring(0,3);return n?new Date(Date.UTC(r[1],i,r[3]||1,r[4]||0,r[5]||0,r[6]||0,s)):new Date(r[1],i,r[3]||1,r[4]||0,r[5]||0,r[6]||0,s)}}return new Date(e)}(t),this.init();},m.init=function(){var t=this.$d;this.$y=t.getFullYear(),this.$M=t.getMonth(),this.$D=t.getDate(),this.$W=t.getDay(),this.$H=t.getHours(),this.$m=t.getMinutes(),this.$s=t.getSeconds(),this.$ms=t.getMilliseconds();},m.$utils=function(){return b},m.isValid=function(){return !(this.$d.toString()===l)},m.isSame=function(t,e){var n=O(t);return this.startOf(e)<=n&&n<=this.endOf(e)},m.isAfter=function(t,e){return O(t)<this.startOf(e)},m.isBefore=function(t,e){return this.endOf(e)<O(t)},m.$g=function(t,e,n){return b.u(t)?this[e]:this.set(n,t)},m.unix=function(){return Math.floor(this.valueOf()/1e3)},m.valueOf=function(){return this.$d.getTime()},m.startOf=function(t,e){var n=this,r=!!b.u(e)||e,f=b.p(t),l=function(t,e){var i=b.w(n.$u?Date.UTC(n.$y,e,t):new Date(n.$y,e,t),n);return r?i:i.endOf(a)},$=function(t,e){return b.w(n.toDate()[t].apply(n.toDate("s"),(r?[0,0,0,0]:[23,59,59,999]).slice(e)),n)},y=this.$W,M=this.$M,m=this.$D,v="set"+(this.$u?"UTC":"");switch(f){case h:return r?l(1,0):l(31,11);case c:return r?l(1,M):l(0,M+1);case o:var g=this.$locale().weekStart||0,D=(y<g?y+7:y)-g;return l(r?m-D:m+(6-D),M);case a:case d:return $(v+"Hours",0);case u:return $(v+"Minutes",1);case s:return $(v+"Seconds",2);case i:return $(v+"Milliseconds",3);default:return this.clone()}},m.endOf=function(t){return this.startOf(t,!1)},m.$set=function(t,e){var n,o=b.p(t),f="set"+(this.$u?"UTC":""),l=(n={},n[a]=f+"Date",n[d]=f+"Date",n[c]=f+"Month",n[h]=f+"FullYear",n[u]=f+"Hours",n[s]=f+"Minutes",n[i]=f+"Seconds",n[r]=f+"Milliseconds",n)[o],$=o===a?this.$D+(e-this.$W):e;if(o===c||o===h){var y=this.clone().set(d,1);y.$d[l]($),y.init(),this.$d=y.set(d,Math.min(this.$D,y.daysInMonth())).$d;}else l&&this.$d[l]($);return this.init(),this},m.set=function(t,e){return this.clone().$set(t,e)},m.get=function(t){return this[b.p(t)]()},m.add=function(r,f){var d,l=this;r=Number(r);var $=b.p(f),y=function(t){var e=O(l);return b.w(e.date(e.date()+Math.round(t*r)),l)};if($===c)return this.set(c,this.$M+r);if($===h)return this.set(h,this.$y+r);if($===a)return y(1);if($===o)return y(7);var M=(d={},d[s]=e,d[u]=n,d[i]=t,d)[$]||1,m=this.$d.getTime()+r*M;return b.w(m,this)},m.subtract=function(t,e){return this.add(-1*t,e)},m.format=function(t){var e=this,n=this.$locale();if(!this.isValid())return n.invalidDate||l;var r=t||"YYYY-MM-DDTHH:mm:ssZ",i=b.z(this),s=this.$H,u=this.$m,a=this.$M,o=n.weekdays,c=n.months,f=n.meridiem,h=function(t,n,i,s){return t&&(t[n]||t(e,r))||i[n].slice(0,s)},d=function(t){return b.s(s%12||12,t,"0")},$=f||function(t,e,n){var r=t<12?"AM":"PM";return n?r.toLowerCase():r};return r.replace(y,(function(t,r){return r||function(t){switch(t){case"YY":return String(e.$y).slice(-2);case"YYYY":return b.s(e.$y,4,"0");case"M":return a+1;case"MM":return b.s(a+1,2,"0");case"MMM":return h(n.monthsShort,a,c,3);case"MMMM":return h(c,a);case"D":return e.$D;case"DD":return b.s(e.$D,2,"0");case"d":return String(e.$W);case"dd":return h(n.weekdaysMin,e.$W,o,2);case"ddd":return h(n.weekdaysShort,e.$W,o,3);case"dddd":return o[e.$W];case"H":return String(s);case"HH":return b.s(s,2,"0");case"h":return d(1);case"hh":return d(2);case"a":return $(s,u,!0);case"A":return $(s,u,!1);case"m":return String(u);case"mm":return b.s(u,2,"0");case"s":return String(e.$s);case"ss":return b.s(e.$s,2,"0");case"SSS":return b.s(e.$ms,3,"0");case"Z":return i}return null}(t)||i.replace(":","")}))},m.utcOffset=function(){return 15*-Math.round(this.$d.getTimezoneOffset()/15)},m.diff=function(r,d,l){var $,y=this,M=b.p(d),m=O(r),v=(m.utcOffset()-this.utcOffset())*e,g=this-m,D=function(){return b.m(y,m)};switch(M){case h:$=D()/12;break;case c:$=D();break;case f:$=D()/3;break;case o:$=(g-v)/6048e5;break;case a:$=(g-v)/864e5;break;case u:$=g/n;break;case s:$=g/e;break;case i:$=g/t;break;default:$=g;}return l?$:b.a($)},m.daysInMonth=function(){return this.endOf(c).$D},m.$locale=function(){return D[this.$L]},m.locale=function(t,e){if(!t)return this.$L;var n=this.clone(),r=w(t,e,!0);return r&&(n.$L=r),n},m.clone=function(){return b.w(this.$d,this)},m.toDate=function(){return new Date(this.valueOf())},m.toJSON=function(){return this.isValid()?this.toISOString():null},m.toISOString=function(){return this.$d.toISOString()},m.toString=function(){return this.$d.toUTCString()},M}(),k=_.prototype;return O.prototype=k,[["$ms",r],["$s",i],["$m",s],["$H",u],["$W",a],["$M",c],["$y",h],["$D",d]].forEach((function(t){k[t[1]]=function(e){return this.$g(e,t[0],t[1])};})),O.extend=function(t,e){return t.$i||(t(e,_,O),t.$i=!0),O},O.locale=w,O.isDayjs=S,O.unix=function(t){return O(1e3*t)},O.en=D[g],O.Ls=D,O.p={},O})); 
-    } (dayjs_min));
+    var dayjs_min = dayjs_min$1.exports;
 
-    var dayjs_minExports = dayjs_min.exports;
+    var hasRequiredDayjs_min;
+
+    function requireDayjs_min () {
+    	if (hasRequiredDayjs_min) return dayjs_min$1.exports;
+    	hasRequiredDayjs_min = 1;
+    	(function (module, exports) {
+    		!function(t,e){module.exports=e();}(dayjs_min,(function(){var t=1e3,e=6e4,n=36e5,r="millisecond",i="second",s="minute",u="hour",a="day",o="week",c="month",f="quarter",h="year",d="date",l="Invalid Date",$=/^(\d{4})[-/]?(\d{1,2})?[-/]?(\d{0,2})[Tt\s]*(\d{1,2})?:?(\d{1,2})?:?(\d{1,2})?[.:]?(\d+)?$/,y=/\[([^\]]+)]|Y{1,4}|M{1,4}|D{1,2}|d{1,4}|H{1,2}|h{1,2}|a|A|m{1,2}|s{1,2}|Z{1,2}|SSS/g,M={name:"en",weekdays:"Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday".split("_"),months:"January_February_March_April_May_June_July_August_September_October_November_December".split("_"),ordinal:function(t){var e=["th","st","nd","rd"],n=t%100;return "["+t+(e[(n-20)%10]||e[n]||e[0])+"]"}},m=function(t,e,n){var r=String(t);return !r||r.length>=e?t:""+Array(e+1-r.length).join(n)+t},v={s:m,z:function(t){var e=-t.utcOffset(),n=Math.abs(e),r=Math.floor(n/60),i=n%60;return (e<=0?"+":"-")+m(r,2,"0")+":"+m(i,2,"0")},m:function t(e,n){if(e.date()<n.date())return -t(n,e);var r=12*(n.year()-e.year())+(n.month()-e.month()),i=e.clone().add(r,c),s=n-i<0,u=e.clone().add(r+(s?-1:1),c);return +(-(r+(n-i)/(s?i-u:u-i))||0)},a:function(t){return t<0?Math.ceil(t)||0:Math.floor(t)},p:function(t){return {M:c,y:h,w:o,d:a,D:d,h:u,m:s,s:i,ms:r,Q:f}[t]||String(t||"").toLowerCase().replace(/s$/,"")},u:function(t){return void 0===t}},g="en",D={};D[g]=M;var p="$isDayjsObject",S=function(t){return t instanceof _||!(!t||!t[p])},w=function t(e,n,r){var i;if(!e)return g;if("string"==typeof e){var s=e.toLowerCase();D[s]&&(i=s),n&&(D[s]=n,i=s);var u=e.split("-");if(!i&&u.length>1)return t(u[0])}else {var a=e.name;D[a]=e,i=a;}return !r&&i&&(g=i),i||!r&&g},O=function(t,e){if(S(t))return t.clone();var n="object"==typeof e?e:{};return n.date=t,n.args=arguments,new _(n)},b=v;b.l=w,b.i=S,b.w=function(t,e){return O(t,{locale:e.$L,utc:e.$u,x:e.$x,$offset:e.$offset})};var _=function(){function M(t){this.$L=w(t.locale,null,!0),this.parse(t),this.$x=this.$x||t.x||{},this[p]=!0;}var m=M.prototype;return m.parse=function(t){this.$d=function(t){var e=t.date,n=t.utc;if(null===e)return new Date(NaN);if(b.u(e))return new Date;if(e instanceof Date)return new Date(e);if("string"==typeof e&&!/Z$/i.test(e)){var r=e.match($);if(r){var i=r[2]-1||0,s=(r[7]||"0").substring(0,3);return n?new Date(Date.UTC(r[1],i,r[3]||1,r[4]||0,r[5]||0,r[6]||0,s)):new Date(r[1],i,r[3]||1,r[4]||0,r[5]||0,r[6]||0,s)}}return new Date(e)}(t),this.init();},m.init=function(){var t=this.$d;this.$y=t.getFullYear(),this.$M=t.getMonth(),this.$D=t.getDate(),this.$W=t.getDay(),this.$H=t.getHours(),this.$m=t.getMinutes(),this.$s=t.getSeconds(),this.$ms=t.getMilliseconds();},m.$utils=function(){return b},m.isValid=function(){return !(this.$d.toString()===l)},m.isSame=function(t,e){var n=O(t);return this.startOf(e)<=n&&n<=this.endOf(e)},m.isAfter=function(t,e){return O(t)<this.startOf(e)},m.isBefore=function(t,e){return this.endOf(e)<O(t)},m.$g=function(t,e,n){return b.u(t)?this[e]:this.set(n,t)},m.unix=function(){return Math.floor(this.valueOf()/1e3)},m.valueOf=function(){return this.$d.getTime()},m.startOf=function(t,e){var n=this,r=!!b.u(e)||e,f=b.p(t),l=function(t,e){var i=b.w(n.$u?Date.UTC(n.$y,e,t):new Date(n.$y,e,t),n);return r?i:i.endOf(a)},$=function(t,e){return b.w(n.toDate()[t].apply(n.toDate("s"),(r?[0,0,0,0]:[23,59,59,999]).slice(e)),n)},y=this.$W,M=this.$M,m=this.$D,v="set"+(this.$u?"UTC":"");switch(f){case h:return r?l(1,0):l(31,11);case c:return r?l(1,M):l(0,M+1);case o:var g=this.$locale().weekStart||0,D=(y<g?y+7:y)-g;return l(r?m-D:m+(6-D),M);case a:case d:return $(v+"Hours",0);case u:return $(v+"Minutes",1);case s:return $(v+"Seconds",2);case i:return $(v+"Milliseconds",3);default:return this.clone()}},m.endOf=function(t){return this.startOf(t,!1)},m.$set=function(t,e){var n,o=b.p(t),f="set"+(this.$u?"UTC":""),l=(n={},n[a]=f+"Date",n[d]=f+"Date",n[c]=f+"Month",n[h]=f+"FullYear",n[u]=f+"Hours",n[s]=f+"Minutes",n[i]=f+"Seconds",n[r]=f+"Milliseconds",n)[o],$=o===a?this.$D+(e-this.$W):e;if(o===c||o===h){var y=this.clone().set(d,1);y.$d[l]($),y.init(),this.$d=y.set(d,Math.min(this.$D,y.daysInMonth())).$d;}else l&&this.$d[l]($);return this.init(),this},m.set=function(t,e){return this.clone().$set(t,e)},m.get=function(t){return this[b.p(t)]()},m.add=function(r,f){var d,l=this;r=Number(r);var $=b.p(f),y=function(t){var e=O(l);return b.w(e.date(e.date()+Math.round(t*r)),l)};if($===c)return this.set(c,this.$M+r);if($===h)return this.set(h,this.$y+r);if($===a)return y(1);if($===o)return y(7);var M=(d={},d[s]=e,d[u]=n,d[i]=t,d)[$]||1,m=this.$d.getTime()+r*M;return b.w(m,this)},m.subtract=function(t,e){return this.add(-1*t,e)},m.format=function(t){var e=this,n=this.$locale();if(!this.isValid())return n.invalidDate||l;var r=t||"YYYY-MM-DDTHH:mm:ssZ",i=b.z(this),s=this.$H,u=this.$m,a=this.$M,o=n.weekdays,c=n.months,f=n.meridiem,h=function(t,n,i,s){return t&&(t[n]||t(e,r))||i[n].slice(0,s)},d=function(t){return b.s(s%12||12,t,"0")},$=f||function(t,e,n){var r=t<12?"AM":"PM";return n?r.toLowerCase():r};return r.replace(y,(function(t,r){return r||function(t){switch(t){case"YY":return String(e.$y).slice(-2);case"YYYY":return b.s(e.$y,4,"0");case"M":return a+1;case"MM":return b.s(a+1,2,"0");case"MMM":return h(n.monthsShort,a,c,3);case"MMMM":return h(c,a);case"D":return e.$D;case"DD":return b.s(e.$D,2,"0");case"d":return String(e.$W);case"dd":return h(n.weekdaysMin,e.$W,o,2);case"ddd":return h(n.weekdaysShort,e.$W,o,3);case"dddd":return o[e.$W];case"H":return String(s);case"HH":return b.s(s,2,"0");case"h":return d(1);case"hh":return d(2);case"a":return $(s,u,!0);case"A":return $(s,u,!1);case"m":return String(u);case"mm":return b.s(u,2,"0");case"s":return String(e.$s);case"ss":return b.s(e.$s,2,"0");case"SSS":return b.s(e.$ms,3,"0");case"Z":return i}return null}(t)||i.replace(":","")}))},m.utcOffset=function(){return 15*-Math.round(this.$d.getTimezoneOffset()/15)},m.diff=function(r,d,l){var $,y=this,M=b.p(d),m=O(r),v=(m.utcOffset()-this.utcOffset())*e,g=this-m,D=function(){return b.m(y,m)};switch(M){case h:$=D()/12;break;case c:$=D();break;case f:$=D()/3;break;case o:$=(g-v)/6048e5;break;case a:$=(g-v)/864e5;break;case u:$=g/n;break;case s:$=g/e;break;case i:$=g/t;break;default:$=g;}return l?$:b.a($)},m.daysInMonth=function(){return this.endOf(c).$D},m.$locale=function(){return D[this.$L]},m.locale=function(t,e){if(!t)return this.$L;var n=this.clone(),r=w(t,e,!0);return r&&(n.$L=r),n},m.clone=function(){return b.w(this.$d,this)},m.toDate=function(){return new Date(this.valueOf())},m.toJSON=function(){return this.isValid()?this.toISOString():null},m.toISOString=function(){return this.$d.toISOString()},m.toString=function(){return this.$d.toUTCString()},M}(),k=_.prototype;return O.prototype=k,[["$ms",r],["$s",i],["$m",s],["$H",u],["$W",a],["$M",c],["$y",h],["$D",d]].forEach((function(t){k[t[1]]=function(e){return this.$g(e,t[0],t[1])};})),O.extend=function(t,e){return t.$i||(t(e,_,O),t.$i=!0),O},O.locale=w,O.isDayjs=S,O.unix=function(t){return O(1e3*t)},O.en=D[g],O.Ls=D,O.p={},O})); 
+    	} (dayjs_min$1));
+    	return dayjs_min$1.exports;
+    }
+
+    var dayjs_minExports = requireDayjs_min();
     var dayjs = /*@__PURE__*/getDefaultExportFromCjs(dayjs_minExports);
 
     var suncalc = {exports: {}};
 
-    (function (module, exports) {
-    	// @ts-check
-    	/*
-    	 (c) 2011-2015, Vladimir Agafonkin
-    	 SunCalc is a JavaScript library for calculating sun/moon position and light phases.
-    	 https://github.com/mourner/suncalc
-
-    	 Reworked and enhanced by Robert Gester
-    	 Additional Copyright (c) 2022 Robert Gester
-    	 https://github.com/hypnos3/suncalc3
-    	*/
-
-    	/**
-    	* @typedef {Object} ISunTimeDef
-    	* @property {string} name - The Name of the time
-    	* @property {Date} value - Date object with the calculated sun-time
-    	* @property {number} ts - The time as timestamp
-    	* @property {number} pos - The position of the sun on the time
-    	* @property {number} [elevation] - Angle of the sun on the time (except for solarNoon / nadir)
-    	* @property {number} julian - The time as Julian calendar
-    	* @property {boolean} valid - indicates if the time is valid or not
-    	* @property {boolean} [deprecated] - indicates if the time is a deprecated time name
-    	* @property {string} [nameOrg] - if it is a deprecated name, the original property name
-    	* @property {number} [posOrg] - if it is a deprecated name, the original position
-    	*/
-
-    	/**
-    	* @typedef {Object} ISunTimeSingle
-    	* @property {ISunTimeDef} rise - sun-time for sun rise
-    	* @property {ISunTimeDef} set - sun-time for sun set
-    	* @property {string} [error] - string of an error message if an error occurs
-    	*/
-
-    	/**
-    	* @typedef {Object} ISunTimeList
-    	* @property {ISunTimeDef} solarNoon - The sun-time for the solar noon (sun is in the highest position)
-    	* @property {ISunTimeDef} nadir - The sun-time for nadir (darkest moment of the night, sun is in the lowest position)
-    	* @property {ISunTimeDef} goldenHourDawnStart - The sun-time for morning golden hour (soft light, best time for photography)
-    	* @property {ISunTimeDef} goldenHourDawnEnd - The sun-time for morning golden hour (soft light, best time for photography)
-    	* @property {ISunTimeDef} goldenHourDuskStart - The sun-time for evening golden hour starts
-    	* @property {ISunTimeDef} goldenHourDuskEnd - The sun-time for evening golden hour starts
-    	* @property {ISunTimeDef} sunriseStart - The sun-time for sunrise starts (top edge of the sun appears on the horizon)
-    	* @property {ISunTimeDef} sunriseEnd - The sun-time for sunrise ends (bottom edge of the sun touches the horizon)
-    	* @property {ISunTimeDef} sunsetStart - The sun-time for sunset starts (bottom edge of the sun touches the horizon)
-    	* @property {ISunTimeDef} sunsetEnd - The sun-time for sunset ends (sun disappears below the horizon, evening civil twilight starts)
-    	* @property {ISunTimeDef} blueHourDawnStart - The sun-time for blue Hour start (time for special photography photos starts)
-    	* @property {ISunTimeDef} blueHourDawnEnd - The sun-time for blue Hour end (time for special photography photos end)
-    	* @property {ISunTimeDef} blueHourDuskStart - The sun-time for blue Hour start (time for special photography photos starts)
-    	* @property {ISunTimeDef} blueHourDuskEnd - The sun-time for blue Hour end (time for special photography photos end)
-    	* @property {ISunTimeDef} civilDawn - The sun-time for dawn (morning nautical twilight ends, morning civil twilight starts)
-    	* @property {ISunTimeDef} civilDusk - The sun-time for dusk (evening nautical twilight starts)
-    	* @property {ISunTimeDef} nauticalDawn - The sun-time for nautical dawn (morning nautical twilight starts)
-    	* @property {ISunTimeDef} nauticalDusk - The sun-time for nautical dusk end (evening astronomical twilight starts)
-    	* @property {ISunTimeDef} amateurDawn - The sun-time for amateur astronomical dawn (sun at 12° before sunrise)
-    	* @property {ISunTimeDef} amateurDusk - The sun-time for amateur astronomical dusk (sun at 12° after sunrise)
-    	* @property {ISunTimeDef} astronomicalDawn - The sun-time for night ends (morning astronomical twilight starts)
-    	* @property {ISunTimeDef} astronomicalDusk - The sun-time for night starts (dark enough for astronomical observations)
-    	* @property {ISunTimeDef} [dawn] - Deprecated: alternate for civilDawn
-    	* @property {ISunTimeDef} [dusk] - Deprecated: alternate for civilDusk
-    	* @property {ISunTimeDef} [nightEnd] - Deprecated: alternate for astronomicalDawn
-    	* @property {ISunTimeDef} [night] - Deprecated: alternate for astronomicalDusk
-    	* @property {ISunTimeDef} [nightStart] - Deprecated: alternate for astronomicalDusk
-    	* @property {ISunTimeDef} [goldenHour] - Deprecated: alternate for goldenHourDuskStart
-    	* @property {ISunTimeDef} [sunset] - Deprecated: alternate for sunsetEnd
-    	* @property {ISunTimeDef} [sunrise] - Deprecated: alternate for sunriseStart
-    	* @property {ISunTimeDef} [goldenHourEnd] - Deprecated: alternate for goldenHourDawnEnd
-    	* @property {ISunTimeDef} [goldenHourStart] - Deprecated: alternate for goldenHourDuskStart
-    	*/
-
-    	/**
-    	 * @typedef ISunTimeNames
-    	 * @type {Object}
-    	 * @property {number} angle     -   angle of the sun position in degrees
-    	 * @property {string} riseName  -   name of sun rise (morning name)
-    	 * @property {string} setName   -   name of sun set (evening name)
-    	 * @property {number} [risePos] -   (optional) position at rise
-    	 * @property {number} [setPos]  -   (optional) position at set
-    	 */
-
-
-    	/**
-    	 * @typedef {Object} ISunCoordinates
-    	 * @property {number} dec - The declination of the sun
-    	 * @property {number} ra - The right ascension of the sun
-    	 */
-
-    	/**
-    	 * @typedef {Object} ISunPosition
-    	 * @property {number} azimuth - The azimuth above the horizon of the sun in radians
-    	 * @property {number} altitude - The altitude of the sun in radians
-    	 * @property {number} zenith - The zenith of the sun in radians
-    	 * @property {number} azimuthDegrees - The azimuth of the sun in decimal degree
-    	 * @property {number} altitudeDegrees - The altitude of the sun in decimal degree
-    	 * @property {number} zenithDegrees - The zenith of the sun in decimal degree
-    	 * @property {number} declination - The declination of the sun
-    	 */
-
-    	/**
-    	 * @typedef {Object} IMoonPosition
-    	 * @property {number} azimuth - The moon azimuth in radians
-    	 * @property {number} altitude - The moon altitude above the horizon in radians
-    	 * @property {number} azimuthDegrees - The moon azimuth in degree
-    	 * @property {number} altitudeDegrees - The moon altitude above the horizon in degree
-    	 * @property {number} distance - The distance of the moon to the earth in kilometers
-    	 * @property {number} parallacticAngle - The parallactic angle of the moon
-    	 * @property {number} parallacticAngleDegrees - The parallactic angle of the moon in degree
-    	 */
-
-
-    	/**
-    	 * @typedef {Object} IDateObj
-    	 * @property {string} date - The Date as a ISO String YYYY-MM-TTTHH:MM:SS.mmmmZ
-    	 * @property {number} value - The Date as the milliseconds since 1.1.1970 0:00 UTC
-    	 */
-
-    	/**
-    	 * @typedef {Object} IPhaseObj
-    	 * @property {number} from - The phase start
-    	 * @property {number} to - The phase end
-    	 * @property {('newMoon'|'waxingCrescentMoon'|'firstQuarterMoon'|'waxingGibbousMoon'|'fullMoon'|'waningGibbousMoon'|'thirdQuarterMoon'|'waningCrescentMoon')} id - id of the phase
-    	 * @property {string} emoji - unicode symbol of the phase
-    	 * @property {string} name - name of the phase
-    	 * @property {string} id - phase name
-    	 * @property {number} weight - weight of the phase
-    	 * @property {string} css - a css value of the phase
-    	 * @property {string} [nameAlt] - an alernate name (not used by this library)
-    	 * @property {string} [tag] - additional tag (not used by this library)
-    	 */
-
-    	/**
-    	 * @typedef {Object} IMoonIlluminationNext
-    	 * @property {string} date - The Date as a ISO String YYYY-MM-TTTHH:MM:SS.mmmmZ of the next phase
-    	 * @property {number} value - The Date as the milliseconds since 1.1.1970 0:00 UTC of the next phase
-    	 * @property {string} type - The name of the next phase [newMoon, fullMoon, firstQuarter, thirdQuarter]
-    	 * @property {IDateObj} newMoon - Date of the next new moon
-    	 * @property {IDateObj} fullMoon - Date of the next full moon
-    	 * @property {IDateObj} firstQuarter - Date of the next first quater of the moon
-    	 * @property {IDateObj} thirdQuarter - Date of the next third/last quater of the moon
-    	 */
-
-    	/**
-    	 * @typedef {Object} IMoonIllumination
-    	 * @property {number} fraction - illuminated fraction of the moon; varies from `0.0` (new moon) to `1.0` (full moon)
-    	 * @property {IPhaseObj} phase - moon phase as object
-    	 * @property {number} phaseValue - The phase of the moon in the current cycle; varies from `0.0` to `1.0`
-    	 * @property {number} angle - The midpoint angle in radians of the illuminated limb of the moon reckoned eastward from the north point of the disk;
-    	 * @property {IMoonIlluminationNext} next - object containing information about the next phases of the moon
-    	 * @remarks the moon is waxing if the angle is negative, and waning if positive
-    	 */
-
-    	/**
-    	 * @typedef {Object} IMoonDataInst
-    	 * @property {number} zenithAngle - The zenith angle of the moon
-    	 * @property {IMoonIllumination} illumination - object containing information about the next phases of the moon
-    	 *
-    	 * @typedef {IMoonPosition & IMoonDataInst} IMoonData
-    	 */
-
-    	/**
-    	 * @typedef {Object} IMoonTimes
-    	 * @property {Date|NaN} rise - a Date object if the moon is rising on the given Date, otherwise NaN
-    	 * @property {Date|NaN} set - a Date object if the moon is setting on the given Date, otherwise NaN
-    	 * @property {boolean} alwaysUp - is true if the moon never rises/sets and is always _above_ the horizon during the day
-    	 * @property {boolean} alwaysDown - is true if the moon is always _below_ the horizon
-    	 * @property {Date} [highest] - Date of the highest position, only avalílable if set and rise is not NaN
-    	 */
-
-    	(function () {
-    	    // sun calculations are based on http://aa.quae.nl/en/reken/zonpositie.html formulas
-
-    	    // shortcuts for easier to read formulas
-    	    const sin = Math.sin;
-    	    const cos = Math.cos;
-    	    const tan = Math.tan;
-    	    const asin = Math.asin;
-    	    const atan = Math.atan2;
-    	    const acos = Math.acos;
-    	    const rad = Math.PI / 180;
-    	    const degr = 180 / Math.PI;
-
-    	    // date/time constants and conversions
-    	    const dayMs = 86400000; // 1000 * 60 * 60 * 24;
-    	    const J1970 = 2440587.5;
-    	    const J2000 = 2451545;
-
-    	    const lunarDaysMs = 2551442778; // The duration in days of a lunar cycle is 29.53058770576
-    	    const firstNewMoon2000 = 947178840000; // first newMoon in the year 2000 2000-01-06 18:14
-
-    	    /**
-    	     * convert date from Julian calendar
-    	     * @param {number} j    -    day number in Julian calendar to convert
-    	     * @return {number} result date as timestamp
-    	     */
-    	    function fromJulianDay(j) {
-    	        return (j - J1970) * dayMs;
-    	    }
-
-    	    /**
-    	     * get number of days for a dateValue since 2000
-    	     * @param {number} dateValue date as timestamp to get days
-    	     * @return {number} count of days
-    	     */
-    	    function toDays(dateValue) {
-    	        return ((dateValue / dayMs) + J1970) - J2000;
-    	    }
-
-    	    // general calculations for position
-
-    	    const e = rad * 23.4397; // obliquity of the Earth
-
-    	    /**
-    	     * get right ascension
-    	     * @param {number} l
-    	     * @param {number} b
-    	     * @returns {number}
-    	     */
-    	    function rightAscension(l, b) {
-    	        return atan(sin(l) * cos(e) - tan(b) * sin(e), cos(l));
-    	    }
-
-    	    /**
-    	     * get declination
-    	     * @param {number} l
-    	     * @param {number} b
-    	     * @returns {number}
-    	     */
-    	    function declination(l, b) {
-    	        return asin(sin(b) * cos(e) + cos(b) * sin(e) * sin(l));
-    	    }
-
-    	    /**
-    	    * get azimuth
-    	    * @param {number} H - siderealTime
-    	    * @param {number} phi - PI constant
-    	    * @param {number} dec - The declination of the sun
-    	    * @returns {number} azimuth in rad
-    	    */
-    	    function azimuthCalc(H, phi, dec) {
-    	        return atan(sin(H), cos(H) * sin(phi) - tan(dec) * cos(phi)) + Math.PI;
-    	    }
-
-    	    /**
-    	    * get altitude
-    	    * @param {number} H - siderealTime
-    	    * @param {number} phi - PI constant
-    	    * @param {number} dec - The declination of the sun
-    	    * @returns {number}
-    	    */
-    	    function altitudeCalc(H, phi, dec) {
-    	        return asin(sin(phi) * sin(dec) + cos(phi) * cos(dec) * cos(H));
-    	    }
-
-    	    /**
-    	     * side real time
-    	     * @param {number} d
-    	     * @param {number} lw
-    	     * @returns {number}
-    	     */
-    	    function siderealTime(d, lw) {
-    	        return rad * (280.16 + 360.9856235 * d) - lw;
-    	    }
-
-    	    /**
-    	     * get astro refraction
-    	     * @param {number} h
-    	     * @returns {number}
-    	     */
-    	    function astroRefraction(h) {
-    	        if (h < 0) { // the following formula works for positive altitudes only.
-    	            h = 0;
-    	        } // if h = -0.08901179 a div/0 would occur.
-
-    	        // formula 16.4 of "Astronomical Algorithms" 2nd edition by Jean Meeus (Willmann-Bell, Richmond) 1998.
-    	        // 1.02 / tan(h + 10.26 / (h + 5.10)) h in degrees, result in arc minutes -> converted to rad:
-    	        return 0.0002967 / Math.tan(h + 0.00312536 / (h + 0.08901179));
-    	    }
-    	    // general sun calculations
-    	    /**
-    	     * get solar mean anomaly
-    	     * @param {number} d
-    	     * @returns {number}
-    	     */
-    	    function solarMeanAnomaly(d) {
-    	        return rad * (357.5291 + 0.98560028 * d);
-    	    }
-
-    	    /**
-    	     * ecliptic longitude
-    	     * @param {number} M
-    	     * @returns {number}
-    	     */
-    	    function eclipticLongitude(M) {
-    	        const C = rad * (1.9148 * sin(M) + 0.02 * sin(2 * M) + 0.0003 * sin(3 * M));
-    	        // equation of center
-    	        const P = rad * 102.9372; // perihelion of the Earth
-    	        return M + C + P + Math.PI;
-    	    }
-
-    	    /**
-    	     * sun coordinates
-    	     * @param {number} d days in Julian calendar
-    	     * @returns {ISunCoordinates}
-    	     */
-    	    function sunCoords(d) {
-    	        const M = solarMeanAnomaly(d);
-    	        const L = eclipticLongitude(M);
-
-    	        return {
-    	            dec: declination(L, 0),
-    	            ra: rightAscension(L, 0)
-    	        };
-    	    }
-
-    	    const SunCalc = {};
-
-    	    /**
-    	     * calculates sun position for a given date and latitude/longitude
-    	     * @param {number|Date} dateValue Date object or timestamp for calculating sun-position
-    	     * @param {number} lat latitude for calculating sun-position
-    	     * @param {number} lng longitude for calculating sun-position
-    	     * @return {ISunPosition} result object of sun-position
-    	    */
-    	    SunCalc.getPosition = function (dateValue, lat, lng) {
-    	        // console.log(`getPosition dateValue=${dateValue}  lat=${lat}, lng=${lng}`);
-    	        if (isNaN(lat)) {
-    	            throw new Error('latitude missing');
-    	        }
-    	        if (isNaN(lng)) {
-    	            throw new Error('longitude missing');
-    	        }
-    	        if (dateValue instanceof Date) {
-    	            dateValue = dateValue.valueOf();
-    	        }
-    	        const lw = rad * -lng;
-    	        const phi = rad * lat;
-    	        const d = toDays(dateValue);
-    	        const c = sunCoords(d);
-    	        const H = siderealTime(d, lw) - c.ra;
-    	        const azimuth = azimuthCalc(H, phi, c.dec);
-    	        const altitude = altitudeCalc(H, phi, c.dec);
-    	        // console.log(`getPosition date=${date}, M=${H}, L=${H}, c=${JSON.stringify(c)}, d=${d}, lw=${lw}, phi=${phi}`);
-
-    	        return {
-    	            azimuth,
-    	            altitude,
-    	            zenith: (90*Math.PI/180) - altitude,
-    	            azimuthDegrees: degr * azimuth,
-    	            altitudeDegrees: degr * altitude,
-    	            zenithDegrees: 90 - (degr * altitude),
-    	            declination: c.dec
-    	        };
-    	    };
-
-    	    /** sun times configuration
-    	     * @type {Array.<ISunTimeNames>}
-    	     */
-    	    const sunTimes = SunCalc.times = [
-    	        { angle: 6, riseName: 'goldenHourDawnEnd', setName: 'goldenHourDuskStart'}, // GOLDEN_HOUR_2
-    	        { angle: -0.3, riseName: 'sunriseEnd', setName: 'sunsetStart'}, // SUNRISE_END
-    	        { angle: -0.833, riseName: 'sunriseStart', setName: 'sunsetEnd'}, // SUNRISE
-    	        { angle: -1, riseName: 'goldenHourDawnStart', setName: 'goldenHourDuskEnd'}, // GOLDEN_HOUR_1
-    	        { angle: -4, riseName: 'blueHourDawnEnd', setName: 'blueHourDuskStart'}, // BLUE_HOUR
-    	        { angle: -6, riseName: 'civilDawn', setName: 'civilDusk'}, // DAWN
-    	        { angle: -8, riseName: 'blueHourDawnStart', setName: 'blueHourDuskEnd'}, // BLUE_HOUR
-    	        { angle: -12, riseName: 'nauticalDawn', setName: 'nauticalDusk'}, // NAUTIC_DAWN
-    	        { angle: -15, riseName: 'amateurDawn', setName: 'amateurDusk'},
-    	        { angle: -18, riseName: 'astronomicalDawn', setName: 'astronomicalDusk'} // ASTRO_DAWN
-    	    ];
-
-    	    /** alternate time names for backward compatibility
-    	     * @type {Array.<[string, string]>}
-    	    */
-    	    const suntimesDeprecated = SunCalc.timesDeprecated = [
-    	        ['dawn', 'civilDawn'],
-    	        ['dusk', 'civilDusk'],
-    	        ['nightEnd', 'astronomicalDawn'],
-    	        ['night', 'astronomicalDusk'],
-    	        ['nightStart', 'astronomicalDusk'],
-    	        ['goldenHour', 'goldenHourDuskStart'],
-    	        ['sunrise', 'sunriseStart'],
-    	        ['sunset', 'sunsetEnd'],
-    	        ['goldenHourEnd', 'goldenHourDawnEnd'],
-    	        ['goldenHourStart', 'goldenHourDuskStart']
-    	    ];
-
-    	    /** adds a custom time to the times config
-    	     * @param {number} angleAltitude - angle of Altitude/elevation above the horizont of the sun in degrees
-    	     * @param {string} riseName - name of sun rise (morning name)
-    	     * @param {string} setName  - name of sun set (evening name)
-    	     * @param {number} [risePos]  - (optional) position at rise (morning)
-    	     * @param {number} [setPos]  - (optional) position at set (evening)
-    	     * @param {boolean} [degree=true] defines if the elevationAngle is in degree not in radians
-    	     * @return {Boolean} true if new time could be added, false if not (parameter missing; riseName or setName already existing)
-    	     */
-    	    SunCalc.addTime = function (angleAltitude, riseName, setName, risePos, setPos, degree) {
-    	        let isValid = (typeof riseName === 'string') && (riseName.length > 0) &&
-    	                      (typeof setName === 'string') && (setName.length > 0) &&
-    	                      (typeof angleAltitude === 'number');
-    	        if (isValid) {
-    	            const EXP = /^(?![0-9])[a-zA-Z0-9$_]+$/;
-    	            // check for invalid names
-    	            for (let i=0; i<sunTimes.length; ++i) {
-    	                if (!EXP.test(riseName) ||
-    	                    riseName === sunTimes[i].riseName ||
-    	                    riseName === sunTimes[i].setName) {
-    	                    isValid = false;
-    	                    break;
-    	                }
-    	                if (!EXP.test(setName) ||
-    	                    setName === sunTimes[i].riseName ||
-    	                    setName === sunTimes[i].setName) {
-    	                    isValid = false;
-    	                    break;
-    	                }
-    	            }
-    	            if (isValid) {
-    	                const angleDeg = (degree === false ?  (angleAltitude  * ( 180 / Math.PI )) : angleAltitude);
-    	                sunTimes.push({angle: angleDeg, riseName, setName, risePos, setPos});
-    	                for (let i = suntimesDeprecated.length -1; i >= 0; i--) {
-    	                    if (suntimesDeprecated[i][0] === riseName || suntimesDeprecated[i][0] === setName) {
-    	                        suntimesDeprecated.splice(i, 1);
-    	                    }
-    	                }
-    	                return true;
-    	            }
-    	        }
-    	        return false;
-    	    };
-
-    	    /**
-    	     * add an alternate name for a sun time
-    	     * @param {string} alternameName    - alternate or deprecated time name
-    	     * @param {string} originalName     - original time name from SunCalc.times array
-    	     * @return {Boolean} true if could be added, false if not (parameter missing; originalName does not exists; alternameName already existis)
-    	     */
-    	    SunCalc.addDeprecatedTimeName = function (alternameName, originalName) {
-    	        let isValid = (typeof alternameName === 'string') && (alternameName.length > 0) &&
-    	                      (typeof originalName === 'string') && (originalName.length > 0);
-    	        if (isValid) {
-    	            let hasOrg = false;
-    	            const EXP = /^(?![0-9])[a-zA-Z0-9$_]+$/;
-    	            // check for invalid names
-    	            for (let i=0; i<sunTimes.length; ++i) {
-    	                if (!EXP.test(alternameName) ||
-    	                    alternameName === sunTimes[i].riseName ||
-    	                    alternameName === sunTimes[i].setName) {
-    	                    isValid = false;
-    	                    break;
-    	                }
-    	                if (originalName === sunTimes[i].riseName ||
-    	                    originalName === sunTimes[i].setName) {
-    	                    hasOrg = true;
-    	                }
-    	            }
-    	            if (isValid && hasOrg) {
-    	                suntimesDeprecated.push([alternameName, originalName]);
-    	                return true;
-    	            }
-    	        }
-    	        return false;
-    	    };
-    	    // calculations for sun times
-
-    	    const J0 = 0.0009;
-
-    	    /**
-    	     * Julian cycle
-    	     * @param {number} d - number of days
-    	     * @param {number} lw - rad * -lng;
-    	     * @returns {number}
-    	     */
-    	    function julianCycle(d, lw) {
-    	        return Math.round(d - J0 - lw / (2 * Math.PI));
-    	    }
-
-    	    /**
-    	     * approx transit
-    	     * @param {number} Ht - hourAngle
-    	     * @param {number} lw - rad * -lng
-    	     * @param {number} n - Julian cycle
-    	     * @returns {number} approx transit
-    	     */
-    	    function approxTransit(Ht, lw, n) {
-    	        return J0 + (Ht + lw) / (2 * Math.PI) + n;
-    	    }
-
-    	    /**
-    	     * solar transit in Julian
-    	     * @param {number} ds - approxTransit
-    	     * @param {number} M - solar mean anomal
-    	     * @param {number} L - ecliptic longitude
-    	     * @returns {number} solar transit in Julian
-    	     */
-    	    function solarTransitJ(ds, M, L) {
-    	        return J2000 + ds + 0.0053 * sin(M) - 0.0069 * sin(2 * L);
-    	    }
-
-    	    /**
-    	     * hour angle
-    	     * @param {number} h - heigh at 0
-    	     * @param {number} phi -  rad * lat;
-    	     * @param {number} dec - declination
-    	     * @returns {number} hour angle
-    	     */
-    	    function hourAngle(h, phi, dec) {
-    	        return acos((sin(h) - sin(phi) * sin(dec)) / (cos(phi) * cos(dec)));
-    	    }
-
-    	    /**
-    	     * calculates the obderver angle
-    	     * @param {number} height  the observer height (in meters) relative to the horizon
-    	     * @returns {number} height for further calculations
-    	     */
-    	    function observerAngle(height) {
-    	        return -2.076 * Math.sqrt(height) / 60;
-    	    }
-
-    	    /**
-    	     * returns set time for the given sun altitude
-    	     * @param {number} h - heigh at 0
-    	     * @param {number} lw - rad * -lng
-    	     * @param {number} phi -  rad * lat;
-    	     * @param {number} dec - declination
-    	     * @param {number} n - Julian cycle
-    	     * @param {number} M - solar mean anomal
-    	     * @param {number} L - ecliptic longitude
-    	     * @returns
-    	     */
-    	    function getSetJ(h, lw, phi, dec, n, M, L) {
-    	        const w = hourAngle(h, phi, dec);
-    	        const a = approxTransit(w, lw, n);
-    	        // console.log(`h=${h} lw=${lw} phi=${phi} dec=${dec} n=${n} M=${M} L=${L} w=${w} a=${a}`);
-    	        return solarTransitJ(a, M, L);
-    	    }
-
-    	    /**
-    	     * calculates sun times for a given date and latitude/longitude
-    	     * @param {number|Date} dateValue Date object or timestamp for calculating sun-times
-    	     * @param {number} lat latitude for calculating sun-times
-    	     * @param {number} lng longitude for calculating sun-times
-    	     * @param {number} [height=0]  the observer height (in meters) relative to the horizon
-    	     * @param {boolean} [addDeprecated=false] if true to times from timesDeprecated array will be added to the object
-    	     * @param {boolean} [inUTC=false] defines if the calculation should be in utc or local time (default is local)
-    	     * @return {ISunTimeList} result object of sunTime
-    	     */
-    	    SunCalc.getSunTimes = function (dateValue, lat, lng, height, addDeprecated, inUTC) {
-    	        // console.log(`getSunTimes dateValue=${dateValue}  lat=${lat}, lng=${lng}, height={height}, noDeprecated=${noDeprecated}`);
-    	        if (isNaN(lat)) {
-    	            throw new Error('latitude missing');
-    	        }
-    	        if (isNaN(lng)) {
-    	            throw new Error('longitude missing');
-    	        }
-    	        // @ts-ignore
-    	        const t = new Date(dateValue);
-    	        if (inUTC) {
-    	            t.setUTCHours(12, 0, 0, 0);
-    	        } else {
-    	            t.setHours(12, 0, 0, 0);
-    	        }
-
-    	        const lw = rad * -lng;
-    	        const phi = rad * lat;
-    	        const dh = observerAngle(height || 0);
-    	        const d = toDays(t.valueOf());
-    	        const n = julianCycle(d, lw);
-    	        const ds = approxTransit(0, lw, n);
-    	        const M = solarMeanAnomaly(ds);
-    	        const L = eclipticLongitude(M);
-    	        const dec = declination(L, 0);
-
-    	        const Jnoon = solarTransitJ(ds, M, L);
-    	        const noonVal = fromJulianDay(Jnoon);
-    	        const nadirVal = fromJulianDay(Jnoon + 0.5);
-
-    	        const result = {
-    	            solarNoon: {
-    	                value: new Date(noonVal),
-    	                ts: noonVal,
-    	                name: 'solarNoon',
-    	                // elevation: 90,
-    	                julian: Jnoon,
-    	                valid: !isNaN(Jnoon),
-    	                pos: sunTimes.length
-    	            },
-    	            nadir: {
-    	                value: new Date(nadirVal),
-    	                ts: nadirVal,
-    	                name: 'nadir',
-    	                // elevation: 270,
-    	                julian: Jnoon + 0.5,
-    	                valid: !isNaN(Jnoon),
-    	                pos: (sunTimes.length * 2) + 1
-    	            }
-    	        };
-    	        for (let i = 0, len = sunTimes.length; i < len; i += 1) {
-    	            const time = sunTimes[i];
-    	            const sa = time.angle;
-    	            const h0 = (sa + dh) * rad;
-    	            let valid = true;
-
-    	            let Jset = getSetJ(h0, lw, phi, dec, n, M, L);
-    	            if (isNaN(Jset)) {
-    	                Jset = (Jnoon + 0.5);
-    	                valid = false;
-    	                /* Näherung an Wert
-    	                const b = Math.abs(time[0]);
-    	                while (isNaN(Jset) && ((Math.abs(sa) - b) < 2)) {
-    	                    sa += 0.005;
-    	                    Jset = getSetJ(sa * rad, lw, phi, dec, n, M, L);
-    	                } /* */
-    	            }
-
-    	            const Jrise = Jnoon - (Jset - Jnoon);
-    	            const v1 = fromJulianDay(Jset);
-    	            const v2 = fromJulianDay(Jrise);
-
-    	            result[time.setName] = {
-    	                value: new Date(v1),
-    	                ts: v1,
-    	                name: time.setName,
-    	                elevation: sa,
-    	                julian: Jset,
-    	                valid,
-    	                pos: len + i + 1
-    	            };
-    	            result[time.riseName] = {
-    	                value: new Date(v2),
-    	                ts: v2,
-    	                name: time.riseName,
-    	                elevation: sa, // (180 + (sa * -1)),
-    	                julian: Jrise,
-    	                valid,
-    	                pos: len - i - 1
-    	            };
-    	        }
-
-    	        if (addDeprecated) {
-    	            // for backward compatibility
-    	            for (let i = 0, len = suntimesDeprecated.length; i < len; i += 1) {
-    	                const time = suntimesDeprecated[i];
-    	                result[time[0]] = Object.assign({}, result[time[1]]);
-    	                result[time[0]].deprecated = true;
-    	                result[time[0]].nameOrg = result[time[1]].pos;
-    	                result[time[0]].posOrg = result[time[0]].pos;
-    	                result[time[0]].pos = -2;
-    	            }
-    	        }
-    	        // @ts-ignore
-    	        return result;
-    	    };
-
-    	    /**
-    	     * calculates the time at which the sun will have a given elevation angle when rising and when setting for a given date and latitude/longitude.
-    	     * @param {number|Date} dateValue Date object or timestamp for calculating sun-times
-    	     * @param {number} lat latitude for calculating sun-times
-    	     * @param {number} lng longitude for calculating sun-times
-    	     * @param {number} elevationAngle sun angle for calculating sun-time
-    	     * @param {number} [height=0]  the observer height (in meters) relative to the horizon
-    	     * @param {boolean} [degree] defines if the elevationAngle is in degree not in radians
-    	     * @param {boolean} [inUTC] defines if the calculation should be in utc or local time (default is local)
-    	     * @return {ISunTimeSingle} result object of single sunTime
-    	     */
-    	    SunCalc.getSunTime = function (dateValue, lat, lng, elevationAngle, height, degree, inUTC) {
-    	        // console.log(`getSunTime dateValue=${dateValue}  lat=${lat}, lng=${lng}, elevationAngle=${elevationAngle}`);
-    	        if (isNaN(lat)) {
-    	            throw new Error('latitude missing');
-    	        }
-    	        if (isNaN(lng)) {
-    	            throw new Error('longitude missing');
-    	        }
-    	        if (isNaN(elevationAngle)) {
-    	            throw new Error('elevationAngle missing');
-    	        }
-    	        if (degree) {
-    	            elevationAngle = elevationAngle * rad;
-    	        }
-    	        const t = new Date(dateValue);
-    	        if (inUTC) {
-    	            t.setUTCHours(12, 0, 0, 0);
-    	        } else {
-    	            t.setHours(12, 0, 0, 0);
-    	        }
-    	        const lw = rad * -lng;
-    	        const phi = rad * lat;
-    	        const dh = observerAngle(height || 0);
-    	        const d = toDays(t.valueOf());
-    	        const n = julianCycle(d, lw);
-    	        const ds = approxTransit(0, lw, n);
-    	        const M = solarMeanAnomaly(ds);
-    	        const L = eclipticLongitude(M);
-    	        const dec = declination(L, 0);
-    	        const Jnoon = solarTransitJ(ds, M, L);
-
-    	        const h0 = (elevationAngle - 0.833 + dh) * rad;
-
-    	        const Jset = getSetJ(h0, lw, phi, dec, n, M, L);
-    	        const Jrise = Jnoon - (Jset - Jnoon);
-    	        const v1 = fromJulianDay(Jset);
-    	        const v2 = fromJulianDay(Jrise);
-
-    	        return {
-    	            set: {
-    	                name: 'set',
-    	                value: new Date(v1),
-    	                ts: v1,
-    	                elevation: elevationAngle,
-    	                julian: Jset,
-    	                valid: !isNaN(Jset),
-    	                pos: 0
-    	            },
-    	            rise: {
-    	                name: 'rise',
-    	                value: new Date(v2),
-    	                ts: v2,
-    	                elevation: elevationAngle, // (180 + (elevationAngle * -1)),
-    	                julian: Jrise,
-    	                valid: !isNaN(Jrise),
-    	                pos: 1
-    	            }
-    	        };
-    	    };
-
-    	    /**
-    	     * calculates time for a given azimuth angle for a given date and latitude/longitude
-    	     * @param {number|Date} dateValue Date object or timestamp for calculating sun-time
-    	     * @param {number} nazimuth azimuth for calculating sun-time
-    	     * @param {number} lat latitude for calculating sun-time
-    	     * @param {number} lng longitude for calculating sun-time
-    	     * @param {boolean} [degree] true if the angle is in degree and not in rad
-    	     * @return {Date} result time of sun-time
-    	    */
-    	    SunCalc.getSunTimeByAzimuth = function (dateValue, lat, lng, nazimuth, degree) {
-    	        if (isNaN(nazimuth)) {
-    	            throw new Error('azimuth missing');
-    	        }
-    	        if (isNaN(lat)) {
-    	            throw new Error('latitude missing');
-    	        }
-    	        if (isNaN(lng)) {
-    	            throw new Error('longitude missing');
-    	        }
-    	        if (degree) {
-    	            nazimuth = nazimuth * rad;
-    	        }
-    	        const date = new Date(dateValue);
-    	        const lw = rad * -lng;
-    	        const phi = rad * lat;
-
-    	        let dateVal = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0).valueOf();
-    	        let addval = dayMs; // / 2);
-    	        dateVal += addval;
-
-    	        while (addval > 200) {
-    	        // let nazi = this.getPosition(dateVal, lat, lng).azimuth;
-    	            const d = toDays(dateVal);
-    	            const c = sunCoords(d);
-    	            const H = siderealTime(d, lw) - c.ra;
-    	            const nazim = azimuthCalc(H, phi, c.dec);
-
-    	            addval /= 2;
-    	            if (nazim < nazimuth) {
-    	                dateVal += addval;
-    	            } else {
-    	                dateVal -= addval;
-    	            }
-    	        }
-    	        return new Date(Math.floor(dateVal));
-    	    };
-
-    	    // calculation for solar time based on https://www.pveducation.org/pvcdrom/properties-of-sunlight/solar-time
-
-    	    /**
-    	     * Calculaes the solar time of the given date in the given latitude and UTC offset.
-    	     * @param {number|Date} dateValue Date object or timestamp for calculating solar time
-    	     * @param {number} lng longitude for calculating sun-time
-    	     * @param {number} utcOffset offset to the utc time
-    	     * @returns {Date} Returns the solar time of the given date in the given latitude and UTC offset.
-    	     */
-    	    SunCalc.getSolarTime = function (dateValue, lng, utcOffset) {
-    	        // @ts-ignore
-    	        const date = new Date(dateValue);
-    	        // calculate the day of year
-    	        const start = new Date(date.getFullYear(), 0, 0);
-    	        const diff = (date.getTime() - start.getTime()) + ((start.getTimezoneOffset() - date.getTimezoneOffset()) * 60 * 1000);
-    	        const dayOfYear = Math.floor(diff / dayMs);
-
-    	        const b = 360 / 365 * (dayOfYear - 81) * rad;
-    	        const equationOfTime = 9.87 * sin(2 * b) - 7.53 * cos(b) - 1.5 * sin(b);
-    	        const localSolarTimeMeridian = 15 * utcOffset;
-    	        const timeCorrection = equationOfTime + 4 * (lng - localSolarTimeMeridian);
-    	        const localSolarTime = date.getHours() + timeCorrection / 60 + date.getMinutes() / 60;
-
-    	        const solarDate = new Date(0, 0);
-    	        solarDate.setMinutes(+localSolarTime * 60);
-    	        return solarDate;
-    	    };
-
-    	    // moon calculations, based on http://aa.quae.nl/en/reken/hemelpositie.html formulas
-
-    	    /**
-    	     * calculate the geocentric ecliptic coordinates of the moon
-    	     * @param {number} d number of days
-    	     */
-    	    function moonCoords(d) {
-    	        const L = rad * (218.316 + 13.176396 * d); // ecliptic longitude
-    	        const M = rad * (134.963 + 13.064993 * d); // mean anomaly
-    	        const F = rad * (93.272 + 13.229350 * d); // mean distance
-    	        const l = L + rad * 6.289 * sin(M); // longitude
-    	        const b = rad * 5.128 * sin(F); // latitude
-    	        const dt = 385001 - 20905 * cos(M); // distance to the moon in km
-
-    	        return {
-    	            ra: rightAscension(l, b),
-    	            dec: declination(l, b),
-    	            dist: dt
-    	        };
-    	    }
-
-    	    /**
-    	     * calculates moon position for a given date and latitude/longitude
-    	     * @param {number|Date} dateValue Date object or timestamp for calculating moon-position
-    	     * @param {number} lat latitude for calculating moon-position
-    	     * @param {number} lng longitude for calculating moon-position
-    	     * @return {IMoonPosition} result object of moon-position
-    	     */
-    	    SunCalc.getMoonPosition = function (dateValue, lat, lng) {
-    	        // console.log(`getMoonPosition dateValue=${dateValue}  lat=${lat}, lng=${lng}`);
-    	        if (isNaN(lat)) {
-    	            throw new Error('latitude missing');
-    	        }
-    	        if (isNaN(lng)) {
-    	            throw new Error('longitude missing');
-    	        }
-    	        if (dateValue instanceof Date) {
-    	            dateValue = dateValue.valueOf();
-    	        }
-    	        const lw = rad * -lng;
-    	        const phi = rad * lat;
-    	        const d = toDays(dateValue);
-    	        const c = moonCoords(d);
-    	        const H = siderealTime(d, lw) - c.ra;
-    	        let altitude = altitudeCalc(H, phi, c.dec);
-    	        altitude += astroRefraction(altitude); // altitude correction for refraction
-
-    	        // formula 14.1 of "Astronomical Algorithms" 2nd edition by Jean Meeus (Willmann-Bell, Richmond) 1998.
-    	        const pa = atan(sin(H), tan(phi) * cos(c.dec) - sin(c.dec) * cos(H));
-
-    	        const azimuth = azimuthCalc(H, phi, c.dec);
-
-    	        return {
-    	            azimuth,
-    	            altitude,
-    	            azimuthDegrees: degr * azimuth,
-    	            altitudeDegrees: degr * altitude,
-    	            distance: c.dist,
-    	            parallacticAngle: pa,
-    	            parallacticAngleDegrees: degr * pa
-    	        };
-    	    };
-
-    	    const fractionOfTheMoonCycle = SunCalc.moonCycles = [{
-    	        from: 0,
-    	        to: 0.033863193308711,
-    	        id: 'newMoon',
-    	        emoji: '🌚',
-    	        code: ':new_moon_with_face:',
-    	        name: 'New Moon',
-    	        weight: 1,
-    	        css: 'wi-moon-new'
-    	    },
-    	    {
-    	        from: 0.033863193308711,
-    	        to: 0.216136806691289,
-    	        id: 'waxingCrescentMoon',
-    	        emoji: '🌒',
-    	        code: ':waxing_crescent_moon:',
-    	        name: 'Waxing Crescent',
-    	        weight: 6.3825,
-    	        css: 'wi-moon-wax-cres'
-    	    },
-    	    {
-    	        from: 0.216136806691289,
-    	        to: 0.283863193308711,
-    	        id: 'firstQuarterMoon',
-    	        emoji: '🌓',
-    	        code: ':first_quarter_moon:',
-    	        name: 'First Quarter',
-    	        weight: 1,
-    	        css: 'wi-moon-first-quart'
-    	    },
-    	    {
-    	        from: 0.283863193308711,
-    	        to: 0.466136806691289,
-    	        id: 'waxingGibbousMoon',
-    	        emoji: '🌔',
-    	        code: ':waxing_gibbous_moon:',
-    	        name: 'Waxing Gibbous',
-    	        weight: 6.3825,
-    	        css: 'wi-moon-wax-gibb'
-    	    },
-    	    {
-    	        from: 0.466136806691289,
-    	        to: 0.533863193308711,
-    	        id: 'fullMoon',
-    	        emoji: '🌝',
-    	        code: ':full_moon_with_face:',
-    	        name: 'Full Moon',
-    	        weight: 1,
-    	        css: 'wi-moon-full'
-    	    },
-    	    {
-    	        from: 0.533863193308711,
-    	        to: 0.716136806691289,
-    	        id: 'waningGibbousMoon',
-    	        emoji: '🌖',
-    	        code: ':waning_gibbous_moon:',
-    	        name: 'Waning Gibbous',
-    	        weight: 6.3825,
-    	        css: 'wi-moon-wan-gibb'
-    	    },
-    	    {
-    	        from: 0.716136806691289,
-    	        to: 0.783863193308711,
-    	        id: 'thirdQuarterMoon',
-    	        emoji: '🌗',
-    	        code: ':last_quarter_moon:',
-    	        name: 'third Quarter',
-    	        weight: 1,
-    	        css: 'wi-moon-third-quart'
-    	    },
-    	    {
-    	        from: 0.783863193308711,
-    	        to: 0.966136806691289,
-    	        id: 'waningCrescentMoon',
-    	        emoji: '🌘',
-    	        code: ':waning_crescent_moon:',
-    	        name: 'Waning Crescent',
-    	        weight: 6.3825,
-    	        css: 'wi-moon-wan-cres'
-    	    },
-    	    {
-    	        from: 0.966136806691289,
-    	        to: 1,
-    	        id: 'newMoon',
-    	        emoji: '🌚',
-    	        code: ':new_moon_with_face:',
-    	        name: 'New Moon',
-    	        weight: 1,
-    	        css: 'wi-moon-new'
-    	    }];
-
-    	    /**
-    	     * calculations for illumination parameters of the moon,
-    	     * based on http://idlastro.gsfc.nasa.gov/ftp/pro/astro/mphase.pro formulas and
-    	     * Chapter 48 of "Astronomical Algorithms" 2nd edition by Jean Meeus (Willmann-Bell, Richmond) 1998.
-    	     * @param {number|Date} dateValue Date object or timestamp for calculating moon-illumination
-    	     * @return {IMoonIllumination} result object of moon-illumination
-    	     */
-    	    SunCalc.getMoonIllumination = function (dateValue) {
-    	        // console.log(`getMoonIllumination dateValue=${dateValue}`);
-    	        if (dateValue instanceof Date) {
-    	            dateValue = dateValue.valueOf();
-    	        }
-    	        const d = toDays(dateValue);
-    	        const s = sunCoords(d);
-    	        const m = moonCoords(d);
-    	        const sdist = 149598000;  // distance from Earth to Sun in km
-    	        const phi = acos(sin(s.dec) * sin(m.dec) + cos(s.dec) * cos(m.dec) * cos(s.ra - m.ra));
-    	        const inc = atan(sdist * sin(phi), m.dist - sdist * cos(phi));
-    	        const angle = atan(cos(s.dec) * sin(s.ra - m.ra), sin(s.dec) * cos(m.dec) -
-    	            cos(s.dec) * sin(m.dec) * cos(s.ra - m.ra));
-    	        const phaseValue = 0.5 + 0.5 * inc * (angle < 0 ? -1 : 1) / Math.PI;
-
-    	        // calculates the difference in ms between the sirst fullMoon 2000 and given Date
-    	        const diffBase = dateValue - firstNewMoon2000;
-    	        // Calculate modulus to drop completed cycles
-    	        let cycleModMs = diffBase % lunarDaysMs;
-    	        // If negative number (date before new moon 2000) add lunarDaysMs
-    	        if ( cycleModMs < 0 ) { cycleModMs += lunarDaysMs; }
-    	        const nextNewMoon = (lunarDaysMs - cycleModMs) + dateValue;
-    	        let nextFullMoon = ((lunarDaysMs/2) - cycleModMs) + dateValue;
-    	        if (nextFullMoon < dateValue) { nextFullMoon += lunarDaysMs; }
-    	        const quater = (lunarDaysMs/4);
-    	        let nextFirstQuarter = (quater - cycleModMs) + dateValue;
-    	        if (nextFirstQuarter < dateValue) { nextFirstQuarter += lunarDaysMs; }
-    	        let nextThirdQuarter = (lunarDaysMs - quater - cycleModMs) + dateValue;
-    	        if (nextThirdQuarter < dateValue) { nextThirdQuarter += lunarDaysMs; }
-    	        // Calculate the fraction of the moon cycle
-    	        // const currentfrac = cycleModMs / lunarDaysMs;
-    	        const next = Math.min(nextNewMoon, nextFirstQuarter, nextFullMoon, nextThirdQuarter);
-    	        let phase;
-
-    	        for (let index = 0; index < fractionOfTheMoonCycle.length; index++) {
-    	            const element = fractionOfTheMoonCycle[index];
-    	            if ( (phaseValue >= element.from) && (phaseValue <= element.to) ) {
-    	                phase = element;
-    	                break;
-    	            }
-    	        }
-
-    	        return {
-    	            fraction: (1 + cos(inc)) / 2,
-    	            // fraction2: cycleModMs / lunarDaysMs,
-    	            // @ts-ignore
-    	            phase,
-    	            phaseValue,
-    	            angle,
-    	            next : {
-    	                value: next,
-    	                date: (new Date(next)).toISOString(),
-    	                type: (next === nextNewMoon) ? 'newMoon' : ((next === nextFirstQuarter) ? 'firstQuarter' : ((next === nextFullMoon) ? 'fullMoon' : 'thirdQuarter')),
-    	                newMoon: {
-    	                    value: nextNewMoon,
-    	                    date: (new Date(nextNewMoon)).toISOString()
-    	                },
-    	                fullMoon: {
-    	                    value: nextFullMoon,
-    	                    date: (new Date(nextFullMoon)).toISOString()
-    	                },
-    	                firstQuarter: {
-    	                    value: nextFirstQuarter,
-    	                    date: (new Date(nextFirstQuarter)).toISOString()
-    	                },
-    	                thirdQuarter: {
-    	                    value: nextThirdQuarter,
-    	                    date: (new Date(nextThirdQuarter)).toISOString()
-    	                }
-    	            }
-    	        };
-    	    };
-
-    	    /**
-    	     * calculations moon position and illumination for a given date and latitude/longitude of the moon,
-    	     * @param {number|Date} dateValue Date object or timestamp for calculating moon-illumination
-    	     * @param {number} lat latitude for calculating moon-position
-    	     * @param {number} lng longitude for calculating moon-position
-    	     * @return {IMoonData} result object of moon-illumination
-    	     */
-    	    SunCalc.getMoonData = function (dateValue, lat, lng) {
-    	        const pos = SunCalc.getMoonPosition(dateValue, lat, lng);
-    	        const illum = SunCalc.getMoonIllumination(dateValue);
-    	        return Object.assign({
-    	            illumination : illum,
-    	            zenithAngle : illum.angle - pos.parallacticAngle
-    	        }, pos);
-    	    };
-
-    	    /**
-    	     * add hours to a date
-    	     * @param {number} dateValue timestamp to add hours
-    	     * @param {number} h - hours to add
-    	     * @returns {number} new timestamp with added hours
-    	     */
-    	    function hoursLater(dateValue, h) {
-    	        return dateValue + h * dayMs / 24;
-    	    }
-
-    	    /**
-    	     * calculations for moon rise/set times are based on http://www.stargazing.net/kepler/moonrise.html article
-    	     * @param {number|Date} dateValue Date object or timestamp for calculating moon-times
-    	     * @param {number} lat latitude for calculating moon-times
-    	     * @param {number} lng longitude for calculating moon-times
-    	     * @param {boolean} [inUTC] defines if the calculation should be in utc or local time (default is local)
-    	     * @return {IMoonTimes} result object of sunTime
-    	     */
-    	    SunCalc.getMoonTimes = function (dateValue, lat, lng, inUTC) {
-    	        if (isNaN(lat)) {
-    	            throw new Error('latitude missing');
-    	        }
-    	        if (isNaN(lng)) {
-    	            throw new Error('longitude missing');
-    	        }
-    	        const t = new Date(dateValue);
-    	        if (inUTC) {
-    	            t.setUTCHours(0, 0, 0, 0);
-    	        } else {
-    	            t.setHours(0, 0, 0, 0);
-    	        }
-    	        dateValue = t.valueOf();
-    	        // console.log(`getMoonTimes lat=${lat} lng=${lng} dateValue=${dateValue} t=${t}`);
-
-    	        const hc = 0.133 * rad;
-    	        let h0 = SunCalc.getMoonPosition(dateValue, lat, lng).altitude - hc;
-    	        let rise; let set; let ye; let d; let roots; let x1; let x2; let dx;
-
-    	        // go in 2-hour chunks, each time seeing if a 3-point quadratic curve crosses zero (which means rise or set)
-    	        for (let i = 1; i <= 26; i += 2) {
-    	            const h1 = SunCalc.getMoonPosition(hoursLater(dateValue, i), lat, lng).altitude - hc;
-    	            const h2 = SunCalc.getMoonPosition(hoursLater(dateValue, i + 1), lat, lng).altitude - hc;
-
-    	            const a = (h0 + h2) / 2 - h1;
-    	            const b = (h2 - h0) / 2;
-    	            const xe = -b / (2 * a);
-    	            ye = (a * xe + b) * xe + h1;
-    	            d = b * b - 4 * a * h1;
-    	            roots = 0;
-
-    	            if (d >= 0) {
-    	                dx = Math.sqrt(d) / (Math.abs(a) * 2);
-    	                x1 = xe - dx;
-    	                x2 = xe + dx;
-    	                if (Math.abs(x1) <= 1) {
-    	                    roots++;
-    	                }
-
-    	                if (Math.abs(x2) <= 1) {
-    	                    roots++;
-    	                }
-
-    	                if (x1 < -1) {
-    	                    x1 = x2;
-    	                }
-    	            }
-
-    	            if (roots === 1) {
-    	                if (h0 < 0) {
-    	                    rise = i + x1;
-    	                } else {
-    	                    set = i + x1;
-    	                }
-    	            } else if (roots === 2) {
-    	                rise = i + (ye < 0 ? x2 : x1);
-    	                set = i + (ye < 0 ? x1 : x2);
-    	            }
-
-    	            if (rise && set) {
-    	                break;
-    	            }
-
-    	            h0 = h2;
-    	        }
-
-    	        const result = {};
-    	        if (rise) {
-    	            result.rise = new Date(hoursLater(dateValue, rise));
-    	        } else {
-    	            result.rise = NaN;
-    	        }
-
-    	        if (set) {
-    	            result.set = new Date(hoursLater(dateValue, set));
-    	        } else {
-    	            result.set = NaN;
-    	        }
-
-    	        if (!rise && !set) {
-    	            if (ye > 0) {
-    	                result.alwaysUp = true;
-    	                result.alwaysDown = false;
-    	            } else {
-    	                result.alwaysUp = false;
-    	                result.alwaysDown = true;
-    	            }
-    	        } else if (rise && set) {
-    	            result.alwaysUp = false;
-    	            result.alwaysDown = false;
-    	            result.highest = new Date(hoursLater(dateValue, Math.min(rise, set) + (Math.abs(set - rise) / 2)));
-    	        } else {
-    	            result.alwaysUp = false;
-    	            result.alwaysDown = false;
-    	        }
-    	        return result;
-    	    };
-
-    	    /**
-    	     * calc moon transit
-    	     * @param {number} rize timestamp for rise
-    	     * @param {number} set timestamp for set time
-    	     * @returns {Date} new moon transit
-    	     */
-    	    function calcMoonTransit(rize, set) {
-    	        if (rize > set) {
-    	            return new Date(set + (rize - set) / 2);
-    	        }
-    	        return new Date(rize + (set - rize) / 2);
-    	    }
-
-    	    /**
-    	     * calculated the moon transit
-    	     * @param {number|Date} rise rise time as Date object or timestamp for calculating moon-transit
-    	     * @param {number|Date} set set time as Date object or timestamp for calculating moon-transit
-    	     * @param {number} lat latitude for calculating moon-times
-    	     * @param {number} lng longitude for calculating moon-times
-    	     * @returns {{main: (Date|null), invert: (Date|null)}}
-    	     */
-    	    SunCalc.moonTransit = function (rise, set, lat, lng) {
-    	        /** @type {Date|null} */ let main = null;
-    	        /** @type {Date|null} */ let invert = null;
-    	        const riseDate = new Date(rise);
-    	        const setDate = new Date(set);
-    	        const riseValue = riseDate.getTime();
-    	        const setValue = setDate.getTime();
-    	        const day = setDate.getDate();
-    	        let tempTransitBefore;
-    	        let tempTransitAfter;
-
-    	        if (rise && set) {
-    	            if  (rise < set) {
-    	                main = calcMoonTransit(riseValue, setValue);
-    	            } else {
-    	                invert = calcMoonTransit(riseValue, setValue);
-    	            }
-    	        }
-
-    	        if (rise) {
-    	            tempTransitAfter = calcMoonTransit(riseValue, SunCalc.getMoonTimes(new Date(riseDate).setDate(day + 1), lat, lng).set.valueOf());
-    	            if (tempTransitAfter.getDate() === day) {
-    	                if (main) {
-    	                    invert = tempTransitAfter;
-    	                } else {
-    	                    main = tempTransitAfter;
-    	                }
-    	            }
-    	        }
-
-    	        if (set) {
-    	            tempTransitBefore = calcMoonTransit(setValue, SunCalc.getMoonTimes(new Date(setDate).setDate(day - 1), lat, lng).rise.valueOf());
-    	            if (tempTransitBefore.getDate() === day) {
-    	                main = tempTransitBefore;
-    	            }
-    	        }
-    	        return {
-    	            main,
-    	            invert
-    	        };
-    	    };
-
-    	    // export as Node module / AMD module / browser variable
-    	    {
-    	        module.exports = SunCalc;
-    	        // @ts-ignore
-    	    }
-
-    	})(); 
-    } (suncalc));
-
-    var suncalcExports = suncalc.exports;
+    var hasRequiredSuncalc;
+
+    function requireSuncalc () {
+    	if (hasRequiredSuncalc) return suncalc.exports;
+    	hasRequiredSuncalc = 1;
+    	(function (module, exports) {
+    		// @ts-check
+    		/*
+    		 (c) 2011-2015, Vladimir Agafonkin
+    		 SunCalc is a JavaScript library for calculating sun/moon position and light phases.
+    		 https://github.com/mourner/suncalc
+
+    		 Reworked and enhanced by Robert Gester
+    		 Additional Copyright (c) 2022 Robert Gester
+    		 https://github.com/hypnos3/suncalc3
+    		*/
+
+    		/**
+    		* @typedef {Object} ISunTimeDef
+    		* @property {string} name - The Name of the time
+    		* @property {Date} value - Date object with the calculated sun-time
+    		* @property {number} ts - The time as timestamp
+    		* @property {number} pos - The position of the sun on the time
+    		* @property {number} [elevation] - Angle of the sun on the time (except for solarNoon / nadir)
+    		* @property {number} julian - The time as Julian calendar
+    		* @property {boolean} valid - indicates if the time is valid or not
+    		* @property {boolean} [deprecated] - indicates if the time is a deprecated time name
+    		* @property {string} [nameOrg] - if it is a deprecated name, the original property name
+    		* @property {number} [posOrg] - if it is a deprecated name, the original position
+    		*/
+
+    		/**
+    		* @typedef {Object} ISunTimeSingle
+    		* @property {ISunTimeDef} rise - sun-time for sun rise
+    		* @property {ISunTimeDef} set - sun-time for sun set
+    		* @property {string} [error] - string of an error message if an error occurs
+    		*/
+
+    		/**
+    		* @typedef {Object} ISunTimeList
+    		* @property {ISunTimeDef} solarNoon - The sun-time for the solar noon (sun is in the highest position)
+    		* @property {ISunTimeDef} nadir - The sun-time for nadir (darkest moment of the night, sun is in the lowest position)
+    		* @property {ISunTimeDef} goldenHourDawnStart - The sun-time for morning golden hour (soft light, best time for photography)
+    		* @property {ISunTimeDef} goldenHourDawnEnd - The sun-time for morning golden hour (soft light, best time for photography)
+    		* @property {ISunTimeDef} goldenHourDuskStart - The sun-time for evening golden hour starts
+    		* @property {ISunTimeDef} goldenHourDuskEnd - The sun-time for evening golden hour starts
+    		* @property {ISunTimeDef} sunriseStart - The sun-time for sunrise starts (top edge of the sun appears on the horizon)
+    		* @property {ISunTimeDef} sunriseEnd - The sun-time for sunrise ends (bottom edge of the sun touches the horizon)
+    		* @property {ISunTimeDef} sunsetStart - The sun-time for sunset starts (bottom edge of the sun touches the horizon)
+    		* @property {ISunTimeDef} sunsetEnd - The sun-time for sunset ends (sun disappears below the horizon, evening civil twilight starts)
+    		* @property {ISunTimeDef} blueHourDawnStart - The sun-time for blue Hour start (time for special photography photos starts)
+    		* @property {ISunTimeDef} blueHourDawnEnd - The sun-time for blue Hour end (time for special photography photos end)
+    		* @property {ISunTimeDef} blueHourDuskStart - The sun-time for blue Hour start (time for special photography photos starts)
+    		* @property {ISunTimeDef} blueHourDuskEnd - The sun-time for blue Hour end (time for special photography photos end)
+    		* @property {ISunTimeDef} civilDawn - The sun-time for dawn (morning nautical twilight ends, morning civil twilight starts)
+    		* @property {ISunTimeDef} civilDusk - The sun-time for dusk (evening nautical twilight starts)
+    		* @property {ISunTimeDef} nauticalDawn - The sun-time for nautical dawn (morning nautical twilight starts)
+    		* @property {ISunTimeDef} nauticalDusk - The sun-time for nautical dusk end (evening astronomical twilight starts)
+    		* @property {ISunTimeDef} amateurDawn - The sun-time for amateur astronomical dawn (sun at 12° before sunrise)
+    		* @property {ISunTimeDef} amateurDusk - The sun-time for amateur astronomical dusk (sun at 12° after sunrise)
+    		* @property {ISunTimeDef} astronomicalDawn - The sun-time for night ends (morning astronomical twilight starts)
+    		* @property {ISunTimeDef} astronomicalDusk - The sun-time for night starts (dark enough for astronomical observations)
+    		* @property {ISunTimeDef} [dawn] - Deprecated: alternate for civilDawn
+    		* @property {ISunTimeDef} [dusk] - Deprecated: alternate for civilDusk
+    		* @property {ISunTimeDef} [nightEnd] - Deprecated: alternate for astronomicalDawn
+    		* @property {ISunTimeDef} [night] - Deprecated: alternate for astronomicalDusk
+    		* @property {ISunTimeDef} [nightStart] - Deprecated: alternate for astronomicalDusk
+    		* @property {ISunTimeDef} [goldenHour] - Deprecated: alternate for goldenHourDuskStart
+    		* @property {ISunTimeDef} [sunset] - Deprecated: alternate for sunsetEnd
+    		* @property {ISunTimeDef} [sunrise] - Deprecated: alternate for sunriseStart
+    		* @property {ISunTimeDef} [goldenHourEnd] - Deprecated: alternate for goldenHourDawnEnd
+    		* @property {ISunTimeDef} [goldenHourStart] - Deprecated: alternate for goldenHourDuskStart
+    		*/
+
+    		/**
+    		 * @typedef ISunTimeNames
+    		 * @type {Object}
+    		 * @property {number} angle     -   angle of the sun position in degrees
+    		 * @property {string} riseName  -   name of sun rise (morning name)
+    		 * @property {string} setName   -   name of sun set (evening name)
+    		 * @property {number} [risePos] -   (optional) position at rise
+    		 * @property {number} [setPos]  -   (optional) position at set
+    		 */
+
+
+    		/**
+    		 * @typedef {Object} ISunCoordinates
+    		 * @property {number} dec - The declination of the sun
+    		 * @property {number} ra - The right ascension of the sun
+    		 */
+
+    		/**
+    		 * @typedef {Object} ISunPosition
+    		 * @property {number} azimuth - The azimuth above the horizon of the sun in radians
+    		 * @property {number} altitude - The altitude of the sun in radians
+    		 * @property {number} zenith - The zenith of the sun in radians
+    		 * @property {number} azimuthDegrees - The azimuth of the sun in decimal degree
+    		 * @property {number} altitudeDegrees - The altitude of the sun in decimal degree
+    		 * @property {number} zenithDegrees - The zenith of the sun in decimal degree
+    		 * @property {number} declination - The declination of the sun
+    		 */
+
+    		/**
+    		 * @typedef {Object} IMoonPosition
+    		 * @property {number} azimuth - The moon azimuth in radians
+    		 * @property {number} altitude - The moon altitude above the horizon in radians
+    		 * @property {number} azimuthDegrees - The moon azimuth in degree
+    		 * @property {number} altitudeDegrees - The moon altitude above the horizon in degree
+    		 * @property {number} distance - The distance of the moon to the earth in kilometers
+    		 * @property {number} parallacticAngle - The parallactic angle of the moon
+    		 * @property {number} parallacticAngleDegrees - The parallactic angle of the moon in degree
+    		 */
+
+
+    		/**
+    		 * @typedef {Object} IDateObj
+    		 * @property {string} date - The Date as a ISO String YYYY-MM-TTTHH:MM:SS.mmmmZ
+    		 * @property {number} value - The Date as the milliseconds since 1.1.1970 0:00 UTC
+    		 */
+
+    		/**
+    		 * @typedef {Object} IPhaseObj
+    		 * @property {number} from - The phase start
+    		 * @property {number} to - The phase end
+    		 * @property {('newMoon'|'waxingCrescentMoon'|'firstQuarterMoon'|'waxingGibbousMoon'|'fullMoon'|'waningGibbousMoon'|'thirdQuarterMoon'|'waningCrescentMoon')} id - id of the phase
+    		 * @property {string} emoji - unicode symbol of the phase
+    		 * @property {string} name - name of the phase
+    		 * @property {string} id - phase name
+    		 * @property {number} weight - weight of the phase
+    		 * @property {string} css - a css value of the phase
+    		 * @property {string} [nameAlt] - an alernate name (not used by this library)
+    		 * @property {string} [tag] - additional tag (not used by this library)
+    		 */
+
+    		/**
+    		 * @typedef {Object} IMoonIlluminationNext
+    		 * @property {string} date - The Date as a ISO String YYYY-MM-TTTHH:MM:SS.mmmmZ of the next phase
+    		 * @property {number} value - The Date as the milliseconds since 1.1.1970 0:00 UTC of the next phase
+    		 * @property {string} type - The name of the next phase [newMoon, fullMoon, firstQuarter, thirdQuarter]
+    		 * @property {IDateObj} newMoon - Date of the next new moon
+    		 * @property {IDateObj} fullMoon - Date of the next full moon
+    		 * @property {IDateObj} firstQuarter - Date of the next first quater of the moon
+    		 * @property {IDateObj} thirdQuarter - Date of the next third/last quater of the moon
+    		 */
+
+    		/**
+    		 * @typedef {Object} IMoonIllumination
+    		 * @property {number} fraction - illuminated fraction of the moon; varies from `0.0` (new moon) to `1.0` (full moon)
+    		 * @property {IPhaseObj} phase - moon phase as object
+    		 * @property {number} phaseValue - The phase of the moon in the current cycle; varies from `0.0` to `1.0`
+    		 * @property {number} angle - The midpoint angle in radians of the illuminated limb of the moon reckoned eastward from the north point of the disk;
+    		 * @property {IMoonIlluminationNext} next - object containing information about the next phases of the moon
+    		 * @remarks the moon is waxing if the angle is negative, and waning if positive
+    		 */
+
+    		/**
+    		 * @typedef {Object} IMoonDataInst
+    		 * @property {number} zenithAngle - The zenith angle of the moon
+    		 * @property {IMoonIllumination} illumination - object containing information about the next phases of the moon
+    		 *
+    		 * @typedef {IMoonPosition & IMoonDataInst} IMoonData
+    		 */
+
+    		/**
+    		 * @typedef {Object} IMoonTimes
+    		 * @property {Date|NaN} rise - a Date object if the moon is rising on the given Date, otherwise NaN
+    		 * @property {Date|NaN} set - a Date object if the moon is setting on the given Date, otherwise NaN
+    		 * @property {boolean} alwaysUp - is true if the moon never rises/sets and is always _above_ the horizon during the day
+    		 * @property {boolean} alwaysDown - is true if the moon is always _below_ the horizon
+    		 * @property {Date} [highest] - Date of the highest position, only avalílable if set and rise is not NaN
+    		 */
+
+    		(function () {
+    		    // sun calculations are based on http://aa.quae.nl/en/reken/zonpositie.html formulas
+
+    		    // shortcuts for easier to read formulas
+    		    const sin = Math.sin;
+    		    const cos = Math.cos;
+    		    const tan = Math.tan;
+    		    const asin = Math.asin;
+    		    const atan = Math.atan2;
+    		    const acos = Math.acos;
+    		    const rad = Math.PI / 180;
+    		    const degr = 180 / Math.PI;
+
+    		    // date/time constants and conversions
+    		    const dayMs = 86400000; // 1000 * 60 * 60 * 24;
+    		    const J1970 = 2440587.5;
+    		    const J2000 = 2451545;
+
+    		    const lunarDaysMs = 2551442778; // The duration in days of a lunar cycle is 29.53058770576
+    		    const firstNewMoon2000 = 947178840000; // first newMoon in the year 2000 2000-01-06 18:14
+
+    		    /**
+    		     * convert date from Julian calendar
+    		     * @param {number} j    -    day number in Julian calendar to convert
+    		     * @return {number} result date as timestamp
+    		     */
+    		    function fromJulianDay(j) {
+    		        return (j - J1970) * dayMs;
+    		    }
+
+    		    /**
+    		     * get number of days for a dateValue since 2000
+    		     * @param {number} dateValue date as timestamp to get days
+    		     * @return {number} count of days
+    		     */
+    		    function toDays(dateValue) {
+    		        return ((dateValue / dayMs) + J1970) - J2000;
+    		    }
+
+    		    // general calculations for position
+
+    		    const e = rad * 23.4397; // obliquity of the Earth
+
+    		    /**
+    		     * get right ascension
+    		     * @param {number} l
+    		     * @param {number} b
+    		     * @returns {number}
+    		     */
+    		    function rightAscension(l, b) {
+    		        return atan(sin(l) * cos(e) - tan(b) * sin(e), cos(l));
+    		    }
+
+    		    /**
+    		     * get declination
+    		     * @param {number} l
+    		     * @param {number} b
+    		     * @returns {number}
+    		     */
+    		    function declination(l, b) {
+    		        return asin(sin(b) * cos(e) + cos(b) * sin(e) * sin(l));
+    		    }
+
+    		    /**
+    		    * get azimuth
+    		    * @param {number} H - siderealTime
+    		    * @param {number} phi - PI constant
+    		    * @param {number} dec - The declination of the sun
+    		    * @returns {number} azimuth in rad
+    		    */
+    		    function azimuthCalc(H, phi, dec) {
+    		        return atan(sin(H), cos(H) * sin(phi) - tan(dec) * cos(phi)) + Math.PI;
+    		    }
+
+    		    /**
+    		    * get altitude
+    		    * @param {number} H - siderealTime
+    		    * @param {number} phi - PI constant
+    		    * @param {number} dec - The declination of the sun
+    		    * @returns {number}
+    		    */
+    		    function altitudeCalc(H, phi, dec) {
+    		        return asin(sin(phi) * sin(dec) + cos(phi) * cos(dec) * cos(H));
+    		    }
+
+    		    /**
+    		     * side real time
+    		     * @param {number} d
+    		     * @param {number} lw
+    		     * @returns {number}
+    		     */
+    		    function siderealTime(d, lw) {
+    		        return rad * (280.16 + 360.9856235 * d) - lw;
+    		    }
+
+    		    /**
+    		     * get astro refraction
+    		     * @param {number} h
+    		     * @returns {number}
+    		     */
+    		    function astroRefraction(h) {
+    		        if (h < 0) { // the following formula works for positive altitudes only.
+    		            h = 0;
+    		        } // if h = -0.08901179 a div/0 would occur.
+
+    		        // formula 16.4 of "Astronomical Algorithms" 2nd edition by Jean Meeus (Willmann-Bell, Richmond) 1998.
+    		        // 1.02 / tan(h + 10.26 / (h + 5.10)) h in degrees, result in arc minutes -> converted to rad:
+    		        return 0.0002967 / Math.tan(h + 0.00312536 / (h + 0.08901179));
+    		    }
+    		    // general sun calculations
+    		    /**
+    		     * get solar mean anomaly
+    		     * @param {number} d
+    		     * @returns {number}
+    		     */
+    		    function solarMeanAnomaly(d) {
+    		        return rad * (357.5291 + 0.98560028 * d);
+    		    }
+
+    		    /**
+    		     * ecliptic longitude
+    		     * @param {number} M
+    		     * @returns {number}
+    		     */
+    		    function eclipticLongitude(M) {
+    		        const C = rad * (1.9148 * sin(M) + 0.02 * sin(2 * M) + 0.0003 * sin(3 * M));
+    		        // equation of center
+    		        const P = rad * 102.9372; // perihelion of the Earth
+    		        return M + C + P + Math.PI;
+    		    }
+
+    		    /**
+    		     * sun coordinates
+    		     * @param {number} d days in Julian calendar
+    		     * @returns {ISunCoordinates}
+    		     */
+    		    function sunCoords(d) {
+    		        const M = solarMeanAnomaly(d);
+    		        const L = eclipticLongitude(M);
+
+    		        return {
+    		            dec: declination(L, 0),
+    		            ra: rightAscension(L, 0)
+    		        };
+    		    }
+
+    		    const SunCalc = {};
+
+    		    /**
+    		     * calculates sun position for a given date and latitude/longitude
+    		     * @param {number|Date} dateValue Date object or timestamp for calculating sun-position
+    		     * @param {number} lat latitude for calculating sun-position
+    		     * @param {number} lng longitude for calculating sun-position
+    		     * @return {ISunPosition} result object of sun-position
+    		    */
+    		    SunCalc.getPosition = function (dateValue, lat, lng) {
+    		        // console.log(`getPosition dateValue=${dateValue}  lat=${lat}, lng=${lng}`);
+    		        if (isNaN(lat)) {
+    		            throw new Error('latitude missing');
+    		        }
+    		        if (isNaN(lng)) {
+    		            throw new Error('longitude missing');
+    		        }
+    		        if (dateValue instanceof Date) {
+    		            dateValue = dateValue.valueOf();
+    		        }
+    		        const lw = rad * -lng;
+    		        const phi = rad * lat;
+    		        const d = toDays(dateValue);
+    		        const c = sunCoords(d);
+    		        const H = siderealTime(d, lw) - c.ra;
+    		        const azimuth = azimuthCalc(H, phi, c.dec);
+    		        const altitude = altitudeCalc(H, phi, c.dec);
+    		        // console.log(`getPosition date=${date}, M=${H}, L=${H}, c=${JSON.stringify(c)}, d=${d}, lw=${lw}, phi=${phi}`);
+
+    		        return {
+    		            azimuth,
+    		            altitude,
+    		            zenith: (90*Math.PI/180) - altitude,
+    		            azimuthDegrees: degr * azimuth,
+    		            altitudeDegrees: degr * altitude,
+    		            zenithDegrees: 90 - (degr * altitude),
+    		            declination: c.dec
+    		        };
+    		    };
+
+    		    /** sun times configuration
+    		     * @type {Array.<ISunTimeNames>}
+    		     */
+    		    const sunTimes = SunCalc.times = [
+    		        { angle: 6, riseName: 'goldenHourDawnEnd', setName: 'goldenHourDuskStart'}, // GOLDEN_HOUR_2
+    		        { angle: -0.3, riseName: 'sunriseEnd', setName: 'sunsetStart'}, // SUNRISE_END
+    		        { angle: -0.833, riseName: 'sunriseStart', setName: 'sunsetEnd'}, // SUNRISE
+    		        { angle: -1, riseName: 'goldenHourDawnStart', setName: 'goldenHourDuskEnd'}, // GOLDEN_HOUR_1
+    		        { angle: -4, riseName: 'blueHourDawnEnd', setName: 'blueHourDuskStart'}, // BLUE_HOUR
+    		        { angle: -6, riseName: 'civilDawn', setName: 'civilDusk'}, // DAWN
+    		        { angle: -8, riseName: 'blueHourDawnStart', setName: 'blueHourDuskEnd'}, // BLUE_HOUR
+    		        { angle: -12, riseName: 'nauticalDawn', setName: 'nauticalDusk'}, // NAUTIC_DAWN
+    		        { angle: -15, riseName: 'amateurDawn', setName: 'amateurDusk'},
+    		        { angle: -18, riseName: 'astronomicalDawn', setName: 'astronomicalDusk'} // ASTRO_DAWN
+    		    ];
+
+    		    /** alternate time names for backward compatibility
+    		     * @type {Array.<[string, string]>}
+    		    */
+    		    const suntimesDeprecated = SunCalc.timesDeprecated = [
+    		        ['dawn', 'civilDawn'],
+    		        ['dusk', 'civilDusk'],
+    		        ['nightEnd', 'astronomicalDawn'],
+    		        ['night', 'astronomicalDusk'],
+    		        ['nightStart', 'astronomicalDusk'],
+    		        ['goldenHour', 'goldenHourDuskStart'],
+    		        ['sunrise', 'sunriseStart'],
+    		        ['sunset', 'sunsetEnd'],
+    		        ['goldenHourEnd', 'goldenHourDawnEnd'],
+    		        ['goldenHourStart', 'goldenHourDuskStart']
+    		    ];
+
+    		    /** adds a custom time to the times config
+    		     * @param {number} angleAltitude - angle of Altitude/elevation above the horizont of the sun in degrees
+    		     * @param {string} riseName - name of sun rise (morning name)
+    		     * @param {string} setName  - name of sun set (evening name)
+    		     * @param {number} [risePos]  - (optional) position at rise (morning)
+    		     * @param {number} [setPos]  - (optional) position at set (evening)
+    		     * @param {boolean} [degree=true] defines if the elevationAngle is in degree not in radians
+    		     * @return {Boolean} true if new time could be added, false if not (parameter missing; riseName or setName already existing)
+    		     */
+    		    SunCalc.addTime = function (angleAltitude, riseName, setName, risePos, setPos, degree) {
+    		        let isValid = (typeof riseName === 'string') && (riseName.length > 0) &&
+    		                      (typeof setName === 'string') && (setName.length > 0) &&
+    		                      (typeof angleAltitude === 'number');
+    		        if (isValid) {
+    		            const EXP = /^(?![0-9])[a-zA-Z0-9$_]+$/;
+    		            // check for invalid names
+    		            for (let i=0; i<sunTimes.length; ++i) {
+    		                if (!EXP.test(riseName) ||
+    		                    riseName === sunTimes[i].riseName ||
+    		                    riseName === sunTimes[i].setName) {
+    		                    isValid = false;
+    		                    break;
+    		                }
+    		                if (!EXP.test(setName) ||
+    		                    setName === sunTimes[i].riseName ||
+    		                    setName === sunTimes[i].setName) {
+    		                    isValid = false;
+    		                    break;
+    		                }
+    		            }
+    		            if (isValid) {
+    		                const angleDeg = (degree === false ?  (angleAltitude  * ( 180 / Math.PI )) : angleAltitude);
+    		                sunTimes.push({angle: angleDeg, riseName, setName, risePos, setPos});
+    		                for (let i = suntimesDeprecated.length -1; i >= 0; i--) {
+    		                    if (suntimesDeprecated[i][0] === riseName || suntimesDeprecated[i][0] === setName) {
+    		                        suntimesDeprecated.splice(i, 1);
+    		                    }
+    		                }
+    		                return true;
+    		            }
+    		        }
+    		        return false;
+    		    };
+
+    		    /**
+    		     * add an alternate name for a sun time
+    		     * @param {string} alternameName    - alternate or deprecated time name
+    		     * @param {string} originalName     - original time name from SunCalc.times array
+    		     * @return {Boolean} true if could be added, false if not (parameter missing; originalName does not exists; alternameName already existis)
+    		     */
+    		    SunCalc.addDeprecatedTimeName = function (alternameName, originalName) {
+    		        let isValid = (typeof alternameName === 'string') && (alternameName.length > 0) &&
+    		                      (typeof originalName === 'string') && (originalName.length > 0);
+    		        if (isValid) {
+    		            let hasOrg = false;
+    		            const EXP = /^(?![0-9])[a-zA-Z0-9$_]+$/;
+    		            // check for invalid names
+    		            for (let i=0; i<sunTimes.length; ++i) {
+    		                if (!EXP.test(alternameName) ||
+    		                    alternameName === sunTimes[i].riseName ||
+    		                    alternameName === sunTimes[i].setName) {
+    		                    isValid = false;
+    		                    break;
+    		                }
+    		                if (originalName === sunTimes[i].riseName ||
+    		                    originalName === sunTimes[i].setName) {
+    		                    hasOrg = true;
+    		                }
+    		            }
+    		            if (isValid && hasOrg) {
+    		                suntimesDeprecated.push([alternameName, originalName]);
+    		                return true;
+    		            }
+    		        }
+    		        return false;
+    		    };
+    		    // calculations for sun times
+
+    		    const J0 = 0.0009;
+
+    		    /**
+    		     * Julian cycle
+    		     * @param {number} d - number of days
+    		     * @param {number} lw - rad * -lng;
+    		     * @returns {number}
+    		     */
+    		    function julianCycle(d, lw) {
+    		        return Math.round(d - J0 - lw / (2 * Math.PI));
+    		    }
+
+    		    /**
+    		     * approx transit
+    		     * @param {number} Ht - hourAngle
+    		     * @param {number} lw - rad * -lng
+    		     * @param {number} n - Julian cycle
+    		     * @returns {number} approx transit
+    		     */
+    		    function approxTransit(Ht, lw, n) {
+    		        return J0 + (Ht + lw) / (2 * Math.PI) + n;
+    		    }
+
+    		    /**
+    		     * solar transit in Julian
+    		     * @param {number} ds - approxTransit
+    		     * @param {number} M - solar mean anomal
+    		     * @param {number} L - ecliptic longitude
+    		     * @returns {number} solar transit in Julian
+    		     */
+    		    function solarTransitJ(ds, M, L) {
+    		        return J2000 + ds + 0.0053 * sin(M) - 0.0069 * sin(2 * L);
+    		    }
+
+    		    /**
+    		     * hour angle
+    		     * @param {number} h - heigh at 0
+    		     * @param {number} phi -  rad * lat;
+    		     * @param {number} dec - declination
+    		     * @returns {number} hour angle
+    		     */
+    		    function hourAngle(h, phi, dec) {
+    		        return acos((sin(h) - sin(phi) * sin(dec)) / (cos(phi) * cos(dec)));
+    		    }
+
+    		    /**
+    		     * calculates the obderver angle
+    		     * @param {number} height  the observer height (in meters) relative to the horizon
+    		     * @returns {number} height for further calculations
+    		     */
+    		    function observerAngle(height) {
+    		        return -2.076 * Math.sqrt(height) / 60;
+    		    }
+
+    		    /**
+    		     * returns set time for the given sun altitude
+    		     * @param {number} h - heigh at 0
+    		     * @param {number} lw - rad * -lng
+    		     * @param {number} phi -  rad * lat;
+    		     * @param {number} dec - declination
+    		     * @param {number} n - Julian cycle
+    		     * @param {number} M - solar mean anomal
+    		     * @param {number} L - ecliptic longitude
+    		     * @returns
+    		     */
+    		    function getSetJ(h, lw, phi, dec, n, M, L) {
+    		        const w = hourAngle(h, phi, dec);
+    		        const a = approxTransit(w, lw, n);
+    		        // console.log(`h=${h} lw=${lw} phi=${phi} dec=${dec} n=${n} M=${M} L=${L} w=${w} a=${a}`);
+    		        return solarTransitJ(a, M, L);
+    		    }
+
+    		    /**
+    		     * calculates sun times for a given date and latitude/longitude
+    		     * @param {number|Date} dateValue Date object or timestamp for calculating sun-times
+    		     * @param {number} lat latitude for calculating sun-times
+    		     * @param {number} lng longitude for calculating sun-times
+    		     * @param {number} [height=0]  the observer height (in meters) relative to the horizon
+    		     * @param {boolean} [addDeprecated=false] if true to times from timesDeprecated array will be added to the object
+    		     * @param {boolean} [inUTC=false] defines if the calculation should be in utc or local time (default is local)
+    		     * @return {ISunTimeList} result object of sunTime
+    		     */
+    		    SunCalc.getSunTimes = function (dateValue, lat, lng, height, addDeprecated, inUTC) {
+    		        // console.log(`getSunTimes dateValue=${dateValue}  lat=${lat}, lng=${lng}, height={height}, noDeprecated=${noDeprecated}`);
+    		        if (isNaN(lat)) {
+    		            throw new Error('latitude missing');
+    		        }
+    		        if (isNaN(lng)) {
+    		            throw new Error('longitude missing');
+    		        }
+    		        // @ts-ignore
+    		        const t = new Date(dateValue);
+    		        if (inUTC) {
+    		            t.setUTCHours(12, 0, 0, 0);
+    		        } else {
+    		            t.setHours(12, 0, 0, 0);
+    		        }
+
+    		        const lw = rad * -lng;
+    		        const phi = rad * lat;
+    		        const dh = observerAngle(height || 0);
+    		        const d = toDays(t.valueOf());
+    		        const n = julianCycle(d, lw);
+    		        const ds = approxTransit(0, lw, n);
+    		        const M = solarMeanAnomaly(ds);
+    		        const L = eclipticLongitude(M);
+    		        const dec = declination(L, 0);
+
+    		        const Jnoon = solarTransitJ(ds, M, L);
+    		        const noonVal = fromJulianDay(Jnoon);
+    		        const nadirVal = fromJulianDay(Jnoon + 0.5);
+
+    		        const result = {
+    		            solarNoon: {
+    		                value: new Date(noonVal),
+    		                ts: noonVal,
+    		                name: 'solarNoon',
+    		                // elevation: 90,
+    		                julian: Jnoon,
+    		                valid: !isNaN(Jnoon),
+    		                pos: sunTimes.length
+    		            },
+    		            nadir: {
+    		                value: new Date(nadirVal),
+    		                ts: nadirVal,
+    		                name: 'nadir',
+    		                // elevation: 270,
+    		                julian: Jnoon + 0.5,
+    		                valid: !isNaN(Jnoon),
+    		                pos: (sunTimes.length * 2) + 1
+    		            }
+    		        };
+    		        for (let i = 0, len = sunTimes.length; i < len; i += 1) {
+    		            const time = sunTimes[i];
+    		            const sa = time.angle;
+    		            const h0 = (sa + dh) * rad;
+    		            let valid = true;
+
+    		            let Jset = getSetJ(h0, lw, phi, dec, n, M, L);
+    		            if (isNaN(Jset)) {
+    		                Jset = (Jnoon + 0.5);
+    		                valid = false;
+    		                /* Näherung an Wert
+    		                const b = Math.abs(time[0]);
+    		                while (isNaN(Jset) && ((Math.abs(sa) - b) < 2)) {
+    		                    sa += 0.005;
+    		                    Jset = getSetJ(sa * rad, lw, phi, dec, n, M, L);
+    		                } /* */
+    		            }
+
+    		            const Jrise = Jnoon - (Jset - Jnoon);
+    		            const v1 = fromJulianDay(Jset);
+    		            const v2 = fromJulianDay(Jrise);
+
+    		            result[time.setName] = {
+    		                value: new Date(v1),
+    		                ts: v1,
+    		                name: time.setName,
+    		                elevation: sa,
+    		                julian: Jset,
+    		                valid,
+    		                pos: len + i + 1
+    		            };
+    		            result[time.riseName] = {
+    		                value: new Date(v2),
+    		                ts: v2,
+    		                name: time.riseName,
+    		                elevation: sa, // (180 + (sa * -1)),
+    		                julian: Jrise,
+    		                valid,
+    		                pos: len - i - 1
+    		            };
+    		        }
+
+    		        if (addDeprecated) {
+    		            // for backward compatibility
+    		            for (let i = 0, len = suntimesDeprecated.length; i < len; i += 1) {
+    		                const time = suntimesDeprecated[i];
+    		                result[time[0]] = Object.assign({}, result[time[1]]);
+    		                result[time[0]].deprecated = true;
+    		                result[time[0]].nameOrg = result[time[1]].pos;
+    		                result[time[0]].posOrg = result[time[0]].pos;
+    		                result[time[0]].pos = -2;
+    		            }
+    		        }
+    		        // @ts-ignore
+    		        return result;
+    		    };
+
+    		    /**
+    		     * calculates the time at which the sun will have a given elevation angle when rising and when setting for a given date and latitude/longitude.
+    		     * @param {number|Date} dateValue Date object or timestamp for calculating sun-times
+    		     * @param {number} lat latitude for calculating sun-times
+    		     * @param {number} lng longitude for calculating sun-times
+    		     * @param {number} elevationAngle sun angle for calculating sun-time
+    		     * @param {number} [height=0]  the observer height (in meters) relative to the horizon
+    		     * @param {boolean} [degree] defines if the elevationAngle is in degree not in radians
+    		     * @param {boolean} [inUTC] defines if the calculation should be in utc or local time (default is local)
+    		     * @return {ISunTimeSingle} result object of single sunTime
+    		     */
+    		    SunCalc.getSunTime = function (dateValue, lat, lng, elevationAngle, height, degree, inUTC) {
+    		        // console.log(`getSunTime dateValue=${dateValue}  lat=${lat}, lng=${lng}, elevationAngle=${elevationAngle}`);
+    		        if (isNaN(lat)) {
+    		            throw new Error('latitude missing');
+    		        }
+    		        if (isNaN(lng)) {
+    		            throw new Error('longitude missing');
+    		        }
+    		        if (isNaN(elevationAngle)) {
+    		            throw new Error('elevationAngle missing');
+    		        }
+    		        if (degree) {
+    		            elevationAngle = elevationAngle * rad;
+    		        }
+    		        const t = new Date(dateValue);
+    		        if (inUTC) {
+    		            t.setUTCHours(12, 0, 0, 0);
+    		        } else {
+    		            t.setHours(12, 0, 0, 0);
+    		        }
+    		        const lw = rad * -lng;
+    		        const phi = rad * lat;
+    		        const dh = observerAngle(height || 0);
+    		        const d = toDays(t.valueOf());
+    		        const n = julianCycle(d, lw);
+    		        const ds = approxTransit(0, lw, n);
+    		        const M = solarMeanAnomaly(ds);
+    		        const L = eclipticLongitude(M);
+    		        const dec = declination(L, 0);
+    		        const Jnoon = solarTransitJ(ds, M, L);
+
+    		        const h0 = (elevationAngle - 0.833 + dh) * rad;
+
+    		        const Jset = getSetJ(h0, lw, phi, dec, n, M, L);
+    		        const Jrise = Jnoon - (Jset - Jnoon);
+    		        const v1 = fromJulianDay(Jset);
+    		        const v2 = fromJulianDay(Jrise);
+
+    		        return {
+    		            set: {
+    		                name: 'set',
+    		                value: new Date(v1),
+    		                ts: v1,
+    		                elevation: elevationAngle,
+    		                julian: Jset,
+    		                valid: !isNaN(Jset),
+    		                pos: 0
+    		            },
+    		            rise: {
+    		                name: 'rise',
+    		                value: new Date(v2),
+    		                ts: v2,
+    		                elevation: elevationAngle, // (180 + (elevationAngle * -1)),
+    		                julian: Jrise,
+    		                valid: !isNaN(Jrise),
+    		                pos: 1
+    		            }
+    		        };
+    		    };
+
+    		    /**
+    		     * calculates time for a given azimuth angle for a given date and latitude/longitude
+    		     * @param {number|Date} dateValue Date object or timestamp for calculating sun-time
+    		     * @param {number} nazimuth azimuth for calculating sun-time
+    		     * @param {number} lat latitude for calculating sun-time
+    		     * @param {number} lng longitude for calculating sun-time
+    		     * @param {boolean} [degree] true if the angle is in degree and not in rad
+    		     * @return {Date} result time of sun-time
+    		    */
+    		    SunCalc.getSunTimeByAzimuth = function (dateValue, lat, lng, nazimuth, degree) {
+    		        if (isNaN(nazimuth)) {
+    		            throw new Error('azimuth missing');
+    		        }
+    		        if (isNaN(lat)) {
+    		            throw new Error('latitude missing');
+    		        }
+    		        if (isNaN(lng)) {
+    		            throw new Error('longitude missing');
+    		        }
+    		        if (degree) {
+    		            nazimuth = nazimuth * rad;
+    		        }
+    		        const date = new Date(dateValue);
+    		        const lw = rad * -lng;
+    		        const phi = rad * lat;
+
+    		        let dateVal = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0).valueOf();
+    		        let addval = dayMs; // / 2);
+    		        dateVal += addval;
+
+    		        while (addval > 200) {
+    		        // let nazi = this.getPosition(dateVal, lat, lng).azimuth;
+    		            const d = toDays(dateVal);
+    		            const c = sunCoords(d);
+    		            const H = siderealTime(d, lw) - c.ra;
+    		            const nazim = azimuthCalc(H, phi, c.dec);
+
+    		            addval /= 2;
+    		            if (nazim < nazimuth) {
+    		                dateVal += addval;
+    		            } else {
+    		                dateVal -= addval;
+    		            }
+    		        }
+    		        return new Date(Math.floor(dateVal));
+    		    };
+
+    		    // calculation for solar time based on https://www.pveducation.org/pvcdrom/properties-of-sunlight/solar-time
+
+    		    /**
+    		     * Calculaes the solar time of the given date in the given latitude and UTC offset.
+    		     * @param {number|Date} dateValue Date object or timestamp for calculating solar time
+    		     * @param {number} lng longitude for calculating sun-time
+    		     * @param {number} utcOffset offset to the utc time
+    		     * @returns {Date} Returns the solar time of the given date in the given latitude and UTC offset.
+    		     */
+    		    SunCalc.getSolarTime = function (dateValue, lng, utcOffset) {
+    		        // @ts-ignore
+    		        const date = new Date(dateValue);
+    		        // calculate the day of year
+    		        const start = new Date(date.getFullYear(), 0, 0);
+    		        const diff = (date.getTime() - start.getTime()) + ((start.getTimezoneOffset() - date.getTimezoneOffset()) * 60 * 1000);
+    		        const dayOfYear = Math.floor(diff / dayMs);
+
+    		        const b = 360 / 365 * (dayOfYear - 81) * rad;
+    		        const equationOfTime = 9.87 * sin(2 * b) - 7.53 * cos(b) - 1.5 * sin(b);
+    		        const localSolarTimeMeridian = 15 * utcOffset;
+    		        const timeCorrection = equationOfTime + 4 * (lng - localSolarTimeMeridian);
+    		        const localSolarTime = date.getHours() + timeCorrection / 60 + date.getMinutes() / 60;
+
+    		        const solarDate = new Date(0, 0);
+    		        solarDate.setMinutes(+localSolarTime * 60);
+    		        return solarDate;
+    		    };
+
+    		    // moon calculations, based on http://aa.quae.nl/en/reken/hemelpositie.html formulas
+
+    		    /**
+    		     * calculate the geocentric ecliptic coordinates of the moon
+    		     * @param {number} d number of days
+    		     */
+    		    function moonCoords(d) {
+    		        const L = rad * (218.316 + 13.176396 * d); // ecliptic longitude
+    		        const M = rad * (134.963 + 13.064993 * d); // mean anomaly
+    		        const F = rad * (93.272 + 13.229350 * d); // mean distance
+    		        const l = L + rad * 6.289 * sin(M); // longitude
+    		        const b = rad * 5.128 * sin(F); // latitude
+    		        const dt = 385001 - 20905 * cos(M); // distance to the moon in km
+
+    		        return {
+    		            ra: rightAscension(l, b),
+    		            dec: declination(l, b),
+    		            dist: dt
+    		        };
+    		    }
+
+    		    /**
+    		     * calculates moon position for a given date and latitude/longitude
+    		     * @param {number|Date} dateValue Date object or timestamp for calculating moon-position
+    		     * @param {number} lat latitude for calculating moon-position
+    		     * @param {number} lng longitude for calculating moon-position
+    		     * @return {IMoonPosition} result object of moon-position
+    		     */
+    		    SunCalc.getMoonPosition = function (dateValue, lat, lng) {
+    		        // console.log(`getMoonPosition dateValue=${dateValue}  lat=${lat}, lng=${lng}`);
+    		        if (isNaN(lat)) {
+    		            throw new Error('latitude missing');
+    		        }
+    		        if (isNaN(lng)) {
+    		            throw new Error('longitude missing');
+    		        }
+    		        if (dateValue instanceof Date) {
+    		            dateValue = dateValue.valueOf();
+    		        }
+    		        const lw = rad * -lng;
+    		        const phi = rad * lat;
+    		        const d = toDays(dateValue);
+    		        const c = moonCoords(d);
+    		        const H = siderealTime(d, lw) - c.ra;
+    		        let altitude = altitudeCalc(H, phi, c.dec);
+    		        altitude += astroRefraction(altitude); // altitude correction for refraction
+
+    		        // formula 14.1 of "Astronomical Algorithms" 2nd edition by Jean Meeus (Willmann-Bell, Richmond) 1998.
+    		        const pa = atan(sin(H), tan(phi) * cos(c.dec) - sin(c.dec) * cos(H));
+
+    		        const azimuth = azimuthCalc(H, phi, c.dec);
+
+    		        return {
+    		            azimuth,
+    		            altitude,
+    		            azimuthDegrees: degr * azimuth,
+    		            altitudeDegrees: degr * altitude,
+    		            distance: c.dist,
+    		            parallacticAngle: pa,
+    		            parallacticAngleDegrees: degr * pa
+    		        };
+    		    };
+
+    		    const fractionOfTheMoonCycle = SunCalc.moonCycles = [{
+    		        from: 0,
+    		        to: 0.033863193308711,
+    		        id: 'newMoon',
+    		        emoji: '🌚',
+    		        code: ':new_moon_with_face:',
+    		        name: 'New Moon',
+    		        weight: 1,
+    		        css: 'wi-moon-new'
+    		    },
+    		    {
+    		        from: 0.033863193308711,
+    		        to: 0.216136806691289,
+    		        id: 'waxingCrescentMoon',
+    		        emoji: '🌒',
+    		        code: ':waxing_crescent_moon:',
+    		        name: 'Waxing Crescent',
+    		        weight: 6.3825,
+    		        css: 'wi-moon-wax-cres'
+    		    },
+    		    {
+    		        from: 0.216136806691289,
+    		        to: 0.283863193308711,
+    		        id: 'firstQuarterMoon',
+    		        emoji: '🌓',
+    		        code: ':first_quarter_moon:',
+    		        name: 'First Quarter',
+    		        weight: 1,
+    		        css: 'wi-moon-first-quart'
+    		    },
+    		    {
+    		        from: 0.283863193308711,
+    		        to: 0.466136806691289,
+    		        id: 'waxingGibbousMoon',
+    		        emoji: '🌔',
+    		        code: ':waxing_gibbous_moon:',
+    		        name: 'Waxing Gibbous',
+    		        weight: 6.3825,
+    		        css: 'wi-moon-wax-gibb'
+    		    },
+    		    {
+    		        from: 0.466136806691289,
+    		        to: 0.533863193308711,
+    		        id: 'fullMoon',
+    		        emoji: '🌝',
+    		        code: ':full_moon_with_face:',
+    		        name: 'Full Moon',
+    		        weight: 1,
+    		        css: 'wi-moon-full'
+    		    },
+    		    {
+    		        from: 0.533863193308711,
+    		        to: 0.716136806691289,
+    		        id: 'waningGibbousMoon',
+    		        emoji: '🌖',
+    		        code: ':waning_gibbous_moon:',
+    		        name: 'Waning Gibbous',
+    		        weight: 6.3825,
+    		        css: 'wi-moon-wan-gibb'
+    		    },
+    		    {
+    		        from: 0.716136806691289,
+    		        to: 0.783863193308711,
+    		        id: 'thirdQuarterMoon',
+    		        emoji: '🌗',
+    		        code: ':last_quarter_moon:',
+    		        name: 'third Quarter',
+    		        weight: 1,
+    		        css: 'wi-moon-third-quart'
+    		    },
+    		    {
+    		        from: 0.783863193308711,
+    		        to: 0.966136806691289,
+    		        id: 'waningCrescentMoon',
+    		        emoji: '🌘',
+    		        code: ':waning_crescent_moon:',
+    		        name: 'Waning Crescent',
+    		        weight: 6.3825,
+    		        css: 'wi-moon-wan-cres'
+    		    },
+    		    {
+    		        from: 0.966136806691289,
+    		        to: 1,
+    		        id: 'newMoon',
+    		        emoji: '🌚',
+    		        code: ':new_moon_with_face:',
+    		        name: 'New Moon',
+    		        weight: 1,
+    		        css: 'wi-moon-new'
+    		    }];
+
+    		    /**
+    		     * calculations for illumination parameters of the moon,
+    		     * based on http://idlastro.gsfc.nasa.gov/ftp/pro/astro/mphase.pro formulas and
+    		     * Chapter 48 of "Astronomical Algorithms" 2nd edition by Jean Meeus (Willmann-Bell, Richmond) 1998.
+    		     * @param {number|Date} dateValue Date object or timestamp for calculating moon-illumination
+    		     * @return {IMoonIllumination} result object of moon-illumination
+    		     */
+    		    SunCalc.getMoonIllumination = function (dateValue) {
+    		        // console.log(`getMoonIllumination dateValue=${dateValue}`);
+    		        if (dateValue instanceof Date) {
+    		            dateValue = dateValue.valueOf();
+    		        }
+    		        const d = toDays(dateValue);
+    		        const s = sunCoords(d);
+    		        const m = moonCoords(d);
+    		        const sdist = 149598000;  // distance from Earth to Sun in km
+    		        const phi = acos(sin(s.dec) * sin(m.dec) + cos(s.dec) * cos(m.dec) * cos(s.ra - m.ra));
+    		        const inc = atan(sdist * sin(phi), m.dist - sdist * cos(phi));
+    		        const angle = atan(cos(s.dec) * sin(s.ra - m.ra), sin(s.dec) * cos(m.dec) -
+    		            cos(s.dec) * sin(m.dec) * cos(s.ra - m.ra));
+    		        const phaseValue = 0.5 + 0.5 * inc * (angle < 0 ? -1 : 1) / Math.PI;
+
+    		        // calculates the difference in ms between the sirst fullMoon 2000 and given Date
+    		        const diffBase = dateValue - firstNewMoon2000;
+    		        // Calculate modulus to drop completed cycles
+    		        let cycleModMs = diffBase % lunarDaysMs;
+    		        // If negative number (date before new moon 2000) add lunarDaysMs
+    		        if ( cycleModMs < 0 ) { cycleModMs += lunarDaysMs; }
+    		        const nextNewMoon = (lunarDaysMs - cycleModMs) + dateValue;
+    		        let nextFullMoon = ((lunarDaysMs/2) - cycleModMs) + dateValue;
+    		        if (nextFullMoon < dateValue) { nextFullMoon += lunarDaysMs; }
+    		        const quater = (lunarDaysMs/4);
+    		        let nextFirstQuarter = (quater - cycleModMs) + dateValue;
+    		        if (nextFirstQuarter < dateValue) { nextFirstQuarter += lunarDaysMs; }
+    		        let nextThirdQuarter = (lunarDaysMs - quater - cycleModMs) + dateValue;
+    		        if (nextThirdQuarter < dateValue) { nextThirdQuarter += lunarDaysMs; }
+    		        // Calculate the fraction of the moon cycle
+    		        // const currentfrac = cycleModMs / lunarDaysMs;
+    		        const next = Math.min(nextNewMoon, nextFirstQuarter, nextFullMoon, nextThirdQuarter);
+    		        let phase;
+
+    		        for (let index = 0; index < fractionOfTheMoonCycle.length; index++) {
+    		            const element = fractionOfTheMoonCycle[index];
+    		            if ( (phaseValue >= element.from) && (phaseValue <= element.to) ) {
+    		                phase = element;
+    		                break;
+    		            }
+    		        }
+
+    		        return {
+    		            fraction: (1 + cos(inc)) / 2,
+    		            // fraction2: cycleModMs / lunarDaysMs,
+    		            // @ts-ignore
+    		            phase,
+    		            phaseValue,
+    		            angle,
+    		            next : {
+    		                value: next,
+    		                date: (new Date(next)).toISOString(),
+    		                type: (next === nextNewMoon) ? 'newMoon' : ((next === nextFirstQuarter) ? 'firstQuarter' : ((next === nextFullMoon) ? 'fullMoon' : 'thirdQuarter')),
+    		                newMoon: {
+    		                    value: nextNewMoon,
+    		                    date: (new Date(nextNewMoon)).toISOString()
+    		                },
+    		                fullMoon: {
+    		                    value: nextFullMoon,
+    		                    date: (new Date(nextFullMoon)).toISOString()
+    		                },
+    		                firstQuarter: {
+    		                    value: nextFirstQuarter,
+    		                    date: (new Date(nextFirstQuarter)).toISOString()
+    		                },
+    		                thirdQuarter: {
+    		                    value: nextThirdQuarter,
+    		                    date: (new Date(nextThirdQuarter)).toISOString()
+    		                }
+    		            }
+    		        };
+    		    };
+
+    		    /**
+    		     * calculations moon position and illumination for a given date and latitude/longitude of the moon,
+    		     * @param {number|Date} dateValue Date object or timestamp for calculating moon-illumination
+    		     * @param {number} lat latitude for calculating moon-position
+    		     * @param {number} lng longitude for calculating moon-position
+    		     * @return {IMoonData} result object of moon-illumination
+    		     */
+    		    SunCalc.getMoonData = function (dateValue, lat, lng) {
+    		        const pos = SunCalc.getMoonPosition(dateValue, lat, lng);
+    		        const illum = SunCalc.getMoonIllumination(dateValue);
+    		        return Object.assign({
+    		            illumination : illum,
+    		            zenithAngle : illum.angle - pos.parallacticAngle
+    		        }, pos);
+    		    };
+
+    		    /**
+    		     * add hours to a date
+    		     * @param {number} dateValue timestamp to add hours
+    		     * @param {number} h - hours to add
+    		     * @returns {number} new timestamp with added hours
+    		     */
+    		    function hoursLater(dateValue, h) {
+    		        return dateValue + h * dayMs / 24;
+    		    }
+
+    		    /**
+    		     * calculations for moon rise/set times are based on http://www.stargazing.net/kepler/moonrise.html article
+    		     * @param {number|Date} dateValue Date object or timestamp for calculating moon-times
+    		     * @param {number} lat latitude for calculating moon-times
+    		     * @param {number} lng longitude for calculating moon-times
+    		     * @param {boolean} [inUTC] defines if the calculation should be in utc or local time (default is local)
+    		     * @return {IMoonTimes} result object of sunTime
+    		     */
+    		    SunCalc.getMoonTimes = function (dateValue, lat, lng, inUTC) {
+    		        if (isNaN(lat)) {
+    		            throw new Error('latitude missing');
+    		        }
+    		        if (isNaN(lng)) {
+    		            throw new Error('longitude missing');
+    		        }
+    		        const t = new Date(dateValue);
+    		        if (inUTC) {
+    		            t.setUTCHours(0, 0, 0, 0);
+    		        } else {
+    		            t.setHours(0, 0, 0, 0);
+    		        }
+    		        dateValue = t.valueOf();
+    		        // console.log(`getMoonTimes lat=${lat} lng=${lng} dateValue=${dateValue} t=${t}`);
+
+    		        const hc = 0.133 * rad;
+    		        let h0 = SunCalc.getMoonPosition(dateValue, lat, lng).altitude - hc;
+    		        let rise; let set; let ye; let d; let roots; let x1; let x2; let dx;
+
+    		        // go in 2-hour chunks, each time seeing if a 3-point quadratic curve crosses zero (which means rise or set)
+    		        for (let i = 1; i <= 26; i += 2) {
+    		            const h1 = SunCalc.getMoonPosition(hoursLater(dateValue, i), lat, lng).altitude - hc;
+    		            const h2 = SunCalc.getMoonPosition(hoursLater(dateValue, i + 1), lat, lng).altitude - hc;
+
+    		            const a = (h0 + h2) / 2 - h1;
+    		            const b = (h2 - h0) / 2;
+    		            const xe = -b / (2 * a);
+    		            ye = (a * xe + b) * xe + h1;
+    		            d = b * b - 4 * a * h1;
+    		            roots = 0;
+
+    		            if (d >= 0) {
+    		                dx = Math.sqrt(d) / (Math.abs(a) * 2);
+    		                x1 = xe - dx;
+    		                x2 = xe + dx;
+    		                if (Math.abs(x1) <= 1) {
+    		                    roots++;
+    		                }
+
+    		                if (Math.abs(x2) <= 1) {
+    		                    roots++;
+    		                }
+
+    		                if (x1 < -1) {
+    		                    x1 = x2;
+    		                }
+    		            }
+
+    		            if (roots === 1) {
+    		                if (h0 < 0) {
+    		                    rise = i + x1;
+    		                } else {
+    		                    set = i + x1;
+    		                }
+    		            } else if (roots === 2) {
+    		                rise = i + (ye < 0 ? x2 : x1);
+    		                set = i + (ye < 0 ? x1 : x2);
+    		            }
+
+    		            if (rise && set) {
+    		                break;
+    		            }
+
+    		            h0 = h2;
+    		        }
+
+    		        const result = {};
+    		        if (rise) {
+    		            result.rise = new Date(hoursLater(dateValue, rise));
+    		        } else {
+    		            result.rise = NaN;
+    		        }
+
+    		        if (set) {
+    		            result.set = new Date(hoursLater(dateValue, set));
+    		        } else {
+    		            result.set = NaN;
+    		        }
+
+    		        if (!rise && !set) {
+    		            if (ye > 0) {
+    		                result.alwaysUp = true;
+    		                result.alwaysDown = false;
+    		            } else {
+    		                result.alwaysUp = false;
+    		                result.alwaysDown = true;
+    		            }
+    		        } else if (rise && set) {
+    		            result.alwaysUp = false;
+    		            result.alwaysDown = false;
+    		            result.highest = new Date(hoursLater(dateValue, Math.min(rise, set) + (Math.abs(set - rise) / 2)));
+    		        } else {
+    		            result.alwaysUp = false;
+    		            result.alwaysDown = false;
+    		        }
+    		        return result;
+    		    };
+
+    		    /**
+    		     * calc moon transit
+    		     * @param {number} rize timestamp for rise
+    		     * @param {number} set timestamp for set time
+    		     * @returns {Date} new moon transit
+    		     */
+    		    function calcMoonTransit(rize, set) {
+    		        if (rize > set) {
+    		            return new Date(set + (rize - set) / 2);
+    		        }
+    		        return new Date(rize + (set - rize) / 2);
+    		    }
+
+    		    /**
+    		     * calculated the moon transit
+    		     * @param {number|Date} rise rise time as Date object or timestamp for calculating moon-transit
+    		     * @param {number|Date} set set time as Date object or timestamp for calculating moon-transit
+    		     * @param {number} lat latitude for calculating moon-times
+    		     * @param {number} lng longitude for calculating moon-times
+    		     * @returns {{main: (Date|null), invert: (Date|null)}}
+    		     */
+    		    SunCalc.moonTransit = function (rise, set, lat, lng) {
+    		        /** @type {Date|null} */ let main = null;
+    		        /** @type {Date|null} */ let invert = null;
+    		        const riseDate = new Date(rise);
+    		        const setDate = new Date(set);
+    		        const riseValue = riseDate.getTime();
+    		        const setValue = setDate.getTime();
+    		        const day = setDate.getDate();
+    		        let tempTransitBefore;
+    		        let tempTransitAfter;
+
+    		        if (rise && set) {
+    		            if  (rise < set) {
+    		                main = calcMoonTransit(riseValue, setValue);
+    		            } else {
+    		                invert = calcMoonTransit(riseValue, setValue);
+    		            }
+    		        }
+
+    		        if (rise) {
+    		            tempTransitAfter = calcMoonTransit(riseValue, SunCalc.getMoonTimes(new Date(riseDate).setDate(day + 1), lat, lng).set.valueOf());
+    		            if (tempTransitAfter.getDate() === day) {
+    		                if (main) {
+    		                    invert = tempTransitAfter;
+    		                } else {
+    		                    main = tempTransitAfter;
+    		                }
+    		            }
+    		        }
+
+    		        if (set) {
+    		            tempTransitBefore = calcMoonTransit(setValue, SunCalc.getMoonTimes(new Date(setDate).setDate(day - 1), lat, lng).rise.valueOf());
+    		            if (tempTransitBefore.getDate() === day) {
+    		                main = tempTransitBefore;
+    		            }
+    		        }
+    		        return {
+    		            main,
+    		            invert
+    		        };
+    		    };
+
+    		    // export as Node module / AMD module / browser variable
+    		    {
+    		        module.exports = SunCalc;
+    		        // @ts-ignore
+    		    }
+
+    		})(); 
+    	} (suncalc));
+    	return suncalc.exports;
+    }
+
+    var suncalcExports = requireSuncalc();
     var SunCalc = /*@__PURE__*/getDefaultExportFromCjs(suncalcExports);
 
     const TSMOON_PHASES = {
@@ -1939,7 +2135,7 @@ var TSMoonCard = (function (exports) {
     /**
      * Main card class definition
      */
-    class TSMoonCard extends h {
+    class TSMoonCard extends r$2 {
         constructor() {
             super(...arguments);
             this.cardTitle = "";
@@ -1952,7 +2148,7 @@ var TSMoonCard = (function (exports) {
             this.home_longitude = 0;
         }
         renderIcon(svg_icon_code) {
-            return ke `
+            return x `
             <div class="icon">
                 <img class="moon-img-svg" src=${svg_icon_code} />
             </div>
@@ -2054,7 +2250,7 @@ var TSMoonCard = (function (exports) {
             //const lc_moonsetFormated = dayjs(lc_times.set).format('HH:mm');
             const lc_moonriseFormated = dayjs(lc_times.rise).format(this.getTimeFormat(this.time_format));
             const lc_moonsetFormated = dayjs(lc_times.set).format(this.getTimeFormat(this.time_format));
-            return ke `
+            return x `
         
         <ha-card>
             <div class="card-header">
@@ -2110,7 +2306,7 @@ var TSMoonCard = (function (exports) {
     ], TSMoonCard.prototype, "_config", void 0);
 
     var name = "ha-tsmoon-card";
-    var version = "0.9.5";
+    var version = "v0.9.9";
 
     const printVersionToConsole = () => console.info(`%c  ${name.toUpperCase()}  %c  Version ${version}  `, 'color: white; font-weight: bold; background: crimson', 'color: #000; font-weight: bold; background: #ddd');
     // This puts your card into the UI card picker dialog
