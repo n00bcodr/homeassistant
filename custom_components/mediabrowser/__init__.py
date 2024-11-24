@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from typing import Any
 
 import aiohttp
 from homeassistant.config_entries import (
@@ -11,9 +12,9 @@ from homeassistant.config_entries import (
     ConfigEntryNotReady,
 )
 from homeassistant.const import CONF_URL, Platform
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, Context
 
-from .helpers import size_of, snake_cased_json
+from .helpers import snake_cased_json
 
 from .const import (
     CONF_CACHE_SERVER_API_KEY,
@@ -22,7 +23,12 @@ from .const import (
     CONF_CACHE_SERVER_PING,
     CONF_CACHE_SERVER_USER_ID,
     CONF_CACHE_SERVER_VERSION,
+    CONF_SENSOR_ITEM_TYPE,
+    CONF_SENSOR_LIBRARY,
+    CONF_SENSOR_USER,
+    CONF_SENSORS,
     DATA_HUB,
+    DATA_POLL_COORDINATOR,
     DOMAIN,
 )
 from .hub import MediaBrowserHub
@@ -40,13 +46,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     async def async_websocket_message(
         message_type: str, data: dict[str, None] | None
     ) -> None:
-        _LOGGER.debug(
-            "%s firing event %s_%s (%d bytes)",
-            hub.server_name,
-            DOMAIN,
-            message_type,
-            size_of(data),
-        )
+        _LOGGER.debug("%s firing event %s_%s", hub.server_name, DOMAIN, message_type)
         hass.bus.async_fire(
             f"{DOMAIN}_{message_type}",
             snake_cased_json(data),

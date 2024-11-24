@@ -1,6 +1,7 @@
 """Battery Notes device, contains device level details."""
 
 import logging
+from datetime import datetime
 
 from homeassistant.components.sensor import DOMAIN as SENSOR_DOMAIN
 from homeassistant.components.sensor import (
@@ -12,12 +13,9 @@ from homeassistant.const import (
     PERCENTAGE,
 )
 from homeassistant.core import CALLBACK_TYPE, HomeAssistant
-from homeassistant.helpers import (
-    device_registry as dr,
-)
-from homeassistant.helpers import (
-    entity_registry as er,
-)
+from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.entity_registry import RegistryEntry
 
 from .const import (
@@ -93,6 +91,32 @@ class BatteryNotesDevice:
 
         if source_entity_id:
             entity = entity_registry.async_get(source_entity_id)
+
+            if not entity:
+                ir.async_create_issue(
+                    self.hass,
+                    DOMAIN,
+                    f"missing_device_{self.config.entry_id}",
+                    data={
+                        "entry_id": self.config.entry_id,
+                        "device_id": device_id,
+                        "source_entity_id": source_entity_id,
+                    },
+                    is_fixable=True,
+                    severity=ir.IssueSeverity.WARNING,
+                    translation_key="missing_device",
+                    translation_placeholders={
+                            "name": config.title,
+                        },
+                )
+
+                _LOGGER.warning(
+                    "%s is orphaned, unable to find entity %s",
+                    self.config.entry_id,
+                    source_entity_id,
+                )
+                return False
+
             device_class = entity.device_class or entity.original_device_class
             if (
                 device_class == SensorDeviceClass.BATTERY
@@ -149,6 +173,30 @@ class BatteryNotesDevice:
             else:
                 self.device_name = self.config.title
 
+                ir.async_create_issue(
+                    self.hass,
+                    DOMAIN,
+                    f"missing_device_{self.config.entry_id}",
+                    data={
+                        "entry_id": self.config.entry_id,
+                        "device_id": device_id,
+                        "source_entity_id": source_entity_id,
+                    },
+                    is_fixable=True,
+                    severity=ir.IssueSeverity.WARNING,
+                    translation_key="missing_device",
+                    translation_placeholders={
+                            "name": config.title,
+                        },
+                )
+
+                _LOGGER.warning(
+                    "%s is orphaned, unable to find device %s",
+                    self.config.entry_id,
+                    device_id,
+                )
+                return False
+
         self.store = self.hass.data[DOMAIN][DATA_STORE]
         self.coordinator = BatteryNotesCoordinator(
             self.hass, self.store, self.wrapped_battery
@@ -185,6 +233,39 @@ class BatteryNotesDevice:
                 self.wrapped_battery.entity_id,
                 self.coordinator.battery_low_threshold,
             )
+
+        # If there is not a last replaced, set to device created date if not epoch
+        if not self.coordinator.last_replaced:
+            last_replaced = None
+            if entity.device_id:
+                device_entry = device_registry.async_get(entity.device_id)
+
+                if device_entry and device_entry.created_at.year > 1970:
+                    last_replaced = device_entry.created_at.strftime(
+                        "%Y-%m-%dT%H:%M:%S:%f"
+                    )
+            else:
+                entity = entity_registry.async_get(source_entity_id)
+                if entity and entity.created_at.year > 1970:
+                    last_replaced = entity.created_at.strftime("%Y-%m-%dT%H:%M:%S:%f")
+
+            _LOGGER.debug(
+                "Defaulting %s battery last replaced to %s",
+                source_entity_id or device_id,
+                last_replaced,
+            )
+
+            self.coordinator.last_replaced = last_replaced
+
+        # If there is not a last_reported set to now
+        if not self.coordinator.last_reported:
+            last_reported = datetime.utcnow()
+            _LOGGER.debug(
+                "Defaulting %s battery last reported to %s",
+                source_entity_id or device_id,
+                last_reported,
+            )
+            self.coordinator.last_reported = last_reported
 
         self.hass.data[DOMAIN][DATA].devices[config.entry_id] = self
         self.reset_jobs.append(config.add_update_listener(self.async_update))
