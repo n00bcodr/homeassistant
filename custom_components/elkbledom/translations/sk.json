@@ -36,7 +36,7 @@
           "user": {
             "data": {
               "reset": "Resetujte farbu po zapnutí LED",
-              "delay": "Oneskorenie odpojenia (0 sa rovná nikdy sa neodpojí)"
+              "delay": "Oneskorenie odpojenia v sekundách(0 sa rovná nikdy sa neodpojí)"
             }
           }
         }

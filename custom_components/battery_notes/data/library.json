@@ -259,6 +259,11 @@
             "battery_type": "CR2032"
         },
         {
+            "manufacturer": "_TZ3000_saiqcn0y",
+            "model": "TS0201",
+            "battery_type": "CR2450"
+        },
+        {
             "manufacturer": "_TZ3000_sj7jbgks",
             "model": "TS0043",
             "battery_type": "CR2032"
@@ -382,6 +387,11 @@
             "model": "TS0601",
             "battery_type": "AA",
             "battery_quantity": 2
+        },
+        {
+            "manufacturer": "_TZE200_iba1ckek",
+            "model": "TS0601",
+            "battery_type": "CR2450"
         },
         {
             "manufacturer": "_TZE200_kb5noeto",
@@ -1585,14 +1595,12 @@
         {
             "manufacturer": "Ecowitt",
             "model": "GW1100A",
-            "battery_type": "AA",
-            "battery_quantity": 2
+            "battery_type": "MANUAL"
         },
         {
             "manufacturer": "ECOWITT",
             "model": "GW1101",
-            "battery_type": "AA",
-            "battery_quantity": 2
+            "battery_type": "MANUAL"
         },
         {
             "manufacturer": "Ecowitt",
@@ -2529,6 +2537,11 @@
         },
         {
             "manufacturer": "Govee",
+            "model": "H5100",
+            "battery_type": "AAA"
+        },
+        {
+            "manufacturer": "Govee",
             "model": "H5101/H5102/H5177",
             "battery_type": "AAA"
         },
@@ -2804,7 +2817,7 @@
         {
             "manufacturer": "Husqvarna AB",
             "model": "TBD",
-            "battery_type": "9V"
+            "battery_type": "PP3"
         },
         {
             "manufacturer": "iCasa",
@@ -3157,6 +3170,12 @@
         {
             "manufacturer": "Konke",
             "model": "3AFE28010402000D",
+            "battery_type": "CR2450"
+        },
+        {
+            "manufacturer": "Konke",
+            "model": "Temperature and humidity sensor",
+            "model_id": "2AJZ4KPFT",
             "battery_type": "CR2450"
         },
         {
@@ -3663,6 +3682,12 @@
             "manufacturer": "Namron AS",
             "model": "4512762",
             "battery_type": "CR2350"
+        },
+        {
+            "manufacturer": "Nedis",
+            "model": "Nedis Smart Climate Sensor Zigbee 3.0 (ZBSC30WT)",
+            "battery_type": "AAA",
+            "battery_quantity": 2
         },
         {
             "manufacturer": "Neo",
@@ -4861,7 +4886,7 @@
         {
             "manufacturer": "SmartLabs, Inc",
             "model": "2844-222 (0x10, 0x16)",
-            "battery_type": "9V"
+            "battery_type": "PP3"
         },
         {
             "manufacturer": "SmartLabs, Inc",
@@ -5202,6 +5227,12 @@
         {
             "manufacturer": "SwitchBot",
             "model": "Meter",
+            "battery_type": "AAA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "SwitchBot",
+            "model": "MeterPlus",
             "battery_type": "AAA",
             "battery_quantity": 2
         },
@@ -6437,6 +6468,11 @@
         },
         {
             "manufacturer": "X-Sense",
+            "model": "XC04-WX",
+            "battery_type": "CR123A"
+        },
+        {
+            "manufacturer": "X-Sense",
             "model": "XS01-M",
             "battery_type": "CR123A"
         },
@@ -6834,6 +6870,11 @@
             "manufacturer": "Xiaomi",
             "model": "WXKG13LM",
             "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "Xiaomi",
+            "model": "XMOSB01XS",
+            "battery_type": "CR2450"
         },
         {
             "manufacturer": "Xiaomi",
