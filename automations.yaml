@@ -2641,36 +2641,6 @@
       data:
         package_name: com.pg.oralb.oralbapp
   mode: single
-- id: '1729510022758'
-  alias: Work Permit Update
-  description: ''
-  triggers:
-  - trigger: state
-    entity_id:
-    - sensor.last_update_date
-    from:
-  conditions:
-  - condition: template
-    value_template: "{{ states('sensor.current_processing_date') != 'unavailable'
-      or\n   states('sensor.last_update_date') != 'unavailable' }}"
-  actions:
-  - action: notify.homeassistant_bot
-    data:
-      message: ''
-      target: '1303658870903672865'
-      data:
-        embed:
-          title: "Work Permit Update - {{states.sensor.last_update_date.state}} \U0001F310"
-          description: Work Permit Renewal applications submitted on **{{states.sensor.current_processing_date.state}}**
-            are being processed.
-          url: https://enterprise.gov.ie/en/what-we-do/workplace-and-skills/employment-permits/current-application-processing-dates
-          color: 5966
-          author:
-            name: Visa Update
-            icon_url: https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Flag_of_Ireland.svg/320px-Flag_of_Ireland.svg.png
-          thumbnail:
-            url: https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Flag_of_Ireland.svg/320px-Flag_of_Ireland.svg.png
-  mode: restart
 - id: '1731189297613'
   alias: ⚙️Doorbell Night Mode
   description: ''

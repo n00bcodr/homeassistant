@@ -38,7 +38,6 @@ shell_command: !include shell_command.yaml
 sensor: !include sensor.yaml
 template: !include template.yaml
 monitor_docker: !include monitor_docker.yaml
-multiscrape: !include multiscrape.yaml
 media_player: !include mediaplayer.yaml
 
 tts:
