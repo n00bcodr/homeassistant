@@ -27,6 +27,7 @@ image/
 zigbee2mqtt
 tts
 aircast.xml
+frigate.yaml
 *.db-journal
 addons_config
 custom_components/*

@@ -1,11 +1,26 @@
 sidebar_editable: true
-title: "Welcome Home!"
+title: "SkyNet HQ"
+subtitle: "Home Assistant"
+# sidebar_button_color: >
+#   {{states.sensor.pixel8pro_accent_color.state}}
+# icon_color: >
+#   {{states.sensor.pixel8pro_accent_color.state}}
+# icon_color_selected: >
+#   {{states.sensor.pixel8pro_accent_color.state}}
+# selection_color: >
+#   {{states.sensor.pixel8pro_accent_color.state}}
+# notification_color: >
+#   {{states.sensor.pixel8pro_accent_color.state}}
+
 order:
   - item: Overview
 
   - item: Tablet
 
   - item: hacs
+    info: >
+      Total : {{ states.update |  selectattr('entity_id', 'in', integration_entities('hacs')) | map(attribute='name') | list | count }}
+
 
   - item: Media
 
@@ -15,6 +30,8 @@ order:
     item: Automations
     href: "/config/automation/dashboard"
     icon: mdi:robot-confused-outline
+    info: |
+      Total {{ states.automation | list | count }} | active {{ states.automation | selectattr('state', 'eq', 'on') | list | count }}
 
   # - new_item: true
   #   item: Tags
@@ -29,13 +46,13 @@ order:
     bottom: true
 
   - new_item: true
-    item: Supervisor
+    item: Addons
     href: "/hassio/dashboard"
-    icon: mdi:home-assistant
+    icon: mdi:puzzle
     bottom: true
 
   - new_item: true
-    item: Server Controls
+    item: Reboot
     href: "/developer-tools/yaml"
     icon: mdi:restart
     bottom: true
@@ -47,6 +64,18 @@ order:
 
   - item: Settings
     bottom: true
+
+  - new_item: true
+    item: info
+    name: '[[[ return "Core " + state_attr("update.home_assistant_core_update", "installed_version") ]]]'
+    info: '[[[ "Supervisor " + state_attr("update.home_assistant_supervisor_update", "installed_version") ]]]'
+    href: '/config/info'
+    icon: mdi:information-outline
+    bottom: true
+
+##################
+## Hidden Items ##
+##################
 
   - item: map
     hide: true

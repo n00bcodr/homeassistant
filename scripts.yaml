@@ -289,20 +289,6 @@ play_night_sounds:
       - media_player.pavan_s_nest_hub
   mode: single
   icon: mdi:weather-night
-plex_library_refresh:
-  alias: Plex Library Refresh
-  sequence:
-  - action: plex.refresh_library
-    data:
-      library_name: Movies
-  - action: plex.refresh_library
-    data:
-      library_name: Music
-  - action: plex.refresh_library
-    data:
-      library_name: TV Shows
-  mode: single
-  icon: mdi:plex
 play_spotify_on_phone:
   alias: Play Spotify on phone
   sequence:
@@ -385,21 +371,6 @@ reload_google_sheets:
     data: {}
   description: ''
   icon: mdi:google-spreadsheet
-reboot_internet_router:
-  alias: "\U0001F501Restart Internet Router"
-  sequence:
-  - action: tplink_deco.reboot_deco
-    metadata: {}
-    data:
-      device_id:
-      - 60c630b563ff326822df1afede0d8a98
-      - 27596033b966ae3aefeffbd2852c6ad2
-  description: ''
-  icon: mdi:restart
-  fields:
-    field:
-      selector:
-        text:
 tv_seek:
   alias: TV Seek
   fields:
@@ -412,8 +383,8 @@ tv_seek:
   - data: {}
     target:
       entity_id:
-      - media_player.google_tv_cast
-      - media_player.google_tv_remote
+      - media_player.google_tv_streamer_cast
+      - media_player.google_tv_streamer_remote
     action: media_player.media_play_pause
   - delay:
       hours: 0
@@ -423,12 +394,34 @@ tv_seek:
   - data:
       seek_position: "{% if is_state('media_player.jellyfin_tv', 'playing') %}\n  {{
         state_attr(\"media_player.jellyfin_tv\", \"media_position\")|int +\n  (seek_amount|default(-30)|int(-30))
-        }}\n{% else %}\n  {{ state_attr(\"media_player.google_tv_cast\", \"media_position\")|int
-        +\n  (seek_amount|default(-30)|int(-30)) }}\n{% endif %}"
+        }}\n{% else %}\n  {{ state_attr(\"media_player.google_tv_streamer_cast\",
+        \"media_position\")|int +\n  (seek_amount|default(-30)|int(-30)) }}\n{% endif
+        %}"
     target:
       entity_id: "{% if is_state('media_player.jellyfin_tv', 'playing') %}\n  media_player.jellyfin_tv\n{%
-        else %}\n  media_player.google_tv_cast\n{% endif %}\n"
+        else %}\n  media_player.google_tv_streamer_cast\n{% endif %}\n"
     action: media_player.media_seek
   mode: single
   icon: mdi:fast-forward
   description: ''
+reload_config_entries:
+  alias: Reload config entries
+  mode: parallel
+  fields:
+    id:
+      description: Config Entry to Reload
+      selector:
+        entity: {}
+      name: Config Entity ID
+      required: true
+  variables:
+    config: '{{config_entry_id(id)}}'
+  sequence:
+  - condition: template
+    value_template: '{{ config | count > 0 }}'
+  - action: homeassistant.reload_config_entry
+    target: {}
+    data:
+      entry_id: '{{ config }}'
+  description: Reloads configuration by the input of a config ID
+  icon: mdi:reload-alert

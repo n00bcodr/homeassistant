@@ -12,7 +12,8 @@
           'washer_substate_rinsing': 'Rinsing',
           'washer_substate_spin': 'Spinning',
           'washer_substate_paused': 'Paused',
-          'washer_substate_remove_laundry': 'Cycle Complete'
+          'washer_substate_remove_laundry': 'Cycle Complete',
+          'washer_substate_time_delay_enabled': 'Delayed Start'
         } %}
         {{ state_map.get(states('sensor.bob_sub_state'), states('sensor.bob_sub_state')) }}
 
@@ -21,11 +22,12 @@
           'washer_substate_program_started': 'mdi:washing-machine-off',
           'unavailable': 'mdi:washing-machine-alert',
           'washer_substate_drying': 'mdi:tumble-dryer',
-          'washer_substate_washing': 'mdi:water',
-          'washer_substate_rinsing': 'mdi:water-circle',
+          'washer_substate_washing': 'mdi:washing-machine',
+          'washer_substate_rinsing': 'mdi:dishwasher',
           'washer_substate_spin': 'fas:spinner',
           'washer_substate_paused': 'mdi:pause-box-outline',
-          'washer_substate_remove_laundry': 'mdi:washing-machine'
+          'washer_substate_remove_laundry': 'mdi:check-circle-outline',
+          'washer_substate_time_delay_enabled': 'phu:rooms-laundry-room'
         } %}
         {{ icon_map.get(states('sensor.bob_sub_state'), 'mdi:washing-machine-alert') }}
 
@@ -201,21 +203,29 @@
 
 - platform: formulaone_api
 
-- platform: plex_recently_added
-  name: Recently Added Movies
-  token: !secret plex_token
-  host: !secret host
-  port: 32400
-  section_types:
-    - movie
-
-- platform: plex_recently_added
-  name: Recently Added TV
-  token: !secret plex_token
-  host: !secret host
-  port: 32400
-  section_types:
-    - show
-
 - platform: folder
   folder: /config/www/doorbell
+
+- platform: scrape
+  resource: https://enterprise.gov.ie/en/what-we-do/workplace-and-skills/employment-permits/current-application-processing-dates/
+  name: Visa Current Processing Date
+  select: ".content-body__sections__main .tablesaw-stack:nth-child(8) tr:nth-of-type(2) .right .left"
+  scan_interval: 60
+
+- platform: scrape
+  resource: https://enterprise.gov.ie/en/what-we-do/workplace-and-skills/employment-permits/current-application-processing-dates/
+  name: Visa Current Processing Type
+  select: ".content-body__sections__main .tablesaw-stack:nth-child(8) tr:nth-of-type(2) .left:nth-of-type(1) p"
+  scan_interval: 60
+
+- platform: scrape
+  resource: https://enterprise.gov.ie/en/what-we-do/workplace-and-skills/employment-permits/current-application-processing-dates/
+  name: Visa Type
+  select: ".content-body__sections__main .tablesaw-stack:nth-child(8) .left:nth-of-type(1) .left"
+  scan_interval: 60
+
+- platform: scrape
+  resource: https://enterprise.gov.ie/en/what-we-do/workplace-and-skills/employment-permits/current-application-processing-dates/
+  name: Visa Last Updated
+  select: ".content-body__sections__main p:nth-child(5)"
+  scan_interval: 60

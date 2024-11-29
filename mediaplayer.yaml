@@ -1,0 +1,55 @@
+- platform: universal
+  name: Living Room TV
+  unique_id: google_tv_streamer_unified
+  device_class: tv
+  children:
+    - media_player.google_tv_streamer_remote
+    - media_player.google_tv_streamer_cast
+  browse_media_entity: media_player.google_tv_streamer_cast
+  commands:
+    turn_off:
+      action: media_player.turn_off
+      data:
+        entity_id: media_player.google_tv_streamer_remote
+    turn_on:
+      action: media_player.turn_on
+      data:
+        entity_id: media_player.google_tv_streamer_remote
+    volume_up:
+      action: media_player.volume_up
+      data:
+        entity_id: media_player.google_tv_streamer_remote
+    volume_down:
+      action: media_player.volume_down
+      data:
+        entity_id: media_player.google_tv_streamer_remote
+  attributes:
+    entity_picture: media_player.google_tv_streamer|entity_picture
+
+- platform: universal
+  name: "Pavan's Room TV"
+  unique_id: google_tv_unified
+  device_class: tv
+  children:
+    - media_player.google_tv_remote
+    - media_player.google_tv_cast
+  browse_media_entity: media_player.google_tv_cast
+  commands:
+    turn_off:
+      action: media_player.turn_off
+      data:
+        entity_id: media_player.google_tv_remote
+    turn_on:
+      action: media_player.turn_on
+      data:
+        entity_id: media_player.google_tv_remote
+    volume_up:
+      action: media_player.volume_up
+      data:
+        entity_id: media_player.google_tv_remote
+    volume_down:
+      action: media_player.volume_down
+      data:
+        entity_id: media_player.google_tv_remote
+  attributes:
+    entity_picture: media_player.google_tv|entity_picture

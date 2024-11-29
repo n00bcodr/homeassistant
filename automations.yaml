@@ -1,8 +1,7 @@
 - id: homeassistant_update_notification
   alias: ⚙️HomeAssistant Update notification
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - update.home_assistant_core_update
     from: 'off'
     to: 'on'
@@ -10,8 +9,9 @@
       hours: 0
       minutes: 0
       seconds: 0
-  condition: []
-  action:
+    trigger: state
+  conditions: []
+  actions:
   - choose:
     - conditions:
       - condition: state
@@ -23,7 +23,7 @@
           message: "Auto updating {{states.update.home_assistant_core_update.attributes.installed_version\n
             }} → {{ states.update.home_assistant_core_update.attributes.latest_version
             }}"
-          title: "\U0001F195 Minor version Update Available!"
+          title: "\U0001F195 Minor version Updating!"
           data:
             notification_icon: mdi:package-up
             subject: Home Assistant {{states.update.home_assistant_core_update.attributes.latest_version}}
@@ -68,126 +68,6 @@
   action:
   - action: script.spotify_start
   mode: single
-- id: movies_on_plex
-  alias: "\U0001F3ACMovies"
-  trigger:
-  - platform: event
-    event_type: tag_scanned
-  condition:
-  - condition: template
-    value_template: '{{ trigger.event.data.tag_id in tags }}'
-  action:
-  - variables:
-      media_content_id: '{{ tags[trigger.event.data.tag_id].media_content_id }}'
-      media_content_type: '{{ tags[trigger.event.data.tag_id].media_content_type }}'
-  - choose:
-    - conditions:
-      - condition: not
-        conditions:
-        - condition: state
-          entity_id: media_player.google_tv
-          state: Plex
-          attribute: source
-      sequence:
-      - action: media_player.select_source
-        target:
-          entity_id: media_player.google_tv
-        data:
-          source: Plex
-      - wait_template: '{{ not is_state(''media_player.plex_plex_for_android_tv_google_tv'',
-          ''unavailable'') }}'
-        timeout: 00:00:10
-      - action: media_player.play_media
-        target:
-          entity_id: media_player.plex_plex_for_android_tv_google_tv
-        data:
-          media_content_id: '{{ media_content_id }}'
-          media_content_type: '{{ media_content_type }}'
-    - conditions:
-      - condition: state
-        entity_id: media_player.google_tv
-        state: Plex
-        attribute: source
-      sequence:
-      - action: media_player.play_media
-        target:
-          entity_id: media_player.plex_plex_for_android_tv_google_tv
-        data:
-          media_content_id: '{{ media_content_id }}'
-          media_content_type: '{{ media_content_type }}'
-    default: []
-    enabled: true
-  - action: media_player.play_media
-    target:
-      entity_id: media_player.plex_plex_for_android_tv_google_tv
-    data:
-      media_content_id: '{{ media_content_id }}'
-      media_content_type: '{{ media_content_type }}'
-  mode: restart
-  variables:
-    media_players:
-      device_id: media_player.plex_plex_for_android_tv_google_tv
-    tags:
-      D7-02-2C-7B:
-        media_content_id: '{ "library_name": "Movies", "title": "sontham"}'
-        media_content_type: movie
-      87-1A-2D-7B:
-        media_content_id: '{ "library_name": "Movies", "title": "tamasha"}'
-        media_content_type: movie
-      37-A5-38-7B:
-        media_content_id: '{"library_name": "Movies", "title": "Raanjhanaa"}'
-        media_content_type: movie
-      87-D2-29-7B:
-        media_content_id: '{"library_name": "Movies", "title": "rudraveena"}'
-        media_content_type: movie
-      17-EA-2F-7B:
-        media_content_id: '{"library_name": "Movies", "title": "vedam"}'
-        media_content_type: movie
-      37-FA-2A-7B:
-        media_content_id: '{ "library_name": "Movies", "title": "96"}'
-        media_content_type: movie
-      F7-57-2B-7B:
-        media_content_id: '{ "playlist_name": "Mayabazar", "shuffle": "1" }'
-        media_content_type: playlist
-      07-5F-2B-7B:
-        media_content_id: '{ "playlist_name": "Friends", "shuffle": "1" }'
-        media_content_type: playlist
-      E7-2B-3A-7B:
-        media_content_id: '{ "playlist_name": "Batman Trilogy", "shuffle": "1" }'
-        media_content_type: playlist
-      07-CE-2C-7B:
-        media_content_id: '{ "playlist_name": "MCU", "shuffle": "1" }'
-        media_content_type: playlist
-      77-FD-37-7B:
-        media_content_id: '{ "playlist_name": "DC", "shuffle": "1" }'
-        media_content_type: playlist
-      17-58-39-7B:
-        media_content_id: '{ "playlist_name": "K Vishwanath Movies", "shuffle": "1"}'
-        media_content_type: playlist
-      47-26-28-7B:
-        media_content_id: '{ "playlist_name": "Doctor Who", "shuffle": "1"}'
-        media_content_type: playlist
-      47-F6-36-7B:
-        media_content_id: '{ "playlist_name": "John Wick", "shuffle": "1" }'
-        media_content_type: playlist
-      17-9A-2C-7B:
-        media_content_id: '{ "playlist_name": "Star Wars", "shuffle": "1" }'
-        media_content_type: playlist
-      27-58-30-7B:
-        media_content_id: '{ "playlist_name": "Tarantino", "shuffle": "1" }'
-        media_content_type: playlist
-      77-EA-31-7B:
-        media_content_id: '{ "playlist_name": "Agam", "shuffle": "1" }'
-        media_content_type: playlist
-      37-60-2D-7B:
-        media_content_id: '{ "playlist_name": "Matrix", "shuffle": "1" }'
-        media_content_type: playlist
-      87-F4-2F-7B:
-        media_content_id: '{ "library_name": "Movies", "title": "The Pursuit of Happyness"}'
-        media_content_type: movie
-      F7-85-31-7B:
-        media_content_id: '{ "library_name": "Movies", "title": "The Terminal"}'
-        media_content_type: movie
 - id: music_spotify
   alias: "\U0001F3B5Music Jukebox"
   trigger:
@@ -290,15 +170,15 @@
 - id: '1638974963835'
   alias: ⚙️Homeassistant Start/Stop
   description: Runs various automations based on homeassistant starting or stopping.
-  trigger:
-  - platform: homeassistant
-    event: shutdown
+  triggers:
+  - event: shutdown
     id: shutdown
-  - platform: homeassistant
-    event: start
+    trigger: homeassistant
+  - event: start
     id: start
-  condition: []
-  action:
+    trigger: homeassistant
+  conditions: []
+  actions:
   - choose:
     - conditions:
       - condition: trigger
@@ -313,16 +193,6 @@
       - action: pyscript.f1constructorstandings
         data: {}
       - action: rest_command.reload_google_sheets_music
-        data: {}
-      - action: rest_command.reload_google_assistant_sdk
-        data: {}
-      - action: rest_command.reload_weather
-        data: {}
-      - action: rest_command.reload_tasks
-        data: {}
-      - action: rest_command.reload_tuya
-        data: {}
-      - action: rest_command.reload_local_tuya
         data: {}
       - action: rest_command.reload_google_sheets_weight
         data: {}
@@ -729,20 +599,20 @@
 - id: '1674758476057'
   alias: "\U0001F4A1Living Room Light Presence"
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - binary_sensor.living_room_presence
     to: 'on'
     from: 'off'
     id: presence
-  - platform: state
-    entity_id:
+    trigger: state
+  - entity_id:
     - binary_sensor.living_room_presence
     to: 'off'
     from: 'on'
     id: clear
-  condition:
+    trigger: state
+  conditions:
   - condition: or
     conditions:
     - condition: sun
@@ -757,12 +627,12 @@
       entity_id: light.led_strip
       state: 'off'
     - condition: state
-      entity_id: media_player.google_tv
+      entity_id: media_player.google_tv_streamer_remote
       state: 'off'
     - condition: state
       entity_id: light.chandelier
       state: 'off'
-  action:
+  actions:
   - choose:
     - conditions:
       - condition: trigger
@@ -860,20 +730,22 @@
 - id: '1675437001659'
   alias: "\U0001F6AE\U0001F4F3Bin Pickup Notification"
   description: ''
-  trigger:
-  - platform: time
-    at: '11:00:00'
+  triggers:
+  - at: '11:00:00'
     id: morning
     enabled: true
-  - platform: time
-    at: '21:00:00'
+    trigger: time
+  - at: '21:00:00'
     id: night
-  condition:
+    trigger: time
+  conditions:
   - alias: Check if the collection is in the next two days
     condition: template
-    value_template: '{{((state_attr("sensor.black_bin", "next_collection")) or (state_attr("sensor.blue_bin",
-      "next_collection")))  <= 2 }}'
-  action:
+    value_template: '{{ state_attr(''sensor.black_bin'', ''next_collection'') <= 2
+      or state_attr(''sensor.blue_bin'', ''next_collection'') <= 2 }}
+
+      '
+  actions:
   - choose:
     - conditions:
       - condition: template
@@ -957,7 +829,7 @@
               milliseconds: 0
           until:
           - condition: template
-            value_template: '{{ states.input_button.bin_outside.last_updated.timestamp()
+            value_template: '{{ states.input_boolean.bin.last_updated.timestamp()
               > (as_timestamp(now()) - 3600) }}
 
               '
@@ -1043,7 +915,7 @@
               milliseconds: 0
           until:
           - condition: template
-            value_template: '{{ states.input_button.bin_outside.last_updated.timestamp()
+            value_template: '{{ states.input_boolean.bin.last_updated.timestamp()
               > (as_timestamp(now()) - 3600) }}
 
               '
@@ -1052,9 +924,8 @@
 - id: '1677184691191'
   alias: "\U0001F525Start/stop Timer when heating is turned on/off"
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - switch.heating
     for:
       hours: 0
@@ -1063,8 +934,8 @@
     id: 'on'
     from: 'off'
     to: 'on'
-  - platform: state
-    entity_id:
+    trigger: state
+  - entity_id:
     - switch.heating
     for:
       hours: 0
@@ -1073,8 +944,9 @@
     id: 'off'
     from: 'on'
     to: 'off'
-  condition: []
-  action:
+    trigger: state
+  conditions: []
+  actions:
   - choose:
     - conditions:
       - condition: trigger
@@ -1101,6 +973,7 @@
               title: Switch
               uri: entityId:switch.heating
             - action: switch.turn_off
+              title: 'Off'
               entity_id: switch.heating
     - conditions:
       - condition: trigger
@@ -1190,86 +1063,6 @@
     target:
       entity_id: switch.string_lights
   mode: restart
-- id: '1684017771758'
-  alias: "\U0001F4FARefresh Plex Library"
-  description: Refreshes the plex libraries when a download from sonarr or radarr
-    finishes.
-  trigger:
-  - platform: state
-    entity_id:
-    - sensor.transmission_active_torrents
-    to: '0'
-    from: '1'
-  - platform: state
-    entity_id:
-    - switch.transmission_switch
-    from: 'on'
-    to: 'off'
-  condition: []
-  action:
-  - action: script.plex_library_refresh
-    data: {}
-  mode: queued
-  max: 10
-- id: '1684020991108'
-  alias: "\U0001F4FANotify Downloads "
-  description: Notifies when downloads of a new episode or a movie complete
-  trigger:
-  - platform: state
-    entity_id:
-    - sensor.sonarr_queue
-    id: sonarr
-    enabled: true
-  - platform: state
-    entity_id:
-    - sensor.radarr_queue
-    id: radarr
-    enabled: true
-  condition:
-  - condition: template
-    value_template: '{{ trigger.to_state.state | float < trigger.from_state.state
-      | float }}'
-  action:
-  - sequence:
-    - action: script.plex_library_refresh
-      data: {}
-    - action: button.press
-      metadata: {}
-      data: {}
-      target:
-        entity_id: button.jellyfin_rescan_libraries
-    - delay:
-        hours: 0
-        minutes: 1
-        seconds: 0
-        milliseconds: 0
-    - choose:
-      - conditions:
-        - condition: trigger
-          id:
-          - sonarr
-        sequence:
-        - action: notify.mobile_app_pixel8pro
-          data:
-            message: <b>{{ state_attr( "sensor.recently_added_tv", "data")[1].title
-              }} - {{ state_attr( "sensor.recently_added_tv", "data")[1].number }}
-              </b> is downloaded.
-            data:
-              notification_icon: mdi:television-box
-              image: '{{ state_attr( "sensor.recently_added_tv", "data")[1].fanart}}'
-      - conditions:
-        - condition: trigger
-          id:
-          - radarr
-        sequence:
-        - action: notify.mobile_app_pixel8pro
-          data:
-            message: <b> {{ state_attr( "sensor.recently_added_movies", "data")[1].title
-              }}</b> is downloaded.
-            data:
-              notification_icon: mdi:movie-check
-              image: '{{ state_attr( "sensor.recently_added_movies", "data")[1].fanart}}'
-  mode: restart
 - id: '1684417211214'
   alias: "\U0001F4A1Synchronize states - String Lights"
   description: ''
@@ -1281,16 +1074,16 @@
 - id: '1684631799938'
   alias: "\U0001F3F0Bed Routine for curtains"
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - binary_sensor.in_bed
     for:
       hours: 0
       minutes: 0
       seconds: 0
-  condition: []
-  action:
+    trigger: state
+  conditions: []
+  actions:
   - choose:
     - conditions:
       - condition: state
@@ -1319,15 +1112,16 @@
         before: '11:59:00'
       sequence:
       - wait_for_trigger:
-        - platform: state
-          entity_id:
+        - entity_id:
           - sensor.toothbrush
           to: running
+          trigger: state
         timeout:
           hours: 0
           minutes: 10
           seconds: 0
           milliseconds: 0
+        continue_on_timeout: false
       - action: cover.open_cover
         data: {}
         target:
@@ -1449,17 +1243,17 @@
 - id: '1689331566546'
   alias: "\U0001F3F0Leaving and Arriving Home"
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - binary_sensor.pixel8pro_android_auto
     to: 'on'
     from: 'off'
-  condition:
+    trigger: state
+  conditions:
   - condition: state
     entity_id: binary_sensor.workday_sensor
     state: 'on'
-  action:
+  actions:
   - choose:
     - conditions:
       - condition: and
@@ -1507,10 +1301,10 @@
             intent_package_name: com.waze
             intent_action: android.intent.action.VIEW
       - wait_for_trigger:
-        - platform: zone
-          entity_id: device_tracker.pixel8pro
+        - entity_id: device_tracker.pixel8pro
           zone: zone.home
           event: enter
+          trigger: zone
         continue_on_timeout: true
         enabled: true
       - action: automation.trigger
@@ -1523,33 +1317,34 @@
 - id: '1691773218286'
   alias: "\U0001F3B5Music Jukebox - Living Room"
   description: Music Jukebox for the Living Room
-  trigger:
-  - platform: event
-    event_type: tag_scanned
-  condition:
+  triggers:
+  - event_type: tag_scanned
+    trigger: event
+  conditions:
   - condition: template
     value_template: '{{ trigger.event.data.tag_id in tags }}'
-  action:
+  actions:
   - variables:
       uri: '{{ tags[trigger.event.data.tag_id].uri }}'
   - action: spotcast.start
     data:
-      device_name: '{% if is_state(''remote.google_tv'', ''on'') %} {{''Google TV''}}
-        {%else%}{{''Nest Mini''}}{%endif%}'
+      device_name: '{% if is_state(''remote.google_tv_streamer_remote'', ''on'') %}
+        {{''Google TV''}} {%else%}{{''Nest Mini''}}{%endif%}'
       uri: '{{ uri }}'
       random_song: true
       force_playback: true
       shuffle: true
   - if:
     - condition: state
-      entity_id: remote.google_tv
+      entity_id: media_player.google_tv_streamer
       state: 'on'
     then:
     - action: media_player.select_source
       data:
         source: Spotify
       target:
-        entity_id: media_player.google_tv
+        entity_id:
+        - media_player.google_tv_streamer
   mode: restart
   variables:
     tags:
@@ -1850,17 +1645,17 @@
 - id: '1701294630770'
   alias: "\U0001F3B5Move Music to Friday"
   description: ''
-  trigger:
-  - platform: tag
-    tag_id: b7e48c34-d74d-4a6b-be87-491037aff87f
+  triggers:
+  - tag_id: b7e48c34-d74d-4a6b-be87-491037aff87f
     id: tag
-  - platform: state
-    entity_id:
+    trigger: tag
+  - entity_id:
     - sensor.pixel8pro_charger_type
     to: wireless
     id: phone
-  condition: []
-  action:
+    trigger: state
+  conditions: []
+  actions:
   - choose:
     - conditions:
       - condition: trigger
@@ -1880,12 +1675,12 @@
     - conditions:
       - condition: and
         conditions:
-        - condition: template
-          value_template: '{{ is_state_attr(''media_player.spotify'', ''source'',
-            ''Pixel 8 Pro'') }}'
         - condition: trigger
           id:
           - phone
+        - condition: template
+          value_template: '{{ is_state_attr(''media_player.spotify'', ''source'',
+            ''Pixel 8 Pro'') }}'
       sequence:
       - action: spotcast.start
         data:
@@ -2062,11 +1857,18 @@
 - id: '1705166594977'
   alias: ⚙️ SpeedTest
   description: Runs SpeedTest every 3 hours
-  trigger:
-  - platform: time_pattern
-    hours: '3'
-  condition: []
-  action:
+  triggers:
+  - hours: /3
+    trigger: time_pattern
+  - trigger: homeassistant
+    event: start
+  conditions: []
+  actions:
+  - delay:
+      hours: 0
+      minutes: 10
+      seconds: 0
+      milliseconds: 0
   - action: hassio.addon_start
     metadata: {}
     data:
@@ -2239,22 +2041,22 @@
 - id: '1715598723988'
   alias: "\U0001F514Doorbell"
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - binary_sensor.doorbell_visitor
     from: 'off'
     to: 'on'
     id: doorbell
-  - platform: state
-    entity_id:
+    trigger: state
+  - entity_id:
     - binary_sensor.doorbell_person
     - binary_sensor.porch_motion_occupancy
     from: 'off'
     to: 'on'
     id: person
-  condition: []
-  action:
+    trigger: state
+  conditions: []
+  actions:
   - variables:
       timestamp: '{{ as_timestamp(trigger.to_state.last_changed) | timestamp_custom(''%Y-%m-%d_%H-%M-%S'')
         }}'
@@ -2265,6 +2067,13 @@
       filename: /config/www/doorbell/{{camera_snapshot}}
       entity_id: camera.doorbell_snapshots_fluent
     alias: Take a Camera Snapshot
+  - alias: Take a Camera Snapshot - Cam SNAPSHOT
+    action: camera.snapshot
+    metadata: {}
+    data:
+      filename: /config/www/cam_snapshot.jpg
+    target:
+      entity_id: camera.doorbell_snapshots_fluent
   - parallel:
     - alias: Choose between motion and doorbell press
       choose:
@@ -2300,6 +2109,13 @@
                 title: Will be there
                 icon: sfsymbols:person.crop.circle.badge.checkmark
               image: /local/doorbell/{{camera_snapshot}}
+        - action: notify.theaterofdreams
+          data:
+            message: ' '
+            title: "Someone's at the front door \U0001F464"
+            data:
+              image: /local/doorbell/{{camera_snapshot}}
+              tag: doorbell
       - conditions:
         - condition: trigger
           id:
@@ -2357,6 +2173,26 @@
             image:
               path: /config/www/doorbell/{{camera_snapshot}}
       alias: Send Notification on Google TV if it is on.
+    - alias: Send Notification on Google TV Streamer if it is on.
+      if:
+      - condition: not
+        conditions:
+        - condition: state
+          entity_id: media_player.google_tv_streamer
+          state: 'off'
+      then:
+      - action: notify.google_tv_streamer
+        data:
+          message: Someone's at the front door
+          title: ''
+          data:
+            duration: 4
+            position: top-right
+            fontsize: medium
+            color: teal
+            transparency: 50%
+            image:
+              path: /config/www/doorbell/{{camera_snapshot}}
   - action: google_generative_ai_conversation.generate_content
     data:
       prompt: Very briefly describe what you see in this image from my doorbell camera.
@@ -2677,9 +2513,8 @@
 - id: '1723386197132'
   alias: "\U0001F3ACPause Google TV when no one is watching"
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - binary_sensor.living_room_presence
     to: 'off'
     from: 'on'
@@ -2687,16 +2522,14 @@
       hours: 0
       minutes: 0
       seconds: 10
-  condition:
+    trigger: state
+  conditions:
   - condition: or
     conditions:
     - condition: state
-      entity_id: media_player.google_tv
+      entity_id: media_player.google_tv_streamer_cast
       state: playing
-    - condition: state
-      entity_id: media_player.google_tv_cast
-      state: playing
-  action:
+  actions:
   - action: script.tv_seek
     metadata: {}
     data:
@@ -2706,28 +2539,31 @@
     data: {}
     target:
       entity_id:
-      - media_player.google_tv_cast
-      - media_player.google_tv
+      - media_player.google_tv_streamer_cast
+      - media_player.google_tv_streamer
+      - media_player.google_tv_streamer_remote
   mode: single
 - id: '1723527982327'
   alias: "\U0001F4FANotify downloads on Jellyfin"
   description: Notifies when downloads of a new episode or a movie complete
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - sensor.sonarr_queue
     id: sonarr
     enabled: true
-  - platform: state
-    entity_id:
+    trigger: state
+    to:
+  - entity_id:
     - sensor.radarr_queue
     id: radarr
     enabled: true
-  condition:
+    trigger: state
+    to:
+  conditions:
   - condition: template
     value_template: '{{ trigger.to_state.state | float < trigger.from_state.state
       | float }}'
-  action:
+  actions:
   - sequence:
     - action: button.press
       metadata: {}
@@ -2735,22 +2571,18 @@
       target:
         entity_id: button.jellyfin_rescan_libraries
     - wait_for_trigger:
-      - platform: state
-        entity_id:
+      - entity_id:
         - sensor.jellyfin_movies
-      - platform: state
-        entity_id:
+        trigger: state
+      - entity_id:
         - sensor.jellyfin_episodes
+        trigger: state
       timeout:
         hours: 0
         minutes: 2
         seconds: 0
         milliseconds: 0
-    - delay:
-        hours: 0
-        minutes: 2
-        seconds: 0
-        milliseconds: 0
+      continue_on_timeout: false
     - choose:
       - conditions:
         - condition: trigger
@@ -2765,6 +2597,14 @@
             data:
               notification_icon: mdi:television-box
               image: '{{ state_attr( "sensor.jellyfin_episodes", "data")[1].fanart}}'
+        - action: notify.mobile_app_pavan_thanujs_ipad_3rd_gen
+          data:
+            message: '{{ state_attr( "sensor.jellyfin_episodes", "data")[1].title
+              }} - {{ state_attr( "sensor.jellyfin_episodes", "data")[1].number }}
+              is downloaded and is available on Jellyfin.'
+            data:
+              notification_icon: mdi:television-box
+              image: '{{ state_attr( "sensor.jellyfin_episodes", "data")[1].fanart}}'
       - conditions:
         - condition: trigger
           id:
@@ -2774,6 +2614,13 @@
           data:
             message: <b>{{ state_attr( "sensor.jellyfin_movies", "data")[1].title
               }}</b> is downloaded and is available on Jellyfin.
+            data:
+              notification_icon: mdi:movie-check
+              image: '{{ state_attr( "sensor.jellyfin_movies", "data")[1].fanart}}'
+        - action: notify.mobile_app_pavan_thanujs_ipad_3rd_gen
+          data:
+            message: '{{ state_attr( "sensor.jellyfin_movies", "data")[1].title }}
+              is downloaded and is available on Jellyfin.'
             data:
               notification_icon: mdi:movie-check
               image: '{{ state_attr( "sensor.jellyfin_movies", "data")[1].fanart}}'
@@ -2793,4 +2640,76 @@
       message: command_launch_app
       data:
         package_name: com.pg.oralb.oralbapp
+  mode: single
+- id: '1729510022758'
+  alias: Work Permit Update
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - sensor.last_update_date
+    from:
+  conditions:
+  - condition: template
+    value_template: "{{ states('sensor.current_processing_date') != 'unavailable'
+      or\n   states('sensor.last_update_date') != 'unavailable' }}"
+  actions:
+  - action: notify.homeassistant_bot
+    data:
+      message: ''
+      target: '1303658870903672865'
+      data:
+        embed:
+          title: "Work Permit Update - {{states.sensor.last_update_date.state}} \U0001F310"
+          description: Work Permit Renewal applications submitted on **{{states.sensor.current_processing_date.state}}**
+            are being processed.
+          url: https://enterprise.gov.ie/en/what-we-do/workplace-and-skills/employment-permits/current-application-processing-dates
+          color: 5966
+          author:
+            name: Visa Update
+            icon_url: https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Flag_of_Ireland.svg/320px-Flag_of_Ireland.svg.png
+          thumbnail:
+            url: https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Flag_of_Ireland.svg/320px-Flag_of_Ireland.svg.png
+  mode: restart
+- id: '1731189297613'
+  alias: ⚙️Doorbell Night Mode
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - light.porch_light
+    to: 'on'
+    from: 'off'
+    id: 'on'
+  - trigger: state
+    entity_id:
+    - light.porch_light
+    to: 'off'
+    from: 'on'
+    id: 'off'
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - 'on'
+      sequence:
+      - action: select.select_option
+        metadata: {}
+        data:
+          option: color
+        target:
+          entity_id: select.doorbell_day_night_mode
+    - conditions:
+      - condition: trigger
+        id:
+        - 'off'
+      sequence:
+      - action: select.select_option
+        metadata: {}
+        data:
+          option: auto
+        target:
+          entity_id: select.doorbell_day_night_mode
   mode: single

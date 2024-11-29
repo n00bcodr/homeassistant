@@ -9,6 +9,12 @@ homeassistant:
   whitelist_external_dirs:
     - '/share'
 
+http:
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - !secret trusted_ip
+
+
 logger:
   default: critical
 
@@ -32,6 +38,8 @@ shell_command: !include shell_command.yaml
 sensor: !include sensor.yaml
 template: !include template.yaml
 monitor_docker: !include monitor_docker.yaml
+multiscrape: !include multiscrape.yaml
+media_player: !include mediaplayer.yaml
 
 tts:
   - platform: google_translate
@@ -68,3 +76,4 @@ telegram_bot:
       - !secret telegram_chat_id
       - !secret telegram_chat_id_atm
       - !secret telegram_chat_id_ch
+

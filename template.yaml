@@ -65,7 +65,7 @@
       state: "{{ states('sensor.pixel8pro_volume_level_call')|int(0) }}"
       step: 1
       min: 0
-      max: 7
+      max: 15
       set_value:
         - action: notify.mobile_app_pixel8pro
           data:
