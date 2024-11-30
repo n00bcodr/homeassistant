@@ -22,7 +22,6 @@ I started my Home Assistant Journey with a Raspberry Pi 3, from which I have swi
 
 * [Home Assistant](https://home-assistant.io/)
 * [Portainer](https://www.portainer.io/) to manage all the containers
-* [dockerproxy](https://github.com/Tecnativa/docker-socket-proxy) to monitor various docker containers through Home Assistant
 * [Broadlink Manager](https://hub.docker.com/r/techblog/broadlinkmanager) for reading IR codes
 * [Watchtower](https://github.com/containrrr/watchtower) to have all the containers up to date. This will cause the homeassistant instance to be "unhealthy". I am using this [workaround](https://gist.github.com/HCanber/700b4a5c685b9b97fb4865de6eaff0f3).
 * [Homarr](https://homarr.dev/) for browser start page
@@ -31,16 +30,19 @@ I started my Home Assistant Journey with a Raspberry Pi 3, from which I have swi
 * [Filebrowser](https://github.com/filebrowser/filebrowser) to easily browse and edit files on my server
 * [Docker Socket Proxy](https://github.com/Tecnativa/docker-socket-proxy) to control my docker containers from homeassistant (although I rarely use it)
 * [EmulatorJS](https://emulatorjs.org/) to play retro games
-* [immich](https://immich.app/) as a Google Photos alternative
 * [Tailscale](https://tailscale.com/) as [subnet router](https://tailscale.com/kb/1019/subnets) this is magic!
+* [Wallos](https://github.com/ellite/Wallos) - Open-Source Personal Subscription Tracker
+* [ClipCascade](https://github.com/Sathvik-Rao/ClipCascade) - opensource Clipboard Sync
 
 **Media**
-* [Plex](https://www.plex.tv/) Media Server to manage all my media
-* [Tautulli](https://github.com/Tautulli/Tautulli) for plex analytics
+* [immich](https://immich.app/) as a Google Photos alternative
+* [Jellyfin](https://github.com/jellyfin/jellyfin) Media Server to manage all my media
+* [Jellystat](https://github.com/CyferShepard/Jellystat) for Jellyfin analytics
+* [Jellyseer](https://github.com/Fallenbagel/jellyseerr) request manager for Radarr and Sonarr, using this I can directly browse and download movies.
 * [Sonarr](https://sonarr.tv/) to download the latest episodes of TV shows I watch and make them available on Plex
 * [Radarr](https://radarr.video/) to download any movies I want to watch and make them available on Plex
+* [Requestrr](https://github.com/thomst08/requestrr) - Discord Bot Manager to download Movies and TV Shows through Sonarr or Radarr
 * [Addarr](https://github.com/Waterboy1602/Addarr) telegram bot to download Movies and TV Shows through Sonarr or Radarr
-* [Overseer](https://github.com/linuxserver/docker-overseerr) request manager for Radarr and Sonarr, using this I can directly browse and download movies.
 * [Prowlarr](https://prowlarr.com/) to manage indexes for all the *arr apps
 * [Transmission](https://transmissionbt.com/) installed as an app in Debian
 * [SyncThing](https://syncthing.net/) to keep my phone's photos backed up to the server
@@ -90,6 +92,7 @@ I started my Home Assistant Journey with a Raspberry Pi 3, from which I have swi
 ---
 ### <a name="media">Media</a> 
 | [Go to Menu](#menu) |
+- [Google TV Streamer](https://store.google.com/product/google_tv_streamer) x 1
 - [Chromecast with Google TV](https://store.google.com/us/product/chromecast_google_tv?hl=en-US) x 1
 - [Google Chromecast](https://store.google.com/us/product/chromecast?hl=en-GB) x 1
 
