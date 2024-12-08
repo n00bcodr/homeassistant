@@ -126,8 +126,8 @@ def async_config_entry_by_device_id(hass, device_id):
     for entry in current_entries:
         if device_id in entry.data.get(CONF_DEVICES, []):
             return entry
-        else:
-            _LOGGER.warning(f"Missing device configuration for device_id {device_id}")
+        # else:
+        #     _LOGGER.warning(f"Missing device configuration for device_id {device_id}")
     return None
 
 

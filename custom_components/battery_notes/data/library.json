@@ -1243,6 +1243,13 @@
             "battery_type": "CR123"
         },
         {
+            "manufacturer": "BOSCH",
+            "model": "DWCII",
+            "model_id": "12309",
+            "hw_version": "2.0",
+            "battery_type": "CR123A"
+        },
+        {
             "manufacturer": "Bosch",
             "model": "ISW-ZPR1-WP13",
             "battery_type": "AA",
@@ -1267,9 +1274,23 @@
             "battery_quantity": 2
         },
         {
+            "manufacturer": "BOSCH",
+            "model": "Radiator Thermostat II +M",
+            "model_id": "12306",
+            "hw_version": "1.2.0",
+            "battery_type": "AA",
+            "battery_quantity": 2
+        },
+        {
             "manufacturer": "Bosch",
             "model": "Smoke alarm detector (BSD-2)",
             "battery_type": "Irreplaceable"
+        },
+        {
+            "manufacturer": "BOSCH",
+            "model": "TWINGUARD",
+            "battery_type": "AA",
+            "battery_quantity": 6
         },
         {
             "manufacturer": "Bosch",
@@ -3540,6 +3561,12 @@
         },
         {
             "manufacturer": "Lutron Electronics Co., Inc",
+            "model": "None (Shade)",
+            "battery_type": "D",
+            "battery_quantity": 8
+        },
+        {
+            "manufacturer": "Lutron Electronics Co., Inc",
             "model": "PJ2-3BRL-GXX-F01 (Pico3ButtonRaiseLower)",
             "battery_type": "CR2032"
         },
@@ -4599,6 +4626,11 @@
         },
         {
             "manufacturer": "Shelly",
+            "model": "BTHome sensor",
+            "battery_type": "MANUAL"
+        },
+        {
+            "manufacturer": "Shelly",
             "model": "gen1 (SHHT-1)",
             "battery_type": "CR123A"
         },
@@ -4872,6 +4904,11 @@
             "model": "Radiator valve with thermostat (GS361A-H04)",
             "battery_type": "AA",
             "battery_quantity": 2
+        },
+        {
+            "manufacturer": "SMaBiT (Bitron Video)",
+            "model": "4 button Zigbee remote control (AV2010/23)",
+            "battery_type": "CR2032"
         },
         {
             "manufacturer": "SMaBiT (Bitron Video)",
@@ -6683,7 +6720,7 @@
         {
             "manufacturer": "Xiaomi",
             "model": "BTHome sensor",
-            "battery_type": "CR2032"
+            "battery_type": "MANUAL"
         },
         {
             "manufacturer": "Xiaomi",
@@ -7149,6 +7186,11 @@
             "manufacturer": "Zooz",
             "model": "ZSE41",
             "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "Zooz",
+            "model": "ZSE41 Open Close Sensor",
+            "battery_type": "Zooz ZSE41"
         },
         {
             "manufacturer": "Zooz",
