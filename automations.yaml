@@ -613,14 +613,6 @@
     id: clear
     trigger: state
   conditions:
-  - condition: or
-    conditions:
-    - condition: sun
-      before: sunrise
-      after: sunset
-    - condition: numeric_state
-      entity_id: sensor.presence_sensor_light_level
-      below: 40
   - condition: and
     conditions:
     - condition: state
@@ -638,6 +630,14 @@
       - condition: trigger
         id:
         - presence
+      - condition: or
+        conditions:
+        - condition: sun
+          before: sunrise
+          after: sunset
+        - condition: numeric_state
+          entity_id: sensor.presence_sensor_light_level
+          below: 40
       sequence:
       - action: light.turn_on
         data:
@@ -1158,27 +1158,36 @@
 - id: '1687359882327'
   alias: ⚙️Reload Unavailable Entities
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - sensor.speedtest_download
     id: speedtest
     to: unavailable
     for:
       hours: 0
-      minutes: 1
+      minutes: 2
       seconds: 30
-  - platform: state
-    entity_id:
+    trigger: state
+  - entity_id:
     - sensor.bob_duration
     id: homewhiz
     to: unavailable
     for:
       hours: 0
+      minutes: 5
+      seconds: 30
+    trigger: state
+  - entity_id:
+    - sensor.deep_sleep
+    id: fit
+    to: unavailable
+    for:
+      hours: 0
       minutes: 1
       seconds: 30
-  condition: []
-  action:
+    trigger: state
+  conditions: []
+  actions:
   - choose:
     - conditions:
       - condition: trigger
@@ -1193,31 +1202,17 @@
       sequence:
       - action: homeassistant.reload_config_entry
         target:
-          entity_id:
-          - select.bob_state
-          - select.bob_programme
-          - select.bob_temperature
-          - select.bob_spin
-          - select.bob_fast
-          - select.bob_drying
-          - select.bob_custom_duration_level
-          - select.bob_rinse_count
-          - sensor.bob_sub_state
-          - sensor.bob_programme_end_time
-          - sensor.bob_duration
-          - sensor.bob_remaining
-          - switch.bob_prewash
-          - switch.bob_extra_rinse
-          - switch.bob_smart_anti_crease
-          - switch.bob_steam
-          - switch.bob_extra_water
-          - switch.bob_soaking
-          - switch.bob_night_mode
-          - switch.bob_anticrease
-          - binary_sensor.bob_remote_control
-          device_id: []
-          area_id: []
-        data: {}
+          entity_id: sensor.bob_duration
+        data:
+          entry_id: 01J3NGYP8KVY1SFPMGH1Q60FM4
+    - conditions:
+      - condition: trigger
+        id:
+        - fit
+      sequence:
+      - action: script.reload_config_entries
+        data:
+          id: sensor.sleep
   mode: single
 - id: '1688497197460'
   alias: "\U0001F3B5Text Search and Play Music on Spotify"
@@ -1492,29 +1487,29 @@
 - id: '1699609843837'
   alias: "\U0001F3F0Toggle Phone to Vibrate when at Work"
   description: ''
-  trigger:
-  - platform: zone
-    entity_id: person.pavanthanuj
+  triggers:
+  - entity_id: person.pavanthanuj
     zone: zone.work
     event: enter
     id: work
-  - platform: state
-    entity_id:
+    trigger: zone
+  - entity_id:
     - sensor.pixel8pro_wifi_connection
     to: EWA@INTERNET
     id: work
-  - platform: zone
-    entity_id: person.pavanthanuj
+    trigger: state
+  - entity_id: person.pavanthanuj
     zone: zone.work
     event: leave
     id: leave work
-  - platform: state
-    entity_id:
+    trigger: zone
+  - entity_id:
     - sensor.pixel8pro_wifi_connection
     to: Mad House
     id: leave work
-  condition: []
-  action:
+    trigger: state
+  conditions: []
+  actions:
   - choose:
     - conditions:
       - condition: and
@@ -1562,7 +1557,7 @@
             notification_icon: mdi:volume-high
             timeout: 30
           message: ' '
-  mode: restart
+  mode: single
 - id: '1699724589577'
   alias: Hilary Exit
   description: ''
@@ -2682,4 +2677,34 @@
           option: auto
         target:
           entity_id: select.doorbell_day_night_mode
+  mode: single
+- id: '1733184946532'
+  alias: ⚙️Turn off Shapes when I am not home
+  description: Nanoleaf shapes randomly turns on for some reason. This automation
+    turns it off when I am not home.
+  triggers:
+  - trigger: state
+    entity_id:
+    - light.shapes
+    from: 'off'
+    to: 'on'
+  conditions:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: person.pavanthanuj
+      state: not_home
+    - condition: state
+      entity_id: binary_sensor.den_motion
+      state: 'off'
+      for:
+        hours: 0
+        minutes: 2
+        seconds: 0
+  actions:
+  - action: light.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: light.shapes
   mode: single

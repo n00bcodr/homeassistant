@@ -61,6 +61,8 @@ recorder:
       - sensor.moon*
       - weather.*
       - sensor.x60*
+      - sensor.doorbell*
+      - sensor.count*
     entities:
       - sun.sun
 
