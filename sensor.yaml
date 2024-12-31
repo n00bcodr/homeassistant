@@ -15,8 +15,11 @@
           'washer_substate_remove_laundry': 'Cycle Complete',
           'washer_substate_time_delay_enabled': 'Delayed Start'
         } %}
-        {{ state_map.get(states('sensor.bob_sub_state'), states('sensor.bob_sub_state')) }}
-
+        {% if states('sensor.bob_sub_state') == 'washer_substate_program_started' and states('sensor.bob_state') == 'device_state_off' %}
+          Off
+        {% else %}
+          {{ state_map.get(states('sensor.bob_sub_state'), states('sensor.bob_sub_state')) }}
+        {% endif %}
       icon_template: >
         {% set icon_map = {
           'washer_substate_program_started': 'mdi:washing-machine-off',

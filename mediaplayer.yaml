@@ -1,55 +1,208 @@
-- platform: universal
-  name: Living Room TV
-  unique_id: google_tv_streamer_unified
-  device_class: tv
-  children:
-    - media_player.google_tv_streamer_remote
-    - media_player.google_tv_streamer_cast
-  browse_media_entity: media_player.google_tv_streamer_cast
-  commands:
-    turn_off:
-      action: media_player.turn_off
-      data:
-        entity_id: media_player.google_tv_streamer_remote
-    turn_on:
-      action: media_player.turn_on
-      data:
-        entity_id: media_player.google_tv_streamer_remote
-    volume_up:
-      action: media_player.volume_up
-      data:
-        entity_id: media_player.google_tv_streamer_remote
-    volume_down:
-      action: media_player.volume_down
-      data:
-        entity_id: media_player.google_tv_streamer_remote
-  attributes:
-    entity_picture: media_player.google_tv_streamer|entity_picture
-
-- platform: universal
-  name: "Pavan's Room TV"
-  unique_id: google_tv_unified
-  device_class: tv
-  children:
-    - media_player.google_tv_remote
-    - media_player.google_tv_cast
-  browse_media_entity: media_player.google_tv_cast
-  commands:
-    turn_off:
-      action: media_player.turn_off
-      data:
-        entity_id: media_player.google_tv_remote
-    turn_on:
-      action: media_player.turn_on
-      data:
-        entity_id: media_player.google_tv_remote
-    volume_up:
-      action: media_player.volume_up
-      data:
-        entity_id: media_player.google_tv_remote
-    volume_down:
-      action: media_player.volume_down
-      data:
-        entity_id: media_player.google_tv_remote
-  attributes:
-    entity_picture: media_player.google_tv|entity_picture
+- platform: media_player_template
+  media_players:
+    google_tv_unified:
+      friendly_name: Google TV Unified
+      value_template: "{{ states('media_player.google_tv') }}"
+      current_source_template: "{{ state_attr('media_player.google_tv', 'source') }}"
+      current_volume_template: "{{ state_attr('media_player.google_tv', 'volume_level') }}"
+      title_template: "{{ state_attr('media_player.google_tv_cast', 'media_title') }}"
+      media_content_type_template: "{{ state_attr('media_player.google_tv_cast', 'media_content_type') }}"
+      media_image_url_template: "{{ state_attr('media_player.google_tv', 'entity_picture') }}"
+      media_duration_template: "{{ state_attr('media_player.google_tv_cast', 'media_duration') }}"
+      artist_template: "{{ state_attr('media_player.google_tv_cast', 'media_artist') }}"
+      turn_on:
+        action: media_player.turn_on
+        data:
+          entity_id: media_player.google_tv_remote
+      turn_off:
+        action: media_player.turn_off
+        data:
+          entity_id: media_player.google_tv_remote
+      play:
+        action: media_player.media_play
+        data_template:
+          entity_id: media_player.google_tv_cast
+      stop:
+        action: media_player.media_stop
+        data_template:
+          entity_id: media_player.google_tv_cast
+      pause:
+        action: media_player.media_pause
+        data_template:
+          entity_id: media_player.google_tv_cast
+      next:
+        action: media_player.media_next_track
+        data_template:
+          entity_id: media_player.google_tv_cast
+      previous:
+        action: media_player.media_previous_track
+        data_template:
+          entity_id: media_player.google_tv_cast
+      seek:
+        action: media_player.media_seek
+        data_template:
+          entity_id: media_player.google_tv_cast
+          seek_position: '10'
+      play_media:
+        action: media_player.play_media
+        data_template:
+          entity_id: media_player.google_tv_cast
+          media_content_id: 101
+          media_content_type: episode
+      volume_up:
+        action: media_player.volume_up
+        data:
+          entity_id: media_player.google_tv_remote
+      volume_down:
+        action: media_player.volume_down
+        data:
+          entity_id: media_player.google_tv_remote
+      inputs:
+        YouTube:
+          action: media_player.select_source
+          data_template:
+            entity_id: media_player.google_tv
+            source: "YouTube"
+        Netflix:
+          action: media_player.select_source
+          data_template:
+            entity_id: media_player.google_tv
+            source: "Netflix"
+        Prime Video:
+          action: media_player.select_source
+          data_template:
+            entity_id: media_player.google_tv
+            source: "Prime Video"
+        Play Store:
+          action: media_player.select_source
+          data_template:
+            entity_id: media_player.google_tv
+            source: "Play Store"
+        Spotify:
+          action: media_player.select_source
+          data_template:
+            entity_id: media_player.google_tv
+            source: "Spotify"
+        Express VPN:
+          action: media_player.select_source
+          data_template:
+            entity_id: media_player.google_tv
+            source: "Express VPN"
+        Google Cast:
+          action: media_player.select_source
+          data_template:
+            entity_id: media_player.google_tv
+            source: "Google Cast"
+        Jellyfin:
+          action: media_player.select_source
+          data_template:
+            entity_id: media_player.google_tv
+            source: "org.jellyfin.androidtv"
+        Home:
+          action: media_player.select_source
+          data_template:
+            entity_id: media_player.google_tv
+            source: "com.google.android.apps.tv.launcherx"
+    google_tv_streamer_unified:
+      friendly_name: Google TV Streamer Unified
+      value_template: "{{ states('media_player.google_tv_streamer') }}"
+      current_source_template: "{{ state_attr('media_player.google_tv_streamer', 'source') }}"
+      current_volume_template: "{{ state_attr('media_player.google_tv_streamer', 'volume_level') }}"
+      title_template: "{{ state_attr('media_player.google_tv_streamer_cast', 'media_title') }}"
+      media_content_type_template: "{{ state_attr('media_player.google_tv_streamer_cast', 'media_content_type') }}"
+      media_image_url_template: "{{ state_attr('media_player.google_tv_streamer', 'entity_picture') }}"
+      media_duration_template: "{{ state_attr('media_player.google_tv_streamer_cast', 'media_duration') }}"
+      artist_template: "{{ state_attr('media_player.google_tv_streamer_cast', 'media_artist') }}"
+      turn_on:
+        action: media_player.turn_on
+        data:
+          entity_id: media_player.google_tv_streamer_remote
+      turn_off:
+        action: media_player.turn_off
+        data:
+          entity_id: media_player.google_tv_streamer_remote
+      play:
+        action: media_player.media_play
+        data_template:
+          entity_id: media_player.google_tv_streamer_cast
+      stop:
+        action: media_player.media_stop
+        data_template:
+          entity_id: media_player.google_tv_streamer_cast
+      pause:
+        action: media_player.media_pause
+        data_template:
+          entity_id: media_player.google_tv_streamer_cast
+      next:
+        action: media_player.media_next_track
+        data_template:
+          entity_id: media_player.google_tv_streamer_cast
+      previous:
+        action: media_player.media_previous_track
+        data_template:
+          entity_id: media_player.google_tv_streamer_cast
+      seek:
+        action: media_player.media_seek
+        data_template:
+          entity_id: media_player.google_tv_streamer_cast
+          seek_position: '10'
+      play_media:
+        action: media_player.play_media
+        data_template:
+          entity_id: media_player.google_tv_streamer_cast
+          media_content_id: 101
+          media_content_type: episode
+      volume_up:
+        action: media_player.volume_up
+        data:
+          entity_id: media_player.google_tv_streamer_remote
+      volume_down:
+        action: media_player.volume_down
+        data:
+          entity_id: media_player.google_tv_streamer_remote
+      inputs:
+        YouTube:
+          action: media_player.select_source
+          data_template:
+            entity_id: media_player.google_tv_streamer
+            source: "YouTube"
+        Netflix:
+          action: media_player.select_source
+          data_template:
+            entity_id: media_player.google_tv_streamer
+            source: "Netflix"
+        Prime Video:
+          action: media_player.select_source
+          data_template:
+            entity_id: media_player.google_tv_streamer
+            source: "Prime Video"
+        Play Store:
+          action: media_player.select_source
+          data_template:
+            entity_id: media_player.google_tv_streamer
+            source: "Play Store"
+        Spotify:
+          action: media_player.select_source
+          data_template:
+            entity_id: media_player.google_tv_streamer
+            source: "Spotify"
+        Express VPN:
+          action: media_player.select_source
+          data_template:
+            entity_id: media_player.google_tv_streamer
+            source: "Express VPN"
+        Google Cast:
+          action: media_player.select_source
+          data_template:
+            entity_id: media_player.google_tv_streamer
+            source: "Google Cast"
+        Jellyfin:
+          action: media_player.select_source
+          data_template:
+            entity_id: media_player.google_tv_streamer
+            source: "org.jellyfin.androidtv"
+        Home:
+          action: media_player.select_source
+          data_template:
+            entity_id: media_player.google_tv_streamer
+            source: "com.google.android.apps.tv.launcherx"

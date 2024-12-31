@@ -15,3 +15,5 @@ intents:
     - let's make a cup of tea
     - boil [some] water [for me]
     - kettle
+  radarr:
+    - (Download|Add) movie {title} [on|to]  [radarr|radar][.]

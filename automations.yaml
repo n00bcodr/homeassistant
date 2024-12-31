@@ -1494,7 +1494,7 @@
     id: work
     trigger: zone
   - entity_id:
-    - sensor.pixel8pro_wifi_connection
+    - sensor.pixel8pro_wi_fi_connection
     to: EWA@INTERNET
     id: work
     trigger: state
@@ -1504,7 +1504,7 @@
     id: leave work
     trigger: zone
   - entity_id:
-    - sensor.pixel8pro_wifi_connection
+    - sensor.pixel8pro_wi_fi_connection
     to: Mad House
     id: leave work
     trigger: state
@@ -1687,47 +1687,6 @@
           offset: 0
           ignore_fully_played: false
           device_name: Friday
-  mode: single
-- id: '1704124907970'
-  alias: Darragh's Button
-  description: ''
-  trigger:
-  - platform: device
-    domain: mqtt
-    device_id: 0f7674241f0842e51cb6ba901f3f0604
-    type: action
-    subtype: 'on'
-    discovery_id: 0x70ac08fffe71ecfc action_on
-    id: single
-  - platform: device
-    domain: mqtt
-    device_id: 0f7674241f0842e51cb6ba901f3f0604
-    type: action
-    subtype: 'off'
-    discovery_id: 0x70ac08fffe71ecfc action_off
-    id: double
-  condition: []
-  action:
-  - choose:
-    - conditions:
-      - condition: trigger
-        id:
-        - single
-      sequence:
-      - action: media_player.media_play_pause
-        target:
-          entity_id: media_player.darragh_s_nest_hub
-        data: {}
-    - conditions:
-      - condition: trigger
-        id:
-        - double
-      sequence:
-      - action: homeassistant.turn_on
-        target:
-          entity_id:
-          - switch.kettle
-        data: {}
   mode: single
 - id: '1704137731926'
   alias: Hilary's Button
@@ -2334,40 +2293,6 @@
         data: {}
       alias: 'Git : Core version push'
   mode: single
-- id: '1718996843066'
-  alias: Darragh's Weight Tracking
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - sensor.mi_scale_weight
-  condition:
-  - condition: numeric_state
-    entity_id: sensor.mi_scale_weight
-    above: 86
-  action:
-  - action: google_sheets.append_sheet
-    data:
-      config_entry: 70169feef8a863b382a05cc09db71fb1
-      data:
-        Basal metabolism: '{{ states.sensor.mi_scale_basal_metabolism.state }}'
-        Bmi: '{{ states.sensor.mi_scale_bmi.state }}'
-        Body fat: '{{ states.sensor.mi_scale_body_fat.state }}'
-        Body score: '{{ states.sensor.mi_scale_body_score.state }}'
-        Bone mass: '{{ states.sensor.mi_scale_bone_mass.state }}'
-        Lean body mass: '{{ states.sensor.mi_scale_lean_body_mass.state }}'
-        Metabolic age: '{{ states.sensor.mi_scale_metabolic_age.state }}'
-        Muscle mass: '{{ states.sensor.mi_scale_muscle_mass.state }}'
-        Protein: '{{ states.sensor.mi_scale_protein.state }}'
-        Visceral fat: '{{ states.sensor.mi_scale_visceral_fat.state }}'
-        Water: '{{ states.sensor.mi_scale_water.state }}'
-        Weight: '{{ states.sensor.mi_scale_weight.state }}'
-    alias: Upload Weight
-  - action: notify.mobile_app_op7t
-    data:
-      title: '⚖️ Just weighed in! '
-      message: '{{states.sensor.mi_scale_weight.state}} KGs'
-  mode: single
 - id: '1720523835406'
   alias: "\U0001F50BBattery Notes - Battery Threshold"
   description: ''
@@ -2707,4 +2632,72 @@
     data: {}
     target:
       entity_id: light.shapes
+  mode: single
+- id: '1733943830624'
+  alias: "\U0001F384 Christmas Lights and Music"
+  description: ''
+  triggers:
+  - trigger: sun
+    event: sunset
+    offset: 0
+    id: 'on'
+  - trigger: time
+    at: 02:00:00
+    id: 'off'
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - 'on'
+      sequence:
+      - action: script.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: script.play_christmas_music
+      - action: switch.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.christmas_lights
+    - conditions:
+      - condition: trigger
+        id:
+        - 'off'
+      sequence:
+      - action: switch.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.christmas_lights
+      - action: media_player.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: media_player.kitchen_speaker
+  mode: single
+- id: '1734173801991'
+  alias: ⚙️TV and LED Strip
+  description: ''
+  use_blueprint:
+    path: adchevrier/synchronize-the-on-off-state-of-2-entities.yaml
+    input:
+      entity_1: media_player.google_tv_remote
+      entity_2: light.tv_led_strip
+- id: '1735466814988'
+  alias: Add movies to Radarr using Assist
+  description: ''
+  triggers:
+  - trigger: conversation
+    command:
+    - (Download|Add|Send) movie {title} [on|to]  [radarr|radar]
+    - (Download|Add|download|add) movie {title}
+  conditions: []
+  actions:
+  - set_conversation_response: Sure, adding {{ trigger.slots.title }} to Radarr!
+  - action: hassarr.add_radarr_movie
+    data:
+      title: '{{ trigger.slots.title }}'
   mode: single

@@ -25,6 +25,7 @@
       - light.lamp
       - light.tv_led_strip
       - media_player.google_tv
+      - media_player.google_tv_streamer
       - cover.curtains
       - switch.string_lights
       - switch.kitchen_light
@@ -39,6 +40,7 @@
       - switch.kettle
       - switch.porch_light
       - switch.hallway_chandelier
+      - switch.christmas_lights
       - climate.heater
 
   #Configure Each Entity

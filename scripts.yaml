@@ -425,3 +425,32 @@ reload_config_entries:
       entry_id: '{{ config }}'
   description: Reloads configuration by the input of a config ID
   icon: mdi:reload-alert
+play_christmas_music:
+  alias: "\U0001F384Play Christmas Music"
+  sequence:
+  - action: select.select_option
+    metadata: {}
+    data:
+      option: Shuffle Random
+    target:
+      entity_id: select.youtube_music_play_mode
+  - action: select.select_option
+    metadata: {}
+    data:
+      option: Christmas
+    target:
+      entity_id:
+      - select.youtube_music_playlist
+  - action: select.select_option
+    metadata: {}
+    data:
+      option: Kitchen speaker
+    target:
+      entity_id: select.youtube_music_speaker
+  - action: media_player.toggle
+    metadata: {}
+    data: {}
+    target:
+      entity_id: media_player.youtube_music
+  description: ''
+  icon: mdi:snowflake

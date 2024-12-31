@@ -24,3 +24,12 @@ kettle:
     data:
       entity_id:
         - switch.kettle
+radarr:
+  speech:
+    text: Sure, adding {{ trigger.slots.title }} to Radarr!
+    type: plain
+  action:
+    action: hassarr.add_radarr_movie
+    data:
+      title: >
+        {{ trigger.slots.title }}
