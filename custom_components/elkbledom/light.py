@@ -8,7 +8,7 @@ from .elkbledom import BLEDOMInstance
 from .const import DOMAIN, EFFECTS, EFFECTS_list
 
 from homeassistant.const import CONF_MAC
-import homeassistant.helpers.config_validation as cv
+from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.components.light import (
     PLATFORM_SCHEMA,

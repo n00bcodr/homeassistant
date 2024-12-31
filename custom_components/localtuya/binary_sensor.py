@@ -1,4 +1,5 @@
 """Platform to present any Tuya DP as a binary sensor."""
+
 import logging
 from functools import partial
 
@@ -10,11 +11,11 @@ from homeassistant.components.binary_sensor import (
 )
 from homeassistant.const import CONF_DEVICE_CLASS
 
-from .common import LocalTuyaEntity, async_setup_entry
+from .entity import LocalTuyaEntity, async_setup_entry
+from .const import CONF_STATE_ON
 
 _LOGGER = logging.getLogger(__name__)
 
-CONF_STATE_ON = "state_on"
 CONF_STATE_OFF = "state_off"
 
 
@@ -22,12 +23,12 @@ def flow_schema(dps):
     """Return schema used in config flow."""
     return {
         vol.Required(CONF_STATE_ON, default="True"): str,
-        vol.Required(CONF_STATE_OFF, default="False"): str,
+        # vol.Required(CONF_STATE_OFF, default="False"): str,
         vol.Optional(CONF_DEVICE_CLASS): DEVICE_CLASSES_SCHEMA,
     }
 
 
-class LocaltuyaBinarySensor(LocalTuyaEntity, BinarySensorEntity):
+class LocalTuyaBinarySensor(LocalTuyaEntity, BinarySensorEntity):
     """Representation of a Tuya binary sensor."""
 
     def __init__(
@@ -46,24 +47,17 @@ class LocaltuyaBinarySensor(LocalTuyaEntity, BinarySensorEntity):
         """Return sensor state."""
         return self._is_on
 
-    @property
-    def device_class(self):
-        """Return the class of this device."""
-        return self._config.get(CONF_DEVICE_CLASS)
-
     def status_updated(self):
         """Device status was updated."""
         super().status_updated()
 
-        state = str(self.dps(self._dp_id)).lower()
-        if state == self._config[CONF_STATE_ON].lower():
+        state = str(self.dp_value(self._dp_id)).lower()
+        # users may set wrong on states, But we assume that must devices use this on states.
+        possible_on_states = ["true", "1", "pir", "on"]
+        if state == self._config[CONF_STATE_ON].lower() or state in possible_on_states:
             self._is_on = True
-        elif state == self._config[CONF_STATE_OFF].lower():
-            self._is_on = False
         else:
-            self.warning(
-                "State for entity %s did not match state patterns", self.entity_id
-            )
+            self._is_on = False
 
     # No need to restore state for a sensor
     async def restore_state_when_connected(self):
@@ -72,5 +66,5 @@ class LocaltuyaBinarySensor(LocalTuyaEntity, BinarySensorEntity):
 
 
 async_setup_entry = partial(
-    async_setup_entry, DOMAIN, LocaltuyaBinarySensor, flow_schema
+    async_setup_entry, DOMAIN, LocalTuyaBinarySensor, flow_schema
 )

@@ -1,0 +1,11 @@
+{
+  "domain": "hassarr",
+  "name": "Hassarr",
+  "version": "0.2.0",
+  "documentation": "https://github.com/TegridyTate/Hassarr",
+  "issue_tracker": "https://github.com/TegridyTate/Hassarr/issues",
+  "requirements": [],
+  "dependencies": [],
+  "codeowners": ["@TegridyTate"],
+  "config_flow": true
+}
