@@ -1,0 +1,49 @@
+- switch:
+    friendly_name: Diffuser
+    entity_category: None
+    restore_on_reconnect: false
+    is_passive_entity: false
+    id: '1'
+    platform: switch
+    icon: ''
+- light:
+    friendly_name: Light
+    entity_category: None
+    brightness: '111'
+    brightness_lower: 0
+    brightness_upper: 1000
+    color_mode: '109'
+    color_mode_set: '0'
+    color: '108'
+    color_temp_min_kelvin: 2700
+    color_temp_max_kelvin: 6500
+    color_temp_reverse: false
+    scene: '109'
+    scene_values: {}
+    music_mode: false
+    id: '11'
+    platform: light
+    icon: ''
+- select:
+    friendly_name: Mist Mode
+    entity_category: config
+    select_options:
+      big: High
+      small: Low
+    restore_on_reconnect: false
+    is_passive_entity: false
+    id: '103'
+    platform: select
+    icon: ''
+- select:
+    friendly_name: Light Mode
+    entity_category: config
+    select_options:
+      '1': Gradient
+      '2': Fixed
+      '3': Night Light
+    restore_on_reconnect: false
+    is_passive_entity: false
+    id: '110'
+    platform: select
+    icon: ''

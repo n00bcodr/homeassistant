@@ -292,6 +292,11 @@
             "battery_quantity": 2
         },
         {
+            "manufacturer": "_TZ3000_yj6k7vfo",
+            "model": "TS0041",
+            "battery_type": "CR2032"
+        },
+        {
             "manufacturer": "_TZ3000_ywagc4rj",
             "model": "TS0201",
             "battery_type": "CR2032"
@@ -362,6 +367,11 @@
             "model": "TS0601",
             "battery_type": "AA",
             "battery_quantity": 2
+        },
+        {
+            "manufacturer": "_TZE200_bh3n6gk8",
+            "model": "TS0601",
+            "battery_type": "CR2450"
         },
         {
             "manufacturer": "_TZE200_bjawzodf",
@@ -645,6 +655,12 @@
         },
         {
             "manufacturer": "Airthings",
+            "model": "Wave",
+            "battery_type": "AA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "Airthings",
             "model": "Wave Plus",
             "battery_type": "AA",
             "battery_quantity": 2
@@ -863,7 +879,21 @@
         },
         {
             "manufacturer": "Aqara",
+            "model": "Door and window sensor",
+            "model_id": "MCCGQ11LM",
+            "hw_version": "2",
+            "battery_type": "CR1632"
+        },
+        {
+            "manufacturer": "Aqara",
             "model": "Door and window sensor (MCCGQ11LM)",
+            "battery_type": "CR1632"
+        },
+        {
+            "manufacturer": "Aqara",
+            "model": "Door and window sensor E1",
+            "model_id": "MCCGQ14LM",
+            "hw_version": "0",
             "battery_type": "CR1632"
         },
         {
@@ -917,6 +947,14 @@
         },
         {
             "manufacturer": "Aqara",
+            "model": "Motion sensor P1",
+            "model_id": "RTCGQ14LM",
+            "hw_version": "1",
+            "battery_type": "CR2450",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "Aqara",
             "model": "Motion sensor P1 (RTCGQ14LM)",
             "battery_type": "CR2450",
             "battery_quantity": 2
@@ -953,6 +991,13 @@
         },
         {
             "manufacturer": "Aqara",
+            "model": "Radiator Thermostat E1",
+            "model_id": "SRTS-A01",
+            "battery_type": "AA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "Aqara",
             "model": "Roller shade driver E1",
             "model_id": "ZNJLBL01LM",
             "battery_type": "Rechargeable"
@@ -976,9 +1021,29 @@
         },
         {
             "manufacturer": "Aqara",
+            "model": "Smart Lock U200",
+            "model_id": "10242",
+            "hw_version": "1.0.0.0",
+            "battery_type": "Rechargeable"
+        },
+        {
+            "manufacturer": "Aqara",
             "model": "Smart radiator thermostat E1 (SRTS-A01)",
             "battery_type": "AA",
             "battery_quantity": 2
+        },
+        {
+            "manufacturer": "Aqara",
+            "model": "Smart smoke detector",
+            "model_id": "JY-GZ-01AQ",
+            "battery_type": "CR17450"
+        },
+        {
+            "manufacturer": "Aqara",
+            "model": "Smart smoke detector",
+            "model_id": "JY-GZ-01AQ",
+            "hw_version": "1",
+            "battery_type": "CR17450"
         },
         {
             "manufacturer": "Aqara",
@@ -990,6 +1055,13 @@
             "model": "SRTS-A01",
             "battery_type": "AA",
             "battery_quantity": 2
+        },
+        {
+            "manufacturer": "Aqara",
+            "model": "SVD-C02",
+            "hw_version": "1.1",
+            "battery_type": "AA",
+            "battery_quantity": 6
         },
         {
             "manufacturer": "Aqara",
@@ -1005,13 +1077,39 @@
         },
         {
             "manufacturer": "Aqara",
+            "model": "Temperature and humidity sensor T1 (WSDCGQ12LM)",
+            "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "Aqara",
+            "model": "TVOC air quality monitor",
+            "model_id": "VOCKQJK11LM",
+            "hw_version": "2020www",
+            "battery_type": "CR2450",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "Aqara",
             "model": "TVOC air quality monitor (VOCKQJK11LM)",
             "battery_type": "CR2450",
             "battery_quantity": 2
         },
         {
             "manufacturer": "Aqara",
+            "model": "U200",
+            "model_id": "Aqara Smart Lock U200 (10242)",
+            "hw_version": "1.0.0.0",
+            "battery_type": "Rechargable"
+        },
+        {
+            "manufacturer": "Aqara",
             "model": "Vibration sensor (DJT11LM)",
+            "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "Aqara",
+            "model": "Water leak sensor",
+            "model_id": "SJCGQ11LM",
             "battery_type": "CR2032"
         },
         {
@@ -1251,7 +1349,7 @@
         {
             "manufacturer": "AVATTO",
             "model": "ME167",
-            "battery_type": "AAA",
+            "battery_type": "AA",
             "battery_quantity": 2
         },
         {
@@ -1294,6 +1392,38 @@
             "model": "FRITZ!DECT 440",
             "battery_type": "AAA",
             "battery_quantity": 2
+        },
+        {
+            "manufacturer": "AVM",
+            "model": "FRITZ!Smart Control 350",
+            "battery_type": "AAA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "AVM",
+            "model": "FRITZ!Smart Control 440",
+            "battery_type": "AAA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "AVM",
+            "model": "FRITZ!Smart Thermo 301",
+            "hw_version": "5.21",
+            "battery_type": "AA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "AVM",
+            "model": "FRITZ!Smart Thermo 302",
+            "battery_type": "AA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "AVM",
+            "model": "FRITZ!Smart Thermo 302",
+            "hw_version": "5.26",
+            "battery_type": "AA",
+            "battery_quantity": 3
         },
         {
             "manufacturer": "Blueforcer",
@@ -1373,6 +1503,40 @@
         },
         {
             "manufacturer": "BOSCH",
+            "model": "SMOKE_DETECTOR2",
+            "battery_type": "CR17450"
+        },
+        {
+            "manufacturer": "BOSCH",
+            "model": "SWD",
+            "battery_type": "AAA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "BOSCH",
+            "model": "SWD2",
+            "battery_type": "CR123A"
+        },
+        {
+            "manufacturer": "BOSCH",
+            "model": "THB",
+            "battery_type": "AAA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "BOSCH",
+            "model": "TRV",
+            "battery_type": "AA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "BOSCH",
+            "model": "TRV_GEN2",
+            "battery_type": "AA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "BOSCH",
             "model": "TWINGUARD",
             "battery_type": "AA",
             "battery_quantity": 6
@@ -1382,6 +1546,18 @@
             "model": "Twinguard (8750001213)",
             "battery_type": "AA",
             "battery_quantity": 6
+        },
+        {
+            "manufacturer": "BOSCH",
+            "model": "WLS",
+            "battery_type": "AAA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "BOSCH",
+            "model": "WRC2",
+            "battery_type": "AAA",
+            "battery_quantity": 2
         },
         {
             "manufacturer": "BRK Brands, Inc.",
@@ -1835,6 +2011,12 @@
         },
         {
             "manufacturer": "eQ-3",
+            "model": "HM-PB-2-FM",
+            "battery_type": "AAA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "eQ-3",
             "model": "HM-PB-2-WM55",
             "battery_type": "AAA",
             "battery_quantity": 2
@@ -1876,6 +2058,12 @@
             "manufacturer": "eQ-3",
             "model": "HM-SCI-3-FM",
             "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "eQ-3",
+            "model": "HM-Sec-Key",
+            "battery_type": "AA",
+            "battery_quantity": 3
         },
         {
             "manufacturer": "eQ-3",
@@ -1976,6 +2164,12 @@
         },
         {
             "manufacturer": "eQ-3",
+            "model": "HM-WDS40-TH-I",
+            "battery_type": "AA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "eQ-3",
             "model": "HM-WDS40-TH-I-2",
             "battery_type": "AA",
             "battery_quantity": 2
@@ -2000,6 +2194,12 @@
         },
         {
             "manufacturer": "eQ-3",
+            "model": "HmIP-ESI",
+            "battery_type": "AA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "eQ-3",
             "model": "HMIP-eTRV",
             "battery_type": "AA",
             "battery_quantity": 2
@@ -2019,6 +2219,12 @@
         {
             "manufacturer": "eQ-3",
             "model": "HMIP-eTRV-B",
+            "battery_type": "AA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "eQ-3",
+            "model": "HmIP-eTRV-B-2 R4M",
             "battery_type": "AA",
             "battery_quantity": 2
         },
@@ -2111,6 +2317,18 @@
         },
         {
             "manufacturer": "eQ-3",
+            "model": "HmIP-SMO-A",
+            "battery_type": "AA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "eQ-3",
+            "model": "HmIP-SMO-A-2",
+            "battery_type": "AA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "eQ-3",
             "model": "HmIP-SPI",
             "battery_type": "AA",
             "battery_quantity": 2
@@ -2130,6 +2348,18 @@
             "manufacturer": "eQ-3",
             "model": "HmIP-STHD",
             "battery_type": "AAA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "eQ-3",
+            "model": "HmIP-STHO",
+            "battery_type": "AA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "eQ-3",
+            "model": "HmIP-STHO-A",
+            "battery_type": "AA",
             "battery_quantity": 2
         },
         {
@@ -2218,6 +2448,18 @@
             "manufacturer": "eQ-3",
             "model": "HmIP-WTH-2",
             "battery_type": "AAA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "eQ-3",
+            "model": "HmIP-WTH-B-2",
+            "battery_type": "AA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "eQ-3",
+            "model": "M-WDS40-TH-I",
+            "battery_type": "AA",
             "battery_quantity": 2
         },
         {
@@ -2377,6 +2619,13 @@
         },
         {
             "manufacturer": "eWeLink",
+            "model": "Contact sensor",
+            "model_id": "SNZB-04",
+            "hw_version": "0",
+            "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "eWeLink",
             "model": "DS01",
             "battery_type": "CR2032"
         },
@@ -2404,6 +2653,11 @@
             "manufacturer": "eWeLink",
             "model": "SNZB-03",
             "battery_type": "CR2450"
+        },
+        {
+            "manufacturer": "eWeLink",
+            "model": "SNZB-03P",
+            "battery_type": "CR2477"
         },
         {
             "manufacturer": "eWeLink",
@@ -2684,7 +2938,16 @@
         {
             "manufacturer": "Google",
             "model": "Topaz-2.7",
-            "battery_type": "MANUAL"
+            "hw_version": "Battery",
+            "battery_type": "AA",
+            "battery_quantity": 6
+        },
+        {
+            "manufacturer": "Google",
+            "model": "Topaz-2.7",
+            "hw_version": "Wired",
+            "battery_type": "AA",
+            "battery_quantity": 3
         },
         {
             "manufacturer": "Google",
@@ -3191,6 +3454,13 @@
         },
         {
             "manufacturer": "IKEA",
+            "model": "TRADFRI remote control",
+            "model_id": "E1524/E1810",
+            "hw_version": "1",
+            "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "IKEA",
             "model": "TRADFRI remote control (E1524/E1810)",
             "battery_type": "CR2032"
         },
@@ -3221,6 +3491,14 @@
             "manufacturer": "Ikea",
             "model": "TREDANSEN cellular blind (E2103)",
             "battery_type": "Rechargeable"
+        },
+        {
+            "manufacturer": "IKEA",
+            "model": "VALLHORN wireless motion sensor",
+            "model_id": "E2134",
+            "hw_version": "1",
+            "battery_type": "AAA",
+            "battery_quantity": 2
         },
         {
             "manufacturer": "IKEA",
@@ -3553,6 +3831,13 @@
             "manufacturer": "Leedarson",
             "model": "4-Key Remote Controller (6ARCZABZH)",
             "battery_type": "CR2450"
+        },
+        {
+            "manufacturer": "Legrand",
+            "model": "Wireless double remote switch",
+            "model_id": "067774",
+            "hw_version": "V3",
+            "battery_type": "CR2032"
         },
         {
             "manufacturer": "Lidl",
@@ -3902,6 +4187,11 @@
         },
         {
             "manufacturer": "Moes",
+            "model": "Light sensor (ZSS-QT-LS-C)",
+            "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "Moes",
             "model": "Smart door and window sensor (ZSS-JM-GWM-C-MS)",
             "model_id": "_TZ3000_decxrtwa",
             "battery_type": "CR2032"
@@ -4102,6 +4392,13 @@
             "battery_quantity": 2
         },
         {
+            "manufacturer": "Nous",
+            "model": "Temperature and humidity sensor with clock",
+            "model_id": "SZ-T04",
+            "battery_type": "AAA",
+            "battery_quantity": 3
+        },
+        {
             "manufacturer": "NUKI",
             "model": "Nuki Door Sensor",
             "battery_type": "LS14250"
@@ -4171,6 +4468,21 @@
         {
             "manufacturer": "Oculus",
             "model": "Quest",
+            "battery_type": "Rechargeable"
+        },
+        {
+            "manufacturer": "OnePlus",
+            "model": "BE2026",
+            "battery_type": "Rechargeable"
+        },
+        {
+            "manufacturer": "OnePlus",
+            "model": "CPH2451",
+            "battery_type": "Rechargeable"
+        },
+        {
+            "manufacturer": "OnePlus",
+            "model": "ONEPLUS A6003",
             "battery_type": "Rechargeable"
         },
         {
@@ -4348,6 +4660,12 @@
         },
         {
             "manufacturer": "Philips",
+            "model": "Hue dimmer switch",
+            "model_id": "324131092621",
+            "battery_type": "CR2450"
+        },
+        {
+            "manufacturer": "Philips",
             "model": "Hue dimmer switch (324131092621)",
             "battery_type": "CR2450"
         },
@@ -4455,6 +4773,11 @@
             "manufacturer": "PLab",
             "model": "HomeButtons",
             "battery_type": "18650"
+        },
+        {
+            "manufacturer": "PLAID SYSTEMS",
+            "model": "Spruce temperature and moisture sensor (PS-SPRZMS-SLP3)",
+            "battery_type": "CR123"
         },
         {
             "manufacturer": "plant",
@@ -4694,6 +5017,12 @@
         },
         {
             "manufacturer": "rtl_433",
+            "model": "Nexus-TH",
+            "battery_type": "AAA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "rtl_433",
             "model": "Oregon-THGR122N",
             "battery_type": "AAA",
             "battery_quantity": 2
@@ -4790,6 +5119,11 @@
         },
         {
             "manufacturer": "samsung",
+            "model": "SM-G996B",
+            "battery_type": "Rechargeable"
+        },
+        {
+            "manufacturer": "samsung",
             "model": "SM-G998U",
             "battery_type": "Rechargeable"
         },
@@ -4836,6 +5170,11 @@
         {
             "manufacturer": "Samsung",
             "model": "SM-T825",
+            "battery_type": "Rechargeable"
+        },
+        {
+            "manufacturer": "samsung",
+            "model": "SM-X200",
             "battery_type": "Rechargeable"
         },
         {
@@ -5172,6 +5511,13 @@
             "battery_quantity": 2
         },
         {
+            "manufacturer": "SilverCrest",
+            "model": "Window and Door Sensor",
+            "model_id": "TY0203",
+            "battery_type": "AAA",
+            "battery_quantity": 2
+        },
+        {
             "manufacturer": "Simplisafe",
             "model": "Alarm control panel",
             "battery_type": "AA",
@@ -5412,6 +5758,12 @@
         },
         {
             "manufacturer": "Sonoff",
+            "model": "Contact Sensor",
+            "model_id": "SNZB-04P",
+            "battery_type": "CR2477"
+        },
+        {
+            "manufacturer": "Sonoff",
             "model": "Contact sensor (SNZB-04)",
             "battery_type": "CR2032"
         },
@@ -5465,6 +5817,11 @@
             "battery_type": "CR2477"
         },
         {
+            "manufacturer": "Sonoff",
+            "model": "SNZB-03",
+            "battery_type": "CR2032"
+        },
+        {
             "manufacturer": "SONOFF",
             "model": "SNZB-04",
             "battery_type": "AAA",
@@ -5472,8 +5829,20 @@
         },
         {
             "manufacturer": "Sonoff",
+            "model": "SNZB-04P",
+            "battery_type": "CR2477"
+        },
+        {
+            "manufacturer": "Sonoff",
             "model": "SNZB-05P",
             "battery_type": "CR2477"
+        },
+        {
+            "manufacturer": "Sonoff",
+            "model": "Temperature and humidity sensor",
+            "model_id": "SNZB-02",
+            "hw_version": "1",
+            "battery_type": "CR2450"
         },
         {
             "manufacturer": "Sonoff",
@@ -5486,6 +5855,12 @@
             "battery_type": "CR2477"
         },
         {
+            "manufacturer": "Sonoff",
+            "model": "Temperature and humidity sensor with screen",
+            "model_id": "SNZB-02D",
+            "battery_type": "CR2450"
+        },
+        {
             "manufacturer": "SONOFF",
             "model": "Temperature and humidity sensor with screen (SNZB-02D)",
             "battery_type": "CR2450"
@@ -5495,6 +5870,12 @@
             "model": "TRVZB",
             "battery_type": "AA",
             "battery_quantity": 3
+        },
+        {
+            "manufacturer": "SONOFF",
+            "model": "Wireless Button",
+            "model_id": "SNZB-01P",
+            "battery_type": "CR2477"
         },
         {
             "manufacturer": "SONOFF",
@@ -5513,14 +5894,41 @@
         },
         {
             "manufacturer": "SONOFF",
+            "model": "Zigbee PIR sensor",
+            "model_id": "SBZB-03P",
+            "battery_type": "CR2477"
+        },
+        {
+            "manufacturer": "SONOFF",
             "model": "Zigbee PIR sensor (SNZB-03P)",
             "battery_type": "CR2477"
+        },
+        {
+            "manufacturer": "SONOFF",
+            "model": "Zigbee smart water valve",
+            "model_id": "SWV",
+            "hw_version": "16",
+            "battery_type": "AA",
+            "battery_quantity": 4
+        },
+        {
+            "manufacturer": "SONOFF",
+            "model": "Zigbee thermostatic radiator valve",
+            "model_id": "TRVZB",
+            "battery_type": "AA",
+            "battery_quantity": 3
         },
         {
             "manufacturer": "SONOFF",
             "model": "Zigbee thermostatic radiator valve (TRVZB)",
             "battery_type": "AA",
             "battery_quantity": 3
+        },
+        {
+            "manufacturer": "Sonoff",
+            "model": "Zigbee water sensor",
+            "model_id": "SNZB-05P",
+            "battery_type": "CR2477"
         },
         {
             "manufacturer": "Sonos",
@@ -5600,6 +6008,13 @@
             "manufacturer": "SwitchBot",
             "model": "MeterPlus",
             "battery_type": "AAA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "SwitchBot",
+            "model": "Smart Lock Pro",
+            "hw_version": "V2.3",
+            "battery_type": "Recharchable",
             "battery_quantity": 2
         },
         {
@@ -5906,6 +6321,11 @@
             "battery_quantity": 2
         },
         {
+            "manufacturer": "Tractive GmbH",
+            "model": "TRNJA4",
+            "battery_type": "Rechargeable"
+        },
+        {
             "manufacturer": "Trust",
             "model": "COSensor-EM",
             "battery_type": "CR123A"
@@ -6056,6 +6476,14 @@
             "manufacturer": "TuYa",
             "model": "Button scene switch (SH-SC07)",
             "battery_type": "CR2450"
+        },
+        {
+            "manufacturer": "Tuya",
+            "model": "Contact sensor",
+            "model_id": "WL-19DWZ",
+            "hw_version": "0",
+            "battery_type": "AAA",
+            "battery_quantity": 2
         },
         {
             "manufacturer": "Tuya",
@@ -6223,6 +6651,13 @@
             "battery_quantity": 2
         },
         {
+            "manufacturer": "Tuya",
+            "model": "Photoelectric smoke detector",
+            "model_id": "PA-44Z",
+            "hw_version": "1",
+            "battery_type": "E"
+        },
+        {
             "manufacturer": "TuYa",
             "model": "Photoelectric smoke detector (PA-44Z)",
             "battery_type": "PP3"
@@ -6362,6 +6797,13 @@
             "battery_quantity": 2
         },
         {
+            "manufacturer": "Tuya",
+            "model": "Smoke sensor",
+            "model_id": "TS0601_smoke_4",
+            "hw_version": "1",
+            "battery_type": "CR2"
+        },
+        {
             "manufacturer": "TuYa",
             "model": "Smoke sensor (TS0205)",
             "battery_type": "CR123"
@@ -6416,8 +6858,20 @@
             "battery_type": "CR2032"
         },
         {
+            "manufacturer": "Tuya",
+            "model": "Temperature & humidity sensor",
+            "model_id": "WSD500A",
+            "battery_type": "AAA",
+            "battery_quantity": 2
+        },
+        {
             "manufacturer": "TuYa",
             "model": "Temperature & humidity sensor (IH-K009)",
+            "battery_type": "CR2450"
+        },
+        {
+            "manufacturer": "Tuya",
+            "model": "Temperature & humidity sensor (TT001ZAV20)",
             "battery_type": "CR2450"
         },
         {
@@ -6459,6 +6913,13 @@
             "model_id": "ZG-227Z",
             "battery_type": "AAA",
             "battery_quantity": 2
+        },
+        {
+            "manufacturer": "Tuya",
+            "model": "Temperature and humidity sensor",
+            "model_id": "ZG-227Z",
+            "hw_version": "1",
+            "battery_type": "CR2032"
         },
         {
             "manufacturer": "Tuya",
@@ -6536,6 +6997,14 @@
             "model": "Thermostat radiator valve (TV02-Zigbee)",
             "battery_type": "AA",
             "battery_quantity": 2
+        },
+        {
+            "manufacturer": "Tuya",
+            "model": "Thermostatic radiator valve.",
+            "model_id": "TRV602Z",
+            "hw_version": "1",
+            "battery_type": "AA",
+            "battery_quantity": 3
         },
         {
             "manufacturer": "TuYa",
@@ -6734,6 +7203,12 @@
             "battery_quantity": 2
         },
         {
+            "manufacturer": "Tuya",
+            "model": "Zigbee fingerbot plus",
+            "model_id": "TS0001",
+            "battery_type": "CR2"
+        },
+        {
             "manufacturer": "TuYa",
             "model": "Zigbee fingerbot plus (TS0001_fingerbot)",
             "battery_type": "CR2"
@@ -6826,6 +7301,13 @@
             "manufacturer": "unk_manufacturer",
             "model": "lumi.remote.b28ac1",
             "battery_type": "CR2450"
+        },
+        {
+            "manufacturer": "Varta",
+            "model": "Zigbee Temp\u00e9rature Humidit\u00e9",
+            "model_id": "WSD500A",
+            "battery_type": "AAA",
+            "battery_quantity": 2
         },
         {
             "manufacturer": "Verisure",

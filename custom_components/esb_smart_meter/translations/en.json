@@ -1,0 +1,6 @@
+{
+  "title": "ESB Smart Meter",
+  "error_mprn_exists": "This MPRN is already configured.",
+  "error_connection_error": "There was an error connecting to the ESB Smart Meter service.",
+  "error_fetching_data": "Error fetching data: {error}"
+}
