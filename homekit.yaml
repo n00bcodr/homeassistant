@@ -16,21 +16,24 @@
       - sensor.hygrometer_humidity
       - sensor.kitchen_temperature_and_humidity_humidity
       - sensor.kitchen_temperature_and_humidity_temperature
-      - light.light
       - light.living_room_lamp
       - light.chandelier
-      - light.guest_lamp
       - light.led_strip
       - light.shapes
+      - light.light
       - light.lamp
+      - light.guest_bed_light
+      - light.guest_light
       - light.tv_led_strip
+      - light.hallway_chandelier
+      - light.kitchen_light
+      - light.backyard_lights
+      - light.porch_light
+      - light.string_lights
+      - light.alleyway_lights
       - media_player.google_tv
       - media_player.google_tv_streamer
       - cover.curtains
-      - switch.string_lights
-      - switch.kitchen_light
-      - switch.alleyway_lights
-      - switch.backyard_lights
       - switch.workstation
       - switch.charger
       - switch.diffuser
@@ -38,8 +41,6 @@
       - switch.boiler
       - switch.bed_warmer
       - switch.kettle
-      - switch.porch_light
-      - switch.hallway_chandelier
       - switch.christmas_lights
       - climate.heater
 
@@ -119,11 +120,17 @@
     sensor.living_room_humidity:
       name: Living Room Humidity
 
-    switch.backyard_lights:
-      name: Backyard String Lights
+    switch.christmas_lights:
+      name: Christmas Lights
 
     switch.heating:
       name: Heating
+
+    light.backyard_lights:
+      name: Backyard String Lights
+
+    light.string_lights:
+      name: Hallway String Lights
 
     light.shapes:
       name: Shapes
@@ -131,11 +138,11 @@
     light.lamp:
       name: Bed Lamp
 
-    switch.porch_light:
+    light.porch_light:
       name: Porch Light
 
-    switch.hallway_chandelier:
-      name: Chandelier
+    light.hallway_chandelier:
+      name: Hallway Chandelier
 
     media_player.google_tv:
       feature_list:

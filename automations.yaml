@@ -1278,16 +1278,23 @@
         target:
           entity_id: automation.tag_desk_is_scanned
         enabled: true
+      - action: switch.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.docker_chromium
     - conditions:
       - condition: and
         conditions:
         - condition: time
           after: '15:00:00'
           before: '18:00:00'
-        - condition: state
-          entity_id: person.pavanthanuj
-          state: Work
       sequence:
+      - action: switch.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.docker_chromium
       - action: notify.mobile_app_pixel8pro
         data:
           message: command_activity
@@ -1300,7 +1307,7 @@
           zone: zone.home
           event: enter
           trigger: zone
-        continue_on_timeout: true
+        continue_on_timeout: false
         enabled: true
       - action: automation.trigger
         data:
@@ -1530,10 +1537,11 @@
       - alias: Send Notification
         action: notify.mobile_app_pixel8pro
         data:
-          message: Shhh..
           data:
             notification_icon: mdi:vibrate
             timeout: 60
+          message: ' '
+          title: "\U0001F92B Shhh.."
     - conditions:
       - condition: and
         conditions:
@@ -1576,24 +1584,24 @@
 - id: '1700567569365'
   alias: "\U0001F6AE\U0001F4F3Is the Bin Outside?"
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - binary_sensor.back_door_contact
     from: 'off'
     to: 'on'
-  - platform: event
-    event_type: mobile_app_notification_action
+    trigger: state
+  - event_type: mobile_app_notification_action
     event_data:
       action: BIN_OUT
-  condition: []
-  action:
+    trigger: event
+  conditions: []
+  actions:
   - choose:
     - conditions:
       - condition: and
         conditions:
         - condition: time
-          after: '21:00:00'
+          after: '18:00:00'
           before: 02:00:00
         - condition: or
           conditions:
@@ -1623,14 +1631,12 @@
           message: ' '
           title: The bin is outside.
     - conditions:
-      - condition: or
-        conditions:
-        - condition: template
-          value_template: '{{(state_attr("sensor.blue_bin", "next_collection")) !=
-            0 }}'
-        - condition: template
-          value_template: '{{(state_attr("sensor.black_bin", "next_collection")) !=
-            0 }}'
+      - condition: template
+        value_template: "{% set black_next_collection = state_attr('sensor.black_bin',\n'next_collection')
+          %} {% set blue_next_collection =\nstate_attr('sensor.blue_bin', 'next_collection')
+          %}\n\n{% if black_next_collection < blue_next_collection %}\n  {{(state_attr(\"sensor.black_bin\",
+          \"next_collection\")) >= 2 }}\n{% else %}\n  {{(state_attr(\"sensor.blue_bin\",
+          \"next_collection\")) >= 2 }}\n{% endif %}\n"
       sequence:
       - action: input_boolean.turn_off
         target:
@@ -2503,6 +2509,7 @@
         seconds: 0
         milliseconds: 0
       continue_on_timeout: false
+      enabled: false
     - choose:
       - conditions:
         - condition: trigger
@@ -2544,6 +2551,7 @@
             data:
               notification_icon: mdi:movie-check
               image: '{{ state_attr( "sensor.jellyfin_movies", "data")[1].fanart}}'
+      enabled: false
   mode: queued
   max: 10
 - id: '1725362683046'
@@ -2700,4 +2708,58 @@
   - action: hassarr.add_radarr_movie
     data:
       title: '{{ trigger.slots.title }}'
+  mode: single
+- id: '1736711298193'
+  alias: Guest Button
+  description: ''
+  triggers:
+  - domain: mqtt
+    device_id: 0f7674241f0842e51cb6ba901f3f0604
+    type: action
+    subtype: 'on'
+    trigger: device
+    id: single
+  - domain: mqtt
+    device_id: 0f7674241f0842e51cb6ba901f3f0604
+    type: action
+    subtype: 'off'
+    id: double
+    trigger: device
+  - domain: mqtt
+    device_id: 0f7674241f0842e51cb6ba901f3f0604
+    type: action
+    subtype: brightness_stop
+    trigger: device
+    id: hold
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - single
+      sequence:
+      - action: homeassistant.toggle
+        data: {}
+        target:
+          entity_id: light.guest_light
+    - conditions:
+      - condition: trigger
+        id:
+        - double
+      sequence:
+      - action: homeassistant.toggle
+        data: {}
+        target:
+          entity_id: light.guest_bed_light
+    - conditions:
+      - condition: trigger
+        id:
+        - hold
+      sequence:
+      - action: homeassistant.toggle
+        data: {}
+        target:
+          entity_id: switch.heating_blanket
+        enabled: false
   mode: single

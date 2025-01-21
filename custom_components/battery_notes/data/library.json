@@ -2194,6 +2194,11 @@
         },
         {
             "manufacturer": "eQ-3",
+            "model": "HmIP-DLS",
+            "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "eQ-3",
             "model": "HmIP-ESI",
             "battery_type": "AA",
             "battery_quantity": 2
@@ -2419,6 +2424,12 @@
             "model": "HmIP-SWO-PR",
             "battery_type": "AA",
             "battery_quantity": 3
+        },
+        {
+            "manufacturer": "eQ-3",
+            "model": "HmIP-WGC",
+            "battery_type": "AA",
+            "battery_quantity": 2
         },
         {
             "manufacturer": "eQ-3",
@@ -7178,6 +7189,13 @@
             "manufacturer": "TuYa",
             "model": "Wireless switch with 6 buttons (TS0046)",
             "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "Tuya",
+            "model": "WX1 Tap Timer (unsupported)",
+            "model_id": "(zrsgzc8jktsricjj)",
+            "battery_type": "AA",
+            "battery_quantity": 4
         },
         {
             "manufacturer": "Tuya",

@@ -9,7 +9,7 @@
             as_timestamp(states.sensor.vibration_angle_x.last_changed),
             as_timestamp(states.sensor.vibration_angle_y.last_changed),
             as_timestamp(states.sensor.vibration_angle_z.last_changed)
-          ) > (as_timestamp(now()) - 30) or is_state('binary_sensor.vibration_vibration', 'on') or not is_state('sensor.vibration_action', 'unknown')
+          ) > (as_timestamp(now()) - 30) or is_state('binary_sensor.vibration_vibration', 'on')
         }}
       icon_template: "{{ iif(is_state('binary_sensor.chair_occupancy', 'on'), 'mdi:table-chair', 'mdi:account-off') }}"
       availability_template: "{{states.binary_sensor.vibration_vibration.state != 'unavailable'}}"
