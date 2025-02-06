@@ -2182,13 +2182,18 @@ var TSMoonCard = (function (exports) {
             this.language = "en";
             this.entity = "";
             this.time_format = "24h";
+            this.hemisphere = "N";
             this.home_latitude = 0;
             this.home_longitude = 0;
         }
-        renderIcon(svg_icon_code) {
+        renderIcon(svg_icon_code, p_hemisphere) {
+            var lv_style = '';
+            if (p_hemisphere == 'S') {
+                lv_style = 'transform: rotate(180deg);';
+            }
             return x `
             <div class="icon">
-                <img class="moon-img-svg" src=${svg_icon_code} />
+                <img class="moon-img-svg" src=${svg_icon_code} style=${lv_style} />
             </div>
         `;
         }
@@ -2251,13 +2256,14 @@ var TSMoonCard = (function (exports) {
          * @param config Card configuration (yaml converted to JSON)
          */
         setConfig(config) {
-            var _a, _b, _c, _d, _e;
+            var _a, _b, _c, _d, _e, _f;
             this._config = Object.assign({}, config);
             this.entity = (_a = config.entity) !== null && _a !== undefined ? _a : this.entity;
             this.cardTitle = (_b = config.title) !== null && _b !== undefined ? _b : this.cardTitle;
             this.icon_type = (_c = config.icon_type) !== null && _c !== undefined ? _c : 'forms';
             this.language = (_d = config.language) !== null && _d !== undefined ? _d : 'fr';
             this.time_format = (_e = config.time_format) !== null && _e !== undefined ? _e : '24h';
+            this.hemisphere = (_f = config.hemisphere) !== null && _f !== undefined ? _f : '24h';
         }
         /**
          * Renders the card when the update is requested (when any of the properties are changed)
@@ -2298,7 +2304,7 @@ var TSMoonCard = (function (exports) {
             </div>
             <div class="card-content">
                 <div class="entity-row">
-                    ${this.renderIcon(lc_moonIcon)}
+                    ${this.renderIcon(lc_moonIcon, this.hemisphere)}
                     <div class="name truncate">
                     <span class="primary">${this.localize(`card.moon_phase`)}</span>
                         <div class="secondary">
@@ -2335,6 +2341,9 @@ var TSMoonCard = (function (exports) {
     ], TSMoonCard.prototype, "time_format", undefined);
     __decorate([
         n({ attribute: false })
+    ], TSMoonCard.prototype, "hemisphere", undefined);
+    __decorate([
+        n({ attribute: false })
     ], TSMoonCard.prototype, "home_latitude", undefined);
     __decorate([
         n({ attribute: false })
@@ -2344,7 +2353,7 @@ var TSMoonCard = (function (exports) {
     ], TSMoonCard.prototype, "_config", undefined);
 
     var name = "ha-tsmoon-card";
-    var version = "v0.9.12";
+    var version = "v0.10.1";
 
     const printVersionToConsole = () => console.info(`%c  ${name.toUpperCase()}  %c  Version ${version}  `, 'color: white; font-weight: bold; background: crimson', 'color: #000; font-weight: bold; background: #ddd');
     // This puts your card into the UI card picker dialog
