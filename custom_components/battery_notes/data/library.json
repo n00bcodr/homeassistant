@@ -2129,6 +2129,11 @@
         },
         {
             "manufacturer": "eQ-3",
+            "model": "HM-RC-Key4-2",
+            "battery_type": "AAA"
+        },
+        {
+            "manufacturer": "eQ-3",
             "model": "HM-RC-Key4-3",
             "battery_type": "AAA"
         },
@@ -2285,6 +2290,12 @@
             "manufacturer": "eQ-3",
             "model": "HmIP-DLS",
             "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "eQ-3",
+            "model": "HmIP-DSD-PCB",
+            "battery_type": "AAA",
+            "battery_quantity": 2
         },
         {
             "manufacturer": "eQ-3",
@@ -3753,6 +3764,12 @@
             "manufacturer": "Ikea",
             "model": "TREDANSEN cellular blind (E2103)",
             "battery_type": "Rechargeable"
+        },
+        {
+            "manufacturer": "IKEA",
+            "model": "TREDANSEN cellular blind, block-out (E2103)",
+            "model_id": "E2103",
+            "battery_type": "BRAUNIT"
         },
         {
             "manufacturer": "IKEA",
