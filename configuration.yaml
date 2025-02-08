@@ -7,13 +7,12 @@ homeassistant:
     - /config/
     - /media/
   whitelist_external_dirs:
-    - '/share'
+    - "/share"
 
 http:
   use_x_forwarded_for: true
   trusted_proxies:
     - !secret trusted_ip
-
 
 logger:
   default: critical
@@ -35,11 +34,10 @@ rest_command: !include rest_commands.yaml
 scene: !include scenes.yaml
 script: !include scripts.yaml
 shell_command: !include shell_command.yaml
-sensor: !include sensor.yaml
+sensor: !include_dir_merge_list sensors
 template: !include template.yaml
 monitor_docker: !include monitor_docker.yaml
 media_player: !include mediaplayer.yaml
-
 tts:
   - platform: google_translate
 
@@ -77,4 +75,3 @@ telegram_bot:
       - !secret telegram_chat_id
       - !secret telegram_chat_id_atm
       - !secret telegram_chat_id_ch
-

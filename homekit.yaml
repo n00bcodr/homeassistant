@@ -35,13 +35,12 @@
       - media_player.google_tv_streamer
       - cover.curtains
       - switch.workstation
-      - switch.charger
       - switch.diffuser
       - switch.heating
       - switch.boiler
       - switch.bed_warmer
       - switch.kettle
-      - switch.christmas_lights
+      - switch.panel_heater
       - climate.heater
 
   #Configure Each Entity
@@ -120,8 +119,8 @@
     sensor.living_room_humidity:
       name: Living Room Humidity
 
-    switch.christmas_lights:
-      name: Christmas Lights
+    switch.panel_heater:
+      name: Panel Heater
 
     switch.heating:
       name: Heating

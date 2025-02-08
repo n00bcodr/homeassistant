@@ -10,6 +10,7 @@
 *.DS_Store*
 *pickle
 *tools/
+!sensors/sensor.yaml
 
 # Ignore folders.
 .storage
@@ -38,8 +39,8 @@ www/upcoming-media-card*
 # Ensure these YAML files are ignored, otherwise your secret data/credentials will leak.
 json_data.json
 zigbee.db
-darragh.png
 hilary
+dashboard_links.yaml
 watchman_report.txt
 ip_bans.yaml
 secrets.yaml

@@ -26,7 +26,7 @@ kettle:
         - switch.kettle
 radarr:
   speech:
-    text: Sure, adding {{ trigger.slots.title }} to Radarr!
+    text: Sure, adding the movie {{ trigger.slots.title }} to Radarr! 🎬
     type: plain
   action:
     action: hassarr.add_radarr_movie

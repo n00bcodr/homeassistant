@@ -196,8 +196,6 @@
         data: {}
       - action: rest_command.reload_google_sheets_weight
         data: {}
-      - action: rest_command.reload_google_sheets_weight2
-        data: {}
     default: []
   mode: single
 - id: '1654855874344'
@@ -322,27 +320,27 @@
 - id: '1670537821206'
   alias: "\U0001F3F0Den off"
   description: Turns off all things in DEN when I exit.
-  trigger:
-  - platform: tag
-    tag_id: 5f5bedc8-6a15-486a-ab22-49ce237dde40
+  triggers:
+  - tag_id: 5f5bedc8-6a15-486a-ab22-49ce237dde40
     enabled: true
-  - platform: event
-    event_type: mobile_app_notification_action
+    trigger: tag
+  - event_type: mobile_app_notification_action
     event_data:
       action: Den_OFF
-  - platform: state
-    entity_id:
+    trigger: event
+  - entity_id:
     - input_boolean.den
     from: 'on'
     to: 'off'
-  - platform: device
-    domain: mqtt
+    trigger: state
+  - domain: mqtt
     device_id: 3fd72c6a517024c03b9531259c2d55d9
     type: action
     subtype: long
     discovery_id: 0x00124b001eaa8251 action_long
-  condition: []
-  action:
+    trigger: device
+  conditions: []
+  actions:
   - choose:
     - conditions:
       - condition: template
@@ -366,6 +364,7 @@
           - light.shapes
           - light.light
           - climate.heater
+          - light.lamp
       - action: media_player.media_pause
         data: {}
         target:
@@ -390,6 +389,7 @@
           - switch.workstation
           - light.shapes
           - light.light
+          - light.lamp
   mode: single
 - id: '1670578939434'
   alias: "\U0001F3F0Den Button"
@@ -469,17 +469,22 @@
 - id: '1671637864679'
   alias: "\U0001F3F0Den as it was"
   description: Returns Den State to back what it was when Den OFF was triggered.
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - input_boolean.den
     from: 'off'
     to: 'on'
-  condition: []
-  action:
+    trigger: state
+  conditions: []
+  actions:
   - action: scene.turn_on
     data: {}
     entity_id: scene.den_as_it_was
+  - action: switch.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.workstation
   mode: single
 - id: '1671638012875'
   alias: "\U0001F3F0Send notification if no motion in Den"
@@ -526,21 +531,27 @@
 - id: '1671638403506'
   alias: "\U0001F3F0Desk Presence Detection"
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - binary_sensor.vibration_vibration
     to: 'on'
-  condition:
+    trigger: state
+  conditions:
   - condition: and
     conditions:
     - condition: time
       after: 08:00:00
-      before: '22:00:00'
+      before: '23:00:00'
+      enabled: true
     - condition: state
       entity_id: switch.workstation
       state: 'off'
-  action:
+    - type: is_motion
+      condition: device
+      device_id: db5238f8a9cdf3587a27ebb327e3b72c
+      entity_id: ae489ef14055e8adb0e0f817ebadaea4
+      domain: binary_sensor
+  actions:
   - choose:
     - conditions:
       - condition: state
@@ -761,6 +772,7 @@
           data:
             tag: bin_pickup
           message: clear_notification
+        alias: Clear any existing notifications
       - action: notify.all_phones
         data:
           data:
@@ -769,7 +781,6 @@
             icon_url: /local/images/black_bin.png
             tag: bin_pickup
             color: black
-            image: /local/images/black_bin.png
           message: Pickup is in two days on {{ states.sensor.black_bin.state}}
           title: Black Bin
     - conditions:
@@ -786,6 +797,7 @@
           data:
             tag: bin_pickup
           message: clear_notification
+        alias: Clear any existing notifications
       - action: notify.all_phones
         data:
           data:
@@ -793,7 +805,6 @@
             icon_url: /local/images/black_bin.png
             color: black
             tag: bin_pickup
-            image: /local/images/black_bin.png
           message: Pickup is tomorrow, {{ states.sensor.black_bin.state}}
           title: Black Bin
       alias: Black Bin collection is tomorrow and it is 11 AM
@@ -810,6 +821,7 @@
               data:
                 tag: bin_pickup
               message: clear_notification
+            alias: Clear any existing notifications
           - action: notify.all_phones
             data:
               data:
@@ -848,12 +860,12 @@
           data:
             tag: bin_pickup
           message: clear_notification
+        alias: Clear any existing notifications
       - action: notify.all_phones
         data:
           data:
             notification_icon: mdi:trash-can
             icon_url: /local/images/blue_bin.png
-            image: /local/images/blue_bin.png
             tag: bin_pickup
             color: blue
           message: Pickup is in two days on {{ states.sensor.blue_bin.state}}
@@ -872,12 +884,12 @@
           data:
             tag: bin_pickup
           message: clear_notification
+        alias: Clear any existing notifications
       - action: notify.all_phones
         data:
           data:
             notification_icon: mdi:trash-can
             icon_url: /local/images/blue_bin.png
-            image: /local/images/blue_bin.png
             tag: bin_pickup
             color: blue
           message: Pickup is tomorrow, {{ states.sensor.blue_bin.state}}
@@ -896,6 +908,7 @@
               data:
                 tag: bin_pickup
               message: clear_notification
+            alias: Clear any existing notifications
           - action: notify.all_phones
             data:
               data:
@@ -1025,13 +1038,13 @@
 - id: '1680037718271'
   alias: "\U0001F4A1Hallway String Lights Motion"
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - binary_sensor.hallway_motion_occupancy
     to: 'on'
     from: 'off'
-  condition:
+    trigger: state
+  conditions:
   - condition: or
     conditions:
     - condition: sun
@@ -1040,18 +1053,18 @@
     - condition: numeric_state
       entity_id: sensor.hallway_motion_illuminance
       below: 40
-  action:
+  actions:
   - action: homeassistant.turn_on
     data: {}
     target:
       entity_id:
-      - switch.string_lights
+      - light.string_lights
   - wait_for_trigger:
-    - platform: state
-      entity_id:
+    - entity_id:
       - binary_sensor.hallway_motion_occupancy
       from: 'on'
       to: 'off'
+      trigger: state
     continue_on_timeout: false
   - delay:
       hours: 0
@@ -1061,7 +1074,8 @@
   - action: homeassistant.turn_off
     data: {}
     target:
-      entity_id: switch.string_lights
+      entity_id:
+      - light.string_lights
   mode: restart
 - id: '1684417211214'
   alias: "\U0001F4A1Synchronize states - String Lights"
@@ -2641,51 +2655,6 @@
     target:
       entity_id: light.shapes
   mode: single
-- id: '1733943830624'
-  alias: "\U0001F384 Christmas Lights and Music"
-  description: ''
-  triggers:
-  - trigger: sun
-    event: sunset
-    offset: 0
-    id: 'on'
-  - trigger: time
-    at: 02:00:00
-    id: 'off'
-  conditions: []
-  actions:
-  - choose:
-    - conditions:
-      - condition: trigger
-        id:
-        - 'on'
-      sequence:
-      - action: script.turn_on
-        metadata: {}
-        data: {}
-        target:
-          entity_id: script.play_christmas_music
-      - action: switch.turn_on
-        metadata: {}
-        data: {}
-        target:
-          entity_id: switch.christmas_lights
-    - conditions:
-      - condition: trigger
-        id:
-        - 'off'
-      sequence:
-      - action: switch.turn_off
-        metadata: {}
-        data: {}
-        target:
-          entity_id: switch.christmas_lights
-      - action: media_player.turn_off
-        metadata: {}
-        data: {}
-        target:
-          entity_id: media_player.kitchen_speaker
-  mode: single
 - id: '1734173801991'
   alias: ⚙️TV and LED Strip
   description: ''
@@ -2763,3 +2732,55 @@
           entity_id: switch.heating_blanket
         enabled: false
   mode: single
+- id: '1738348842077'
+  alias: Turn on LED strip when watching TV
+  description: ''
+  triggers:
+  - device_id: 15f5b82d6343c35685dcaa44f0a6ec79
+    domain: media_player
+    entity_id: 47abd20e8adb3067001c9352aa999ebb
+    type: turned_on
+    trigger: device
+  - device_id: 82b28c615b712224129d639fdd0d49b5
+    domain: media_player
+    entity_id: 1b924582960d0ddfc2cddf1a4872f6d2
+    type: playing
+    trigger: device
+  conditions:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: binary_sensor.couch_presence
+      state: 'on'
+    - condition: state
+      entity_id: light.led_strip
+      state: 'off'
+    - condition: numeric_state
+      entity_id: sensor.presence_sensor_light_level
+      below: 50
+  actions:
+  - type: turn_on
+    device_id: 77f6ce1bfdf9ce386143a3279188cf55
+    entity_id: 0ea839e4140f29ff32433bbc50ca6155
+    domain: light
+  mode: single
+- id: '1738786530914'
+  alias: "\U0001F3ACJellyseerr push notification"
+  description: Send me a push notification on a new media request
+  triggers:
+  - trigger: state
+    entity_id:
+    - event.overseerr_last_media_event
+    not_from:
+    - unknown
+    - unavailable
+  conditions:
+  - condition: template
+    value_template: '{{ state_attr(''event.overseerr_last_media_event'', ''event_type'')
+      == ''pending'' }}'
+  actions:
+  - action: notify.mobile_app_pixel8pro
+    metadata: {}
+    data:
+      message: '{{ state_attr(''event.overseerr_last_media_event'', ''subject'') }}
+        has been requested'

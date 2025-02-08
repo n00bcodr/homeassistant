@@ -107,13 +107,6 @@ reload_google_sheets_weight:
     authorization: !secret api_bearer_token
     content-type: application/json
 
-reload_google_sheets_weight2:
-  url: http://192.168.168.168:8123/api/config/config_entries/entry/70169feef8a863b382a05cc09db71fb1/reload
-  method: POST
-  headers:
-    authorization: !secret api_bearer_token
-    content-type: application/json
-
 reload_google_sheets_music:
   url: http://192.168.168.168:8123/api/config/config_entries/entry/e878450630328624168726fe8e51d15d/reload
   method: POST

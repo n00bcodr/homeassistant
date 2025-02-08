@@ -1,14 +1,20 @@
 sidebar_editable: true
 title: "SkyNet HQ"
 subtitle: "Home Assistant"
+divider_color: black
+menu_background: black
+sidebar_border_color: black
+sidebar_background: black
 # sidebar_button_color: >
 #   {{states.sensor.pixel8pro_accent_color.state}}
 # icon_color: >
 #   {{states.sensor.pixel8pro_accent_color.state}}
-# icon_color_selected: >
-#   {{states.sensor.pixel8pro_accent_color.state}}
-# selection_color: >
-#   {{states.sensor.pixel8pro_accent_color.state}}
+icon_color_selected: >
+  {{states.sensor.pixel8pro_accent_color.state}}
+selection_color: >
+  {{states.sensor.pixel8pro_accent_color.state}}
+text_color_selected: >
+  {{states.sensor.pixel8pro_accent_color.state}}
 # notification_color: >
 #   {{states.sensor.pixel8pro_accent_color.state}}
 
@@ -84,8 +90,6 @@ order:
   - item: History
     hide: true
   - item: Shopping List
-    hide: true
-  - item: energy
     hide: true
   - item: To-do lists
     hide: true

@@ -36,7 +36,6 @@
     addon_5c53de3b_esphome: "ESP Home Addon"
     addon_a0d7b954_ssh: "SSH Addon"
     addon_db21ed7f_filebrowse: "Filebrowser Addon"
-    addon_cebe7a76_hassio_google_drive_backup: "Google Drive Backup Addon"
     addon_cb646a50_get: "Download HACS"
     immich_server: Immich
 
