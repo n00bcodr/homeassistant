@@ -29,7 +29,7 @@ I started my Home Assistant Journey with a Raspberry Pi 3, from which I have swi
 * [Home Assistant](https://home-assistant.io/)
 * [Portainer](https://www.portainer.io/) to manage all the containers
 * [Broadlink Manager](https://hub.docker.com/r/techblog/broadlinkmanager) for reading IR codes
-* [Watchtower](https://github.com/containrrr/watchtower) to have all the containers up to date. This will cause the homeassistant instance to be "unhealthy". I am using this [workaround](https://gist.github.com/HCanber/700b4a5c685b9b97fb4865de6eaff0f3).
+* [Watchtower](https://github.com/beatkind/watchtower) to have all the containers up to date. This will cause the homeassistant instance to be "unhealthy". I am using this [workaround](https://gist.github.com/HCanber/700b4a5c685b9b97fb4865de6eaff0f3).
 * [Homarr](https://homarr.dev/) for browser start page
 * [Dash Dot](https://github.com/MauriceNino/dashdot) for server stats in graphs for Homarr
 * [HomeBridge](https://homebridge.io/) - I only use this to add my Govee Heater to HomeAssistant
@@ -38,20 +38,22 @@ I started my Home Assistant Journey with a Raspberry Pi 3, from which I have swi
 * [EmulatorJS](https://emulatorjs.org/) to play retro games
 * [Tailscale](https://tailscale.com/) as [subnet router](https://tailscale.com/kb/1019/subnets) this is magic!
 * [Wallos](https://github.com/ellite/Wallos) - Open-Source Personal Subscription Tracker
-* [ClipCascade](https://github.com/Sathvik-Rao/ClipCascade) - opensource Clipboard Sync
+* [ClipCascade](https://github.com/Sathvik-Rao/ClipCascade) - Opensource Clipboard Sync
 
 **Media**
 * [immich](https://immich.app/) as a Google Photos alternative
 * [Jellyfin](https://github.com/jellyfin/jellyfin) Media Server to manage all my media
 * [Jellystat](https://github.com/CyferShepard/Jellystat) for Jellyfin analytics
 * [Jellyseer](https://github.com/Fallenbagel/jellyseerr) request manager for Radarr and Sonarr, using this I can directly browse and download movies.
-* [Sonarr](https://sonarr.tv/) to download the latest episodes of TV shows I watch and make them available on Plex
-* [Radarr](https://radarr.video/) to download any movies I want to watch and make them available on Plex
+* [Sonarr](https://sonarr.tv/) to download the latest episodes of TV shows I watch and make them available on Jellyfin
+* [Radarr](https://radarr.video/) to download any movies I want to watch and make them available on Jellyfin
+* [Bazzarr] (https://github.com/bazarr/) to download and update subtitles of the media I have.
 * [Requestrr](https://github.com/thomst08/requestrr) - Discord Bot Manager to download Movies and TV Shows through Sonarr or Radarr
 * [Addarr](https://github.com/Waterboy1602/Addarr) telegram bot to download Movies and TV Shows through Sonarr or Radarr
 * [Prowlarr](https://prowlarr.com/) to manage indexes for all the *arr apps
-* [Transmission](https://transmissionbt.com/) installed as an app in Debian
-* [SyncThing](https://syncthing.net/) to keep my phone's photos backed up to the server
+* [qBittorrent](https://github.com/qbittorrent/qBittorrent) installed as an app in Debian
+* [SyncThing](https://syncthing.net/) to keep my phone's data backed up to the server
+* [NextCloud](https://github.com/nextcloud) as a Google Drive alternative
 * [Your Spotify](https://github.com/Yooooomi/your_spotify) to have a trend analysis of what I listen to on Spotify with detailed stats.
 
 
@@ -65,15 +67,16 @@ I started my Home Assistant Journey with a Raspberry Pi 3, from which I have swi
 
 ---
 
-### <a name="lights">Lights</a> 
+### <a name="lights">Lights</a>
 | [Go to Menu](#menu) |
 - [Wipro 9W RGB Bulbs](https://amzn.to/3N3Es19) x 2
 - [Nanoleaf Shapes Hexagon Starter Kit](https://www.amazon.co.uk/gp/product/B08BYBP6LX) x 1
 - [Luxonic Smart LED Strip](https://www.amazon.co.uk/gp/product/B09JFYV9YV) x 1
 - IKEA TRÅDFRI bulb E14 CWS 600lm x 6
+
 ---
 
-### <a name="outlets">Outlets & Switches</a> 
+### <a name="outlets">Outlets & Switches</a>
 | [Go to Menu](#menu) |
 - [Wipro 10A Smart Plugs](https://amzn.to/3xTLrnR) x 3
 - [Antela Smart Plugs](https://www.amazon.co.uk/gp/product/B09VP5KNWM) x 4
@@ -83,9 +86,9 @@ I started my Home Assistant Journey with a Raspberry Pi 3, from which I have swi
 - [MOES WiFi RF433 Smart -3 Gang](https://www.amazon.co.uk/dp/B08KST4KYJ) x 2
 - [Smart Immersion Heater Timer Switch](https://www.amazon.co.uk/dp/B0BTCPBQ7N) x 1
 
-
 ---
-### <a name="smartspeakers">Voice Assistants & Displays</a> 
+
+### <a name="smartspeakers">Voice Assistants & Displays</a>
 | [Go to Menu](#menu) |
 - [Nest Audio](https://store.google.com/us/product/nest_audio) x 1
 - [Nest Mini](https://store.google.com/us/product/google_nest_mini) x 1
@@ -94,22 +97,24 @@ I started my Home Assistant Journey with a Raspberry Pi 3, from which I have swi
 - [Lenovo Smart Clock](https://www.flipkart.com/lenovo-smart-clock-google-assistant-speaker/p/itm39f6a1348e45e) x 1
 - [Google Nest Hub 2nd Gen](https://store.google.com/ie/product/nest_hub_2nd_gen?hl=en-GB)
 
-  
 ---
-### <a name="media">Media</a> 
+
+### <a name="media">Media</a>
 | [Go to Menu](#menu) |
 - [Google TV Streamer](https://store.google.com/product/google_tv_streamer) x 1
 - [Chromecast with Google TV](https://store.google.com/us/product/chromecast_google_tv?hl=en-US) x 1
 - [Google Chromecast](https://store.google.com/us/product/chromecast?hl=en-GB) x 1
 
 ---
-### <a name="sensors">Sensors</a> 
+
+### <a name="sensors">Sensors</a>
 | [Go to Menu](#menu) |
 - [SONOFF SNZB-04 ZigBee Wireless Door/Window Sensor](https://sonoff.tech/product/smart-home-security/snzb-04/) x 1
 - [SONOFF SNZB-03 ZigBee Motion Sensor](https://amzn.to/3xysUgE) x 2
 - [SONOFF SNZB-02 ZigBee Temperature & Humidity Sensor](https://amzn.to/3b31V4Z) x 1
 - [SONOFF SNZB-01 ZigBee Wireless Switch](https://amzn.to/3O5BYQW) x 1
 - [SONOFF SNZB-02D Zigbee LCD Smart Temperature Humidity Sensor](https://itead.cc/product/sonoff-snzb-02d-zigbee-lcd-smart-temperature-humidity-sensor/) x 2
+- [SwitchBot Indoor/Outdoor Thermo-Hygrometer](https://eu.switch-bot.com/products/switchbot-indoor-outdoor-thermo-hygrometer?variant=42308352934053)
 - TRÅDFRI shortcut button x 2
 - [TRÅDFRI Remote Control](https://www.ikea.com/in/en/p/tradfri-remote-control-60443127) x 1
 - [TRÅDFRI Wireless Dimmer](https://www.ikea.com/in/en/p/tradfri-wireless-dimmer-white-90408599) x 1
@@ -121,34 +126,34 @@ I started my Home Assistant Journey with a Raspberry Pi 3, from which I have swi
 - [Withings Sleep Mat](https://www.withings.com/us/en/sleep) x 1
 - [Mi Body Composition Scale 2](https://www.mi.com/uk/product/mi-body-composition-scale-2/) x 1
 
-
-
 ---
-### <a name="cameras">Cameras</a> 
+
+### <a name="cameras">Cameras</a>
 | [Go to Menu](#menu) |
 - [Reolink Wireless Wi-Fi Doorbell](https://reolink.com/product/reolink-video-doorbell)
 
-
 ---
-### <a name="appliances">Appliances</a> 
+
+### <a name="appliances">Appliances</a>
 | [Go to Menu](#menu) |
 - Blomberg Washer & Dryer with [HomeWhiz](https://www.homewhiz.com/) support x 1
 - [Silvercrest Smart Kettle](https://www.lidl.ie/p/lidl-smart-home/smart-kettle/p38007) x 1
 
 ---
-### <a name="network">Network</a> 
+
+### <a name="network">Network</a>
 | [Go to Menu](#menu) |
 - [TP-LINK Deco X60](https://amzn.to/3xZRA2V) x 2
 
 ---
 
-### <a name="ir">IR Blasters</a> 
+### <a name="ir">IR Blasters</a>
 | [Go to Menu](#menu) |
 - [Broadlink RM MINI-3](https://www.amazon.in/gp/product/B076NRKR4B)
 
 ---
 
-### <a name="hubs">Hubs</a> 
+### <a name="hubs">Hubs</a>
 | [Go to Menu](#menu) |
 
 - [ConBee II](https://www.phoscon.de/en/conbee2) x 1
@@ -157,7 +162,8 @@ I started my Home Assistant Journey with a Raspberry Pi 3, from which I have swi
 - [SONOFF ZBBridge – Smart Zigbee Bridge](https://amzn.to/39GRunk) x 1 (unused)
 
 ---
-### <a name="climate">Climate</a> 
+
+### <a name="climate">Climate</a>
 | [Go to Menu](#menu) |
 
 - [Switchbot Curtain Rod 2](https://eu.switch-bot.com/products/switchbot-curtain?variant=41666181464229) x2
@@ -165,12 +171,15 @@ I started my Home Assistant Journey with a Raspberry Pi 3, from which I have swi
 - [Govee Smart Space Heater](https://www.amazon.co.uk/gp/product/B0C3HPG6JP) x 1
 
 ---
-### <a name="other">Other Hardware</a> 
+
+### <a name="other">Other Hardware</a>
 | [Go to Menu](#menu) |
 - [Tagreader](https://github.com/adonno/tagreader) x 2
 - [Multisensor](https://esphome.io/cookbook/bruh.html) x 2
+
 ---
-### <a name="screenshots">Screenshots</a> 
+
+### <a name="screenshots">Screenshots</a>
 | [Go to Menu](#menu) |
 
 
@@ -182,19 +191,21 @@ I started my Home Assistant Journey with a Raspberry Pi 3, from which I have swi
 ![Lovelace 6](https://github.com/n00bcodr/homeassistant/blob/master/screenshots/6.png?raw=true "Lovelace 6")
 ![Lovelace 7](https://github.com/n00bcodr/homeassistant/blob/master/screenshots/7.png?raw=true "Lovelace 7")
 ![Lovelace 8](https://github.com/n00bcodr/homeassistant/blob/master/screenshots/8.png?raw=true "Lovelace 8")
+![Lovelace 9](https://github.com/n00bcodr/homeassistant/blob/master/screenshots/9.png?raw=true "Lovelace 9")
 
 ---
-### <a name="wishlist">Wishlist</a> 
+
+### <a name="wishlist">Wishlist</a>
 | [Go to Menu](#menu) |
 
 - Some type of plant sensors that would integrate well with HomeAssistant
 - Google Coral for [HomeAssistant back home](https://github.com/n00bcodr/homeassistant-india)
 - NAS
+- Better hardware to support hardware acceleration
 
 ---
 
-### <a name="graveyard">Graveyard☠️</a> 
+### <a name="graveyard">Graveyard☠️</a>
 | [Go to Menu](#menu) |
 
 - [SONOFF SNZB-04 ZigBee Wireless Door/Window Sensor](https://sonoff.tech/product/smart-home-security/snzb-04/) x 1
-
