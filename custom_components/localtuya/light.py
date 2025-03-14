@@ -62,7 +62,7 @@ SCENE_LIST_RGBW_255 = {
     "Night": "bd76000168ffff",
     "Read": "fffcf70168ffff",
     "Meeting": "cf38000168ffff",
-    "Leasure": "3855b40168ffff",
+    "Leisure": "3855b40168ffff",
     "Scenario 1": "scene_1",
     "Scenario 2": "scene_2",
     "Scenario 3": "scene_3",
@@ -77,7 +77,7 @@ SCENE_LIST_RGBW_1000 = {
     "Read 2": "010e0d000084000003e800000000",
     "Meeting": "020e0d0000000000000003e803e8",
     "Working": "020e0d00001403e803e800000000",
-    "Leasure 1": "030e0d0000000000000001f401f4",
+    "Leisure 1": "030e0d0000000000000001f401f4",
     "Leisure 2": "030e0d0000e80383031c00000000",
     "Soft": "04464602007803e803e800000000464602007803e8000a00000000",
     "Rainbow": "05464601000003e803e800000000464601007803e803e80000000046460100f003e803"
@@ -166,7 +166,7 @@ def map_range(
     """Maps a value from one range to another."""
 
     if reverse:
-        value = from_max - (value + from_min)
+        value = from_max - (value - from_min)
 
     scale = (to_max - to_min) / (from_max - from_min)
     mapped_value = to_min + (value - from_min) * scale
@@ -528,7 +528,7 @@ class LocalTuyaLight(LocalTuyaEntity, LightEntity):
             hue = int(color[6:10], 16)
             sat = int(color[10:12], 16)
             value = int(color[12:14], 16)
-            self._hs = [hue, sat]
+            self._hs = [hue, (sat * 100 / 255)]
             self._brightness = value
         else:
             self.__from_color_v2(color)
@@ -564,10 +564,10 @@ class LocalTuyaLight(LocalTuyaEntity, LightEntity):
             or self.has_config(CONF_BRIGHTNESS)
             or self.has_config(CONF_COLOR)
         ):
-
             brightness = map_value_by_percent(
                 int(kwargs[ATTR_BRIGHTNESS]), 255, self._upper_brightness
             )
+            brightness = max(brightness, self._lower_brightness)
 
             if self.is_color_mode and self._hs is not None:
                 states[self._config.get(CONF_COLOR)] = self.__to_color(

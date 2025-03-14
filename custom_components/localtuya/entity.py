@@ -1,7 +1,7 @@
 """Code shared between all platforms."""
 
 import logging
-from typing import Any
+from typing import Any, Coroutine, Callable
 
 from homeassistant.core import HomeAssistant, State
 from homeassistant.config_entries import ConfigEntry
@@ -49,12 +49,13 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(
-    domain,
-    entity_class,
-    flow_schema,
+    domain: str,
+    entity_class: Any,
+    flow_schema: Callable,
     hass: HomeAssistant,
     config_entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
+    async_setup_services: Coroutine[HomeAssistant, list, None] = None,
 ):
     """Set up a Tuya platform based on a config entry.
 
@@ -95,12 +96,17 @@ async def async_setup_entry(
                         device,
                         dev_entry,
                         entity_config[CONF_ID],
+                        # we need add_entites_callback in-case we want to add sub-entites, such as electric sensor "phase_a"
+                        add_entites_callback=async_add_entities,
                     )
                 )
     # Once the entities have been created, add to the TuyaDevice instance
     if entities:
         device.add_entities(entities)
         async_add_entities(entities)
+
+        if async_setup_services:
+            await async_setup_services(hass, entities)
 
 
 def get_dps_for_platform(flow_schema):
@@ -138,7 +144,10 @@ class LocalTuyaEntity(RestoreEntity, pytuya.ContextualLogger):
         self._state = None
         self._last_state = None
         self._stored_states: State | None = None
-        self._hass = device._hass
+        self.hass = device.hass
+        self.componet_add_entities: AddEntitiesCallback = kwargs.get(
+            "add_entites_callback"
+        )
         self._loaded = False
 
         # Default value is available to be provided by Platform entities if required
@@ -203,25 +212,25 @@ class LocalTuyaEntity(RestoreEntity, pytuya.ContextualLogger):
         return attributes
 
     @property
-    def device_info(self) -> DeviceInfo:
+    def device_info(self):
         """Return device information for the device registry."""
-        model = self._device_config.model
+        device_config = self._device_config
         device_info = DeviceInfo(
             # Serial numbers are unique identifiers within a specific domain
-            identifiers={(DOMAIN, f"local_{self._device_config.id}")},
-            name=self._device_config.name,
+            identifiers={(DOMAIN, f"local_{device_config.id}")},
+            name=device_config.name,
             manufacturer="Tuya",
-            model=f"{model} ({self._device_config.id})",
-            sw_version=self._device_config.protocol_version,
+            model=f"{device_config.model} ({device_config.id})",
+            sw_version=device_config.protocol_version,
         )
-        if self._device.is_subdevice:
+        if self._device.is_subdevice and self._device.id != self._device.gateway.id:
             device_info[ATTR_VIA_DEVICE] = (DOMAIN, f"local_{self._device.gateway.id}")
         return device_info
 
     @property
     def name(self) -> str:
         """Get name of Tuya entity."""
-        return self._config.get(CONF_FRIENDLY_NAME)
+        return getattr(self, "_attr_name", self._config.get(CONF_FRIENDLY_NAME))
 
     @property
     def icon(self) -> str | None:
@@ -231,6 +240,9 @@ class LocalTuyaEntity(RestoreEntity, pytuya.ContextualLogger):
     @property
     def unique_id(self) -> str:
         """Return unique device identifier."""
+        if getattr(self, "_attr_unique_id") is not None:
+            return self._attr_unique_id
+
         return f"local_{self._device_config.id}_{self._dp_id}"
 
     @property
@@ -257,7 +269,7 @@ class LocalTuyaEntity(RestoreEntity, pytuya.ContextualLogger):
     @property
     def device_class(self):
         """Return the class of this device."""
-        return self._config.get(CONF_DEVICE_CLASS, self._attr_device_class)
+        return getattr(self, "_attr_device_class", self._config.get(CONF_DEVICE_CLASS))
 
     def has_config(self, attr) -> bool:
         """Return if a config parameter has a valid value."""

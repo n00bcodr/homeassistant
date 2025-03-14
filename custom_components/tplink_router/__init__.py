@@ -1,13 +1,14 @@
 from homeassistant.const import (
     CONF_HOST,
     CONF_PASSWORD,
+    CONF_USERNAME,
     CONF_SCAN_INTERVAL,
     CONF_VERIFY_SSL,
     Platform,
 )
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.config_entries import ConfigEntry
-from .const import DOMAIN
+from .const import DOMAIN, DEFAULT_USER
 import logging
 from tplinkrouterc6u import TPLinkMRClient
 from .coordinator import TPLinkRouterCoordinator
@@ -33,6 +34,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass=hass,
         host=host,
         password=entry.data[CONF_PASSWORD],
+        username=entry.data.get(CONF_USERNAME, DEFAULT_USER),
         logger=_LOGGER,
         verify_ssl=verify_ssl
     )

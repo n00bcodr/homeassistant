@@ -84,6 +84,7 @@ CONF_ALARM_SUPPORTED_STATES = "alarm_supported_states"
 
 # Binary_sensor, Siren
 CONF_STATE_ON = "state_on"
+CONF_RESET_TIMER = "reset_timer"
 
 # light
 CONF_BRIGHTNESS_LOWER = "brightness_lower"
@@ -228,3 +229,6 @@ class DeviceConfig:
         self.reset_dps: str = self.device_config.get(CONF_RESET_DPIDS, "")
         self.manual_dps: str = self.device_config.get(CONF_MANUAL_DPS, "")
         self.dps_strings: list = self.device_config.get(CONF_DPS_STRINGS, [])
+
+    def as_dict(self):
+        return self.device_config

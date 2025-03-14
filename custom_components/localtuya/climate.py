@@ -1,8 +1,7 @@
-"""Platform to locally control Tuya-based climate devices.
-    # PRESETS and HVAC_MODE Needs to be handle in better way.
-"""
+"""Platform to locally control Tuya-based climate devices."""
 
 import asyncio
+from enum import StrEnum
 import logging
 from functools import partial
 from .config_flow import col_to_select
@@ -59,7 +58,7 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 
-HVAC_OFF = {HVACMode.OFF.value: "off"}
+HVAC_OFF = {HVACMode.OFF.value: "off"}  # Migrate to 3
 RENAME_HVAC_MODE_SETS = {  # Migrate to 3
     ("manual", "Manual", "hot", "m", "True"): HVACMode.HEAT.value,
     ("auto", "0", "p", "Program"): HVACMode.AUTO.value,
@@ -73,7 +72,7 @@ RENAME_ACTION_SETS = {  # Migrate to 3
     ("cooling"): HVACAction.COOLING.value,
     ("off"): HVACAction.OFF.value,
 }
-RENAME_PRESET_SETS = {
+RENAME_PRESET_SETS = {  # Migrate to 3
     "Holiday": (PRESET_AWAY),
     "Program": (PRESET_HOME),
     "Manual": (PRESET_NONE, "manual"),
@@ -99,7 +98,6 @@ HVAC_ACTION_SETS = {
     HVACAction.HEATING: "opened",
     HVACAction.IDLE: "closed",
 }
-from enum import StrEnum
 
 
 class SupportedTemps(StrEnum):
@@ -161,7 +159,7 @@ def flow_schema(dps):
     }
 
 
-# Convertors
+# Converters
 def f_to_c(num):
     return (num - 32) * 5 / 9 if num else num
 
@@ -245,7 +243,7 @@ class LocalTuyaClimate(LocalTuyaEntity, ClimateEntity):
         self._min_temp = self._config.get(CONF_MIN_TEMP, DEFAULT_MIN_TEMP)
         self._max_temp = self._config.get(CONF_MAX_TEMP, DEFAULT_MAX_TEMP)
 
-        # Temperture unit
+        # Temperature unit
         config_temp_unit = self._config.get(CONF_TEMPERATURE_UNIT, "")
         target_unit, *current_unit = config_temp_unit.split("/")
         set_temp_unit = UnitOfTemperature.CELSIUS
@@ -257,6 +255,11 @@ class LocalTuyaClimate(LocalTuyaEntity, ClimateEntity):
         else:
             set_temp_unit = config_unit(config_temp_unit)
         self._temperature_unit = set_temp_unit
+
+    @property
+    def _is_on(self):
+        """Return if the device is on."""
+        return self._state and self._state != self._state_off
 
     @property
     def supported_features(self):
@@ -299,7 +302,7 @@ class LocalTuyaClimate(LocalTuyaEntity, ClimateEntity):
     @property
     def hvac_mode(self):
         """Return current operation ie. heat, cool, idle."""
-        if not self._state:
+        if not self._is_on:
             return HVACMode.OFF
         if not self._hvac_mode_dp:
             return HVACMode.HEAT
@@ -321,37 +324,45 @@ class LocalTuyaClimate(LocalTuyaEntity, ClimateEntity):
     @property
     def hvac_action(self):
         """Return the current running hvac operation if supported."""
-        if not self._state:
+        if not self._is_on:
             return HVACAction.OFF
 
-        if not self._conf_hvac_action_dp:
-            if self._hvac_mode == HVACMode.COOL:
-                self._hvac_action = HVACAction.COOLING
-            if self._hvac_mode == HVACMode.HEAT:
-                self._hvac_action = HVACAction.HEATING
-            if self._hvac_mode == HVACMode.DRY:
-                self._hvac_action = HVACAction.DRYING
+        hvac_action = self._hvac_action
+        hvac_mode = self._hvac_mode
 
-        # This exists from upstream, not sure the use case of this.
-        if self._config.get(CONF_HEURISTIC_ACTION, False):
-            if self._hvac_mode == HVACMode.HEAT:
-                if self._current_temperature < (
-                    self._target_temperature - self._precision
-                ):
-                    self._hvac_action = HVACMode.HEAT
-                if self._current_temperature == (
-                    self._target_temperature - self._precision
-                ):
-                    if self._hvac_action == HVACMode.HEAT:
-                        self._hvac_action = HVACMode.HEAT
-                    if self._hvac_action == HVACAction.IDLE:
-                        self._hvac_action = HVACAction.IDLE
-                if (
-                    self._current_temperature + self._precision
-                ) > self._target_temperature:
-                    self._hvac_action = HVACAction.IDLE
-            return self._hvac_action
-        return self._hvac_action
+        if (
+            (self._config.get(CONF_HEURISTIC_ACTION) or not self._conf_hvac_action_dp)
+            and (target_temperature := self._target_temperature) is not None
+            and (current_temperature := self._current_temperature) is not None
+        ):
+            # This function assumes that action changes based on target step different from current.
+            target_step = self.target_temperature_step
+            is_heating = current_temperature < (target_temperature - target_step)
+            is_cooling = current_temperature > (target_temperature + target_step)
+
+            if hvac_mode == HVACMode.HEAT:
+                if is_heating:
+                    hvac_action = HVACAction.HEATING
+                elif current_temperature >= target_temperature:
+                    hvac_action = HVACAction.IDLE
+            elif hvac_mode == HVACMode.COOL:
+                if is_cooling:
+                    hvac_action = HVACAction.COOLING
+                elif current_temperature <= target_temperature:
+                    hvac_action = HVACAction.IDLE
+            elif hvac_mode == HVACMode.HEAT_COOL:
+                if is_heating:
+                    hvac_action = HVACAction.HEATING
+                elif is_cooling:
+                    hvac_action = HVACAction.COOLING
+                elif current_temperature == target_temperature:
+                    hvac_action = HVACAction.IDLE
+            elif hvac_mode == HVACMode.DRY:
+                hvac_action = HVACAction.DRYING
+            elif hvac_mode == HVACMode.FAN_ONLY:
+                hvac_action = HVACAction.FAN
+
+        return hvac_action
 
     @property
     def preset_mode(self):
@@ -409,7 +420,7 @@ class LocalTuyaClimate(LocalTuyaEntity, ClimateEntity):
             temperature = kwargs[ATTR_TEMPERATURE]
 
             if self._target_temp_forced_to_celsius:
-                # Revert temperture to Fahrenheit it was forced to celsius
+                # Revert Temperature to Fahrenheit it was forced to celsius
                 temperature = round(c_to_f(temperature))
 
             temperature = round(temperature / self._precision_target)
@@ -419,7 +430,7 @@ class LocalTuyaClimate(LocalTuyaEntity, ClimateEntity):
 
     async def async_set_fan_mode(self, fan_mode):
         """Set new target fan mode."""
-        if not self._state:
+        if not self._is_on:
             await self._device.set_dp(self._state_on, self._dp_id)
 
         await self._device.set_dp(fan_mode, self._fan_speed_dp)
@@ -427,7 +438,7 @@ class LocalTuyaClimate(LocalTuyaEntity, ClimateEntity):
     async def async_set_hvac_mode(self, hvac_mode: HVACMode):
         """Set new target operation mode."""
         new_states = {}
-        if not self._state:
+        if not self._is_on:
             new_states[self._dp_id] = self._state_on
         elif hvac_mode == HVACMode.OFF and HVACMode.OFF not in self._hvac_mode_set:
             new_states[self._dp_id] = self._state_off
@@ -459,10 +470,10 @@ class LocalTuyaClimate(LocalTuyaEntity, ClimateEntity):
         super().connection_made()
 
         match self.dp_value(self._dp_id):
-            case str() as i if i.lower() in ("on", "off"):
-                self._state_on = "ON" if i.isupper() else "on"
-                self._state_off = "OFF" if i.isupper() else "off"
-            case int() as i if not isinstance(i, bool) and i in (0, 1):
+            case str() as v if v.lower() in ("on", "off"):
+                self._state_on = "ON" if v.isupper() else "on"
+                self._state_off = "OFF" if v.isupper() else "off"
+            case int() as v if not isinstance(v, bool) and v in (0, 1):
                 self._state_on = 1
                 self._state_off = 0
 
@@ -486,7 +497,7 @@ class LocalTuyaClimate(LocalTuyaEntity, ClimateEntity):
         if self._target_temp_forced_to_celsius:
             self._target_temperature = f_to_c(self._target_temperature)
         elif self._target_temp_forced_to_celsius is False:
-            self._current_temperature = f_to_c(self._current_temperature)
+            self._current_temperature = c_to_f(self._current_temperature)
 
         # Update preset states
         if self._has_presets:
@@ -501,7 +512,7 @@ class LocalTuyaClimate(LocalTuyaEntity, ClimateEntity):
                     self._preset_mode = PRESET_NONE
 
         # If device is off there is no needs to check the states.
-        if not self._state:
+        if not self._is_on:
             return
 
         # Update the HVAC Mode

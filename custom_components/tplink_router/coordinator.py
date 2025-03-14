@@ -47,9 +47,9 @@ class TPLinkRouterCoordinator(DataUpdateCoordinator):
         )
 
     @staticmethod
-    async def get_client(hass: HomeAssistant, host: str, password: str, logger: Logger,
+    async def get_client(hass: HomeAssistant, host: str, password: str, username: str, logger: Logger,
                          verify_ssl: bool) -> AbstractRouter:
-        return await hass.async_add_executor_job(TplinkRouterProvider.get_client, host, password, 'admin',
+        return await hass.async_add_executor_job(TplinkRouterProvider.get_client, host, password, username,
                                                  logger, verify_ssl)
 
     @staticmethod

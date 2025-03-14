@@ -13,7 +13,7 @@ from .const import DOMAIN
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .coordinator import TPLinkRouterCoordinator
-from tplinkrouterc6u import Status
+from tplinkrouterc6u import Status, IPv4Status
 
 
 @dataclass
@@ -22,8 +22,26 @@ class TPLinkRouterSensorRequiredKeysMixin:
 
 
 @dataclass
-class TPLinkRouterSensorEntityDescription(SensorEntityDescription, TPLinkRouterSensorRequiredKeysMixin):
+class TPLinkRouterIpv4SensorRequiredKeysMixin:
+    value: Callable[[IPv4Status], Any]
+
+
+@dataclass
+class TPLinkRouterSensorEntityDescription(
+    SensorEntityDescription, TPLinkRouterSensorRequiredKeysMixin
+):
     """A class that describes sensor entities."""
+
+    sensor_type: str = "status"
+
+
+@dataclass
+class TPLinkRouterIpv4SensorEntityDescription(
+    SensorEntityDescription, TPLinkRouterIpv4SensorRequiredKeysMixin
+):
+    """A class that describes Ipv4Sensor entities."""
+
+    sensor_type: str = "ipv4_status"
 
 
 SENSOR_TYPES: tuple[TPLinkRouterSensorEntityDescription, ...] = (
@@ -80,11 +98,17 @@ SENSOR_TYPES: tuple[TPLinkRouterSensorEntityDescription, ...] = (
         suggested_display_precision=1,
         value=lambda status: (status.mem_usage * 100) if status.mem_usage is not None else None,
     ),
+    TPLinkRouterSensorEntityDescription(
+        key="conn_type",
+        name="Connection Type",
+        icon="mdi:wan",
+        value=lambda status: status.conn_type,
+    ),
 )
 
 
 async def async_setup_entry(
-        hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
+    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
     coordinator = hass.data[DOMAIN][entry.entry_id]
 
@@ -92,6 +116,7 @@ async def async_setup_entry(
 
     for description in SENSOR_TYPES:
         sensors.append(TPLinkRouterSensor(coordinator, description))
+
     async_add_entities(sensors, False)
 
 

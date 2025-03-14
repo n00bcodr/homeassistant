@@ -43,7 +43,7 @@ def localtuya_sensor(unit_of_measurement=None, scale_factor: float = 1) -> dict:
     return data
 
 
-# Commonly used battery sensors, that are re-used in the sensors down below.
+# Commonly used battery sensors, that are reused in the sensors down below.
 BATTERY_SENSORS: dict[str, tuple[LocalTuyaEntity, ...]] = (
     LocalTuyaEntity(
         id=DPCode.BATTERY_PERCENTAGE,
@@ -788,7 +788,7 @@ SENSORS: dict[str, tuple[LocalTuyaEntity, ...]] = {
             id=DPCode.CHARGE_ELECTRIC_QUANTITY,
             name="Charge Electric Quantity",
             device_class=SensorDeviceClass.ENERGY,
-            state_class=SensorStateClass.MEASUREMENT,
+            state_class=SensorStateClass.TOTAL,
             custom_configs=localtuya_sensor(UnitOfEnergy.KILO_WATT_HOUR, 0.01),
         ),
         LocalTuyaEntity(
@@ -1045,73 +1045,16 @@ SENSORS: dict[str, tuple[LocalTuyaEntity, ...]] = {
         LocalTuyaEntity(
             id=DPCode.PHASE_A,
             name="Phase C Current",
-            device_class=SensorDeviceClass.CURRENT,
-            state_class=SensorStateClass.MEASUREMENT,
-            custom_configs=localtuya_sensor(UnitOfElectricCurrent.MILLIAMPERE),
-            entity_category=EntityCategory.DIAGNOSTIC,
-        ),
-        LocalTuyaEntity(
-            id=DPCode.PHASE_A,
-            name="Phase C Power",
-            device_class=SensorDeviceClass.POWER,
-            state_class=SensorStateClass.MEASUREMENT,
-            custom_configs=localtuya_sensor(UnitOfPower.WATT, 0.1),
-            entity_category=EntityCategory.DIAGNOSTIC,
-        ),
-        LocalTuyaEntity(
-            id=DPCode.PHASE_A,
-            name="Phase A Voltage",
-            device_class=SensorDeviceClass.VOLTAGE,
-            state_class=SensorStateClass.MEASUREMENT,
-            custom_configs=localtuya_sensor(UnitOfElectricPotential.VOLT, 0.1),
             entity_category=EntityCategory.DIAGNOSTIC,
         ),
         LocalTuyaEntity(
             id=DPCode.PHASE_B,
-            name="Phase B Current",
-            device_class=SensorDeviceClass.CURRENT,
-            state_class=SensorStateClass.MEASUREMENT,
-            custom_configs=localtuya_sensor(UnitOfElectricCurrent.MILLIAMPERE),
-            entity_category=EntityCategory.DIAGNOSTIC,
-        ),
-        LocalTuyaEntity(
-            id=DPCode.PHASE_B,
-            name="Phase B Power",
-            device_class=SensorDeviceClass.POWER,
-            state_class=SensorStateClass.MEASUREMENT,
-            custom_configs=localtuya_sensor(UnitOfPower.WATT, 0.1),
-            entity_category=EntityCategory.DIAGNOSTIC,
-        ),
-        LocalTuyaEntity(
-            id=DPCode.PHASE_B,
-            name="Phase B Voltage",
-            device_class=SensorDeviceClass.VOLTAGE,
-            state_class=SensorStateClass.MEASUREMENT,
-            custom_configs=localtuya_sensor(UnitOfElectricPotential.VOLT, 0.1),
+            name="Phase B",
             entity_category=EntityCategory.DIAGNOSTIC,
         ),
         LocalTuyaEntity(
             id=DPCode.PHASE_C,
-            name="Phase C Current",
-            device_class=SensorDeviceClass.CURRENT,
-            state_class=SensorStateClass.MEASUREMENT,
-            custom_configs=localtuya_sensor(UnitOfElectricCurrent.MILLIAMPERE),
-            entity_category=EntityCategory.DIAGNOSTIC,
-        ),
-        LocalTuyaEntity(
-            id=DPCode.PHASE_C,
-            name="Phase C Power",
-            device_class=SensorDeviceClass.POWER,
-            state_class=SensorStateClass.MEASUREMENT,
-            custom_configs=localtuya_sensor(UnitOfPower.WATT, 0.1),
-            entity_category=EntityCategory.DIAGNOSTIC,
-        ),
-        LocalTuyaEntity(
-            id=DPCode.PHASE_C,
-            name="Phase C Voltage",
-            device_class=SensorDeviceClass.VOLTAGE,
-            state_class=SensorStateClass.MEASUREMENT,
-            custom_configs=localtuya_sensor(UnitOfElectricPotential.VOLT, 0.1),
+            name="Phase C",
             entity_category=EntityCategory.DIAGNOSTIC,
         ),
         ## PHASE X Are probably encrypted values. since it duplicated it probably raw dict data.
@@ -1382,9 +1325,30 @@ SENSORS: dict[str, tuple[LocalTuyaEntity, ...]] = {
     "fs": (
         LocalTuyaEntity(
             id=DPCode.TEMP_CURRENT,
-            # name="temperature",
+            name="Current Temperature",
             device_class=SensorDeviceClass.TEMPERATURE,
             state_class=SensorStateClass.MEASUREMENT,
+            custom_configs=localtuya_sensor(UnitOfTemperature.CELSIUS),
+        ),
+        LocalTuyaEntity(
+            id=DPCode.HUMIDITY,
+            name="Current Humidity",
+            device_class=SensorDeviceClass.HUMIDITY,
+            state_class=SensorStateClass.MEASUREMENT,
+            custom_configs=localtuya_sensor(PERCENTAGE),
+        ),
+        LocalTuyaEntity(
+            id=DPCode.HEAT_WD,
+            name="Heating Temperature",
+            device_class=SensorDeviceClass.TEMPERATURE,
+            state_class=SensorStateClass.MEASUREMENT,
+            custom_configs=localtuya_sensor(UnitOfTemperature.CELSIUS),
+        ),
+        LocalTuyaEntity(
+            id=DPCode.PVRPM,
+            name="Fan Speed",
+            icon="mdi:fan",
+            custom_configs=localtuya_sensor("rpm"),
         ),
     ),
     # eMylo Smart WiFi IR Remote

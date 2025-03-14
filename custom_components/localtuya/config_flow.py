@@ -21,6 +21,8 @@ from homeassistant.helpers.selector import (
 )
 import voluptuous as vol
 from homeassistant import exceptions
+from homeassistant.core import callback, HomeAssistant
+from homeassistant.config_entries import ConfigEntry, ConfigFlow, OptionsFlow
 from homeassistant.const import (
     CONF_CLIENT_ID,
     CONF_CLIENT_SECRET,
@@ -39,11 +41,10 @@ from homeassistant.const import (
     CONF_USERNAME,
     EntityCategory,
 )
-from homeassistant.core import callback, HomeAssistant
-from homeassistant.config_entries import ConfigEntry, ConfigFlow, OptionsFlow
 
-from .coordinator import pytuya, TuyaCloudApi
-from .core.cloud_api import TUYA_ENDPOINTS
+from .coordinator import HassLocalTuyaData
+from .core import pytuya
+from .core.cloud_api import TUYA_ENDPOINTS, TuyaCloudApi
 from .core.helpers import templates, get_gateway_by_deviceid, gen_localtuya_entities
 from .const import (
     ATTR_UPDATED_AT,
@@ -254,7 +255,13 @@ class LocalTuyaOptionsFlowHandler(OptionsFlow):
         self.use_template = False
         self.template_device = None
 
-        self.cloud_data: TuyaCloudApi
+    @property
+    def localtuya_data(self) -> HassLocalTuyaData:
+        return self.hass.data[DOMAIN][self._entry_id]
+
+    @property
+    def cloud_data(self) -> TuyaCloudApi:
+        return self.localtuya_data.cloud_data
 
     async def async_step_init(self, user_input=None):
         """Manage basic options."""
@@ -263,9 +270,7 @@ class LocalTuyaOptionsFlowHandler(OptionsFlow):
         if not self.config_entry.data[CONF_DEVICES]:
             configure_menu.pop(configure_menu.index(CONF_EDIT_DEVICE))
 
-        self.cloud_data = self.hass.data[DOMAIN][self._entry_id].cloud_data
-        if not self.config_entry.data.get(CONF_NO_CLOUD):
-            # Refresh devices List data.
+        if not self.config_entry.data.get(CONF_NO_CLOUD, True):
             self.hass.async_create_task(self.cloud_data.async_get_devices_list())
 
         return self.async_show_menu(step_id="init", menu_options=configure_menu)
@@ -323,6 +328,7 @@ class LocalTuyaOptionsFlowHandler(OptionsFlow):
 
             if user_input.pop(CONF_MASS_CONFIGURE, False):
                 # Handle auto configure all recognized devices.
+                await self.cloud_data.async_get_devices_dps_query()
                 devices, fails = await setup_localtuya_devices(
                     self.hass,
                     self.config_entry.entry_id,
@@ -337,7 +343,7 @@ class LocalTuyaOptionsFlowHandler(OptionsFlow):
                     for fail_dev in fails.values():
                         devices_fails += f"\n{fail_dev['name']}: {fail_dev['reason']}"
 
-                    msg = f"Sucessed devices: ``{len(devices)}``\n ```{devices_sucessed}\n```"
+                    msg = f"Succeeded devices: ``{len(devices)}``\n ```{devices_sucessed}\n```"
                     if fails:
                         msg += f" \n Failed devices: ``{len(fails)}``\n ```{devices_fails}\n```"
 
@@ -610,7 +616,7 @@ class LocalTuyaOptionsFlowHandler(OptionsFlow):
         errors = {}
         placeholders = {}
 
-        # Gather the informations
+        # Gather the information
         is_cloud = not self.config_entry.data.get(CONF_NO_CLOUD)
         dev_id = self.selected_device
         category = None
@@ -750,7 +756,7 @@ class LocalTuyaOptionsFlowHandler(OptionsFlow):
                     dev_id = self.device_data[CONF_DEVICE_ID]
                     new_data = self.config_entry.data.copy()
                     entry_id = self.config_entry.entry_id
-                    # Removing the unwanted entites.
+                    # Removing the unwanted entities.
                     entitesNames = [
                         name.get(CONF_FRIENDLY_NAME)
                         for name in self.device_data[CONF_ENTITIES]
@@ -950,7 +956,7 @@ async def setup_localtuya_devices(
             update_fails(dev_id, f"no configured entities: {dev_entites} - {category}")
             continue
 
-        # Add configured entiteis
+        # Add configured entities
         devices[dev_id].update({CONF_ENTITIES: dev_entites})
 
     return devices, fails
@@ -1279,7 +1285,7 @@ async def validate_input(hass: HomeAssistant, entry_id, data):
             detected_dps = {}
 
         # if manual DPs are set, merge these.
-        # detected_dps_device used to pervent user from bypass handshake manual dps.
+        # detected_dps_device used to prevent user from bypass handshake manual dps.
         detected_dps_device = detected_dps.copy()
         logger.debug("Detected DPS: %s", detected_dps)
         if CONF_MANUAL_DPS in data:
@@ -1308,14 +1314,14 @@ async def validate_input(hass: HomeAssistant, entry_id, data):
     # Get DP descriptions from the cloud, if the device is there.
     cloud_dp_codes = {}
     cloud_data: TuyaCloudApi = hass.data[DOMAIN][entry_id].cloud_data
-    if device_cloud_data := cloud_data.device_list.get(data[CONF_DEVICE_ID]):
-        cloud_dp_codes = device_cloud_data.get("dps_data", {})
+    if (dev_id := data.get(CONF_DEVICE_ID)) in cloud_data.device_list:
+        cloud_dp_codes = await cloud_data.async_get_device_functions(dev_id)
 
     # Indicate an error if no datapoints found as the rest of the flow
     # won't work in this case
     if not bypass_connection and error:
         raise error
-    # If bypass handshake. otherwise raise faild to make handshake with device.
+    # If bypass handshake. otherwise raise failed to make handshake with device.
     # --- Cloud: We will use the DPS found on cloud if exists.
     # --- No cloud: user will have to input the DPS manually.
     if not detected_dps_device and not (
