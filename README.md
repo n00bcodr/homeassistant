@@ -47,7 +47,7 @@ I started my Home Assistant Journey with a Raspberry Pi 3, from which I have swi
 * [Jellyseer](https://github.com/Fallenbagel/jellyseerr) request manager for Radarr and Sonarr, using this I can directly browse and download movies.
 * [Sonarr](https://sonarr.tv/) to download the latest episodes of TV shows I watch and make them available on Jellyfin
 * [Radarr](https://radarr.video/) to download any movies I want to watch and make them available on Jellyfin
-* [Bazzarr] (https://github.com/bazarr/) to download and update subtitles of the media I have.
+* [Bazzarr](https://github.com/bazarr/) to download and update subtitles of the media I have.
 * [Requestrr](https://github.com/thomst08/requestrr) - Discord Bot Manager to download Movies and TV Shows through Sonarr or Radarr
 * [Addarr](https://github.com/Waterboy1602/Addarr) telegram bot to download Movies and TV Shows through Sonarr or Radarr
 * [Prowlarr](https://prowlarr.com/) to manage indexes for all the *arr apps
@@ -55,7 +55,6 @@ I started my Home Assistant Journey with a Raspberry Pi 3, from which I have swi
 * [SyncThing](https://syncthing.net/) to keep my phone's data backed up to the server
 * [NextCloud](https://github.com/nextcloud) as a Google Drive alternative
 * [Your Spotify](https://github.com/Yooooomi/your_spotify) to have a trend analysis of what I listen to on Spotify with detailed stats.
-
 
 
 
