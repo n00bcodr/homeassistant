@@ -44,7 +44,7 @@ def localtuya_sensor(unit_of_measurement=None, scale_factor: float = 1) -> dict:
 
 
 # Commonly used battery sensors, that are reused in the sensors down below.
-BATTERY_SENSORS: dict[str, tuple[LocalTuyaEntity, ...]] = (
+BATTERY_SENSORS = (
     LocalTuyaEntity(
         id=DPCode.BATTERY_PERCENTAGE,
         name="Battery",
@@ -275,11 +275,21 @@ SENSORS: dict[str, tuple[LocalTuyaEntity, ...]] = {
     # https://developer.tuya.com/en/docs/iot/categorycwwsq?id=Kaiuz2b6vydld
     "cwwsq": (
         LocalTuyaEntity(
+            id=DPCode.FEED_STATE,
+            icon="mdi:list-status",
+        ),
+        LocalTuyaEntity(
+            id=DPCode.CHARGE_STATE,
+            name="Charge state",
+            icon="mdi:power-plug-battery-outline",
+        ),
+        LocalTuyaEntity(
             id=DPCode.FEED_REPORT,
             # name="last_amount",
             icon="mdi:counter",
             state_class=SensorStateClass.MEASUREMENT,
         ),
+        *BATTERY_SENSORS,
     ),
     # Air Quality Monitor
     # No specification on Tuya portal
@@ -1546,6 +1556,24 @@ SENSORS: dict[str, tuple[LocalTuyaEntity, ...]] = {
             id=DPCode.LOCK_MOTOR_STATE,
             name="Motor State",
             entity_category=EntityCategory.DIAGNOSTIC,
+        ),
+    ),
+    # Cat litter box
+    # https://developer.tuya.com/en/docs/iot/f?id=Kakg309qkmuit
+    "msp": (
+        LocalTuyaEntity(
+            id=DPCode.TEMPERATURE,
+            name="Temperature",
+            device_class=SensorDeviceClass.TEMPERATURE,
+            state_class=SensorStateClass.MEASUREMENT,
+            custom_configs=localtuya_sensor(UnitOfTemperature.CELSIUS, 0.1),
+        ),
+        LocalTuyaEntity(
+            id=(DPCode.HUMIDITY, DPCode.HUMIDITY_CURRENT),
+            name="Humidity",
+            device_class=SensorDeviceClass.HUMIDITY,
+            state_class=SensorStateClass.MEASUREMENT,
+            custom_configs=localtuya_sensor(PERCENTAGE, 0.1),
         ),
     ),
     # Smart Water Meter

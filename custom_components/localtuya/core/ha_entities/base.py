@@ -153,6 +153,7 @@ class DPCode(StrEnum):
     BATTERY_PERCENTAGE = "battery_percentage"  # Battery percentage
     BATTERY_STATE = "battery_state"  # Battery state
     BATTERY_VALUE = "battery_value"  # Battery value
+    BEEP = "beep"
     BREAK_CLEAN = "break_clean"
     BRIGHTNESS_MAX_1 = "brightness_max_1"
     BRIGHTNESS_MAX_2 = "brightness_max_2"
@@ -181,10 +182,14 @@ class DPCode(StrEnum):
     CHARGE_PATTERN = "charge_pattern"
     CHARGE_POWER1 = "charge_power1"
     CHARGE_POWER2 = "charge_power2"
+    CHARGE_STATE = "charge_state"
     CHARGING_STATE = "charging_state"
     CHILDLOCK = "childlock"
     CHILD_LOCK = "child_lock"  # Child lock
     CISTERN = "cistern"
+    CLEAN = "clean"
+    CLEANING = "cleaning"
+    CLEANING_NUM = "cleaning_num"
     CLEAN_AREA = "clean_area"
     CLEAN_RECORD = "clean_record"
     CLEAN_TIME = "clean_time"
@@ -258,7 +263,9 @@ class DPCode(StrEnum):
     DEFROST = "defrost"
     DEHUMIDITY_SET_ENUM = "dehumidify_set_enum"
     DEHUMIDITY_SET_VALUE = "dehumidify_set_value"
+    DELAY_CLEAN_TIME = "delay_clean_time"
     DELAY_SET = "delay_set"
+    DEODORIZATION_NUM = "deodorization_num"
     DEVICE_NUMBER = "device_number"
     DEVICE_STATE1 = "device_state1"
     DEVICE_STATE2 = "device_state2"
@@ -286,6 +293,7 @@ class DPCode(StrEnum):
     ELECTRICITY_PHASE_C = "electricity_phase_c"
     ELECTRICITY_TOTAL = "electricity_total"
     EMISSION = "emission"
+    EMPTY = "empty"
     ENERGY = "energy"
     ENERGY_A_CALIBRATION_FWD = "energy_a_calibration_fwd"
     ENERGY_A_CALIBRATION_REV = "energy_a_calibration_rev"
@@ -304,6 +312,7 @@ class DPCode(StrEnum):
     ENERGY_REVERSE_C = "energy_reverse_c"
     EQUIPMENT_TIME = "equipment_time"
     ERRO = "erro"  # codespell:ignore
+    FACTORY_RESET = "factory_reset"
     FAN_BEEP = "fan_beep"  # Sound
     FAN_COOL = "fan_cool"  # Cool wind
     FAN_COUNTDOWN = "fan_countdown"
@@ -337,6 +346,7 @@ class DPCode(StrEnum):
     HEAT_WD = "heat_wd"
     HIGHTPROTECTVALUE = "hightprotectvalue"
     HIJACK = "hijack"
+    HISTORY = "History"
     HUMIDIFIER = "humidifier"  # Humidification
     HUMIDITY = "humidity"  # Humidity
     HUMIDITY_CURRENT = "humidity_current"  # Current humidity
@@ -349,6 +359,7 @@ class DPCode(StrEnum):
     HUM_SENSITIVITY = "hum_sensitivity"
     IDU_ERROR = "idu_error"
     ILLUMINANCE_VALUE = "illuminance_value"
+    INDICATOR_LIGHT = "indicator_light"
     INNERDRY = "innerdry"
     INSTALLATION_HEIGHT = "installation_height"
     INTERVAL_TIME = "interval_time"
@@ -382,6 +393,7 @@ class DPCode(StrEnum):
     LOW_POWER_THRESHOLD = "low_power_threshold"
     LUX = "lux"  # Ikuu SXSEN003PIR IP65 Motion Detector (Wi-Fi)
     MACH_OPERATE = "mach_operate"
+    MAGNETNUM = "magnetNum"
     MANUAL_FEED = "manual_feed"
     MASTER_MODE = "master_mode"  # alarm mode
     MASTER_STATE = "master_state"  # alarm mode
@@ -391,6 +403,7 @@ class DPCode(StrEnum):
     MAXTEMP_SET = "maxtemp_set"
     MAX_HUMI = "max_humi"
     MAX_SET = "max_set"
+    MEAL_PLAN = "meal_plan"
     MEASUREMENT_MODEL = "measurement_model"
     MIDDLE_CONFIRM = "middle_confirm"  # cover reset.
     MINIHUM_SET = "minihum_set"
@@ -417,10 +430,12 @@ class DPCode(StrEnum):
     MOVEMENT_DETECT_PIC = "movement_detect_pic"
     MUFFLING = "muffling"  # Muffling
     MUTE = "mute"
+    M_ADC_NUM = "M_ADC_NUM"
     NEAR_DETECTION = "near_detection"
     NETWORK_MODEL = "network_model"
     NET_STATE = "net_state"
     NORMAL_OPEN_SWITCH = "normal_open_switch"
+    NOTIFICATION_STATUS = "notification_status"
     OCPP_TLS = "ocpp_tls"
     OCPP_URL = "ocpp_url"
     ODU_FAN_SPEED = "odu_fan_speed"
@@ -432,6 +447,7 @@ class DPCode(StrEnum):
     OVERCHARGE_SWITCH = "overcharge_switch"
     OXYGEN = "oxygen"  # Oxygen bar
     PAUSE = "pause"
+    PEDAL_ANGLE = "pedal_angle"
     PEN_PROTECT = "pen_protect"
     PERCENT_CONTROL = "percent_control"
     PERCENT_CONTROL_2 = "percent_control_2"
@@ -447,6 +463,7 @@ class DPCode(StrEnum):
     PHOTO_MODE = "photo_mode"
     PILE_NUMBER = "pile_number"
     PIR = "pir"  # Motion sensor
+    PIR_RADAR = "PIR_RADAR"
     PIR_SENSITIVITY = "pir_sensitivity"
     PIR_STATE = "pir_state"
     PIR_TIME = "pir_time"
@@ -495,7 +512,12 @@ class DPCode(StrEnum):
     PV_POWER = "pv_power"
     PV_VOLT = "pv_volt"
     QR_CODE_PREFIX = "qr_code_prefix"
+    QUICK_FEED = "quick_feed"
+    QUIET_TIME_END = "quiet_time_end"
+    QUIET_TIME_START = "quiet_time_start"
+    QUIET_TIMING_ON = "quiet_timing_on"
     RATED_CURRENT = "rated_current"
+    REBOOT = "reboot"
     RECORD_MODE = "record_mode"
     RECORD_SWITCH = "record_switch"  # Recording switch
     RELAY_STATUS = "relay_status"
@@ -556,6 +578,7 @@ class DPCode(StrEnum):
     SIREN_SWITCH = "siren_switch"
     SITUATION_SET = "situation_set"
     SLEEP = "sleep"  # Sleep function
+    SLEEPING = "sleeping"
     SLOW_FEED = "slow_feed"
     SMART_WEATHER = "smart_weather"
     SMOKE_SENSOR_STATE = "smoke_sensor_state"
@@ -656,6 +679,7 @@ class DPCode(StrEnum):
     TEMPER_ALARM = "temper_alarm"  # Tamper alarm
     TEMPFLOOR = "TempFloor"
     TEMPPROGRAM = "tempprogram"
+    TEMP_ADC = "temp_adc"
     TEMP_ALARM = "temp_alarm"
     TEMP_BOILING_C = "temp_boiling_c"
     TEMP_BOILING_F = "temp_boiling_f"
@@ -673,6 +697,7 @@ class DPCode(StrEnum):
     TEMP_UP = "temp_up"
     TEMP_VALUE = "temp_value"  # Color temperature
     TEMP_VALUE_V2 = "temp_value_v2"
+    TEST = "test"
     TIM = "tim"  # Ikuu SXSEN003PIR IP65 Motion Detector (Wi-Fi)
     TIMER = "timer"
     TIME_TOTAL = "time_total"
@@ -698,9 +723,11 @@ class DPCode(StrEnum):
     TRANSACTION_MONRY = "transaction_monry"
     TRANSACTION_STATUS = "transaction_status"
     TRANSACTION_TIME = "transaction_time"
+    TRASH_STATUS = "trash_status"
     TREBLE_CONTROL = "treble_control"
     TVOC = "tvoc"
     TV_SIZE = "tv_size"
+    UID = "UID"
     UNLOCK_APP = "unlock_app"
     UNLOCK_BLE = "unlock_ble"
     UNLOCK_CARD = "unlock_card"
@@ -773,6 +800,7 @@ class DPCode(StrEnum):
     WIRELESS_ELECTRICITY = "wireless_electricity"
     WORK_MODE = "work_mode"  # Working mode
     WORK_POWER = "work_power"
+    WORK_STAT = "work_stat"
     WORK_STATE = "work_state"
     WORK_STATUS = "work_status"
     Y_MOP = "y_mop"

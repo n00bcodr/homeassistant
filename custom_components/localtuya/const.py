@@ -147,6 +147,10 @@ CONF_HVAC_ADD_OFF = "hvac_add_off"
 CONF_ECO_DP = "eco_dp"
 CONF_ECO_VALUE = "eco_value"
 CONF_FAN_SPEED_LIST = "fan_speed_list"
+CONF_SWING_MODE_DP = "swing_mode_dp"
+CONF_SWING_MODES = "swing_modes"
+CONF_SWING_HORIZONTAL_DP = "swing_horizontal_dp"
+CONF_SWING_HORIZONTAL_MODES = "swing_horizontal_modes"
 
 # vacuum
 CONF_POWERGO_DP = "powergo_dp"
@@ -185,6 +189,12 @@ CONF_KEY_STUDY_DP = "key_study_dp"
 CONF_JAMMED_DP = "jammed_dp"
 CONF_LOCK_STATE_DP = "lock_state_dp"
 
+# Humidifier
+CONF_HUMIDIFIER_SET_HUMIDITY_DP = "humidifier_set_humidity_dp"
+CONF_HUMIDIFIER_CURRENT_HUMIDITY_DP = "humidifier_current_humidity_dp"
+CONF_HUMIDIFIER_MODE_DP = "humidifier_mode_dp"
+CONF_HUMIDIFIER_AVAILABLE_MODES = "humidifier_available_modes"
+
 # Water Heater
 CONF_TARGET_TEMPERATURE_LOW_DP = "target_temperature_low_dp"
 CONF_TARGET_TEMPERATURE_HIGH_DP = "target_temperature_high_dp"
@@ -206,6 +216,53 @@ DEFAULT_CATEGORIES = {
     "CONFIG": ["select", "number", "button"],
     "DIAGNOSTIC": ["sensor", "binary_sensor"],
 }
+
+
+@dataclass
+class DictSelector:
+    """
+    A class that manages the mapping between Tuya values and Home Assistant (HA) values.
+
+    Attributes:
+        tuya_ha (dict): A dictionary mapping Tuya values (keys) to HA values (values).
+        reverse (bool): Swaps `tuya_ha` keys and values.
+    """
+
+    tuya_ha: dict[str, Any]
+    reverse: bool = False
+
+    def __post_init__(self):
+        if self.reverse:
+            self.tuya_ha = {v: k for k, v in self.tuya_ha.items()}
+
+    @property
+    def as_dict(self):
+        """Return options as dict."""
+        return self.tuya_ha
+
+    @property
+    def values(self) -> list:
+        """Return options Tuya keys."""
+        return getattr(self, "_cached_keys__tuya_ha", list(self.tuya_ha.keys()))
+
+    @property
+    def names(self) -> list:
+        """Return options HA values."""
+        return getattr(self, "_cached_values_tuya_ha", list(self.tuya_ha.values()))
+
+    def to_ha(self, value: str, default=None):
+        """Return the friendly name."""
+        return self.tuya_ha.get(value, default)
+
+    def to_tuya(self, name: str):
+        """Return the tuya value."""
+        reversed_dict = getattr(
+            self, "_cached_reverse_tuya_ha", {v: k for k, v in self.tuya_ha.items()}
+        )
+        return reversed_dict.get(name)
+
+    def __repr__(self) -> str:
+        return "valid" if self.tuya_ha else ""
 
 
 @dataclass

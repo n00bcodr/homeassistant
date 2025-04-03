@@ -313,7 +313,7 @@ class EvalAttrSet:
 class EvalFunc:
     """Class for a callable pyscript function."""
 
-    def __init__(self, func_def, code_list, code_str, global_ctx):
+    def __init__(self, func_def, code_list, code_str, global_ctx, async_func=False):
         """Initialize a function calling context."""
         self.func_def = func_def
         self.name = func_def.name
@@ -338,6 +338,7 @@ class EvalFunc:
         self.trigger = []
         self.trigger_service = set()
         self.has_closure = False
+        self.async_func = async_func
 
     def get_name(self):
         """Return the function name."""
@@ -1102,7 +1103,7 @@ class AstEval:
             del sym_table["__init__"]
         sym_table_assign[arg.name].set(type(arg.name, tuple(bases), sym_table))
 
-    async def ast_functiondef(self, arg):
+    async def ast_functiondef(self, arg, async_func=False):
         """Evaluate function definition."""
         other_dec = []
         dec_name = None
@@ -1158,7 +1159,7 @@ class AstEval:
                 self.sym_table[arg.name].set(func)
             return
 
-        func = EvalFunc(arg, self.code_list, self.code_str, self.global_ctx)
+        func = EvalFunc(arg, self.code_list, self.code_str, self.global_ctx, async_func)
         await func.eval_defaults(self)
         await func.resolve_nonlocals(self)
         name = func.get_name()
@@ -1215,7 +1216,7 @@ class AstEval:
 
     async def ast_asyncfunctiondef(self, arg):
         """Evaluate async function definition."""
-        return await self.ast_functiondef(arg)
+        return await self.ast_functiondef(arg, async_func=True)
 
     async def ast_try(self, arg):
         """Execute try...except statement."""
@@ -2021,9 +2022,9 @@ class AstEval:
     async def ast_await(self, arg):
         """Evaluate await expr."""
         coro = await self.aeval(arg.value)
-        if coro:
+        if coro and asyncio.iscoroutine(coro):
             return await coro
-        return None
+        return coro
 
     async def get_target_names(self, lhs):
         """Recursively find all the target names mentioned in the AST tree."""
@@ -2047,7 +2048,7 @@ class AstEval:
 
         cls_name = arg.__class__.__name__
         if cls_name == "Attribute":
-            full_name = await self.ast_attribute_collapse(arg)
+            full_name = await self.ast_attribute_collapse(arg, check_undef=False)
             if full_name is not None:
                 names.add(full_name)
                 return
