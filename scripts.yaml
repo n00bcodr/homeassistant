@@ -122,14 +122,14 @@ bed_routine_script:
         - action: '{{ action_no }}'
           title: 'No'
   - wait_for_trigger:
-    - platform: event
-      event_type: mobile_app_notification_action
+    - event_type: mobile_app_notification_action
       event_data:
         action: '{{ action_yes }}'
-    - platform: event
-      event_type: mobile_app_notification_action
+      trigger: event
+    - event_type: mobile_app_notification_action
       event_data:
         action: '{{ action_no }}'
+      trigger: event
     continue_on_timeout: true
     timeout:
       hours: 0
@@ -149,6 +149,7 @@ bed_routine_script:
           - light.shapes
           - light.chandelier
           - light.led_strip
+          - switch.workstation
     - conditions:
       - condition: template
         value_template: '{{ wait.trigger.event.data.action == action_no }}'
@@ -161,7 +162,7 @@ bed_routine_script:
       - light.light
       - light.shapes
       - light.chandelier
-      - light.led_strip
+      - switch.workstation
   - action: notify.mobile_app_pixel8pro
     data:
       message: clear_notification
@@ -423,3 +424,31 @@ reload_config_entries:
       entry_id: '{{ config }}'
   description: Reloads configuration by the input of a config ID
   icon: mdi:reload-alert
+install_hacs_updates:
+  sequence:
+  - target:
+      entity_id: '{{ states.update | selectattr(''state'', ''eq'', ''on'') |  selectattr(''entity_id'',
+        ''in'', integration_entities(''hacs'')) |  map(attribute=''entity_id'') |
+        list }}'
+    action: update.install
+  alias: Install HACS Updates
+  description: ''
+install_add_on_updates:
+  sequence:
+  - target:
+      entity_id: '{{ states.update | selectattr(''state'', ''eq'', ''on'') |  selectattr(''entity_id'',
+        ''in'', integration_entities(''hassio'')) | rejectattr(''entity_id'', ''eq'',
+        ''update.home_assistant_core_update'') | map(attribute=''entity_id'') | list
+        }}'
+    action: update.install
+  alias: Install Add-on Updates
+  description: ''
+install_other_updates:
+  sequence:
+  - target:
+      entity_id: '{{ states.update | selectattr(''state'', ''eq'', ''on'') |  rejectattr(''entity_id'',
+        ''in'', integration_entities(''hassio'')) |  rejectattr(''entity_id'', ''in'',
+        integration_entities(''hacs'')) | map(attribute=''entity_id'') | list }}'
+    action: update.install
+  alias: Install Other Updates
+  description: ''

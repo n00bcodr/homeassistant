@@ -105,6 +105,7 @@
             source: "com.google.android.apps.tv.launcherx"
     google_tv_streamer_unified:
       friendly_name: Google TV Streamer Unified
+      device_class: tv
       value_template: "{{ states('media_player.google_tv_streamer') }}"
       current_source_template: "{{ state_attr('media_player.google_tv_streamer', 'source') }}"
       current_volume_template: "{{ state_attr('media_player.google_tv_streamer', 'volume_level') }}"

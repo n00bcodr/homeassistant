@@ -2,6 +2,7 @@
   platform: group
   services:
     - service: mobile_app_pixel8pro
+    - service: mobile_app_s24
 
 - name: all_phones_ios
   platform: group
@@ -13,5 +14,6 @@
   platform: group
   services:
     - service: mobile_app_pixel8pro
+    - service: mobile_app_s24
     - service: mobile_app_hilary_s_phone
     - service: mobile_app_pavan_thanujs_ipad_3rd_gen

@@ -122,6 +122,9 @@
     switch.panel_heater:
       name: Panel Heater
 
+    switch.bed_warmer:
+      name: Bed Warmer
+
     switch.heating:
       name: Heating
 

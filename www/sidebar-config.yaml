@@ -1,95 +1,132 @@
-sidebar_editable: true
-title: "SkyNet HQ"
-subtitle: "Home Assistant"
-divider_color: black
-menu_background: black
-sidebar_border_color: black
-sidebar_background: black
-# sidebar_button_color: >
-#   {{states.sensor.pixel8pro_accent_color.state}}
-# icon_color: >
-#   {{states.sensor.pixel8pro_accent_color.state}}
-icon_color_selected: >
-  {{states.sensor.pixel8pro_accent_color.state}}
-selection_color: >
-  {{states.sensor.pixel8pro_accent_color.state}}
-text_color_selected: >
-  {{states.sensor.pixel8pro_accent_color.state}}
-# notification_color: >
-#   {{states.sensor.pixel8pro_accent_color.state}}
+exceptions:
+  - is_admin: false
+    title: "SkyNet HQ"
+    subtitle: "Home Assistant"
+    divider_color: black
+    menu_background: black
+    sidebar_border_color: black
+    sidebar_background: black
+    order:
+      - item: Overview
+      - item: Media
+      - item: Settings
+        bottom: true
+      - item: map
+        hide: true
+      - item: Browser Mod
+        hide: true
+      - item: Tablet
+        hide: true
+      - item: Calendar
+        hide: true
+      - item: Logbook
+        hide: true
+      - item: History
+        hide: true
+      - item: Shopping List
+        hide: true
+      - item: To-do lists
+        hide: true
 
-order:
-  - item: Overview
+  - is_admin: true
+    sidebar_editable: true
+    title: "SkyNet HQ"
+    subtitle: "Home Assistant"
+    divider_color: black
+    menu_background: black
+    sidebar_border_color: black
+    sidebar_background: black
+    # sidebar_button_color: >
+    #   {{states.sensor.pixel8pro_accent_color.state}}
+    # icon_color: >
+    #   {{states.sensor.pixel8pro_accent_color.state}}
+    icon_color_selected: >
+      {{states.sensor.pixel8pro_accent_color.state}}
+    selection_color: >
+      {{states.sensor.pixel8pro_accent_color.state}}
+    text_color_selected: >
+      {{states.sensor.pixel8pro_accent_color.state}}
+    # notification_color: >
+    #   {{states.sensor.pixel8pro_accent_color.state}}
 
-  - item: Tablet
+    order:
+      - item: Overview
 
-  - item: hacs
-    info: >
-      Total : {{ states.update |  selectattr('entity_id', 'in', integration_entities('hacs')) | map(attribute='name') | list | count }}
+      - item: Tablet
+
+      - item: hacs
+        info: >
+          Total : {{ states.update |  selectattr('entity_id', 'in', integration_entities('hacs')) | map(attribute='name') | list | count }}
 
 
-  - item: Media
+      - item: Media
 
-  - item: Calendar
+      - item: Calendar
 
-  - new_item: true
-    item: Automations
-    href: "/config/automation/dashboard"
-    icon: mdi:robot-confused-outline
-    info: |
-      Total {{ states.automation | list | count }} | active {{ states.automation | selectattr('state', 'eq', 'on') | list | count }}
+      - new_item: true
+        item: Automations
+        href: "/config/automation/dashboard"
+        icon: mdi:robot-confused-outline
+        info: |
+          Total {{ states.automation | list | count }} | active {{ states.automation | selectattr('state', 'eq', 'on') | list | count }}
 
-  # - new_item: true
-  #   item: Tags
-  #   href: "/config/tags"
-  #   icon: mdi:nfc-variant
-  #   bottom: true
+      # - new_item: true
+      #   item: Tags
+      #   href: "/config/tags"
+      #   icon: mdi:nfc-variant
+      #   bottom: true
 
-  - new_item: true
-    item: Integrations
-    href: "/config/integrations"
-    icon: mdi:cogs
-    bottom: true
+      - new_item: true
+        item: Integrations
+        href: "/config/integrations"
+        icon: mdi:cogs
+        bottom: true
 
-  - new_item: true
-    item: Addons
-    href: "/hassio/dashboard"
-    icon: mdi:puzzle
-    bottom: true
+      - new_item: true
+        item: Addons
+        href: "/hassio/dashboard"
+        icon: mdi:puzzle
+        bottom: true
 
-  - new_item: true
-    item: Reboot
-    href: "/developer-tools/yaml"
-    icon: mdi:restart
-    bottom: true
+      - new_item: true
+        item: Reboot
+        href: "/developer-tools/yaml"
+        icon: mdi:restart
+        bottom: true
 
-  - item: Developer Tools
-    href: "/developer-tools/state"
-    icon: mdi:hammer
-    bottom: true
+      - item: Developer Tools
+        href: "/developer-tools/state"
+        icon: mdi:hammer
+        bottom: true
 
-  - item: Settings
-    bottom: true
+      - item: Settings
+        bottom: true
+        divider: true
+        divider_color: >
+          {{states.sensor.pixel8pro_accent_color.state}}
 
-  - new_item: true
-    item: info
-    name: '[[[ return "Core " + state_attr("update.home_assistant_core_update", "installed_version") ]]]'
-    info: '[[[ "Supervisor " + state_attr("update.home_assistant_supervisor_update", "installed_version") ]]]'
-    href: '/config/info'
-    icon: mdi:information-outline
-    bottom: true
+      - new_item: true
+        item: info
+        name: '[[[ return "Core " + state_attr("update.home_assistant_core_update", "installed_version") ]]]'
+        info: '[[[ "Supervisor " + state_attr("update.home_assistant_supervisor_update", "installed_version") ]]]'
+        href: '/config/info'
+        icon: mdi:information-outline
+        bottom: true
+        divider: true
+        divider_color: >
+          {{states.sensor.pixel8pro_accent_color.state}}
 
-##################
-## Hidden Items ##
-##################
+    ##################
+    ## Hidden Items ##
+    ##################
 
-  - item: map
-    hide: true
-  - item: Logbook
-    hide: true
-  - item: History
-    hide: true
-  - item: Shopping List
-    hide: true
-  - item: To-do lists
-    hide: true
+      - item: map
+        hide: true
+      - item: Logbook
+        hide: true
+      - item: History
+        hide: true
+      - item: Shopping List
+        hide: true
+      - item: To-do lists
+        hide: true

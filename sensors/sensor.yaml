@@ -204,7 +204,5 @@
         icon: >
           {{ states.sensor.doorbell.attributes.icon }}
 
-- platform: formulaone_api
-
 - platform: folder
   folder: /config/www/doorbell

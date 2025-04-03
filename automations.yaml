@@ -32,12 +32,14 @@
             clickAction: /lovelace/updates
             icon_url: /local/images/party.png
             sticky: 'true'
+        enabled: false
       - action: update.install
         metadata: {}
         data:
           backup: true
         target:
           entity_id: update.home_assistant_core_update
+        enabled: false
     - conditions:
       - condition: state
         entity_id: binary_sensor.minor_version_update
@@ -516,7 +518,7 @@
         minutes: 5
         seconds: 0
   action:
-  - action: notify.mobile_app_pixel8pro
+  - action: notify.mobile_app_s24
     data:
       title: Are you there?
       message: 'No motion detected in Den in the last 5 minutes. '
@@ -1270,6 +1272,7 @@
         - condition: time
           after: 07:00:00
           before: 09:00:00
+          enabled: false
         - condition: state
           entity_id: person.pavanthanuj
           state: home
@@ -1369,33 +1372,33 @@
 - id: '1697306029605'
   alias: "\U0001F4A1Kitchen Light Presence"
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - binary_sensor.kitchen_presence
     to: 'on'
     from: 'off'
     id: presence
-  - platform: state
-    entity_id:
+    trigger: state
+  - entity_id:
     - binary_sensor.kitchen_presence
     to: 'off'
     from: 'on'
     id: clear
-  condition:
+    trigger: state
+  conditions:
   - condition: or
     conditions:
     - condition: sun
       before: sunrise
       after: sunset
     - condition: numeric_state
-      entity_id: sensor.presence_sensor_light_level
+      entity_id: sensor.living_room_light
       below: 20
       enabled: true
     - condition: state
       entity_id: switch.kitchen_light
       state: 'on'
-  action:
+  actions:
   - choose:
     - conditions:
       - condition: trigger
@@ -1405,7 +1408,7 @@
       - action: homeassistant.turn_on
         data: {}
         target:
-          entity_id: switch.kitchen_light
+          entity_id: light.kitchen_light
     - conditions:
       - condition: trigger
         id:
@@ -1422,7 +1425,7 @@
       - action: homeassistant.turn_off
         data: {}
         target:
-          entity_id: switch.kitchen_light
+          entity_id: light.kitchen_light
   mode: parallel
   max: 10
 - id: '1698150976885'
@@ -1583,17 +1586,17 @@
 - id: '1699724589577'
   alias: Hilary Exit
   description: ''
-  trigger:
-  - platform: tag
-    tag_id: c37fef6a-a97d-4b46-83a9-f563b9f9a61d
-  condition: []
-  action:
+  triggers:
+  - tag_id: c37fef6a-a97d-4b46-83a9-f563b9f9a61d
+    trigger: tag
+  conditions: []
+  actions:
   - action: homeassistant.turn_off
     data: {}
     target:
       entity_id:
       - light.bed_lamp
-      - switch.heater
+      - switch.salt_lamp
   mode: single
 - id: '1700567569365'
   alias: "\U0001F6AE\U0001F4F3Is the Bin Outside?"
@@ -1711,30 +1714,30 @@
 - id: '1704137731926'
   alias: Hilary's Button
   description: ''
-  trigger:
-  - platform: device
-    domain: mqtt
+  triggers:
+  - domain: mqtt
     device_id: b6f8b4147e2c746231ccf83a15c53889
     type: action
     subtype: 'on'
     discovery_id: 0x70ac08fffe71f036 action_on
     id: single
-  - platform: device
-    domain: mqtt
+    trigger: device
+  - domain: mqtt
     device_id: b6f8b4147e2c746231ccf83a15c53889
     type: action
     subtype: 'off'
     discovery_id: 0x70ac08fffe71f036 action_off
     id: double
-  - platform: device
-    domain: mqtt
+    trigger: device
+  - domain: mqtt
     device_id: b6f8b4147e2c746231ccf83a15c53889
     type: action
     subtype: brightness_move_up
     discovery_id: 0x70ac08fffe71f036 action_brightness_move_up
     id: hold
-  condition: []
-  action:
+    trigger: device
+  conditions: []
+  actions:
   - choose:
     - conditions:
       - condition: trigger
@@ -1753,7 +1756,8 @@
       - action: homeassistant.toggle
         data: {}
         target:
-          entity_id: switch.heater
+          entity_id:
+          - switch.salt_lamp
     - conditions:
       - condition: trigger
         id:
@@ -2127,26 +2131,6 @@
             minutes: 0
             seconds: 10
             milliseconds: 0
-    - if:
-      - condition: not
-        conditions:
-        - condition: state
-          entity_id: media_player.google_tv
-          state: 'off'
-      then:
-      - action: notify.google_tv
-        data:
-          message: Someone's at the front door
-          title: ''
-          data:
-            duration: 4
-            position: top-right
-            fontsize: medium
-            color: teal
-            transparency: 50%
-            image:
-              path: /config/www/doorbell/{{camera_snapshot}}
-      alias: Send Notification on Google TV if it is on.
     - alias: Send Notification on Google TV Streamer if it is on.
       if:
       - condition: not
@@ -2355,7 +2339,7 @@
               {{ trigger.event.data.battery_type }}
 
               '
-        - action: notify.mobile_app_pixel8pro
+        - action: notify.mobile_app_s24
           data:
             title: '{{ trigger.event.data.device_name }} Battery Low
 
@@ -2569,19 +2553,33 @@
   mode: queued
   max: 10
 - id: '1725362683046'
-  alias: Launch oral-b app when toothbrush is running
-  description: Launch oral-b app when toothbrush is running
-  trigger:
-  - platform: state
-    entity_id:
+  alias: "\U0001FAA5Toothbrush automations"
+  description: Launch oral-b app when toothbrush is running and notify when battery
+    is low.
+  triggers:
+  - entity_id:
     - sensor.toothbrush
     to: running
-  action:
+    trigger: state
+  actions:
   - action: notify.mobile_app_pixel8pro
     data:
       message: command_launch_app
       data:
         package_name: com.pg.oralb.oralbapp
+  - if:
+    - condition: numeric_state
+      entity_id: sensor.toothbrush_battery
+      below: 40
+    then:
+    - action: notify.mobile_app_pixel8pro
+      data:
+        message: The battery is {{states.sensor.toothbrush_battery.state}}%
+        title: "Recharge to Brush tomorrow!\U0001FAA5"
+        data:
+          notification_icon: mdi:toothbrush-electric
+          color: yellow
+          tag: brush
   mode: single
 - id: '1731189297613'
   alias: ⚙️Doorbell Night Mode
@@ -2746,6 +2744,10 @@
     entity_id: 1b924582960d0ddfc2cddf1a4872f6d2
     type: playing
     trigger: device
+  - trigger: state
+    entity_id:
+    - binary_sensor.couch_presence
+    to: 'on'
   conditions:
   - condition: and
     conditions:
@@ -2758,10 +2760,24 @@
     - condition: numeric_state
       entity_id: sensor.presence_sensor_light_level
       below: 50
+    - condition: device
+      device_id: 5387467b2499d9266f528503144850cd
+      domain: media_player
+      entity_id: 8481e1dacfe9ff52031e9bc684703db6
+      type: is_playing
+    - condition: device
+      device_id: 15f5b82d6343c35685dcaa44f0a6ec79
+      domain: media_player
+      entity_id: 47abd20e8adb3067001c9352aa999ebb
+      type: is_on
   actions:
   - type: turn_on
     device_id: 77f6ce1bfdf9ce386143a3279188cf55
     entity_id: 0ea839e4140f29ff32433bbc50ca6155
+    domain: light
+  - type: turn_off
+    device_id: fd25cd3ea57df14dd97ea8fcbe1e11c6
+    entity_id: 68b3e6fba01c423f09b5c2fe66499b1b
     domain: light
   mode: single
 - id: '1738786530914'
@@ -2784,3 +2800,34 @@
     data:
       message: '{{ state_attr(''event.overseerr_last_media_event'', ''subject'') }}
         has been requested'
+- id: '1743032206229'
+  alias: "\U0001F4A1 LED Strip Turn off"
+  description: ''
+  triggers:
+  - entity_id:
+    - binary_sensor.living_room_presence
+    to: 'off'
+    from: 'on'
+    id: clear
+    trigger: state
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
+  conditions:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: light.led_strip
+      state: 'on'
+    - condition: state
+      entity_id: media_player.google_tv_streamer_remote
+      state: 'off'
+  actions:
+  - action: homeassistant.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: light.led_strip
+  mode: queued
+  max: 10

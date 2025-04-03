@@ -67,6 +67,27 @@ views:
 - badges: []
   cards: []
   dense_section_placement: true
+  header:
+    badges_position: bottom
+    card:
+      content: "# Dia Duit, {{ user }} \U0001F44B\U0001F3FB\n## {{\n    '\u2600\uFE0F\
+        \ Sunny' if states('weather.home') == 'sunny' else\n    '\u26C5 Partly Cloudy'\
+        \ if states('weather.home') == 'partlycloudy' else\n    '\u2601\uFE0F Cloudy'\
+        \ if states('weather.home') == 'cloudy' else\n    '\U0001F327\uFE0F Rain'\
+        \ if states('weather.home') == 'rainy' else\n    '\U0001F328\uFE0F Snow' if\
+        \ states('weather.home') == 'snowy' else\n    '\U0001F32B\uFE0F Fog' if states('weather.home')\
+        \ == 'fog' else\n    '\U0001F329\uFE0F Storm' if states('weather.home') ==\
+        \ 'lightning' else\n    '\u2753 Unknown'\n  }} |  **\U0001F321\uFE0F {{ state_attr('weather.home',\
+        \ 'temperature') }}\xB0C** |   {{\n    '\u2614 Bring an umbrella!' if states('weather.home')\
+        \ == 'rainy' else\n    '\u26C4 Drive safe, it\\'s snowing!' if states('weather.home')\
+        \ == 'snowy' else\n    '\U0001F32B\uFE0F Watch out for fog!' if states('weather.home')\
+        \ == 'fog' else\n    '\u2744\uFE0F Car might need defrosting!' if state_attr('weather.home',\
+        \ 'temperature')|float < 2 and now().hour < 10 else\n    '\U0001F9E5 Sweater\
+        \ Weather!' if state_attr('weather.home', 'temperature')|float < 10 else\n\
+        \    '\U0001F60E Lovely weather!'\n  }}\n </br>"
+      text_only: true
+      type: markdown
+    layout: responsive
   icon: mdi:view-dashboard-outline
   max_columns: 3
   path: dashboard
@@ -130,12 +151,11 @@ views:
               \ none;\n}\n:host {\n  --mush-icon-size: 45px;\n  perspective: 900px;\n\
               }\nha-card:active {\n  transform: rotateX(25deg);\n  transform-origin:\
               \ center bottom;\n  transition: 0s;\n}\n"
-        entity: switch.heater
+        entity: switch.salt_lamp
         hold_action:
           action: more-info
-        icon: '{{ ''mdi:radiator'' if is_state(config.entity, ''on'') else ''mdi:radiator-off''
-          }}'
-        icon_color: '{{ ''red'' if is_state(config.entity, ''on'') else ''disabled''
+        icon: phu:salt-lamp
+        icon_color: '{{ ''deep-orange'' if is_state(config.entity, ''on'') else ''disabled''
           }}'
         primary: null
         secondary: null
@@ -165,6 +185,114 @@ views:
       - condition: user
         users:
         - e07f5c6a76fd4886ad5d945ed22f6d4b
+    - card_mod:
+        style: "ha-card {\n  height: 200px !important;\n  border-style: dashed;\n\
+          \  border-width: 2px;\n}\n"
+      cards:
+      - badge_color: ''
+        badge_icon: ''
+        card_mod:
+          style:
+            .: "ha-card {\n  border: 0px !important;\n  box-shadow: none !important;\n\
+              \  background: none;\n}\n:host {\n  --mush-icon-size: 160px;\n}\n"
+            mushroom-shape-icon$: ".shape {\n  position: relative;\n  left: -40px;\n\
+              \  top: 60px;\n}\n"
+            mushroom-state-info$: ".primary {\n  font-size: 20px !important;\n  position:\
+              \ relative;\n  top: -60px;\n  left: -160px;\n  overflow: visible !important;\n\
+              }\n.secondary {\n  font-size: 15px !important;\n  position: relative;\n\
+              \  overflow: visible !important;\n  top: -50px;\n  left: -160px;\n}\n"
+        double_tap_action: none
+        hold_action: none
+        icon: mdi:account
+        icon_color: "{% if is_state('binary_sensor.den_motion_occupancy', 'on') %}\n\
+          \  light-blue\n{%else%}\n  disabled\n{% endif %}"
+        layout: horizontal
+        primary: My Room
+        secondary: "\U0001F321\uFE0F {{states.sensor.den_temperature.state |round}}\
+          \ \xB0C | \U0001F4A7 {{states.sensor.den_humidity.state | round}} %\n"
+        tap_action:
+          action: navigate
+          navigation_path: /lovelace/pavan-room
+        type: custom:mushroom-template-card
+      - card_mod:
+          style:
+            .: "ha-card {\n  width: px;\n  margin-left: 65%;\n  top: -190px;\n  background:\
+              \ none;\n}\n:host {\n  --mush-icon-size: 45px;\n  perspective: 900px;\n\
+              }\nha-card:active {\n  transform: rotateX(25deg);\n  transform-origin:\
+              \ center bottom;\n  transition: 0s;\n}\n"
+            mushroom-shape-icon$: ".shape {\n  {% if is_state(config.entity, 'on')\
+              \ %}\n    {% if state_attr(config.entity, 'rgb_color') == none %}\n\
+              \      --icon-color: rgb(255,190,137) !important;\n      --shape-color:\
+              \ rgb(255,190,137, 0.2 ) !important;\n      --icon-animation: illumination\
+              \ 1s infinite;\n       }\n      @keyframes illumination {\n        0%,\
+              \ 100% { clip-path: inset(0 0 0 0); }\n        80% { clip-path: polygon(0%\
+              \ 99%, 20% 55%, 22% 37%, 39% 20%, 61% 21%, 77% 35%, 79% 57%, 99% 100%);\
+              \ }\n      }\n    {% else %}\n      {% set r = state_attr(config.entity,\
+              \ 'rgb_color')[0] %}\n      {% set g = state_attr(config.entity, 'rgb_color')[1]\
+              \ %}\n      {% set b = state_attr(config.entity, 'rgb_color')[2] %}\n\
+              \      --icon-color: rgb( {{r}}, {{g}}, {{b}} ) !important;\n      --shape-color:\
+              \ rgba( {{r}}, {{g}}, {{b}}, 0.2 ) !important;\n    {% endif %}\n  {%\
+              \ endif %}\n}\n"
+        entity: light.light
+        hold_action:
+          action: more-info
+        icon: mdi:lightbulb-on
+        icon_color: disabled
+        primary: null
+        secondary: null
+        type: custom:mushroom-template-card
+      - card_mod:
+          style:
+            .: "ha-card {\n  width: px;\n  margin-left: 65%;\n  top: -200px;\n  background:\
+              \ none;\n}\n:host {\n  --mush-icon-size: 45px;\n  perspective: 900px;\n\
+              }\nha-card:active {\n  transform: rotateX(25deg);\n  transform-origin:\
+              \ center bottom;\n  transition: 0s;\n}\n"
+            mushroom-shape-icon$: ".shape {\n  {% if is_state(config.entity, 'on')\
+              \ %}\n    {% if state_attr(config.entity, 'rgb_color') == none %}\n\
+              \      --icon-color: rgb(255,190,137) !important;\n      --shape-color:\
+              \ rgb(255,190,137, 0.2 ) !important;\n      --icon-animation: illumination\
+              \ 1s infinite;\n       }\n      @keyframes illumination {\n        0%,\
+              \ 100% { clip-path: inset(0 0 0 0); }\n        80% { clip-path: polygon(0%\
+              \ 99%, 20% 55%, 22% 37%, 39% 20%, 61% 21%, 77% 35%, 79% 57%, 99% 100%);\
+              \ }\n      }\n    {% else %}\n      {% set r = state_attr(config.entity,\
+              \ 'rgb_color')[0] %}\n      {% set g = state_attr(config.entity, 'rgb_color')[1]\
+              \ %}\n      {% set b = state_attr(config.entity, 'rgb_color')[2] %}\n\
+              \      --icon-color: rgb( {{r}}, {{g}}, {{b}} ) !important;\n      --shape-color:\
+              \ rgba( {{r}}, {{g}}, {{b}}, 0.2 ) !important;\n    {% endif %}\n  {%\
+              \ endif %}\n}\n"
+        entity: light.shapes
+        hold_action:
+          action: more-info
+        icon: mdi:hexagon-multiple
+        icon_color: disabled
+        primary: null
+        secondary: null
+        type: custom:mushroom-template-card
+      - card_mod:
+          style:
+            .: "ha-card {\n  width: px;\n  margin-left: 65%;\n  top: -210px;\n  background:\
+              \ none;\n}\n:host {\n  --mush-icon-size: 45px;\n  perspective: 900px;\n\
+              }\nha-card:active {\n  transform: rotateX(25deg);\n  transform-origin:\
+              \ center bottom;\n  transition: 0s;\n}\n"
+            mushroom-shape-icon$: ''
+        entity: switch.workstation
+        hold_action:
+          action: more-info
+        icon: mdi:desk
+        icon_color: "{% if is_state(config.entity, 'on') %}\n  deep-orange\n{%else%}\n\
+          \  disabled\n{% endif %}\n"
+        primary: null
+        secondary: null
+        type: custom:mushroom-template-card
+      grid_options:
+        columns: 6
+        rows: 200px
+      mode: vertical
+      type: custom:stack-in-card
+      visibility:
+      - condition: user
+        users:
+        - 6008aa4d06f8495bb08003a8a0382285
     - card_mod:
         style: "ha-card {\n  height: 200px !important;\n  border-style: dashed;\n\
           \  border-width: 2px;\n}\n"
@@ -910,7 +1038,7 @@ views:
       - condition: user
         users:
         - e07f5c6a76fd4886ad5d945ed22f6d4b
-        - 03fac29e97844166b40187a8b4c09ded
+        - 6008aa4d06f8495bb08003a8a0382285
     - card_mod:
         style: "ha-card {\n  height: 200px !important;\n  border-style: dashed;\n\
           \  border-width: 2px;\n}\n"
@@ -1267,8 +1395,8 @@ views:
         hold_action: none
         icon: mdi:bag-suitcase-outline
         icon_color: "{% if is_state('light.guest_bed_light', 'on') or is_state('light.guest_light',\
-          \ 'on') or not is_state('sensor.panel_heater_power', '0.0') %}\n  lime\n\
-          {%else%}\n  disabled\n{% endif %}"
+          \ 'on') or not is_state('sensor.panel_heater_power', '0.0') or not is_state('sensor.tp_link_router_total_guest_wifi_clients',\
+          \ '0') %}\n  #5dfccd\n{%else%}\n  disabled\n{% endif %}"
         layout: horizontal
         primary: Guest
         secondary: "\U0001F6DC {{states.sensor.tp_link_router_total_guest_wifi_clients.state}}\
@@ -1655,99 +1783,27 @@ views:
       - condition: user
         users:
         - 74f7e2ffd3594037b1a2fc4de82d9fea
-    - card_mod:
-        style: "ha-card {\n  height: 200px !important;\n  border-style: dashed;\n\
-          \  border-width: 2px;\n}\n"
-      cards:
-      - badge_color: ''
-        badge_icon: ''
-        card_mod:
-          style:
-            .: "ha-card {\n  border: 0px !important;\n  box-shadow: none !important;\n\
-              \  background: none;\n}\n:host {\n  --mush-icon-size: 160px;\n}\n"
-            mushroom-shape-icon$: ".shape {\n  position: relative;\n  left: -40px;\n\
-              \  top: 60px;\n}\n"
-            mushroom-state-info$: ".primary {\n  font-size: 20px !important;\n  position:\
-              \ relative;\n  top: -60px;\n  left: -160px;\n  overflow: visible !important;\n\
-              }\n.secondary {\n  font-size: 15px !important;\n  position: relative;\n\
-              \  overflow: visible !important;\n  top: -50px;\n  left: -160px;\n}\n"
-        icon: mdi:face-woman-shimmer-outline
-        icon_color: "{% if is_state('media_player.samsung_tv', 'on') or is_state('device_tracker.hilary_s_phone',\
-          \ 'home') %}\n  light-blue\n{% else %}\n  disabled\n{% endif %}"
-        layout: horizontal
-        primary: Hilary's Room
+    - actions:
         tap_action:
           action: navigate
-          navigation_path: /lovelace/hilary
-        type: custom:mushroom-template-card
-      - card_mod:
-          style:
-            .: "ha-card {\n  width: px;\n  margin-left: 65%;\n  top: -190px;\n  background:\
-              \ none;\n}\n:host {\n  --mush-icon-size: 45px;\n  perspective: 900px;\n\
-              }\nha-card:active {\n  transform: rotateX(25deg);\n  transform-origin:\
-              \ center bottom;\n  transition: 0s;\n}\n"
-            mushroom-shape-icon$: ".shape {\n  {% if is_state(config.entity, 'on')\
-              \ %}\n    {% if state_attr(config.entity, 'rgb_color') == none %}\n\
-              \      --icon-color: rgb(255,190,137) !important;\n      --shape-color:\
-              \ rgb(255,190,137, 0.2 ) !important;\n      --icon-animation: illumination\
-              \ 1s infinite;\n       }\n      @keyframes illumination {\n        0%,\
-              \ 100% { clip-path: inset(0 0 0 0); }\n        80% { clip-path: polygon(0%\
-              \ 99%, 20% 55%, 22% 37%, 39% 20%, 61% 21%, 77% 35%, 79% 57%, 99% 100%);\
-              \ }\n      }\n    {% else %}\n      {% set r = state_attr(config.entity,\
-              \ 'rgb_color')[0] %}\n      {% set g = state_attr(config.entity, 'rgb_color')[1]\
-              \ %}\n      {% set b = state_attr(config.entity, 'rgb_color')[2] %}\n\
-              \      --icon-color: rgb( {{r}}, {{g}}, {{b}} ) !important;\n      --shape-color:\
-              \ rgba( {{r}}, {{g}}, {{b}}, 0.2 ) !important;\n    {% endif %}\n  {%\
-              \ endif %}\n}\n"
-        entity: light.bed_lamp
-        hold_action:
-          action: more-info
-        icon: mdi:lamp
-        icon_color: disabled
-        primary: null
-        secondary: null
-        type: custom:mushroom-template-card
-      - card_mod:
-          style:
-            .: "ha-card {\n  width: px;\n  margin-left: 65%;\n  top: -200px;\n  background:\
-              \ none;\n}\n:host {\n  --mush-icon-size: 45px;\n  perspective: 900px;\n\
-              }\nha-card:active {\n  transform: rotateX(25deg);\n  transform-origin:\
-              \ center bottom;\n  transition: 0s;\n}\n"
-        entity: switch.heater
-        hold_action:
-          action: more-info
-        icon: '{{ ''mdi:radiator'' if is_state(config.entity, ''on'') else ''mdi:radiator-off''
-          }}'
-        icon_color: '{{ ''red'' if is_state(config.entity, ''on'') else ''disabled''
-          }}'
-        primary: null
-        secondary: null
-        type: custom:mushroom-template-card
-      - card_mod:
-          style:
-            .: "ha-card {\n  width: px;\n  margin-left: 65%;\n  top: -210px;\n  background:\
-              \ none;\n}\n:host {\n  --mush-icon-size: 45px;\n  perspective: 900px;\n\
-              }\nha-card:active {\n  transform: rotateX(25deg);\n  transform-origin:\
-              \ center bottom;\n  transition: 0s;\n}\n"
-            mushroom-shape-icon$: ''
-        entity: switch.heating_blanket
-        hold_action:
-          action: more-info
-        icon: phu:elec_blanket
-        icon_color: '{{ ''red'' if is_state(config.entity, ''on'') else ''disabled''
-          }}'
-        primary: null
-        secondary: null
-        type: custom:mushroom-template-card
+          navigation_path: /lovelace/formula-1
+      card_mod:
+        style: "ha-card h2{\n  font-size: 18px;\n  border: none !important;\n}\nha-card\
+          \ {\n  font-size: 10px;\n  border: none !important;\n  height: 200px !important;\n\
+          \  border-style: dashed;\n  border-width: 2px;\n}\n"
+      card_type: countdown
+      countdown_type:
+      - qualifying
+      - sprint
+      - race
+      date_locale: in
       grid_options:
         columns: 6
         rows: 200px
-      mode: vertical
-      type: custom:stack-in-card
-      visibility:
-      - condition: user
-        users:
-        - 74f7e2ffd3594037b1a2fc4de82d9fea
+      image_clickable: true
+      show_flag: false
+      show_raceinfo: false
+      type: custom:formulaone-card
     - card_mod:
         style: "ha-card {\n  height: 200px !important;\n  border-style: dashed;\n\
           \  border-width: 2px;\n}\n"
@@ -1766,24 +1822,32 @@ views:
               \  overflow: visible !important;\n  top: -50px;\n  left: -160px;\n}\n"
         icon: mdi:package-up
         icon_color: "{% if is_state('binary_sensor.hacs_updates', 'on') or is_state('binary_sensor.other_updates',\
-          \ 'on') or is_state('binary_sensor.addon_updates', 'on') %}\n  red\n{%else%}\n\
-          \  disabled\n{% endif %}"
+          \ 'on') or is_state('binary_sensor.addon_updates', 'on') or is_state('binary_sensor.remotehaaddon_updates',\
+          \ 'on') or is_state('binary_sensor.remotehahacs_updates', 'on') or is_state('binary_sensor.remotehaother_updates',\
+          \ 'on') %}\n  red\n{%elif is_state('update.home_assistant_supervisor_update',\
+          \ 'on') or is_state('update.home_assistant_core_update', 'on') %}\n  blue\n\
+          {%else%} disabled {% endif %}"
         layout: horizontal
         primary: Updates
         secondary: "{% set hacs_updates = states.update | selectattr('state', 'eq',\
           \ 'on') | selectattr('entity_id', 'in', integration_entities('hacs')) |\
-          \ map(attribute='name') | list | count %} {% set addon_updates = states.update\
+          \ map(attribute='name') | list | count %}\n{% set addon_updates = states.update\
           \ | selectattr('state', 'eq', 'on') | selectattr('entity_id', 'in', integration_entities('hassio'))\
-          \ | rejectattr('entity_id', 'eq', 'update.home_assistant_core_update') |\
-          \ map(attribute='name') | list | count %} {% set other_updates = states.update\
+          \ |  rejectattr('entity_id', 'eq', 'update.home_assistant_core_update')\
+          \ |  rejectattr('entity_id', 'eq', 'update.home_assistant_supervisor_update')\
+          \ |  map(attribute='name') | list | count %}\n{% set other_updates = states.update\
           \ | selectattr('state', 'eq', 'on') | rejectattr('entity_id', 'in', integration_entities('hassio'))\
           \ | rejectattr('entity_id', 'in', integration_entities('hacs')) | map(attribute='name')\
-          \ | list | count %}\n{% if hacs_updates == 0 and addon_updates == 0 and\
-          \ other_updates == 0 %}\n  No updates\n{% else %}\n  {% if hacs_updates\
-          \ != 0 %}\n    HACS Updates: {{ hacs_updates }}\n  {% endif %}\n\n  {% if\
-          \ addon_updates != 0 %}\n    Addon Updates: {{ addon_updates }}\n  {% endif\
-          \ %}\n\n  {% if other_updates != 0 %}\n    Other Updates: {{ other_updates\
-          \ }}\n  {% endif %}\n{% endif %}\n"
+          \ | list | count %}\n{% set supervisor_update = is_state('update.home_assistant_supervisor_update',\
+          \ 'on') %} {% set core_update = is_state('update.home_assistant_core_update',\
+          \ 'on') %}\n{% if hacs_updates == 0 and addon_updates == 0 and other_updates\
+          \ == 0 and not supervisor_update and not core_update %}\n  No updates\n\
+          {% else %}\n  {% if hacs_updates != 0 %}\n    HACS Updates: {{ hacs_updates\
+          \ }}\n  {% endif %}\n\n  {% if addon_updates != 0 %}\n    Addon Updates:\
+          \ {{ addon_updates }}\n  {% endif %}\n\n  {% if other_updates != 0 %}\n\
+          \    Other Updates: {{ other_updates }}\n  {% endif %}\n\n  {% if supervisor_update\
+          \ %}\n    Supervisor Update Available!\n  {% endif %}\n\n  {% if core_update\
+          \ %}\n    Core Update Available!\n  {% endif %}\n{% endif %}\n"
         tap_action:
           action: navigate
           navigation_path: /lovelace/updates
@@ -1854,6 +1918,21 @@ views:
           state: 'on'
         - condition: state
           entity: binary_sensor.other_updates
+          state: 'on'
+        - condition: state
+          entity: binary_sensor.remotehaaddon_updates
+          state: 'on'
+        - condition: state
+          entity: binary_sensor.remotehahacs_updates
+          state: 'on'
+        - condition: state
+          entity: binary_sensor.remotehaother_updates
+          state: 'on'
+        - condition: state
+          entity: update.home_assistant_supervisor_update
+          state: 'on'
+        - condition: state
+          entity: update.home_assistant_core_update
           state: 'on'
       - condition: user
         users:
@@ -2030,14 +2109,70 @@ views:
       - condition: user
         users:
         - 74f7e2ffd3594037b1a2fc4de82d9fea
+    - card_mod:
+        style: "ha-card {\n  height: 200px !important;\n  border-style: dashed;\n\
+          \  border-width: 2px;\n}\n"
+      cards:
+      - card_mod:
+          style:
+            mushroom-state-info$: ".primary {\n  font-size: 20px !important;\n  position:\
+              \ relative;\n  overflow: visible !important;\n}\n.secondary {\n  font-size:\
+              \ 13px !important;\n  position: relative;\n  overflow: visible !important;\n\
+              \  top: 10px;\n}\n"
+        entity: ''
+        primary: Internet Speed
+        secondary: "\u2B06\uFE0F {{states.sensor.speedtest_download.state}} Mbps |\
+          \  \u2B07\uFE0F {{states.sensor.speedtest_upload.state}} Mbps\n"
+        tap_action:
+          action: call-service
+          data:
+            addon: 6b87c29e_speedtest_addon
+          service: hassio.addon_start
+          target: {}
+        type: custom:mushroom-template-card
+      - entities:
+        - color: '#f24d1b'
+          entity: sensor.speedtest_download
+        hours_to_show: 24
+        line_width: 5
+        show:
+          fill: fade
+          icon: false
+          legend: false
+          name: false
+          state: false
+        type: custom:mini-graph-card
+      - entities:
+        - color: '#0960eb'
+          entity: sensor.speedtest_upload
+        hours_to_show: 24
+        line_width: 5
+        show:
+          fill: fade
+          icon: false
+          legend: false
+          name: false
+          state: false
+        type: custom:mini-graph-card
+      grid_options:
+        columns: 6
+        rows: 200px
+      mode: vertical
+      type: custom:stack-in-card
+      visibility:
+      - condition: user
+        users:
+        - 6008aa4d06f8495bb08003a8a0382285
+        - e07f5c6a76fd4886ad5d945ed22f6d4b
     column_span: 3
     type: grid
   theme: dashboard_theme
+  top_margin: false
   type: sections
   visible:
   - user: 74f7e2ffd3594037b1a2fc4de82d9fea
-  - user: 03fac29e97844166b40187a8b4c09ded
   - user: e07f5c6a76fd4886ad5d945ed22f6d4b
+  - user: 6008aa4d06f8495bb08003a8a0382285
 - cards:
   - alignment: center
     card_mod:
@@ -2114,7 +2249,7 @@ views:
         service: homeassistant.update_entity
         target:
           entity_id: weather.home
-      entity: weather.forecast_home
+      entity: weather.home
       show_conditions: true
       show_temperature: true
       tap_action:
@@ -2372,7 +2507,7 @@ views:
   - dateFormat: LL
     enableModeChange: true
     entities:
-    - entity: calendar.thanuj_usp_gmail_com
+    - entity: calendar.personal
       name: Personal
     maxDaysToShow: 7
     name: Calendar
@@ -2635,7 +2770,7 @@ views:
       badge_icon: ''
       card_mod:
         style: "ha-state-icon:before {\n{% if is_state (config.entity, 'on') %}\n\
-          \  content: \"\";\n  position: absolute;\n  width: 40%;\n  height: 30%;\n\
+          \  content: \"\";\n  position: absolute;\n  width: 50%;\n  height: 30%;\n\
           \  margin: 10%;\n  animation: refresh 500ms linear 100;\n{% else %}\n{%\
           \ endif %}\n}\n@keyframes refresh { \n  0% { background: linear-gradient(180deg,\
           \ rgba(var(--rgb-purple), 1.2) 0%, transparent 50%, transparent 100%); }\n\
@@ -2919,26 +3054,27 @@ views:
                 \ blur(250px) saturate(400%);\n  background-size: full;\n}\n"
             cards:
             - card_mod:
-                style: "mushroom-shape-icon {\n  \n  display: flex;\n  {% set media_type\
-                  \ = state_attr(config.entity, 'media_content_type') %}\n  {% if\
-                  \ media_type == 'music' %}\n    --card-mod-icon: mdi:speaker;\n\
-                  \    --card-mod-icon-color: rgba(var(--rgb-green));\n    --shape-color:\
-                  \ rgba(var(--rgb-green), 0.2);\n    animation: beat 1.3s ease-out\
-                  \ infinite both;\n  {% else %}\n    --card-mod-icon: mdi:spotify;\n\
-                  \  {% endif %}\n}\n@keyframes flicker {\n  0%, 31.98%, 32.98%, 34.98%,\
-                  \ 36.98%, 39.98%, 67.98%, 68.98%, 95.98%, 96.98%, 97.98%, 98.98%,\
-                  \ 100% { --icon-color: rgba(var(--rgb-green), 1); }\n  32%, 33%,\
-                  \ 35%, 36%, 37%, 40%, 68%, 69%, 96%, 97%, 98%, 99% { --icon-color:\
-                  \ rgba(var(--rgb-green), 0.6); }\n}\n@keyframes beat {\n  0%, 60%\
-                  \ { --shape-color: rgba(var(--rgb-green), 0.2);--icon-symbol-size:\
-                  \ 21px; }\n  5%, 17%, 57% { --shape-color: rgba(var(--rgb-green),\
-                  \ 0.2); --icon-symbol-size: 22px; }\n  10%, 20%, 51% { --shape-color:\
-                  \ rgba(var(--rgb-green), 0.2); --icon-symbol-size: 23px; }\n  25%,\
-                  \ 45% { --shape-color: rgba(var(--rgb-green), 0.2); --icon-symbol-size:\
-                  \ 24px; }\n  30%, 39% { --shape-color: rgba(var(--rgb-green), 0.2);\
-                  \ --icon-symbol-size: 25px; }\n  33% { --shape-color: rgba(var(--rgb-green),\
-                  \ 0.2); --icon-symbol-size: 26px; }\n  100% {--shape-color: rgba(var(--rgb-green),\
-                  \ 0.2);}\n}\nha-card {\n  --ha-card-border-width: 0;\n}\n"
+                style:
+                  .: "mushroom-shape-icon {        \n  display: flex;\n  {% set media_type\
+                    \ = state_attr(config.entity, 'media_content_type') %}\n  {% if\
+                    \ media_type == 'music' %}\n    --card-mod-icon: mdi:speaker;\n\
+                    \    --card-mod-icon-color: rgba(var(--rgb-green));\n    --shape-color:\
+                    \ rgba(var(--rgb-green), 0.2);\n    animation: beat 1.3s ease-out\
+                    \ infinite both;\n  {% else %}\n    --card-mod-icon: mdi:spotify;\n\
+                    \  {% endif %}\n}\n@keyframes beat {\n  0%, 60% { --shape-color:\
+                    \ rgba(var(--rgb-green), 0.2);--icon-symbol-size: 21px; }\n  5%,\
+                    \ 17%, 57% { --shape-color: rgba(var(--rgb-green), 0.2); --icon-symbol-size:\
+                    \ 22px; }\n  10%, 20%, 51% { --shape-color: rgba(var(--rgb-green),\
+                    \ 0.2); --icon-symbol-size: 23px; }\n  25%, 45% { --shape-color:\
+                    \ rgba(var(--rgb-green), 0.2); --icon-symbol-size: 24px; }\n \
+                    \ 30%, 39% { --shape-color: rgba(var(--rgb-green), 0.2); --icon-symbol-size:\
+                    \ 25px; }\n  33% { --shape-color: rgba(var(--rgb-green), 0.2);\
+                    \ --icon-symbol-size: 26px; }\n  100% {--shape-color: rgba(var(--rgb-green),\
+                    \ 0.2);}\n}\nha-card {\n  --ha-card-border-width: 0;\n}\n"
+                  mushroom-media-player-volume-control$:
+                    mushroom-slider$: ".slider {\n --main-color: rgba(var(--rgb-green))\
+                      \ !important;\n --bg-color: rgba(var(--rgb-green), 0.2) !important;\n\
+                      }\n"
               collapsible_controls: true
               double_tap_action:
                 action: none
@@ -3430,9 +3566,17 @@ views:
       width_desktop: 800px
     - current: true
       details: true
-      entity: weather.forecast_home
+      entity: weather.home
       forecast: true
       forecast_type: hourly
+      hourly_forecast: true
+      number_of_forecasts: '7'
+      type: custom:weather-card
+    - current: false
+      details: false
+      entity: weather.home
+      forecast: true
+      forecast_type: daily
       hourly_forecast: true
       number_of_forecasts: '7'
       type: custom:weather-card
@@ -3674,6 +3818,569 @@ views:
   visible:
   - user: 74f7e2ffd3594037b1a2fc4de82d9fea
   - user: 5e94cdd892054937b560071ed6662cb8
+- badges:
+  - alignment: center
+    chips:
+    - content_info: none
+      entity: sun.sun
+      icon_color: orange
+      tap_action:
+        action: navigate
+        navigation_path: '#sun'
+      type: entity
+      use_entity_picture: false
+    - content_info: none
+      entity: sensor.moon_phase
+      tap_action:
+        action: navigate
+        navigation_path: '#moon'
+      type: entity
+      use_entity_picture: true
+    - content_info: none
+      entity: binary_sensor.den_motion_occupancy
+      icon_color: teal
+      type: entity
+    - content_info: none
+      entity: binary_sensor.chair_occupancy
+      icon_color: purple
+      type: entity
+    - entity: binary_sensor.den_door_contact
+      icon: '{{ iif(is_state(''binary_sensor.den_door_contact'', ''on''), ''mdi:door-open'',
+        ''mdi:door-closed'') }}'
+      icon_color: '{{ iif(is_state(''binary_sensor.den_door_contact'', ''on''), ''green'',
+        ''red'') }}'
+      tap_action:
+        action: more-info
+      type: template
+    - double_tap_action:
+        action: call-service
+        service: homeassistant.update_entity
+        target:
+          entity_id: weather.home
+      entity: weather.home
+      show_conditions: true
+      show_temperature: true
+      tap_action:
+        action: navigate
+        navigation_path: '#weather'
+      type: weather
+    type: custom:mushroom-chips-card
+  cards: []
+  icon: mdi:face-man
+  max_columns: 4
+  path: pavan-room
+  sections:
+  - cards:
+    - cards:
+      - card_mod:
+          style: "ha-card {\n  {% if is_state(config.entity, 'on') %}\n     background:\
+            \ rgba(var(--rgb-green), 0.3);\n  {%- else -%}\n  {%- endif %}\n}\n"
+        double_tap_action:
+          action: perform-action
+          perform_action: homeassistant.turn_on
+        entity: group.den
+        fill_container: false
+        hold_action:
+          action: none
+        icon: '{% if is_state(''group.den'', ''on'') %}
+
+          mdi:account
+
+          {% else %}
+
+          mdi:account-outline
+
+          {% endif %}'
+        icon_color: '{% if is_state(''group.den'', ''on'') %}
+
+          green
+
+          {% else %}
+
+          disabled
+
+          {% endif %}'
+        layout: horizontal
+        primary: Home
+        secondary: ''
+        tap_action:
+          action: none
+        type: custom:mushroom-template-card
+      - card_mod:
+          style: "ha-card {\n  {% if is_state(config.entity, 'off') %}\n     background:\
+            \ rgba(var(--rgb-brown), 0.3);\n  {%- else -%}\n  {%- endif %}\n}\n"
+        double_tap_action:
+          action: call-service
+          data: {}
+          service: homeassistant.turn_off
+          target:
+            entity_id: group.den
+        entity: group.den
+        fill_container: false
+        hold_action:
+          action: none
+        icon: '{% if is_state(''group.den'', ''on'') %}
+
+          mdi:account-off-outline
+
+          {% else %}
+
+          mdi:account-off
+
+          {% endif %}'
+        icon_color: '{% if is_state(''group.den'', ''on'') %}
+
+          disabled
+
+          {% else %}
+
+          brown
+
+          {% endif %}'
+        layout: horizontal
+        primary: Away
+        secondary: ''
+        tap_action:
+          action: none
+        type: custom:mushroom-template-card
+      - card_mod:
+          style: "ha-card {\n  {% if is_state(config.entity, 'on') %}\n     background:\
+            \ rgba(var(--rgb-blue), 0.3);\n  {%- else -%}\n  {%- endif %}\n}\nha-state-icon\
+            \ {\n  {{ 'animation: bed-animation 2s 1000;' if is_state('binary_sensor.in_bed',\
+            \ 'on') }}\n}\n@keyframes bed-animation {\n  0%, 100% { transform: scale(1);\
+            \ }\n  50% { transform: scale(.8); }\n}\n"
+        double_tap_action:
+          action: none
+        entity: binary_sensor.in_bed
+        fill_container: false
+        hold_action:
+          action: more-info
+        icon: '{{ iif(is_state(''binary_sensor.in_bed'', ''on''), ''mdi:bed'', ''mdi:bed-outline'')
+          }}'
+        icon_color: '{% if is_state(''binary_sensor.in_bed'', ''on'') %}
+
+          blue
+
+          {% else %}
+
+          disabled
+
+          {% endif %}'
+        layout: horizontal
+        primary: Sleep
+        secondary: ''
+        tap_action:
+          action: navigate
+          navigation_path: '#sleepsounds'
+        type: custom:mushroom-template-card
+      columns: 3
+      square: false
+      type: grid
+    - card_mod:
+        style: "ha-card {\n  {% set r = state_attr(config.entity, 'rgb_color')[0]\
+          \ %}\n  {% set g = state_attr(config.entity, 'rgb_color')[1] %}\n  {% set\
+          \ b = state_attr(config.entity, 'rgb_color')[2] %}\n  background: rgba(\
+          \ {{r}}, {{g}}, {{b}}, 0.2 );\n}\n"
+      collapsible_controls: true
+      entity: light.light
+      fill_container: false
+      grid_options:
+        columns: full
+      icon: mdi:ceiling-light
+      icon_color: white
+      name: Lumos
+      show_brightness_control: true
+      show_color_control: true
+      show_color_temp_control: true
+      type: custom:mushroom-light-card
+      use_light_color: true
+    - card_mod:
+        style: "ha-card {\n  {% set r = state_attr(config.entity, 'rgb_color')[0]\
+          \ %}\n  {% set g = state_attr(config.entity, 'rgb_color')[1] %}\n  {% set\
+          \ b = state_attr(config.entity, 'rgb_color')[2] %}\n  background: rgba(\
+          \ {{r}}, {{g}}, {{b}}, 0.2 );\n}\n"
+      collapsible_controls: true
+      entity: light.lamp
+      fill_container: false
+      grid_options:
+        columns: full
+      icon: mdi:lamp-outline
+      name: Bed Light
+      show_brightness_control: true
+      show_color_control: true
+      show_color_temp_control: true
+      type: custom:mushroom-light-card
+      use_light_color: true
+    - card_mod:
+        style: "ha-card {\n   {% set r = state_attr(config.entity, 'rgb_color')[0]\
+          \ %}\n   {% set g = state_attr(config.entity, 'rgb_color')[1] %}\n   {%\
+          \ set b = state_attr(config.entity, 'rgb_color')[2] %}\n   background: rgba(\
+          \ {{r}}, {{g}}, {{b}}, 0.2 );\n }\nha-state-icon {\n {{ 'animation: spin\
+          \ 2s linear infinite, blink 1s ease infinite;' if is_state ('light.shapes',\
+          \ 'on')}}\n  @keyframes blink {\n    0%, 100% { opacity: 1; }\n    50% {\
+          \ opacity: 0; }\n  }\n"
+      collapsible_controls: true
+      entity: light.shapes
+      fill_container: false
+      grid_options:
+        columns: full
+      icon: mdi:hexagon-multiple
+      show_brightness_control: true
+      show_color_control: true
+      show_color_temp_control: true
+      type: custom:mushroom-light-card
+      use_light_color: true
+    - card:
+        alignment: center
+        chips:
+        - content_info: name
+          entity: light.shapes
+          name: Nanoversary
+          tap_action:
+            action: call-service
+            data:
+              effect: Nanoversary
+            service: light.turn_on
+            target:
+              entity_id: light.shapes
+          type: light
+          use_light_color: true
+        - content_info: name
+          entity: light.shapes
+          name: Northern Lights
+          tap_action:
+            action: call-service
+            data:
+              effect: Northern Lights
+            service: light.turn_on
+            target:
+              entity_id: light.shapes
+          type: light
+          use_light_color: true
+        - content_info: name
+          entity: light.shapes
+          name: TV
+          tap_action:
+            action: call-service
+            data:
+              effect: TV Simulation
+            service: light.turn_on
+            target:
+              entity_id: light.shapes
+          type: light
+          use_light_color: true
+        - content_info: name
+          entity: light.shapes
+          name: Lightscape
+          tap_action:
+            action: call-service
+            data:
+              effect: Lightscape
+            service: light.turn_on
+            target:
+              entity_id: light.shapes
+          type: light
+          use_light_color: true
+        - content_info: name
+          entity: light.shapes
+          icon: mdi:music
+          name: Lightning
+          tap_action:
+            action: call-service
+            data:
+              effect: Lightning
+            service: light.turn_on
+            target:
+              entity_id: light.shapes
+          type: light
+          use_light_color: true
+        - content_info: name
+          entity: light.shapes
+          icon: mdi:puzzle
+          name: Hedgehog
+          tap_action:
+            action: call-service
+            data:
+              effect: Catch a Hedgehog
+            service: light.turn_on
+            target:
+              entity_id: light.shapes
+          type: light
+          use_light_color: true
+        - content_info: name
+          entity: light.shapes
+          icon: mdi:puzzle
+          name: Memory
+          tap_action:
+            action: call-service
+            data:
+              effect: Memory
+            service: light.turn_on
+            target:
+              entity_id: light.shapes
+          type: light
+          use_light_color: true
+        type: custom:mushroom-chips-card
+      conditions:
+      - condition: state
+        entity: light.shapes
+        state: 'on'
+      type: conditional
+    - badge_color: ''
+      badge_icon: ''
+      card_mod:
+        style: "ha-state-icon:before {\n{% if is_state (config.entity, 'on') %}\n\
+          \  content: \"\";\n  position: absolute;\n  width: 50%;\n  height: 30%;\n\
+          \  margin: 10%;\n  animation: refresh 500ms linear 100;\n{% else %}\n{%\
+          \ endif %}\n}\n@keyframes refresh { \n  0% { background: linear-gradient(180deg,\
+          \ rgba(var(--rgb-purple), 1.2) 0%, transparent 50%, transparent 100%); }\n\
+          \  25% { background: linear-gradient(180deg, transparent 0%, rgba(var(--rgb-purple),\
+          \ 1.2) 25%, transparent 100%); }\n  50% { background: linear-gradient(180deg,\
+          \ transparent 0%, rgba(var(--rgb-purple), 1.2) 50%, transparent 100%); }\n\
+          \  75% { background: linear-gradient(180deg, transparent 0%, rgba(var(--rgb-purple),\
+          \ 1.2) 75%, transparent 100%); }\n  100% { background: linear-gradient(180deg,\
+          \ transparent 0%, transparent 50%, rgba(var(--rgb-purple), 1.2) 100%); }\n\
+          }\nha-card {\n  {% if is_state(config.entity, 'on') %}\n     background:\
+          \ rgba(var(--rgb-purple), 0.2);\n  {%- else -%}\n  {%- endif %}\n}\n"
+      entity: switch.workstation
+      grid_options:
+        columns: full
+      icon: '{{ iif(is_state(''switch.workstation'', ''on''), ''mdi:monitor'', ''mdi:monitor-off'')}}'
+      icon_color: '{{ iif(is_state(''switch.workstation'', ''on''), ''purple'', ''disabled'')}}'
+      primary: Workstation
+      secondary: '{{ iif(is_state(''switch.workstation'', ''on''), (states.sensor.workstation_power.state
+        + " W"), ''Off'')}}'
+      type: custom:mushroom-template-card
+    - badge_color: ''
+      badge_icon: ''
+      card_mod:
+        style: "ha-state-icon {\n  {{'animation: charge 1s linear 1000;' if not is_state('sensor.charger_power',\
+          \ '0.0')}}\n}\n@keyframes charge {\n  0%, 10%, 20%, 30%, 40%, 50%, 60%,\
+          \ 70%, 80%, 90%, 100% { transform: translate(0, 0); }\n  5% { transform:\
+          \ translate({{ range(-10, 10) | random / 10 }}px, {{ range(-10, 10) | random\
+          \ / 10 }}px); }\n  15% { transform: translate({{ range(-10, 10) | random\
+          \ / 10 }}px, {{ range(-10, 10) | random / 10 }}px); }\n  25% { transform:\
+          \ translate({{ range(-10, 10) | random / 10 }}px, {{ range(-10, 10) | random\
+          \ / 10 }}px); }\n  35% { transform: translate({{ range(-10, 10) | random\
+          \ / 10 }}px, {{ range(-10, 10) | random / 10 }}px); }\n  45% { transform:\
+          \ translate({{ range(-10, 10) | random / 10 }}px, {{ range(-10, 10) | random\
+          \ / 10 }}px); }\n  55% { transform: translate({{ range(-10, 10) | random\
+          \ / 10 }}px, {{ range(-10, 10) | random / 10 }}px); }\n  65% { transform:\
+          \ translate({{ range(-10, 10) | random / 10 }}px, {{ range(-10, 10) | random\
+          \ / 10 }}px); }\n  75% { transform: translate({{ range(-10, 10) | random\
+          \ / 10 }}px, {{ range(-10, 10) | random / 10 }}px); }\n  85% { transform:\
+          \ translate({{ range(-10, 10) | random / 10 }}px, {{ range(-10, 10) | random\
+          \ / 10 }}px); }\n  95% { transform: translate({{ range(-10, 10) | random\
+          \ / 10 }}px, {{ range(-10, 10) | random / 10 }}px); }\n}\nha-card {\n  {{\
+          \ iif(is_state('switch.charger', 'on'), iif(is_state('sensor.charger_power',\n\
+          \  '0.0'), 'disabled', 'background: rgba(var(--rgb-yellow), 0.2);'), 'disabled')}}\n\
+          }\n"
+      double_tap_action:
+        action: more-info
+      entity: switch.charger
+      grid_options:
+        columns: full
+      icon: '{{ iif(is_state(''switch.charger'', ''on''), iif(is_state(''sensor.charger_power'',
+        ''0.0''), ''mdi:power-plug'', ''mdi:lightning-bolt''), ''mdi:power-plug-off'')}}'
+      icon_color: '{{ iif(is_state(''switch.charger'', ''on''), iif(is_state(''sensor.charger_power'',
+        ''0.0''), ''disabled'', ''yellow''), ''disabled'')}}'
+      primary: Charger
+      secondary: '{{ iif(is_state(''switch.charger'', ''on''), (states.sensor.charger_power.state
+        + " W"), ''Off'')}}'
+      tap_action:
+        action: toggle
+      type: custom:mushroom-template-card
+    - badge_color: ''
+      badge_icon: ''
+      card_mod:
+        style:
+          .: "ha-card {\n{{ iif(is_state('switch.bed_warmer', 'on'),\niif(is_state('sensor.bed_warmer_power',\
+            \ '0.0'), 'background: rgba(var(--rgb-green), 0.2);', 'background: rgba(var(--rgb-red),\
+            \ 0.2);'), 'disabled')}}\n   \n}\n"
+          mushroom-shape-icon$: ".shape {\n  {{'--shape-animation: ping 2s 1000;'\
+            \ if is_state ('switch.bed_warmer', 'on')}}\n}\n@keyframes ping {\n  0%\
+            \ { box-shadow: 0 0 0 0 rgba(var(--rgb-red), 1); }\n  100% { box-shadow:\
+            \ 0 0 5px 10px transparent; }\n}\n"
+      double_tap_action:
+        action: more-info
+      entity: switch.bed_warmer
+      grid_options:
+        columns: full
+      icon: '{{ iif(is_state(''switch.bed_warmer'', ''on''), ''phu:elec_blanket'',
+        ''mdi:power-plug-off-outline'')}}'
+      icon_color: '{{ iif(is_state(''switch.bed_warmer'', ''on''), iif(is_state(''sensor.bed_warmer_power'',
+        ''0.0''), ''green'', ''red''), ''disabled'')}}'
+      primary: Bed Warmer
+      secondary: '{{ iif(is_state(''switch.bed_warmer'', ''on''), (states.sensor.bed_warmer_power.state
+        + " W"), ''Off'')}}'
+      tap_action:
+        action: call-service
+        data: {}
+        service: homeassistant.toggle
+        target:
+          entity_id: switch.bed_warmer
+      type: custom:mushroom-template-card
+    - cards:
+      - double_tap_action:
+          action: more-info
+        entity: cover.curtains
+        fill_container: false
+        hold_action:
+          action: more-info
+        name: Curtains
+        primary_info: name
+        secondary_info: state
+        show_buttons_control: false
+        show_position_control: false
+        show_tilt_position_control: false
+        type: custom:mushroom-cover-card
+      - alignment: end
+        card_mod:
+          style: "ha-card {\n  padding-top: 12px;\n  padding-right: 25px;\n}\n"
+        chips:
+        - icon: mdi:curtains-closed
+          icon_color: blue
+          tap_action:
+            action: call-service
+            service: cover.close_cover
+            target:
+              entity_id: cover.curtains
+          type: action
+        - icon: mdi:curtains
+          icon_color: blue
+          tap_action:
+            action: call-service
+            service: cover.open_cover
+            target:
+              entity_id: cover.curtains
+          type: action
+        type: custom:mushroom-chips-card
+      mode: horizontal
+      type: custom:stack-in-card
+    - card_mod:
+        style: "mushroom-shape-icon {      \n  {% if is_state(config.entity, 'heat_cool')\
+          \ %}\n    --card-mod-icon: mdi:fire;\n    animation: heat 2s 1000; \n  {%\
+          \ endif %}\n  display: flex;\n}   \n@keyframes heat {\n  0%, 100% { --shape-color:\
+          \ rgba(var(--rgb-red), 0.1); --icon-color: rgba(var(--rgb-red), 1); }\n\
+          \  10%, 90% { --icon-color: rgba(var(--rgb-red), 0.8); }\n  20%, 80% { --icon-color:\
+          \ rgba(var(--rgb-red), 0.6); }\n  30%, 70% { --icon-color: rgba(var(--rgb-red),\
+          \ 0.4); }\n  40%, 60% { --icon-color: rgba(var(--rgb-red), 0.2); }\n  50%\
+          \ { --icon-color: rgba(var(--rgb-red), 0); }\n}\nha-card {\n{% if is_state(config.entity,\
+          \ 'heat_cool') %}\n  background: rgba(var(--rgb-red), 0.2);\n{% endif %}\
+          \ \n}\n"
+      collapsible_controls: true
+      entity: climate.heater
+      fill_container: false
+      grid_options:
+        columns: full
+      show_temperature_control: true
+      type: custom:mushroom-climate-card
+    - card:
+        card_mod:
+          style: "ha-card {\n  {% set r = state_attr(config.entity, 'rgb_color')[0]\
+            \ %}\n  {% set g = state_attr(config.entity, 'rgb_color')[1] %}\n  {%\
+            \ set b = state_attr(config.entity, 'rgb_color')[2] %}\n  background:\
+            \ rgba( {{r}}, {{g}}, {{b}}, 0.2 );\n}\n"
+        collapsible_controls: true
+        entity: light.heater
+        name: Heater Light
+        show_brightness_control: false
+        show_color_control: true
+        show_color_temp_control: false
+        type: custom:mushroom-light-card
+        use_light_color: true
+      conditions:
+      - entity: climate.heater
+        state_not: 'off'
+      type: conditional
+    - cards:
+      - card_mod:
+          style: "ha-card {\n   {% set r = state_attr(config.entity, 'rgb_color')[0]\
+            \ %}\n   {% set g = state_attr(config.entity, 'rgb_color')[1] %}\n   {%\
+            \ set b = state_attr(config.entity, 'rgb_color')[2] %}\n   background:\
+            \ rgba( {{r}}, {{g}}, {{b}}, 0.2 );\n }\n"
+        entity: light.diffuser_light
+        icon: phu:essential-oil-diffuser-alt
+        icon_color: blue-grey
+        name: Diffuser
+        tap_action:
+          action: call-service
+          data: {}
+          service: switch.toggle
+          target:
+            entity_id: switch.diffuser
+        type: custom:mushroom-light-card
+        use_light_color: true
+      - card:
+          alignment: center
+          chips:
+          - content: High
+            entity: select.diffuser_mist_mode
+            icon: mdi:weather-windy
+            icon_color: '{{ iif(is_state(''select.diffuser_mist_mode'', ''High''),
+              ''green'', ''disabled'') }}'
+            tap_action:
+              action: call-service
+              data:
+                option: High
+              service: select.select_option
+              target:
+                entity_id: select.diffuser_mist_mode
+            type: template
+          - content: Low
+            entity: select.diffuser_mist_mode
+            icon: mdi:weather-windy
+            icon_color: '{{ iif(is_state(''select.diffuser_mist_mode'', ''Low''),
+              ''blue'', ''disabled'') }}'
+            tap_action:
+              action: call-service
+              data:
+                option: Low
+              service: select.select_option
+              target:
+                entity_id: select.diffuser_mist_mode
+            type: template
+          - content_info: none
+            entity: light.diffuser_light
+            type: light
+            use_light_color: true
+          - content_info: name
+            entity: light.diffuser_light
+            name: Gradient
+            tap_action:
+              action: call-service
+              data:
+                option: Gradient
+              service: select.select_option
+              target:
+                entity_id: select.diffuser_light_mode
+            type: light
+            use_light_color: true
+          - content_info: name
+            entity: light.diffuser_light
+            name: Fixed
+            tap_action:
+              action: call-service
+              data:
+                option: Fixed
+              service: select.select_option
+              target:
+                entity_id: select.diffuser_light_mode
+            type: light
+            use_light_color: true
+          type: custom:mushroom-chips-card
+        conditions:
+        - condition: state
+          entity: switch.diffuser
+          state: 'on'
+        type: conditional
+      type: vertical-stack
+    type: grid
+  title: Pavan's Room
+  type: sections
+  visible:
+  - user: 74f7e2ffd3594037b1a2fc4de82d9fea
+  - user: 6008aa4d06f8495bb08003a8a0382285
 - cards:
   - cards:
     - card_mod:
@@ -3717,22 +4424,17 @@ views:
         use_light_color: true
       type: horizontal-stack
     - badge_color: ''
-      badge_icon: ''
-      entity: switch.heater
-      icon: '{{ iif(is_state(''binary_sensor.heater'', ''on''), ''mdi:radiator'',
-        ''mdi:radiator-off'')}}'
-      icon_color: '{{ ''red'' if is_state(''binary_sensor.heater'', ''on'') else ''yellow''
-        if is_state(''switch.heater'', ''on'') else ''disabled'' }}'
+      entity: switch.salt_lamp
+      icon: phu:salt-lamp
+      icon_color: '{{ ''red'' if is_state(''binary_sensor.salt_lamp'', ''on'') else
+        ''yellow'' if is_state(''switch.salt_lamp'', ''on'') else ''disabled'' }}'
       multiline_secondary: false
-      primary: Heater
-      secondary: Turned {{states.binary_sensor.heater.state}} at {{(as_timestamp(states.binary_sensor.heater.last_changed)
-        | timestamp_custom('%-I:%M %p'))}} | {{states.sensor.heater_power.state}}
+      primary: Salt Lamp
+      secondary: Turned {{states.binary_sensor.salt_lamp.state}} at {{(as_timestamp(states.binary_sensor.salt_lamp.last_changed)
+        | timestamp_custom('%-I:%M %p'))}} | {{states.sensor.salt_lamp_power.state}}
         W
       tap_action:
-        action: call-service
-        service: switch.toggle
-        target:
-          entity_id: switch.heater
+        action: toggle
       type: custom:mushroom-template-card
     - entity: switch.heating_blanket
       tap_action:
@@ -4006,11 +4708,38 @@ views:
       - 74f7e2ffd3594037b1a2fc4de82d9fea
     type: conditional
   - cards:
-    - color_type: blank-card
+    - aspect_ratio: 1/1
+      entity: person.rahul_pampati
+      hold_action:
+        action: none
+      show_entity_picture: true
+      show_name: false
+      state:
+      - styles:
+          entity_picture:
+          - border-color: '#77c66e'
+        value: home
+      - styles:
+          entity_picture:
+          - border-color: '#EF4F1A'
+          - opacity: 0.8
+        value: not_home
+      - styles:
+          entity_picture:
+          - border-color: deepskyblue
+        value: Work
       styles:
         card:
-        - background-color: var(--primary-background-color)
-        - border: none
+        - --ha-card-background: transparent;
+        - --ha-card-box-shadow: none;
+        entity_picture:
+        - clip-path: circle()
+        - width: 80%
+        - border: 5px solid
+        - border-radius: 900px
+        - opacity: 1
+      tap_action:
+        action: none
       type: custom:button-card
     - aspect_ratio: 1/1
       entity: person.pavanthanuj
@@ -4082,7 +4811,7 @@ views:
       tap_action:
         action: none
       type: custom:button-card
-    columns: 4
+    columns: 3
     square: false
     type: grid
     view_layout:
@@ -4606,17 +5335,6 @@ views:
       show_color_control: true
       type: custom:mushroom-light-card
       use_light_color: true
-    - card_mod:
-        style: "ha-card {\n  {% if is_state(config.entity, 'on') %}\n     background:\
-          \ rgba(var(--rgb-green), 0.2);\n  {%- else -%}\n  {%- endif %}\n}\n"
-      collapsible_controls: true
-      entity: switch.dragon
-      icon: fas:dragon
-      icon_color: green
-      name: Dragon
-      secondary_info: last-changed
-      show_brightness_control: true
-      type: custom:mushroom-light-card
     type: vertical-stack
     view_layout:
       column: 2
@@ -5350,25 +6068,29 @@ views:
     type: custom:mushroom-template-badge
   cards: []
   dense_section_placement: true
+  header:
+    badges_position: bottom
+    card:
+      content: "## \U0001F9FA Washing Machine"
+      text_only: true
+      type: markdown
+    layout: responsive
   icon: mdi:washing-machine
   layout: {}
   max_columns: 2
   path: utilities
   sections:
   - cards:
-    - heading: "\U0001F9FA Washing Machine"
-      heading_style: title
-      type: heading
     - cards:
       - card_mod:
           style:
-            .: "@media (max-width: 600px) {\n  ha-card {\n  border: 0px !important;\n\
-              \  box-shadow: none !important;\n  background: none;\n}\n  :host {\n\
-              \    --mush-icon-size: 100px;\n  }\n}\n"
-            mushroom-shape-icon$: "@media (max-width: 600px) {\n  .shape {\n    position:\
+            .: "@media (max-width: 1600px) {\n  ha-card {\n    border: 0px !important;\n\
+              \    box-shadow: none !important;\n    background: none;\n}\n  :host\
+              \ {\n    --mush-icon-size: 100px;\n  }\n}\n"
+            mushroom-shape-icon$: "@media (max-width: 1600px) {\n  .shape {\n    position:\
               \ relative;\n  }\n}\n"
-            mushroom-state-info$: "@media (max-width: 600px) {\n  .primary {\n   \
-              \ font-size: 20px !important;\n    position: relative;\n    overflow:\
+            mushroom-state-info$: "@media (max-width: 1600px) {\n  .primary {\n  \
+              \  font-size: 20px !important;\n    position: relative;\n    overflow:\
               \ visible !important;\n  }\n}\n"
         double_tap_action:
           action: none
@@ -5388,7 +6110,7 @@ views:
       - cards:
         - card_mod:
             style:
-              .: "@media (max-width: 600px) {\n  ha-card {\n        border: 0px !important;\n\
+              .: "@media (max-width: 1600px) {\n  ha-card {\n        border: 0px !important;\n\
                 \        box-shadow: none !important;\n        background: none;\n\
                 \      }\n  :host {\n    --mush-icon-size: 70px;\n  }\n}\n"
               mushroom-shape-icon$: ".shape {\n  position: relative;\n}\n"
@@ -5407,7 +6129,7 @@ views:
           type: custom:mushroom-template-card
         - card_mod:
             style:
-              .: "@media (max-width: 600px) {\n  ha-card {\n        border: 0px !important;\n\
+              .: "@media (max-width: 1600px) {\n  ha-card {\n        border: 0px !important;\n\
                 \        box-shadow: none !important;\n        background: none;\n\
                 \      }\n  :host {\n    --mush-icon-size: 70px;\n  }\n}\nha-state-icon\
                 \ {\n  {% if is_state('sensor.washing_machine_state', 'Washing') %}\n\
@@ -5437,7 +6159,7 @@ views:
           type: custom:mushroom-template-card
         - card_mod:
             style:
-              .: "@media (max-width: 600px) {\n  ha-card {\n        border: 0px !important;\n\
+              .: "@media (max-width: 1600px) {\n  ha-card {\n        border: 0px !important;\n\
                 \        box-shadow: none !important;\n        background: none;\n\
                 \      }\n  :host {\n    --mush-icon-size: 70px;\n  }\n}\nha-state-icon\
                 \ {\n  {% if is_state('sensor.washing_machine_state', 'Spinning')\
@@ -5463,7 +6185,7 @@ views:
           type: custom:mushroom-template-card
         - card_mod:
             style:
-              .: "@media (max-width: 600px) {\n  ha-card {\n        border: 0px !important;\n\
+              .: "@media (max-width: 1600px) {\n  ha-card {\n        border: 0px !important;\n\
                 \        box-shadow: none !important;\n        background: none;\n\
                 \      }\n  :host {\n    --mush-icon-size: 70px;\n  }\n}\nha-state-icon\
                 \ {\n  {% if is_state('sensor.washing_machine_state', 'Rinsing') %}\n\
@@ -5491,7 +6213,7 @@ views:
           type: custom:mushroom-template-card
         - card_mod:
             style:
-              .: "@media (max-width: 600px) {\n  ha-card {\n        border: 0px !important;\n\
+              .: "@media (max-width: 1600px) {\n  ha-card {\n        border: 0px !important;\n\
                 \        box-shadow: none !important;\n        background: none;\n\
                 \      }\n  :host {\n    --mush-icon-size: 70px;\n  }\n}\nha-state-icon\
                 \ {\n  {% if is_state('sensor.washing_machine_state', 'Drying') %}\n\
@@ -5516,7 +6238,7 @@ views:
           type: custom:mushroom-template-card
         - card_mod:
             style:
-              .: "@media (max-width: 600px) {\n  ha-card {\n        border: 0px !important;\n\
+              .: "@media (max-width: 1600px) {\n  ha-card {\n        border: 0px !important;\n\
                 \        box-shadow: none !important;\n        background: none;\n\
                 \      }\n  :host {\n    --mush-icon-size: 70px;\n  }\n}\nha-state-icon\
                 \ {\n  {% if is_state('sensor.washing_machine_state', 'Cycle Complete')\
@@ -5539,7 +6261,7 @@ views:
       - cards:
         - card_mod:
             style:
-              .: "@media (max-width: 600px) {\n  ha-card {\n        border: 0px !important;\n\
+              .: "@media (max-width: 1600px) {\n  ha-card {\n        border: 0px !important;\n\
                 \        box-shadow: none !important;\n        background: none;\n\
                 \      }\n  :host {\n    --mush-icon-size: 70px;\n  }\n}\nha-state-icon\
                 \ {\n  {% if states.sensor.washing_machine_state.state != 'Off' %}\n\
@@ -5551,8 +6273,8 @@ views:
                 \ }\n  50% { transform: translateY(0); }\n  60% { transform: translateY(-1.2px)\
                 \ }\n}\n"
               mushroom-shape-icon$: ".shape {\n  position: relative;\n}\n"
-              mushroom-state-info$: "@media (max-width: 600px) {\n  .primary {\n \
-                \   font-size: 20px !important;\n    position: relative;\n    overflow:\
+              mushroom-state-info$: "@media (max-width: 1600px) {\n  .primary {\n\
+                \    font-size: 20px !important;\n    position: relative;\n    overflow:\
                 \ visible !important;\n  }\n  .secondary {\n    font-size: 18px !important;\n\
                 \    position: relative;\n    overflow: visible !important;\n  }\n\
                 }\n"
@@ -5565,7 +6287,7 @@ views:
           type: custom:mushroom-entity-card
         - card_mod:
             style:
-              .: "@media (max-width: 600px) {\n  ha-card {\n        border: 0px !important;\n\
+              .: "@media (max-width: 1600px) {\n  ha-card {\n        border: 0px !important;\n\
                 \        box-shadow: none !important;\n        background: none;\n\
                 \      }\n  :host {\n    --mush-icon-size: 70px;\n  }\n}\nha-state-icon\
                 \ {\n  {% if states.sensor.washing_machine_state.state != 'Off' %}\n\
@@ -5577,8 +6299,8 @@ views:
                 \ }\n  50% { transform: translateY(0); }\n  60% { transform: translateY(-1.2px)\
                 \ }\n}\n"
               mushroom-shape-icon$: ".shape {\n  position: relative;\n}\n"
-              mushroom-state-info$: "@media (max-width: 600px) {\n  .primary {\n \
-                \   font-size: 20px !important;\n    position: relative;\n    overflow:\
+              mushroom-state-info$: "@media (max-width: 1600px) {\n  .primary {\n\
+                \    font-size: 20px !important;\n    position: relative;\n    overflow:\
                 \ visible !important;\n  }\n  .secondary {\n    font-size: 18px !important;\n\
                 \    position: relative;\n    overflow: visible !important;\n  }\n\
                 }\n"
@@ -5723,18 +6445,6 @@ views:
         sort: {}
         type: custom:auto-entities
       type: vertical-stack
-    - card:
-        default_type: active
-        display_mode: full
-        hide_add_torrent: true
-        hide_turtle: true
-        hide_type: true
-        type: custom:transmission-card
-      conditions:
-      - condition: state
-        entity: sensor.transmission_active_torrents
-        state_not: '0'
-      type: conditional
     type: grid
   - cards:
     - cards:
@@ -5779,7 +6489,7 @@ views:
       enable_tooltips: true
       enable_trailers: true
       entity: sensor.jellyfin_movies
-      flag: false
+      flag: true
       image_style: fanart
       line2_text: "\u2B50 $rating"
       line3_text: "\u231B$runtime"
@@ -5791,7 +6501,7 @@ views:
       enable_tooltips: true
       enable_trailers: true
       entity: sensor.jellyfin_episodes
-      flag: false
+      flag: true
       image_style: fanart
       type: custom:upcoming-media-card
     column_span: 3
@@ -5950,7 +6660,7 @@ views:
         tap_action:
           action: perform-action
           data:
-            id: weather.forecast_home
+            id: weather.home
           perform_action: script.reload_config_entries
           target: {}
         type: action
@@ -5959,7 +6669,7 @@ views:
         tap_action:
           action: perform-action
           data:
-            id: calendar.birthdays
+            id: calendar.personal
           perform_action: script.reload_config_entries
           target: {}
         type: action
@@ -6319,7 +7029,7 @@ views:
         head:
           double_tap_action:
             action: navigate
-            navigation_path: /hassio/backups
+            navigation_path: /config/backup/backups
           entity: sensor.backup_state
           fill_container: false
           icon: mdi:home-assistant
@@ -6838,18 +7548,30 @@ views:
           type: entities
         - alignment: center
           chips:
+          - content: Git Pull
+            icon: mdi:download
+            icon_color: yellow
+            tap_action:
+              action: perform-action
+              data:
+                addon: core_git_pull
+              perform_action: hassio.addon_start
+              target: {}
+            type: template
           - content: Git Push
             entity: script.git_push
-            icon: mdi:upload-multiple
-            type: template
-          - content: HA Version Update
-            entity: script.git_push_ha_version
-            icon: mdi:package-up
-            picture: ''
+            icon: mdi:upload
+            icon_color: orange
             type: template
           type: custom:mushroom-chips-card
         - alignment: center
           chips:
+          - content: HA Version Update
+            entity: script.git_push_ha_version
+            icon: mdi:package-up
+            icon_color: green
+            picture: ''
+            type: template
           - content: Push Custom Components
             icon: hacs:hacs
             icon_color: blue
@@ -7005,9 +7727,8 @@ views:
             icon: '{% set bl = states(entity) | int %}
 
               {% set is_charging = states(''sensor.hilary_s_phone_battery_state'')
-              == ''charging'' %}
-
-              mdi:battery{% if is_charging %}-charging{% endif %}{% if bl < 10 %}-outline
+              == ''charging'' %} mdi:battery{% if is_charging %}-charging{% endif
+              %}{% if bl < 10 %}-outline
 
               {% elif bl < 20 %}-10
 
@@ -7689,21 +8410,6 @@ views:
   path: automations
   sections:
   - cards:
-    - heading: "\U0001F4DD Scripts"
-      type: heading
-    - card:
-        show_header_toggle: false
-        type: entities
-      filter:
-        exclude: []
-        include:
-        - domain: script
-      sort:
-        method: last_changed
-        reverse: true
-      type: custom:auto-entities
-    type: grid
-  - cards:
     - heading: "\U0001F916 Automations"
       type: heading
     - styles:
@@ -7852,10 +8558,26 @@ views:
         styles:
           --mdc-theme-primary: grey
       type: custom:tabbed-card
+  - cards:
+    - heading: "\U0001F4DD Scripts"
+      type: heading
+    - card:
+        show_header_toggle: false
+        type: entities
+      filter:
+        exclude: []
+        include:
+        - domain: script
+      sort:
+        method: last_changed
+        reverse: true
+      type: custom:auto-entities
+    type: grid
   type: sections
   visible:
   - user: 74f7e2ffd3594037b1a2fc4de82d9fea
 - cards: []
+  dense_section_placement: true
   icon: mdi:racing-helmet
   max_columns: 5
   path: formula-1
@@ -7864,12 +8586,13 @@ views:
     - card_type: last_result
       f1_font: true
       hide_tracklayout: true
-      sensor: sensor.formula_one_sensor_last_result
       show_carnumber: true
       standings:
         show_flag: true
         show_team: true
-      title: Last Race
+      title: "Last Race \U0001F3C1"
+      translations:
+        Did_not_start: DNS
       type: custom:formulaone-card
     type: grid
     visibility:
@@ -7877,11 +8600,24 @@ views:
       media_query: '(min-width: 2000px)'
   - cards:
     - card_type: countdown
+      countdown_type:
+      - qualifying
+      - sprint
+      - race
       date_locale: in
       f1_font: true
+      grid_options:
+        columns: 36
+        rows: auto
+      image_clickable: true
       show_raceinfo: true
-      title: Next Race
+      title: "Next Race \U0001F3CE\uFE0F"
+      translations:
+        practice1: FP 1
+        practice2: FP 2
+        practice3: FP 3
       type: custom:formulaone-card
+    column_span: 1
     type: grid
     visibility:
     - condition: screen
@@ -7893,7 +8629,7 @@ views:
         show_carnumber: true
         standings:
           show_flag: true
-        title: Driver Standings
+        title: "Driver Standings \u4DD5"
         translations:
           points: Points
         type: custom:formulaone-card
@@ -7903,7 +8639,7 @@ views:
           show_flag: true
           show_team: true
           show_teamlogo: true
-        title: Constructor Standings
+        title: "Constructor Standings \u2699\uFE0F"
         translations:
           points: Points
         type: custom:formulaone-card
@@ -7918,7 +8654,7 @@ views:
       hide_tracklayout: true
       standings:
         show_flag: true
-      title: Race Results
+      title: "Race Results \U0001F947"
       type: custom:formulaone-card
     type: grid
     visibility:
@@ -7928,17 +8664,22 @@ views:
     - card_type: schedule
       date_locale: in
       f1_font: true
-      sensor: sensor.formula_one_sensor_races
+      grid_options:
+        columns: full
+        rows: auto
       standings:
         show_flag: true
-      title: Schedule
+      title: "Schedule \U0001F5D3\uFE0F"
       type: custom:formulaone-card
+    column_span: 1
     type: grid
     visibility:
     - condition: screen
       media_query: '(min-width: 2000px)'
   - cards:
-    - options:
+    - grid_options:
+        columns: full
+      options:
         defaultTabIndex: 1
       styles:
         isFadingIndicator: true
@@ -7952,12 +8693,13 @@ views:
           card_type: last_result
           f1_font: true
           hide_tracklayout: true
-          sensor: sensor.formula_one_sensor_last_result
           show_carnumber: true
           standings:
             show_flag: true
             show_team: true
           title: Last Race
+          translations:
+            Did_not_start: DNS
           type: custom:formulaone-card
         styles:
           --mdc-theme-primary: yellow
@@ -7965,10 +8707,18 @@ views:
           label: Next Race
         card:
           card_type: countdown
+          countdown_type:
+          - qualifying
+          - sprint
+          - race
           date_locale: in
           f1_font: true
           show_raceinfo: true
           title: Next Race
+          translations:
+            practice1: FP 1
+            practice2: FP 2
+            practice3: FP 3
           type: custom:formulaone-card
         styles:
           --mdc-theme-primary: red
@@ -7978,7 +8728,6 @@ views:
           card_type: schedule
           date_locale: in
           f1_font: true
-          sensor: sensor.formula_one_sensor_races
           standings:
             show_flag: true
           title: Schedule
@@ -8027,12 +8776,16 @@ views:
         styles:
           --mdc-theme-primary: tomato
       type: custom:tabbed-card
+    column_span: 3
     type: grid
     visibility:
     - condition: screen
       media_query: '(max-width: 2000px)'
   type: sections
-  visible: []
+  visible:
+  - user: 74f7e2ffd3594037b1a2fc4de82d9fea
+  - user: e07f5c6a76fd4886ad5d945ed22f6d4b
+  - user: 6008aa4d06f8495bb08003a8a0382285
 - cards:
   - cards:
     - custom_fields:
@@ -8163,6 +8916,24 @@ views:
       entity: update.home_assistant_core_update
       state: 'on'
   - cards:
+    - color: deep-purple
+      entity: binary_sensor.hacs_updates
+      grid_options:
+        columns: 12
+        rows: 1
+      hide_state: true
+      name: Update All | HACS
+      show_entity_picture: false
+      tap_action:
+        action: perform-action
+        perform_action: script.install_hacs_updates
+        target: {}
+      type: tile
+      vertical: false
+      visibility:
+      - condition: state
+        entity: binary_sensor.hacs_updates
+        state: 'on'
     - card:
         title: HACS Updates
         type: entities
@@ -8178,6 +8949,24 @@ views:
       type: custom:auto-entities
     type: grid
   - cards:
+    - color: deep-orange
+      entity: binary_sensor.addon_updates
+      grid_options:
+        columns: 12
+        rows: 1
+      hide_state: true
+      name: Update All | Add-on Updates
+      show_entity_picture: false
+      tap_action:
+        action: perform-action
+        perform_action: script.install_add_on_updates
+        target: {}
+      type: tile
+      vertical: false
+      visibility:
+      - condition: state
+        entity: binary_sensor.addon_updates
+        state: 'on'
     - card:
         title: Add-on Updates
         type: entities
@@ -8194,6 +8983,24 @@ views:
       type: custom:auto-entities
     type: grid
   - cards:
+    - color: teal
+      entity: binary_sensor.other_updates
+      grid_options:
+        columns: 12
+        rows: 1
+      hide_state: true
+      name: Update All | Others
+      show_entity_picture: false
+      tap_action:
+        action: perform-action
+        perform_action: script.install_other_updates
+        target: {}
+      type: tile
+      vertical: false
+      visibility:
+      - condition: state
+        entity: binary_sensor.other_updates
+        state: 'on'
     - card:
         title: Other Updates
         type: entities
@@ -8211,6 +9018,71 @@ views:
             type: custom:more-info-card
           state: 'on'
       show_empty: false
+      type: custom:auto-entities
+    type: grid
+  - cards:
+    - heading: "\U0001F4E6 Remote Updates"
+      heading_style: title
+      type: heading
+      visibility:
+      - condition: state
+        entity: binary_sensor.remotehaaddon_updates
+        state: 'on'
+      - condition: state
+        entity: binary_sensor.remotehahacs_updates
+        state: 'on'
+      - condition: state
+        entity: binary_sensor.remotehaother_updates
+        state: 'on'
+    - entity: script.remotehainstall_add_on_updates
+      icon: mdi:puzzle
+      icon_color: green
+      primary: Remote | Add-on Updates
+      secondary: ''
+      tap_action:
+        action: toggle
+      type: custom:mushroom-template-card
+      visibility:
+      - condition: state
+        entity: binary_sensor.remotehaaddon_updates
+        state: 'on'
+    - entity: script.remotehainstall_hacs_updates
+      icon: hacs:hacs
+      icon_color: blue
+      primary: Remote | HACS Updates
+      secondary: ''
+      tap_action:
+        action: toggle
+      type: custom:mushroom-template-card
+      visibility:
+      - condition: state
+        entity: binary_sensor.remotehahacs_updates
+        state: 'on'
+    - entity: script.remotehainstall_other_updates
+      icon: mdi:update
+      icon_color: red
+      primary: Remote | Other Updates
+      secondary: ''
+      tap_action:
+        action: toggle
+      type: custom:mushroom-template-card
+      visibility:
+      - condition: state
+        entity: binary_sensor.remotehaother_updates
+        state: 'on'
+    type: grid
+  - cards:
+    - card:
+        show_header_toggle: false
+        state_color: true
+        title: "\U0001F4E6 Everything Else!"
+        type: entities
+      filter:
+        exclude: []
+        include:
+        - attributes:
+            device_class: update
+          state: 'on'
       type: custom:auto-entities
     type: grid
   subview: true
@@ -8232,4 +9104,11 @@ views:
   icon: mdi:floor-plan
   path: floor-plan
   type: panel
+  visible: []
+- cards: []
+  max_columns: 4
+  path: test
+  sections: []
+  title: test
+  type: sections
   visible: []

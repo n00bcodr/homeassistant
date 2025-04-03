@@ -18,8 +18,6 @@ logger:
   default: critical
 
 delete:
-python_script:
-pyscript:
 my:
 battery_notes:
 automation: !include automations.yaml
@@ -50,7 +48,7 @@ frontend:
 #mariadb config
 recorder:
   db_url: !secret recorder_db_url
-  purge_keep_days: 5
+  purge_keep_days: 30
   exclude:
     domains:
       - update

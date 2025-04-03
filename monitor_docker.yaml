@@ -2,8 +2,8 @@
   url: http://192.168.168.168:2375
   switchname: "Monitor Docker {name}"
   sensorname: "Monitor Docker {name} {sensor}"
-  buttonenabled: True
-  rename_entity: True
+  buttonenabled: true
+  rename_entity: true
   containers_exclude:
     - hassio_audio
     - hassio_cli
@@ -17,6 +17,10 @@
     - mongo
     - flaresolverr
     - myspotify-server-1
+    - nextcloud-db-1
+    - nextcloud-redis-1
+    - jellystat-db
+    - wordpress-db
     - addon_a0d7b954_aircast
     - addon_core_mariadb
     - addon_core_matter_server
@@ -30,9 +34,11 @@
     homebridge: HomeBridge
     addon_6b87c29e_speedtest_addon: "SpeedTest Addon"
     myspotify-web-1: "My Spotify"
+    nextcloud-app-1: "NextCloud"
     addon_core_mosquitto: MQTT
     addon_45df7312_zigbee2mqtt: Zigbee2MQTT
     addon_a0d7b954_vscode: "VScode Addon"
+    addon_cebe7a76_hassio_google_drive_backup: "GoogleDrive Backup Addon"
     addon_5c53de3b_esphome: "ESP Home Addon"
     addon_a0d7b954_ssh: "SSH Addon"
     addon_db21ed7f_filebrowse: "Filebrowser Addon"
