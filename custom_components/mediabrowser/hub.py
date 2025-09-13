@@ -14,12 +14,7 @@ import async_timeout
 from homeassistant.const import CONF_USERNAME, CONF_NAME, CONF_PASSWORD, CONF_URL
 from homeassistant.util import uuid
 
-from .helpers import (
-    get_library_changed_event_data,
-    get_user_data_changed_event_data,
-    get_session_event_data,
-    snake_case,
-)
+from .helpers import snake_case
 
 from .const import (
     APP_PLAYERS,
@@ -70,7 +65,6 @@ from .const import (
     ServerType,
     Session,
     Value,
-    WebsocketMessage,
 )
 
 
@@ -792,10 +786,7 @@ class MediaBrowserHub:
         old_raw_sessions = deepcopy(self._raw_sessions)
         old_sessions = deepcopy(self._sessions)
 
-        new_raw_sessions = {
-            session["Id"]: get_session_event_data(deepcopy(session))
-            for session in sessions
-        }
+        new_raw_sessions = {session["Id"]: session for session in sessions}
         new_sessions = {
             session["Id"]: session for session in self._preprocess_sessions(sessions)
         }
@@ -927,42 +918,39 @@ class MediaBrowserHub:
 
         if msg_type := msg.get("MessageType"):
             call_listeners = self.send_other_events
-            data = msg.get("Data")
             match msg_type:
-                case WebsocketMessage.SESSIONS:
-                    sessions = deepcopy(data)
+                case "Sessions":
+                    sessions = deepcopy(msg["Data"])
                     asyncio.ensure_future(self._handle_sessions_message(sessions))
                     call_listeners = False
-                case WebsocketMessage.KEEP_ALIVE:
+                case "KeepAlive":
                     _LOGGER.debug(
                         "KeepAlive response received from %s", self.server_url
                     )
                     call_listeners = False
-                case WebsocketMessage.FORCE_KEEP_ALIVE:
+                case "ForceKeepAlive":
                     _LOGGER.debug(
                         "ForceKeepAlive response received from %s", self.server_url
                     )
                     self._keep_alive_timeout = msg.get("Data", KEEP_ALIVE_TIMEOUT) / 2
                     call_listeners = False
-                case WebsocketMessage.LIBRARY_CHANGED:
+                case "LibraryChanged":
+                    event = msg["Data"]
                     if any(self._library_listeners):
                         asyncio.ensure_future(
-                            self._handle_library_changed_message(data)
+                            self._handle_library_changed_message(event)
                         )
-                    data = get_library_changed_event_data(data)
-                case WebsocketMessage.ACTIVITY_LOG_ENTRY:
+                case "ActivityLogEntry":
                     if self.send_activity_events and any(self._websocket_listeners):
                         asyncio.ensure_future(self._handle_activity_log_message())
                     call_listeners = False
-                case WebsocketMessage.SCHEDULED_TASK_INFO:
+                case "ScheduledTasksInfo":
                     call_listeners = self.send_task_events
-                case WebsocketMessage.USER_DATA_CHANGED:
-                    data = get_user_data_changed_event_data(data)
 
             if call_listeners and any(self._websocket_listeners):
                 data = {
                     "server_id": self.server_id,
-                    snake_case(msg_type): (data or {}),
+                    snake_case(msg_type): deepcopy(msg.get("Data", {})),
                 }
                 asyncio.ensure_future(
                     self._call_websocket_listeners(snake_case(msg_type), data)

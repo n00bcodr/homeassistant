@@ -61,10 +61,10 @@ class HomeWhizClimateEntity(HomeWhizEntity, ClimateEntity):
         return self._control.hvac_mode.get_value(data)
 
     async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
-        _LOGGER.debug(f"Changing HVAC mode {hvac_mode}")
+        _LOGGER.debug("Changing HVAC mode %s", hvac_mode)
         data = self.coordinator.data
         if data is None:
-            return None
+            return
         commands = self._control.hvac_mode.set_value(hvac_mode, data)
         for command in commands:
             await self.coordinator.send_command(command)
@@ -96,8 +96,8 @@ class HomeWhizClimateEntity(HomeWhizEntity, ClimateEntity):
             return None
         return self._control.target_temperature.get_value(self.coordinator.data)
 
-    async def async_set_temperature(self, temperature: float, **kwargs: Any) -> None:  # type: ignore[override] # noqa: E501
-        _LOGGER.debug(f"Changing temperature {temperature}")
+    async def async_set_temperature(self, temperature: float, **kwargs: Any) -> None:  # type: ignore[override]
+        _LOGGER.debug("Changing temperature %s", temperature)
         await self.coordinator.send_command(
             self._control.target_temperature.set_value(temperature)
         )
@@ -115,7 +115,7 @@ class HomeWhizClimateEntity(HomeWhizEntity, ClimateEntity):
         return self._control.fan_mode.get_value(self.coordinator.data)
 
     async def async_set_fan_mode(self, fan_mode: str) -> None:
-        _LOGGER.debug(f"Changing fan mode {fan_mode}")
+        _LOGGER.debug("Changing fan mode %s", fan_mode)
         await self.coordinator.send_command(self._control.fan_mode.set_value(fan_mode))
 
     @property
@@ -129,9 +129,9 @@ class HomeWhizClimateEntity(HomeWhizEntity, ClimateEntity):
         return self._control.swing.get_value(self.coordinator.data)
 
     async def async_set_swing_mode(self, swing_mode: str) -> None:
-        _LOGGER.debug(f"Changing swing mode {swing_mode}")
+        _LOGGER.debug("Changing swing mode %s", swing_mode)
         if self.coordinator.data is None:
-            return None
+            return
         commands = self._control.swing.set_value(swing_mode, self.coordinator.data)
         for command in commands:
             await self.coordinator.send_command(command)
@@ -144,7 +144,7 @@ async def async_setup_entry(
     coordinator = hass.data[DOMAIN][entry.entry_id]
     controls = generate_controls_from_config(entry.entry_id, data.contents.config)
     climate_controls = [c for c in controls if isinstance(c, ClimateControl)]
-    _LOGGER.debug(f"ACs: {[c.key for c in climate_controls]}")
+    _LOGGER.debug("ACs: %s", [c.key for c in climate_controls])
     async_add_entities(
         [
             HomeWhizClimateEntity(coordinator, control, entry.title, data)

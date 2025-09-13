@@ -7,16 +7,20 @@ from homeassistant.components.bluetooth import (
     BluetoothServiceInfoBleak,
     async_discovered_service_info,
 )
-from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
+from homeassistant.config_entries import (
+    ConfigEntry,
+    ConfigFlow,
+    ConfigFlowResult,
+    OptionsFlow,
+)
 from homeassistant.const import CONF_ADDRESS, CONF_ID, CONF_PASSWORD, CONF_USERNAME
+from homeassistant.core import callback
+from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.selector import (
     TextSelector,
     TextSelectorConfig,
     TextSelectorType,
 )
-from homeassistant.core import callback
-from homeassistant.helpers import config_validation as cv
-from homeassistant.config_entries import ConfigEntry, OptionsFlow
 
 from .api import (
     ApplianceContents,
@@ -29,7 +33,7 @@ from .api import (
     login,
     make_id_exchange_request,
 )
-from .const import DOMAIN, CONF_BT_RECONNECT_INTERVAL
+from .const import CONF_BT_RECONNECT_INTERVAL, DOMAIN
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
@@ -113,8 +117,7 @@ class TiltConfigFlow(ConfigFlow, domain=DOMAIN):  # type: ignore[call-arg]
     async def async_step_bluetooth_connect(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """
-        Handle the user step to provide HomeWhiz credentials.
+        """Handle the user step to provide HomeWhiz credentials.
         Credentials are used to fetch appliance config
         """
         errors = {}
@@ -251,15 +254,14 @@ class TiltConfigFlow(ConfigFlow, domain=DOMAIN):  # type: ignore[call-arg]
         """Create the options flow."""
         # Cloud
         if config_entry.data["cloud_config"] is not None:
-            return CloudOptionsFlowHandler(config_entry)
+            return CloudOptionsFlowHandler()
         # Bluetooth
-        return BluetoothOptionsFlowHandler(config_entry)
+        return BluetoothOptionsFlowHandler()
 
 
 class CloudOptionsFlowHandler(OptionsFlow):
-    def __init__(self, config_entry: ConfigEntry) -> None:
+    def __init__(self) -> None:
         """Initialize options flow."""
-        self.config_entry = config_entry
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
@@ -275,20 +277,19 @@ class CloudOptionsFlowHandler(OptionsFlow):
 
 
 class BluetoothOptionsFlowHandler(OptionsFlow):
-    def __init__(self, config_entry: ConfigEntry) -> None:
+    def __init__(self) -> None:
         """Initialize options flow."""
-        self._config_entry = config_entry
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """Manage the options."""
         if user_input is not None:
-            _LOGGER.debug(f"Reloading entries after updating options: {user_input}")
+            _LOGGER.debug("Reloading entries after updating options: %s", user_input)
             self.hass.config_entries.async_update_entry(
                 self._config_entry, options=user_input
             )
-            await self.hass.config_entries.async_reload(self._config_entry.entry_id)
+            await self.hass.config_entries.async_reload(self.config_entry.entry_id)
             return self.async_create_entry(title="", data=user_input)
 
         return self.async_show_form(
@@ -298,7 +299,7 @@ class BluetoothOptionsFlowHandler(OptionsFlow):
                     vol.Optional(
                         CONF_BT_RECONNECT_INTERVAL,
                         description={
-                            "suggested_value": self._config_entry.options.get(
+                            "suggested_value": self.config_entry.options.get(
                                 CONF_BT_RECONNECT_INTERVAL, None
                             )
                         },

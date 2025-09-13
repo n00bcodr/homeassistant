@@ -260,13 +260,7 @@ class MediaBrowserPlayer(MediaBrowserEntity, MediaPlayerEntity):
         self._attr_media_episode = item.get(Item.EPISODE_TITLE)
         self._attr_media_season = item.get(Item.SEASON_NAME)
         self._attr_media_series_title = item.get(Item.SERIES_NAME)
-        if item.get(Item.TYPE) == "Episode":
-            season_number = item.get(Item.PARENT_INDEX_NUMBER, '')
-            episode_number = item.get(Item.INDEX_NUMBER, '')
-            episode_title = item.get(Item.NAME, 'Unknown Title')
-            self._attr_media_title = f"S{season_number:02}E{episode_number:02} - {episode_title}"
-        else:
-            self._attr_media_title = item.get(Item.NAME, "Unknown Title")
+        self._attr_media_title = item.get(Item.NAME)
         self._attr_media_image_url = get_image_url(
             item, self.hub.server_url, ImageType.BACKDROP, True
         )
