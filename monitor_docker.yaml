@@ -44,6 +44,11 @@
     addon_db21ed7f_filebrowse: "Filebrowser Addon"
     addon_cb646a50_get: "Download HACS"
     immich_server: Immich
+    gluetun: Gluetun
+    prowlarr: Prowlarr
+    radarr: Radarr
+    sonarr: Sonarr
+    qbittorrent: BitTorrent
 
   monitored_conditions:
     - version

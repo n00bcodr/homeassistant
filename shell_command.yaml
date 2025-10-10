@@ -1,4 +1,4 @@
-lovelace_default_convert: python /config/tools/lovelace_default_convert.py
+convert_lovelace: "python /config/tools/convert_lovelace.py /config/.storage/lovelace /config/lovelace/lovelace_default.yaml"
 git_core_update_push: bash /config/tools/git_core_update_push.sh
 git_commit_push: bash /config/tools/ha_gitpush.sh "{{states.input_text.git_commit_message.state}}"
 git_hacs_update: bash /config/tools/hacs_updates_push.sh

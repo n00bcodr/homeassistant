@@ -108,7 +108,7 @@ bed_routine_script:
   - variables:
       action_yes: '{{ ''YES_'' ~ context.id }}'
       action_no: '{{ ''NO_'' ~ context.id }}'
-  - action: notify.mobile_app_pixel8pro
+  - action: notify.mobile_app_s24
     data:
       message: Going to Bed?
       data:
@@ -163,7 +163,7 @@ bed_routine_script:
       - light.shapes
       - light.chandelier
       - switch.workstation
-  - action: notify.mobile_app_pixel8pro
+  - action: notify.mobile_app_s24
     data:
       message: clear_notification
       data:

@@ -190,10 +190,6 @@
       - condition: trigger
         id: start
       sequence:
-      - action: pyscript.f1driverstandings
-        data: {}
-      - action: pyscript.f1constructorstandings
-        data: {}
       - action: rest_command.reload_google_sheets_music
         data: {}
       - action: rest_command.reload_google_sheets_weight
@@ -209,7 +205,7 @@
     event_data: {}
   condition: []
   action:
-  - action: shell_command.lovelace_default_convert
+  - action: shell_command.convert_lovelace
     data: {}
   mode: single
 - id: '1655137751596'
@@ -1251,88 +1247,6 @@
       device_name: '{% if is_state(''media_player.spotify'', ''playing'') %} {{state_attr("media_player.spotify",
         "source")}} {%else%}{{ states(''input_select.speakers_spotify'') }}{%endif%}'
   mode: single
-- id: '1689331566546'
-  alias: "\U0001F3F0Leaving and Arriving Home"
-  description: ''
-  triggers:
-  - entity_id:
-    - binary_sensor.pixel8pro_android_auto
-    to: 'on'
-    from: 'off'
-    trigger: state
-  conditions:
-  - condition: state
-    entity_id: binary_sensor.workday_sensor
-    state: 'on'
-  actions:
-  - choose:
-    - conditions:
-      - condition: and
-        conditions:
-        - condition: time
-          after: 07:00:00
-          before: 09:00:00
-          enabled: false
-        - condition: state
-          entity_id: person.pavanthanuj
-          state: home
-      sequence:
-      - delay:
-          hours: 0
-          minutes: 0
-          seconds: 30
-          milliseconds: 0
-      - action: notify.mobile_app_pixel8pro
-        data:
-          message: command_activity
-          data:
-            intent_uri: https://waze.com/ul?favorite=work&navigate=yes
-            intent_package_name: com.waze
-            intent_action: android.intent.action.VIEW
-      - action: automation.trigger
-        data:
-          skip_condition: true
-        target:
-          entity_id: automation.tag_desk_is_scanned
-        enabled: true
-      - action: switch.turn_on
-        metadata: {}
-        data: {}
-        target:
-          entity_id: switch.docker_chromium
-    - conditions:
-      - condition: and
-        conditions:
-        - condition: time
-          after: '15:00:00'
-          before: '18:00:00'
-      sequence:
-      - action: switch.turn_off
-        metadata: {}
-        data: {}
-        target:
-          entity_id: switch.docker_chromium
-      - action: notify.mobile_app_pixel8pro
-        data:
-          message: command_activity
-          data:
-            intent_uri: https://waze.com/ul?favorite=home&navigate=yes
-            intent_package_name: com.waze
-            intent_action: android.intent.action.VIEW
-      - wait_for_trigger:
-        - entity_id: device_tracker.pixel8pro
-          zone: zone.home
-          event: enter
-          trigger: zone
-        continue_on_timeout: false
-        enabled: true
-      - action: automation.trigger
-        data:
-          skip_condition: true
-        target:
-          entity_id: automation.den_as_it_was
-        enabled: true
-  mode: single
 - id: '1691773218286'
   alias: "\U0001F3B5Music Jukebox - Living Room"
   description: Music Jukebox for the Living Room
@@ -1481,9 +1395,8 @@
 - id: '1698602804746'
   alias: "\U0001F3F0 Bed Routine"
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - binary_sensor.in_bed
     from: 'off'
     to: 'on'
@@ -1491,20 +1404,21 @@
       hours: 0
       minutes: 10
       seconds: 0
-  condition:
+    trigger: state
+  conditions:
   - condition: or
     conditions:
-    - condition: device
-      type: is_on
-      device_id: dff84bd584c07eb8fe0319805d37fb40
-      entity_id: aae986f563864b62471636d435e625a3
-      domain: light
     - condition: device
       type: is_on
       device_id: 22d3b83188e1ace9ced42e13d76ce319
       entity_id: light.shapes
       domain: light
-  action:
+    - condition: device
+      type: is_off
+      device_id: 34bab99947f3fa3c1dc60ce9e4bac9cb
+      entity_id: 1c04ba793b3856b58a044bd262b89dc9
+      domain: light
+  actions:
   - action: script.bed_routine_script
     data: {}
   mode: single
@@ -1844,14 +1758,65 @@
   actions:
   - delay:
       hours: 0
-      minutes: 10
-      seconds: 0
+      minutes: 0
+      seconds: 30
       milliseconds: 0
   - action: hassio.addon_start
     metadata: {}
     data:
       addon: 6b87c29e_speedtest_addon
-  mode: single
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 30
+      milliseconds: 0
+  - choose:
+    - conditions:
+      - condition: and
+        conditions:
+        - condition: numeric_state
+          entity_id: sensor.speedtest_download
+          below: 100
+        - condition: numeric_state
+          entity_id: counter.internet_speed
+          below: 4
+      sequence:
+      - action: counter.increment
+        metadata: {}
+        data: {}
+        target:
+          entity_id: counter.internet_speed
+      - action: automation.trigger
+        metadata: {}
+        data:
+          skip_condition: true
+        target:
+          entity_id: automation.speedtest
+    - conditions:
+      - condition: and
+        conditions:
+        - condition: numeric_state
+          entity_id: counter.internet_speed
+          above: 3
+        - condition: numeric_state
+          entity_id: sensor.speedtest_download
+          below: 100
+      sequence:
+      - action: counter.reset
+        metadata: {}
+        data: {}
+        target:
+          entity_id: counter.internet_speed
+      - action: notify.all_phones_android
+        metadata: {}
+        data:
+          message: "Speed is {{states.sensor.speedtest_download.state | round (1)}}
+            Mbps \U0001F422"
+          title: Internet is Wonky!
+          data:
+            notification_icon: mdi:wifi-alert
+            tag: wifi_speed
+  mode: restart
 - id: '1707523697172'
   alias: "\U0001F3F0 Turn on Workstation"
   description: ''
@@ -1991,13 +1956,14 @@
 - id: '1710081581692'
   alias: "\U0001F50BBattery Increased Notification"
   description: Battery Increased Notification
-  trigger:
-  - platform: event
-    event_type: battery_notes_battery_increased
-  condition:
+  triggers:
+  - event_type: battery_notes_battery_increased
+    trigger: event
+  conditions:
   - condition: template
-    value_template: '{{trigger.event.data.device_name != ''Porch Motion''}}'
-  action:
+    value_template: '{{ trigger.event.data.device_name not in [''Porch Motion'', ''MagicCube'']
+      }}'
+  actions:
   - action: persistent_notification.create
     data:
       title: '{{ trigger.event.data.device_name }} Battery Increased
@@ -2094,6 +2060,7 @@
             data:
               image: /local/doorbell/{{camera_snapshot}}
               tag: doorbell
+          enabled: false
       - conditions:
         - condition: trigger
           id:
@@ -2300,23 +2267,23 @@
 - id: '1720523835406'
   alias: "\U0001F50BBattery Notes - Battery Threshold"
   description: ''
-  trigger:
-  - platform: event
-    event_type: battery_notes_battery_threshold
+  triggers:
+  - event_type: battery_notes_battery_threshold
     event_data:
       battery_low: true
     id: low
     alias: Battery went low
-  - platform: event
-    event_type: battery_notes_battery_threshold
+    trigger: event
+  - event_type: battery_notes_battery_threshold
     event_data:
       battery_low: false
     id: high
     alias: Battery went high
-  condition:
+    trigger: event
+  conditions:
   - condition: template
     value_template: '{{ trigger.event.data.device_id not in excluded_devices}}'
-  action:
+  actions:
   - choose:
     - conditions:
       - condition: trigger
@@ -2339,7 +2306,8 @@
               {{ trigger.event.data.battery_type }}
 
               '
-        - action: notify.mobile_app_s24
+          enabled: false
+        - action: notify.mobile_app_pixel8pro
           data:
             title: '{{ trigger.event.data.device_name }} Battery Low
 
@@ -2550,6 +2518,7 @@
               notification_icon: mdi:movie-check
               image: '{{ state_attr( "sensor.jellyfin_movies", "data")[1].fanart}}'
       enabled: false
+    enabled: false
   mode: queued
   max: 10
 - id: '1725362683046'
@@ -2637,7 +2606,7 @@
   - condition: and
     conditions:
     - condition: state
-      entity_id: person.pavanthanuj
+      entity_id: person.rahul_pampati
       state: not_home
     - condition: state
       entity_id: binary_sensor.den_motion
@@ -2831,3 +2800,76 @@
       entity_id: light.led_strip
   mode: queued
   max: 10
+- id: '1749890804832'
+  alias: Notify if speedtest download is below 100 Mbps
+  description: ''
+  triggers:
+  - entity_id: sensor.speedtest_download
+    below: 100
+    for:
+      hours: 6
+    trigger: numeric_state
+  actions:
+  - data:
+      message: Speedtest download is below 100 Mbps for the last 6 hours!
+    action: notify.mobile_app_pixel8pro
+- id: '1729510022758'
+  alias: Work Permit Update
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - sensor.last_update_date
+    from:
+  conditions:
+  - condition: template
+    value_template: "{{ states('sensor.current_processing_date') != 'unavailable'
+      or\n   states('sensor.last_update_date') != 'unavailable' }}"
+  actions:
+  - action: notify.homeassistant_bot
+    data:
+      message: ''
+      target: '1303658870903672865'
+      data:
+        embed:
+          title: "Work Permit Update - {{states.sensor.last_update_date.state}} \U0001F310"
+          description: Work Permit Renewal applications submitted on **{{states.sensor.current_processing_date.state}}**
+            are being processed.
+          url: https://enterprise.gov.ie/en/what-we-do/workplace-and-skills/employment-permits/current-application-processing-dates
+          color: 5966
+          author:
+            name: Visa Update
+            icon_url: https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Flag_of_Ireland.svg/320px-Flag_of_Ireland.svg.png
+          thumbnail:
+            url: https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Flag_of_Ireland.svg/320px-Flag_of_Ireland.svg.png
+  mode: restart
+- id: '1759833217136'
+  alias: Work Permit Update
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - sensor.last_update_date
+    from:
+  conditions:
+  - condition: template
+    value_template: "{{ states('sensor.current_processing_date') != 'unavailable'
+      or\n   states('sensor.last_update_date') != 'unavailable' }}"
+  actions:
+  - action: notify.homeassistant_bot
+    data:
+      message: ''
+      target: '1303658870903672865'
+      data:
+        embed:
+          title: "Work Permit Update - {{states.sensor.last_update_date.state}} \U0001F310"
+          description: Work Permit Renewal applications submitted on **{{states.sensor.current_processing_date.state}}**
+            are being processed.
+          url: https://enterprise.gov.ie/en/what-we-do/workplace-and-skills/employment-permits/current-application-processing-dates
+          color: 5966
+          author:
+            name: Visa Update
+            icon_url: https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Flag_of_Ireland.svg/320px-Flag_of_Ireland.svg.png
+          thumbnail:
+            url: https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Flag_of_Ireland.svg/320px-Flag_of_Ireland.svg.png
+  mode: restart

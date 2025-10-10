@@ -1,0 +1,63 @@
+mqtt:
+  host: 192.168.168.168
+  port: 1883
+  user: mqtt-user
+  password: homeassistant
+  topic_prefix: frigate
+
+
+go2rtc:
+  streams:
+                    ## CHANGE RTSP USERNAME AND PASSWORD
+    doorbell:
+      - rtsp://homeassistant:HomeA$$istant@192.168.168.68/Preview_01_main
+      - ffmpeg:rtsp://homeassistant:HomeA$$istant@192.168.168.68/Preview_01_main#audio=pcm#audio=volume
+
+
+
+## THIS PREVENTS THE AUDIO COMING OUT FROM THE DOORBELL SOUNDING MUFFLED
+  ffmpeg:
+    bin: ffmpeg
+    volume: -af "volume=5dB"
+
+record:
+  enabled: true
+  retain:
+    days: 2
+    mode: motion
+  events:
+    retain:
+      default: 2
+snapshots:
+  enabled: true
+  retain:
+    default: 2
+
+cameras:
+  doorbell:
+    mqtt:
+      quality: 100
+    enabled: true
+    ffmpeg:
+      inputs:
+        - path: rtsp://homeassistant:HomeA$$istant@192.168.168.68/Preview_01_main
+          roles:
+            - detect
+      output_args:
+        record: preset-record-generic-audio-copy
+    motion:
+      mask: 0.57,0.451,1,0.527,1,0.606,0.565,0.489
+
+objects:
+  track:
+    - person
+  filters:
+    person:
+      threshold: 0.7
+
+detectors:
+  coral:
+    type: edgetpu
+    device: usb
+
+version: 0.14
