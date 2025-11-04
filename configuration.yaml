@@ -41,7 +41,6 @@ shell_command: !include shell_command.yaml
 sensor: !include_dir_merge_list sensors
 template: !include template.yaml
 media_player: !include mediaplayer.yaml
-multiscrape: !include multiscrape.yaml
 tts:
   - platform: google_translate
 
