@@ -1,7 +1,7 @@
 - name: Visa
   log_response: true
   resource: https://enterprise.gov.ie/en/what-we-do/workplace-and-skills/employment-permits/current-application-processing-dates/current-processing-dates-for-employment-permits.html
-  scan_interval: 43200
+  scan_interval: 10800
   sensor:
     - unique_id: current_processing_date
       name: Visa Current Processing Date

@@ -2813,36 +2813,6 @@
   - data:
       message: Speedtest download is below 100 Mbps for the last 6 hours!
     action: notify.mobile_app_pixel8pro
-- id: '1729510022758'
-  alias: Work Permit Update
-  description: ''
-  triggers:
-  - trigger: state
-    entity_id:
-    - sensor.last_update_date
-    from:
-  conditions:
-  - condition: template
-    value_template: "{{ states('sensor.current_processing_date') != 'unavailable'
-      or\n   states('sensor.last_update_date') != 'unavailable' }}"
-  actions:
-  - action: notify.homeassistant_bot
-    data:
-      message: ''
-      target: '1303658870903672865'
-      data:
-        embed:
-          title: "Work Permit Update - {{states.sensor.last_update_date.state}} \U0001F310"
-          description: Work Permit Renewal applications submitted on **{{states.sensor.current_processing_date.state}}**
-            are being processed.
-          url: https://enterprise.gov.ie/en/what-we-do/workplace-and-skills/employment-permits/current-application-processing-dates
-          color: 5966
-          author:
-            name: Visa Update
-            icon_url: https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Flag_of_Ireland.svg/320px-Flag_of_Ireland.svg.png
-          thumbnail:
-            url: https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Flag_of_Ireland.svg/320px-Flag_of_Ireland.svg.png
-  mode: restart
 - id: '1759833217136'
   alias: Work Permit Update
   description: ''
@@ -2855,6 +2825,9 @@
   - condition: template
     value_template: "{{ states('sensor.current_processing_date') != 'unavailable'
       or\n   states('sensor.last_update_date') != 'unavailable' }}"
+  - condition: template
+    value_template: "{{ trigger.from_state.state != 'unavailable' and\n   trigger.to_state.state
+      != trigger.from_state.state }}"
   actions:
   - action: notify.homeassistant_bot
     data:
@@ -2872,4 +2845,195 @@
             icon_url: https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Flag_of_Ireland.svg/320px-Flag_of_Ireland.svg.png
           thumbnail:
             url: https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Flag_of_Ireland.svg/320px-Flag_of_Ireland.svg.png
+  - action: telegram_bot.send_message
+    metadata: {}
+    data:
+      config_entry_id: 01K7EW5MBR2CPSA1T0S95P3M0E
+      message: "\U0001F1EE\U0001F1EA *Work Permit Update - {{ states.sensor.last_update_date.state
+        }} \U0001F310*\n\nWork Permit Renewal applications submitted on  \n*\U0001F4C5
+        {{ states.sensor.current_processing_date.state }}* are being processed.\n\n[Source](https://enterprise.gov.ie/en/what-we-do/workplace-and-skills/employment-permits/current-application-processing-dates)\n"
+      disable_web_page_preview: true
+      parse_mode: markdown
+      target:
+      - '1695103978'
+      - '550998342'
+    enabled: false
   mode: restart
+- id: '1760072509370'
+  alias: "\U0001F6AE\U0001F4F3Bin Pickup Notification v2"
+  description: Notifies about bin collection and reminds to put bins out
+  triggers:
+  - at: '11:00:00'
+    id: morning
+    trigger: time
+  - at: '21:00:00'
+    id: night
+    trigger: time
+  conditions:
+  - alias: Check if collection is in next two days
+    condition: template
+    value_template: "{{ state_attr('sensor.black_bin', 'next_collection') <= 2 or\n
+      \  state_attr('sensor.blue_bin', 'next_collection') <= 2 }}\n"
+  actions:
+  - alias: Define bin configuration variables
+    variables:
+      bins:
+      - sensor: sensor.black_bin
+        name: Black Bin
+        color: black
+        icon: /local/images/black_bin.png
+        boolean: input_boolean.black_bin_out
+      - sensor: sensor.blue_bin
+        name: Blue Bin
+        color: blue
+        icon: /local/images/blue_bin.png
+        boolean: input_boolean.blue_bin_out
+  - repeat:
+      for_each: '{{ bins }}'
+      sequence:
+      - alias: Get days until collection for current bin
+        variables:
+          days_until: '{{ state_attr(repeat.item.sensor, ''next_collection'') | int
+            }}'
+          collection_date: '{{ states(repeat.item.sensor) }}'
+      - alias: Choose action based on days until collection and time
+        choose:
+        - alias: Collection is in 2 days and it's morning
+          conditions:
+          - '{{ days_until == 2 }}'
+          - condition: trigger
+            id: morning
+          sequence:
+          - alias: Send notification for collection in 2 days
+            action: notify.all_phones
+            data:
+              data:
+                tag: bin_pickup_{{ repeat.item.name | lower | replace(' ', '_') }}
+                notification_icon: mdi:trash-can-outline
+                icon_url: '{{ repeat.item.icon }}'
+                color: '{{ repeat.item.color }}'
+              message: Pickup is in two days on {{ collection_date }}
+              title: '{{ repeat.item.name }}'
+        - alias: Collection is tomorrow and it's morning
+          conditions:
+          - '{{ days_until == 1 }}'
+          - condition: trigger
+            id: morning
+          sequence:
+          - alias: Send notification for collection tomorrow
+            action: notify.all_phones
+            data:
+              data:
+                tag: bin_pickup_{{ repeat.item.name | lower | replace(' ', '_') }}
+                notification_icon: mdi:trash-can-outline
+                icon_url: '{{ repeat.item.icon }}'
+                color: '{{ repeat.item.color }}'
+              message: Pickup is tomorrow, {{ collection_date }}
+              title: '{{ repeat.item.name }}'
+        - alias: Collection is tomorrow and it's night - send reminders
+          conditions:
+          - '{{ days_until == 1 }}'
+          - condition: trigger
+            id: night
+          sequence:
+          - repeat:
+              sequence:
+              - alias: Send reminder to put bin out
+                action: notify.all_phones
+                data:
+                  data:
+                    tag: bin_reminder_{{ repeat.item.name | lower | replace(' ', '_')
+                      }}
+                    notification_icon: mdi:trash-can
+                    icon_url: '{{ repeat.item.icon }}'
+                    color: '{{ repeat.item.color }}'
+                    actions:
+                    - action: BIN_OUT_{{ repeat.item.name | upper | replace(' ', '_')
+                        }}
+                      title: Yeah, the bin is out!
+                  message: Put the {{ repeat.item.name }} out.
+                  title: '{{ repeat.item.name }}'
+              - alias: Wait 30 minutes before next reminder
+                delay:
+                  minutes: 30
+              until:
+              - alias: Check if bin is marked as out or collection day changed
+                condition: template
+                value_template: "{{ states(repeat.item.boolean) == 'on' or\n   state_attr(repeat.item.sensor,
+                  'next_collection') | int > 1 }}\n"
+  mode: single
+- id: '1760072545704'
+  alias: "\U0001F6AE\U0001F4F3Is the Bin Outside? v2"
+  description: Detects when bin is put outside and stops reminders
+  triggers:
+  - entity_id: binary_sensor.back_door_contact
+    from: 'off'
+    to: 'on'
+    trigger: state
+    id: door_opened
+  - event_type: mobile_app_notification_action
+    event_data:
+      action: BIN_OUT
+    trigger: event
+    id: button_pressed
+  conditions: []
+  actions:
+  - variables:
+      black_days: '{{ state_attr(''sensor.black_bin'', ''next_collection'') | int(99)
+        }}'
+      blue_days: '{{ state_attr(''sensor.blue_bin'', ''next_collection'') | int(99)
+        }}'
+      next_collection_days: '{{ [black_days, blue_days] | min }}'
+      collection_tomorrow: '{{ next_collection_days <= 1 }}'
+      collection_past: '{{ next_collection_days >= 2 }}'
+    alias: Calculate days until next collection
+  - choose:
+    - conditions:
+      - '{{ collection_tomorrow }}'
+      - condition: or
+        conditions:
+        - condition: trigger
+          id: button_pressed
+        - condition: and
+          conditions:
+          - condition: trigger
+            id: door_opened
+          - condition: time
+            after: '18:00:00'
+            before: 02:00:00
+      sequence:
+      - action: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.bin
+        alias: Mark bin as outside
+      - action: notify.all_phones
+        data:
+          data:
+            tag: bin_pickup
+          message: clear_notification
+        alias: Clear existing bin pickup notifications
+      - action: notify.all_phones
+        data:
+          data:
+            notification_icon: mdi:delete-empty
+            color: green
+            timeout: 600
+          message: Great! Reminder stopped.
+          title: ✓ The bin is outside
+        alias: Send confirmation notification
+      alias: Bin is going out (collection is tomorrow)
+    - conditions:
+      - '{{ collection_past }}'
+      - condition: trigger
+        id: door_opened
+      - condition: time
+        after: 06:00:00
+        before: '23:00:00'
+      sequence:
+      - action: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.bin
+        alias: Mark bin as brought back in
+      alias: Bin is being brought back in (collection has passed)
+    alias: Choose action based on collection schedule
+  mode: single

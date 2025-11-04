@@ -77,6 +77,12 @@ exceptions:
       #   bottom: true
 
       - new_item: true
+        item: Logs
+        bottom: true
+        href: "/config/logs"
+        icon: mdi:math-log
+
+      - new_item: true
         item: Integrations
         href: "/config/integrations"
         icon: mdi:cogs

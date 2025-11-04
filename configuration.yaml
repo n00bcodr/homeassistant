@@ -5,6 +5,7 @@ homeassistant:
   allowlist_external_dirs:
     - /config/.storage
     - /config/
+    - /config
     - /media/
   whitelist_external_dirs:
     - "/share"
@@ -65,7 +66,7 @@ recorder:
       - sensor.f1_*
       - sensor.docker*
       - switch.docker*
-      - button.docker*
+      - button.docker*w
       - device_tracker.smart*
     entities:
       - sun.sun
@@ -74,11 +75,3 @@ recorder:
 spotcast:
   sp_dc: !secret sp_dc
   sp_key: !secret sp_key
-
-telegram_bot:
-  - platform: broadcast
-    api_key: !secret telegram_api
-    allowed_chat_ids:
-      - !secret telegram_chat_id
-      - !secret telegram_chat_id_atm
-      - !secret telegram_chat_id_ch
