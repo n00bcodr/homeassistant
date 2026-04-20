@@ -1,200 +1,326 @@
-start:
-  name: Start Spotcast
-  description: Starts spotify playback on chromecast devices
+play_media:
+  name: Play Media
+  description: Play spotify media on chromecast devices
   fields:
-    device_name:
-      name: "Device Name"
-      description: "The friendly name of the chromecast or spotify connect device. First checks spotify device list for name (not used together with entity_id and spotify_device_id)."
-      example: "Livingroom"
+    media_player:
+      name: Media Player
       required: false
       selector:
-        text:
-    spotify_device_id:
-      name: "Spotify Device ID"
-      description: "Advanced users only. The spotify device id (not used together with entity_id or device_name)."
-      example: "4363634563457346xcyvydgf3qwa"
-      required: false
-      selector:
-        text:
-    entity_id:
-      name: "Entity ID"
-      description: "The entity_id of the chromecast mediaplayer. Friendly name MUST match the spotify connect device name (not used together with device_name and spotify_device_id)."
-      example: "media_player.vardagsrum"
-      required: false
-      selector:
-        entity:
-          domain: media_player
-          integration: cast
-    uri:
-      name: "URI"
-      description: "Supported Spotify URI as string. None or empty uri will transfer the current/last playback (see parameter force_playback)."
-      example: "spotify:playlist:37i9dQZF1DX3yvAYDslnv8"
-      required: false
-      selector:
-        text:
-
-    category:
-      name: "Category"
-      description: "A category to fetch playlist from. See https://developer.spotify.com/console/get-browse-categories/ for a list of categories"
-      required: false
-      selector:
-        text:
-    country:
-      name: "Country"
-      description: "Country code to use with category. See https://spotipy.readthedocs.io/en/2.19.0/#spotipy.client.Spotify.country_codes for list of available codes"
-      required: false
-      selector:
-        text:
-    limit:
-      name: "Limit"
-      description: "Limit of playlist to fetch in a given category. Default 20"
-      required: false
-      default: 20
-      selector:
-        number:
-          mode: box
-          step: 1
-          min: 0
-          max: 50
-    album_name:
-      name: "Album Name"
-      example: "The Dark Side of the Moon"
-      description: "Filters search results for the provided album name. Don't include this if you don't want an album."
-      required: false
-      selector:
-        text:
-    track_name:
-      name: "Track Name"
-      example: "Money"
-      description: "Filters search results for the provided track name. Don't include this if you don't want a particular track."
-      required: false
-      selector:
-        text:
-    playlist_name:
-      name: "Playlist Name"
-      example: "Ultimate pink floyd playlist"
-      description: "Filters search results for the provided playlist name. Don't include this if you don't want a playlist."
-      required: false
-      selector:
-        text:
-    show_name:
-      name: "Show Name"
-      example: "Hollywood Handbook"
-      description: "Filters search results for the provided podcast show name. Don't include this if you don't want a podcast."
-      required: false
-      selector:
-        text:
-    episode_name:
-      name: "Episode Name"
-      example: "Sarah Sherman, Our Close Friend"
-      description: "Filters search results for the provided podcast episode name. Don't include this if you don't want a podcast."
-      required: false
-      selector:
-        text: 
-    genre_name:
-      name: "Genre Name"
-      example: "post punk"
-      description: "Filters search results by genre of music"
-      required: false
-      selector:
-        text: 
-    audiobook_name:
-      name: "Audiobook Name"
-      example: "Ulysses"
-      description: "Filters search results for the provided audiobook name. Don't include this if you don't want an audiobook."
-      required: false
-      selector:
-        text: 
-    artist_name:
-      name: "Artist Name"
-      example: "pink floyd"
-      description: "This will filter search results to match the provided artist name. Don't include this if searching for a playlist or genre. Do include the author's name if searching for audiobooks."
-      required: false
+        target:
+          entity:
+            - domain: media_player
+              integration: cast
+            - domain: media_player
+              integration: spotcast
+    spotify_uri:
+      name: URI
+      description: Supported Spotify URI as string
+      example: spotify:album:5l5m1hnH4punS1GQXgEi3T
+      required: true
       selector:
         text:
     account:
-      name: "Account"
-      description: "Optionally starts Spotify using an alternative account specified in config."
-      example: "my_wifes"
+      name: Spotify Account
+      description: The id of the spotify account to use. Takes the default account otherwise
       required: false
+      selector:
+        config_entry:
+          integration: spotcast
+    data:
+      name: Data
+      description: Additional modifiers for the play_media service call.
+      required: false
+      selector:
+        object:
+play_dj:
+  name: Spotify DJ Playlist
+  description: Play spotify DJ playlist on a Chromecast device
+  fields:
+    media_player:
+      name: Media Player
+      required: false
+      selector:
+        target:
+          entity:
+            - domain: media_player
+              integration: cast
+            - domain: media_player
+              integration: spotcast
+    account:
+      name: Spotify Account
+      description: The id of the spotify account to use. Takes the default account otherwise
+      required: false
+      selector:
+        config_entry:
+          integration: spotcast
+    data:
+      name: Data
+      description: Additional modifiers for the play_media service call.
+      required: false
+      selector:
+        object:
+transfer_playback:
+  name: Transfer Playback
+  description: Transfers the spotify playback to the targetted device
+  fields:
+    media_player:
+      name: Media Player
+      required: true
+      selector:
+        target:
+          entity:
+            - domain: media_player
+              integration: cast
+            - domain: media_player
+              integration: spotcast
+    account:
+      name: Spotify Account
+      description: The id of the spotify account to use. Takes the default account otherwise
+      required: false
+      selector:
+        config_entry:
+          integration: spotcast
+    data:
+      name: Data
+      description: Additional modifiers for the service call.
+      required: false
+      selector:
+        object:
+play_liked_songs:
+  name: Liked Songs Playlist
+  description: Play User's Liked Songs'
+  fields:
+    media_player:
+      name: Media Player
+      required: false
+      selector:
+        target:
+          entity:
+            - domain: media_player
+              integration: cast
+            - domain: media_player
+              integration: spotcast
+    account:
+      name: Spotify Account
+      description: The id of the spotify account to use. Takes the default account otherwise
+      required: false
+      selector:
+        config_entry:
+          integration: spotcast
+    data:
+      name: Data
+      description: Additional modifiers for the service call.
+      required: false
+      selector:
+        object:
+play_saved_episodes:
+  name: Saved Podcast
+  description: Play User's Saved Podcast Episodes
+  fields:
+    media_player:
+      name: Media Player
+      required: false
+      selector:
+        target:
+          entity:
+            - domain: media_player
+              integration: cast
+            - domain: media_player
+              integration: spotcast
+    account:
+      name: Spotify Account
+      description: The id of the spotify account to use. Takes the default account otherwise
+      required: false
+      selector:
+        config_entry:
+          integration: spotcast
+    data:
+      name: Data
+      description: Additional modifiers for the service call.
+      required: false
+      selector:
+        object:
+play_category:
+  name: Playlist from Category
+  description: Play a random playlist from a browse category
+  fields:
+    media_player:
+      name: Media Player
+      required: false
+      selector:
+        target:
+          entity:
+            - domain: media_player
+              integration: cast
+            - domain: media_player
+              integration: spotcast
+    category:
+      name: Category
+      description: A Category name or ID. A fuzzy match is applied on the name, but an ID must be an exact match.
+      example: Made For You
+      required: true
       selector:
         text:
-    force_playback:
-      name: "Force Playback"
-      description: "In case of transfering playback: If true starts playing the user's last playback even if nothing is currently playing."
-      example: true
+    account:
+      name: Spotify Account
+      description: The id of the spotify account to use. Takes the default account otherwise
       required: false
-      default: false
       selector:
-        boolean:
-    random_song:
-      name: "Random Song"
-      description: "Starts the playback at a random position in the playlist or album."
-      example: true
+        config_entry:
+          integration: spotcast
+    data:
+      name: Data
+      description: Additional modifiers for the service call.
       required: false
-      default: false
       selector:
-        boolean:
-    repeat:
-      name: "Repeat"
-      description: "Set repeat mode for playback."
-      example: "track"
+        object:
+play_custom_context:
+  name: Play Custom Context
+  description: Play media from a custom list of tracks URIs
+  fields:
+    media_player:
+      name: Media Player
       required: false
-      default: "off"
+      selector:
+        target:
+          entity:
+            - domain: media_player
+              integration: cast
+            - domain: media_player
+              integration: spotcast
+    tracks:
+      name: Items
+      description: A list of Spotify URIs
+      example: spotify:track:55mJleti2WfWEFNFcBduhc
+      required: true
+      selector:
+        object:
+    account:
+      name: Spotify Account
+      description: The id of the spotify account to use. Takes the default account otherwise
+      required: false
+      selector:
+        config_entry:
+          integration: spotcast
+    data:
+      name: Data
+      description: Additional modifiers for the service call.
+      required: false
+      selector:
+        object:
+play_from_search:
+  name: Play From Search
+  description: Play media from a search result
+  fields:
+    media_player:
+      name: Media Player
+      required: false
+      selector:
+        target:
+          entity:
+            - domain: media_player
+              integration: cast
+            - domain: media_player
+              integration: spotcast
+    search_term:
+      name: Search Term
+      description: The term to search in Spotify Catalog
+      example: Joy as an Act of Resistance.
+      required: true
+      selector:
+        text:
+          multiline: false
+    item_types:
+      name: Item Type
+      description: The type of item to return from the search result
+      example: album
+      required: true
+      default:
+        - album
+        - artist
+        - playlist
+        - track
+      selector:
+        select:
+          multiple: true
+          options:
+            - label: Album
+              value: album
+            - label: Artist
+              value: artist
+            - label: Playlist
+              value: playlist
+            - label: Track
+              value: track
+            - label: Show
+              value: show
+            - label: Episode
+              value: episode
+            - label: Audiobook
+              value: audiobook
+          mode: list
+    tags:
+      name: Tags
+      description: Tags to add to the search query filters
+      example: hipster
       selector:
         select:
           options:
-            - "track"
-            - "context"
-            - "off"
-    shuffle:
-      name: "Shuffle"
-      description: "Set shuffle mode for playback."
-      example: true
-      required: false
-      default: false
+            - label: Hipster
+              value: hipster
+            - label: New
+              value: new
+          multiple: true
+          mode: list
+    filters:
+      name: Filters
+      description: Filters to apply to the search query. See [Spotify API Documentation](https://developer.spotify.com/documentation/web-api/reference/search)
       selector:
-        boolean:
-    offset:
-      name: "Offset"
-      description: "Set offset mode for playback. 0 is the first song."
-      example: 1
-      required: false
-      default: 0
-      selector:
-        number:
-          mode: box
-          step: 1
-          min: 0
-          max: 999999
-    start_position:
-      name: "Position"
-      description: "Start position of the track in seconds"
-      example: 1
-      required: false
-      default: 0
-      selector:
-        number:
-          mode: box
-          step: 1
-          min: 0
-          max: 999999
-    start_volume:
-      name: "Start Volume"
-      description: "Set the volume for playback in percentage."
-      example: 50
+        object:
+    account:
+      name: Spotify Account
+      description: The id of the spotify account to use. Takes the default account otherwise
       required: false
       selector:
-        number:
-          mode: slider
-          step: 1
-          min: 0
-          max: 100
-    ignore_fully_played:
-      name: "Ignore Fully Played"
-      description: "Set to ignore or not already played episodes in a podcast playlist"
-      example: true
+        config_entry:
+          integration: spotcast
+    data:
+      name: Data
+      description: Additional modifiers for the service call.
       required: false
-      default: false
       selector:
-        boolean:
+        object:
+add_to_queue:
+  name: Add To Queue
+  description: Add Items to Spotify Queue
+  fields:
+    spotify_uris:
+      name: Spotify URIs
+      description: A list of Spotify URIs
+      required: true
+      selector:
+        object:
+    account:
+      name: Spotify Account
+      description: The id of the spotify account to use. Takes the default account otherwise
+      required: false
+      selector:
+        config_entry:
+          integration: spotcast
+like_media:
+  name: Like Media
+  description: Save a list of Media to your Spotify Library
+  fields:
+    spotify_uris:
+      name: Spotify URIs
+      description: A list of Spotify URIs
+      required: true
+      selector:
+        object:
+    account:
+      name: Spotify Account
+      description: The id of the spotify account to use. Takes the default account otherwise
+      required: false
+      selector:
+        config_entry:
+          integration: spotcast

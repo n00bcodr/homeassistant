@@ -1,4 +1,5 @@
 """Models module."""
+
 from enum import Enum
 
 from .const import (
@@ -15,8 +16,9 @@ from .const import (
     ATTR_PROTEIN,
     ATTR_VISCERAL,
     ATTR_WATER,
-    CONF_IMPEDANCE_SENSOR,
-    CONF_WEIGHT_SENSOR,
+    CONF_SENSOR_IMPEDANCE,
+    CONF_SENSOR_LAST_MEASUREMENT_TIME,
+    CONF_SENSOR_WEIGHT,
 )
 
 
@@ -32,8 +34,9 @@ class Metric(str, Enum):
 
     STATUS = "status"
     AGE = ATTR_AGE
-    WEIGHT = CONF_WEIGHT_SENSOR
-    IMPEDANCE = CONF_IMPEDANCE_SENSOR
+    WEIGHT = CONF_SENSOR_WEIGHT
+    IMPEDANCE = CONF_SENSOR_IMPEDANCE
+    LAST_MEASUREMENT_TIME = CONF_SENSOR_LAST_MEASUREMENT_TIME
     BMI = ATTR_BMI
     BMR = ATTR_BMR
     VISCERAL_FAT = ATTR_VISCERAL
@@ -47,4 +50,3 @@ class Metric(str, Enum):
     FAT_MASS_2_IDEAL_WEIGHT = "fat_mass_2_ideal_weight"
     BODY_TYPE = ATTR_BODY
     BODY_SCORE = ATTR_BODY_SCORE
-    

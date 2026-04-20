@@ -1,0 +1,34 @@
+{
+    "services": {
+        "play_media": {
+            "service": "mdi:spotify"
+        },
+        "play_dj": {
+            "service": "mdi:disc"
+        },
+        "play_liked_songs": {
+            "service": "mdi:thumb-up"
+        },
+        "transfer_playback": {
+            "service": "mdi:transfer"
+        },
+        "play_category": {
+            "service": "mdi:dice-multiple"
+        },
+        "play_custom_context": {
+            "service": "mdi:playlist-music"
+        },
+        "play_from_search": {
+            "service": "mdi:file-search"
+        },
+        "add_to_queue": {
+            "service": "mdi:plus-box-multiple"
+        },
+        "play_saved_episodes": {
+            "service": "mdi:podcast"
+        },
+        "like_media": {
+            "service": "mdi:music-note-plus"
+        }
+    }
+}

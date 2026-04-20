@@ -7,7 +7,8 @@ from datetime import timedelta
 from numbers import Number
 from typing import cast
 
-from .common import utcnow_no_timezone
+from homeassistant.util import dt as dt_util
+
 from .const import WINDOW_SIZE_UNIT_NUMBER_EVENTS, WINDOW_SIZE_UNIT_TIME
 
 _LOGGER = logging.getLogger(__name__)
@@ -20,7 +21,7 @@ class FilterState:
 
     def __init__(self, state: str | float | int) -> None:
         """Initialize with HA State object."""
-        self.timestamp = utcnow_no_timezone()
+        self.timestamp = dt_util.utcnow()
         try:
             self.state = float(state)
         except ValueError:
@@ -35,7 +36,7 @@ class FilterState:
         return f"{self.timestamp} : {self.state}"
 
 
-class Filter():
+class Filter:
     """Base filter class."""
 
     def __init__(
@@ -91,6 +92,7 @@ class Filter():
         new_state = filtered.state
         return new_state
 
+
 class LowOutlierFilter(Filter):
     """Low Outlier filter.
 
@@ -106,9 +108,7 @@ class LowOutlierFilter(Filter):
 
         :param radius: band radius
         """
-        super().__init__(
-            window_size
-        )
+        super().__init__(window_size)
         self._radius = radius
         self._stats_internal: Counter = Counter()
         self._store_raw = True
@@ -122,10 +122,10 @@ class LowOutlierFilter(Filter):
 
         if previous_state_values and new_state_value >= previous_state_values[-1]:
             _LOGGER.debug(
-                    "New value higher than last previous state, allowing. %s >= %s",
-                    new_state,
-                    previous_state_values[-1]
-                )
+                "New value higher than last previous state, allowing. %s >= %s",
+                new_state,
+                previous_state_values[-1],
+            )
             return new_state
 
         median = statistics.median(previous_state_values) if self.states else 0

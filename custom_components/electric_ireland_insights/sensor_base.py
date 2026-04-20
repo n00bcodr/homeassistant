@@ -6,7 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, UTC
 from typing import List
 
-from homeassistant.components.recorder.models import StatisticData, StatisticMetaData
+from homeassistant.components.recorder.models import StatisticData, StatisticMetaData, StatisticMeanType
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 
 from homeassistant_historical_sensor import (
@@ -15,7 +15,7 @@ from homeassistant_historical_sensor import (
     PollUpdateMixin,
 )
 
-from .api import ElectricIrelandScraper, BidgelyScraper
+from .api import ElectricIrelandScraper
 from .const import DOMAIN, LOOKUP_DAYS, PARALLEL_DAYS
 
 
@@ -65,28 +65,25 @@ class Sensor(PollUpdateMixin, HistoricalSensor, SensorEntity):
         loop = asyncio.get_running_loop()
 
         await loop.run_in_executor(None, self._api.refresh_credentials)
-        scraper: BidgelyScraper = self._api.scraper
+        scraper = self._api.scraper
+
+        if not scraper:
+            LOGGER.error("Failed to get scraper - login may have failed")
+            return
 
         hist_states: List[HistoricalState] = []
 
-        # We get the current time in UTC
         now = datetime.now(UTC)
-        # Now, we build a datetime object with no time in UTC with the current date, but as of "yesterday" (as data is
-        #   never published on the day after)
+        # Build a datetime for "yesterday" since data is never published on the same day
         yesterday = datetime(year=now.year, month=now.month, day=now.day, tzinfo=UTC) - timedelta(days=1)
 
-        # We store here a list of Futures, where each Future is a day and it contains a list of datapoints
         executor_results = []
 
         with ThreadPoolExecutor(max_workers=PARALLEL_DAYS) as executor:
-            # We generate all the days to look up for, up to LOOKUP_DAYS
             current_date = yesterday - timedelta(days=LOOKUP_DAYS)
             while current_date <= yesterday:
                 LOGGER.debug(f"Submitting {current_date}")
-                # We launch a job for the target date, and we put it to the full list of results
-                results = loop.run_in_executor(executor, scraper.get_data,
-                                               current_date,
-                                               self._metric == "consumption")
+                results = loop.run_in_executor(executor, scraper.get_data, current_date)
                 executor_results.append(results)
                 current_date += timedelta(days=1)
 
@@ -144,7 +141,7 @@ class Sensor(PollUpdateMixin, HistoricalSensor, SensorEntity):
         #
         meta = super().get_statistic_metadata()
         meta["has_sum"] = True
-        meta["has_mean"] = True
+        meta["mean_type"] = StatisticMeanType.ARITHMETIC
 
         return meta
 

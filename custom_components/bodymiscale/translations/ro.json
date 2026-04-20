@@ -9,12 +9,15 @@
     "step": {
       "options": {
         "data": {
+          "calculation_mode": "Metodă de calcul",
           "height": "Înalțime",
           "impedance": "Senzor impedanță",
+          "last_measurement_time": "Senzor pentru ultima oră de cântărire",
           "weight": "Senzor greutate"
         },
         "data_description": {
-          "impedance": "Dacă cântarul dumneavoastra nu furnizează impedanță, lăsați câmpul necompletat."
+          "impedance": "Dacă cântarul dumneavoastra nu furnizează impedanță, lăsați câmpul necompletat.",
+          "last_measurement_time": "Dacă nu aveți un senzor pentru ultima oră de cântărire, lăsați acest câmp gol."
         }
       },
       "user": {
@@ -33,14 +36,14 @@
       "body_fat": { "name": "Grăsime corporală" },
       "body_score": { "name": "Scor corporal" },
       "bone_mass": { "name": "Masă osoasă" },
+      "last_measurement_time": { "name": "Ultima oră de cântărire" },
       "lean_body_mass": { "name": "Masă corporală slabă" },
       "metabolic_age": { "name": "Vârsta metabolică" },
       "muscle_mass": { "name": "Masă musculară" },
       "protein": { "name": "Proteină" },
       "visceral_fat": { "name": "Grasime viscerala" },
       "water": { "name": "Apă" },
-      "weight": { "name": "Greutate" },
-      "last_measurement_time": { "name": "Ultima măsurătoare" }
+      "weight": { "name": "Greutate" }
     }
   },
   "entity_component": {
@@ -97,6 +100,7 @@
         "height": { "name": "Înălţime" },
         "ideal": { "name": "Ideal" },
         "impedance": { "name": "Impedanță" },
+        "last_measurement_time": { "name": "Ultima oră de cântărire" },
         "lean_body_mass": { "name": "Masă corporală slabă" },
         "metabolic_age": { "name": "Vârsta metabolică" },
         "muscle_mass": { "name": "Masă musculară" },
@@ -120,8 +124,7 @@
         "protein": { "name": "Proteină" },
         "visceral_fat": { "name": "Grasime viscerala" },
         "water": { "name": "Apă" },
-        "weight": { "name": "Greutate" },
-        "last_measurement_time": { "name": "Ultima măsurătoare" }
+        "weight": { "name": "Greutate" }
       }
     }
   },
@@ -129,13 +132,24 @@
     "step": {
       "init": {
         "data": {
+          "calculation_mode": "Metodă de calcul",
           "height": "Înalțime",
           "impedance": "Senzor impedanță",
+          "last_measurement_time": "Senzor pentru ultima oră de cântărire",
           "weight": "Senzor greutate"
         },
         "data_description": {
-          "impedance": "Dacă cântarul dumneavoastra nu furnizează impedanță, lăsați câmpul necompletat."
+          "impedance": "Dacă cântarul dumneavoastra nu furnizează impedanță, lăsați câmpul necompletat.",
+          "last_measurement_time": "Dacă nu aveți un senzor pentru ultima oră de cântărire, lăsați acest câmp gol."
         }
+      }
+    }
+  },
+  "selector": {
+    "calculation_mode": {
+      "options": {
+        "science": "Științific",
+        "xiaomi": "Xiaomi (Legacy 2017)"
       }
     }
   },

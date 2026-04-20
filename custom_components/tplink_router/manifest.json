@@ -9,7 +9,7 @@
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/AlexandrErohin/home-assistant-tplink-router/issues",
   "requirements": [
-    "tplinkrouterc6u==5.10.2"
+    "tplinkrouterc6u==5.18.1"
   ],
-  "version": "v2.12.2"
+  "version": "v2.21.1"
 }

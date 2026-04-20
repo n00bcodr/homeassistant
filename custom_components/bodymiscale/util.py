@@ -1,4 +1,4 @@
-"""Util module."""  # Utility functions module
+"""Util module."""
 
 from collections.abc import Mapping
 from datetime import datetime
@@ -9,46 +9,58 @@ from .models import Gender
 
 
 def check_value_constraints(value: float, minimum: float, maximum: float) -> float:
-    """Set the value to a boundary if it overflows."""  # Constrain a value within a range
+    """Set the value to a boundary if it overflows."""
     if value < minimum:
-        return minimum  # Return minimum if value is below minimum
+        return minimum
     if value > maximum:
-        return maximum  # Return maximum if value is above maximum
-    return value  # Return the value if it's within the range
+        return maximum
+    return value
+
+
+def to_float(val: Any, default: float = 0.0) -> float:
+    """Convert value to float if possible, otherwise return a default."""
+    if isinstance(val, (int, float)):
+        return float(val)
+    if isinstance(val, str):
+        try:
+            return float(val)
+        except ValueError:
+            return default
+    return default
 
 
 def get_ideal_weight(config: Mapping[str, Any]) -> float:
-    """Get ideal weight (just doing a reverse BMI, should be something better)."""  # Calculate ideal weight (using a simplified formula)
-    if config[CONF_GENDER] == Gender.FEMALE:  # If gender is female
-        ideal = float(config[CONF_HEIGHT] - 70) * 0.6  # Calculate ideal weight for females
-    else:  # If gender is male
-        ideal = float(config[CONF_HEIGHT] - 80) * 0.7  # Calculate ideal weight for males
+    """Get ideal weight (just doing a reverse BMI, should be something better)."""
+    if config[CONF_GENDER] == Gender.FEMALE:
+        ideal = float(config[CONF_HEIGHT] - 70) * 0.6
+    else:
+        ideal = float(config[CONF_HEIGHT] - 80) * 0.7
 
-    return round(ideal, 0)  # Round the ideal weight to the nearest whole number
+    return round(ideal, 0)
 
 
-def get_bmi_label(bmi: float) -> str:  # pylint: disable=too-many-return-statements
-    """Get BMI label."""  # Get the BMI category label
+def get_bmi_label(bmi: float) -> str:
+    """Get BMI label."""
     if bmi < 18.5:
-        return "underweight"  # Underweight
+        return "underweight"
     if bmi < 25:
-        return "normal_or_healthy_weight"  # Normal or healthy weight
+        return "normal_or_healthy_weight"
     if bmi < 27:
-        return "slight_overweight"  # Slightly overweight
+        return "slight_overweight"
     if bmi < 30:
-        return "overweight"  # Overweight
+        return "overweight"
     if bmi < 35:
-        return "moderate_obesity"  # Moderately obese
+        return "moderate_obesity"
     if bmi < 40:
-        return "severe_obesity"  # Severely obese
-    return "massive_obesity"  # Morbidly obese
+        return "severe_obesity"
+    return "massive_obesity"
 
 
 def get_age(date: str) -> int:
-    """Get current age from birthdate."""  # Calculate age from birthdate
-    born = datetime.strptime(date, "%Y-%m-%d")  # Parse the birthdate string
-    today = datetime.today()  # Get today's date
-    age = today.year - born.year  # Calculate the age
-    if (today.month, today.day) < (born.month, born.day):  # Adjust if birthday hasn't occurred yet this year
+    """Get current age from birthdate."""
+    born = datetime.strptime(date, "%Y-%m-%d")
+    today = datetime.today()
+    age = today.year - born.year
+    if (today.month, today.day) < (born.month, born.day):
         age -= 1
-    return age  # Return the calculated age
+    return age

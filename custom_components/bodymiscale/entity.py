@@ -2,13 +2,14 @@
 
 from homeassistant.const import CONF_NAME
 from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
-from homeassistant.helpers.entity import UNDEFINED, Entity, EntityDescription
+from homeassistant.helpers.entity import Entity, EntityDescription
+from homeassistant.helpers.typing import UNDEFINED
 
 from .const import DOMAIN, VERSION
 from .metrics import BodyScaleMetricsHandler
 
 
-class BodyScaleBaseEntity(Entity):  # type: ignore[misc]
+class BodyScaleBaseEntity(Entity):
     """Body scale base entity."""
 
     _attr_should_poll = False
@@ -22,7 +23,6 @@ class BodyScaleBaseEntity(Entity):  # type: ignore[misc]
         """Initialize the entity."""
         super().__init__()
         self._handler = handler
-
         if entity_description:
             self.entity_description = entity_description
         elif not hasattr(self, "entity_description"):
@@ -49,4 +49,3 @@ class BodyScaleBaseEntity(Entity):  # type: ignore[misc]
             sw_version=VERSION,
             identifiers={(DOMAIN, self._handler.config_entry_id)},
         )
-        

@@ -7,55 +7,98 @@ from typing import Any
 
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
-from homeassistant.config_entries import ConfigEntry, ConfigFlow, OptionsFlow
-from homeassistant.const import CONF_MODE, CONF_NAME, CONF_UNIT_OF_MEASUREMENT
+from homeassistant.config_entries import (
+    ConfigEntry,
+    ConfigFlow,
+    ConfigFlowResult,
+    OptionsFlow,
+)
+from homeassistant.const import CONF_NAME
 from homeassistant.core import callback
-from homeassistant.data_entry_flow import FlowResult
-from homeassistant.helpers.selector import selector
+from homeassistant.helpers import selector
 
 from .const import (
+    CALCULATION_MODE_OPTIONS,
     CONF_BIRTHDAY,
+    CONF_CALCULATION_MODE,
     CONF_GENDER,
     CONF_HEIGHT,
-    CONF_IMPEDANCE_SENSOR,
-    CONF_WEIGHT_SENSOR,
+    CONF_SENSOR_IMPEDANCE,
+    CONF_SENSOR_LAST_MEASUREMENT_TIME,
+    CONF_SENSOR_WEIGHT,
     CONSTRAINT_HEIGHT_MAX,
     CONSTRAINT_HEIGHT_MIN,
     DOMAIN,
-    MAX,
-    MIN,
 )
 from .models import Gender
 
 
 @callback
 def _get_options_schema(
-    defaults: dict[str, Any] | MappingProxyType[str, Any]
+    defaults: dict[str, Any] | MappingProxyType[str, Any],
 ) -> vol.Schema:
     """Return options schema."""
     return vol.Schema(
         {
             vol.Required(
                 CONF_HEIGHT,
-                description={"suggested_value": defaults.get(CONF_HEIGHT)},  # Suggested height value
-            ): selector(
-                {
-                    "number": {
-                        MIN: CONSTRAINT_HEIGHT_MIN,  # Minimum height
-                        MAX: CONSTRAINT_HEIGHT_MAX,  # Maximum height
-                        CONF_UNIT_OF_MEASUREMENT: "cm",  # Unit of measurement for height
-                        CONF_MODE: "box",  # Input mode for height
-                    }
-                }
+                description=(
+                    {"suggested_value": defaults[CONF_HEIGHT]}
+                    if CONF_HEIGHT in defaults
+                    else None
+                ),
+            ): selector.NumberSelector(
+                selector.NumberSelectorConfig(
+                    mode=selector.NumberSelectorMode.BOX,
+                    min=CONSTRAINT_HEIGHT_MIN,
+                    max=CONSTRAINT_HEIGHT_MAX,
+                    unit_of_measurement="cm",
+                )
             ),
             vol.Required(
-                CONF_WEIGHT_SENSOR,
-                description={"suggested_value": defaults.get(CONF_WEIGHT_SENSOR)},  # Suggested weight sensor
-            ): selector({"entity": {"domain": ["sensor", "input_number", "number"]}}),  # Selector for weight sensor
+                CONF_CALCULATION_MODE,
+                default=defaults.get(CONF_CALCULATION_MODE, "xiaomi"),
+            ): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=CALCULATION_MODE_OPTIONS,
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                    translation_key="calculation_mode",
+                )
+            ),
+            vol.Required(
+                CONF_SENSOR_WEIGHT,
+                description=(
+                    {"suggested_value": defaults[CONF_SENSOR_WEIGHT]}
+                    if CONF_SENSOR_WEIGHT in defaults
+                    else None
+                ),
+            ): selector.EntitySelector(
+                selector.EntitySelectorConfig(
+                    domain=["sensor", "input_number", "number"]
+                )
+            ),
             vol.Optional(
-                CONF_IMPEDANCE_SENSOR,
-                description={"suggested_value": defaults.get(CONF_IMPEDANCE_SENSOR)},  # Suggested impedance sensor
-            ): selector({"entity": {"domain": ["sensor", "input_number", "number"]}}),  # Selector for impedance sensor
+                CONF_SENSOR_IMPEDANCE,
+                description=(
+                    {"suggested_value": defaults[CONF_SENSOR_IMPEDANCE]}
+                    if CONF_SENSOR_IMPEDANCE in defaults
+                    else None
+                ),
+            ): selector.EntitySelector(
+                selector.EntitySelectorConfig(
+                    domain=["sensor", "input_number", "number"]
+                )
+            ),
+            vol.Optional(
+                CONF_SENSOR_LAST_MEASUREMENT_TIME,
+                description=(
+                    {"suggested_value": defaults[CONF_SENSOR_LAST_MEASUREMENT_TIME]}
+                    if CONF_SENSOR_LAST_MEASUREMENT_TIME in defaults
+                    else None
+                ),
+            ): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain=["sensor", "input_datetime"])
+            ),
         }
     )
 
@@ -66,6 +109,7 @@ class BodyMiScaleFlowHandler(ConfigFlow, domain=DOMAIN):
     VERSION = 2
 
     def __init__(self) -> None:
+        """Initialize BodyMiScaleFlowHandler."""
         super().__init__()
         self._data: dict[str, str] = {}
 
@@ -79,61 +123,64 @@ class BodyMiScaleFlowHandler(ConfigFlow, domain=DOMAIN):
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    ) -> ConfigFlowResult:
         """Handle a flow initialized by the user."""
-        errors = {}
+        errors: dict[str, str] = {}
         if user_input is not None:
             try:
-                cv.date(user_input[CONF_BIRTHDAY])  # Validate the date of birth
+                cv.date(user_input[CONF_BIRTHDAY])
             except vol.Invalid:
-                errors[CONF_BIRTHDAY] = "invalid_date"  # Set error if date is invalid
+                errors[CONF_BIRTHDAY] = "invalid_date"
 
-            if not errors:  # If no errors
-                self._async_abort_entries_match({CONF_NAME: user_input[CONF_NAME]})  # Abort if entry with same name exists
-                self._data = user_input  # Store the user input
-                return await self.async_step_options()  # Proceed to the options step
-        else:
-            user_input = {}  # Initialize user input
+            if not errors:
+                self._async_abort_entries_match({CONF_NAME: user_input[CONF_NAME]})
+                self._data = user_input
+                return await self.async_step_options()
 
+        user_input = user_input or {}
         return self.async_show_form(
             step_id="user",
             errors=errors,
-            data_schema=vol.Schema(  # Schema for the user step
+            data_schema=vol.Schema(
                 {
                     vol.Required(
-                        CONF_NAME, default=user_input.get(CONF_NAME, vol.UNDEFINED)  # Name field
+                        CONF_NAME, default=user_input.get(CONF_NAME, vol.UNDEFINED)
                     ): str,
                     vol.Required(
                         CONF_BIRTHDAY,
-                        default=user_input.get(CONF_BIRTHDAY, vol.UNDEFINED),  # Date of birth field
-                    ): selector({"text": {"type": "date"}}),  # Date selector
+                        default=user_input.get(CONF_BIRTHDAY, vol.UNDEFINED),
+                    ): selector.TextSelector(
+                        selector.TextSelectorConfig(type=selector.TextSelectorType.DATE)
+                    ),
                     vol.Required(
-                        CONF_GENDER, default=user_input.get(CONF_GENDER, vol.UNDEFINED)  # Gender field
-                    ): vol.In({gender: gender.value for gender in Gender}),  # Gender selector
+                        CONF_GENDER, default=user_input.get(CONF_GENDER, vol.UNDEFINED)
+                    ): vol.In({gender: gender.value for gender in Gender}),
                 }
             ),
         )
 
     async def async_step_options(
         self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    ) -> ConfigFlowResult:
         """Handle step options."""
-        errors = {}
+        errors: dict[str, str] = {}
+
         if user_input is not None:
-            if user_input[CONF_HEIGHT] > CONSTRAINT_HEIGHT_MAX:  # Validate height
-                errors[CONF_HEIGHT] = "height_limit"  # Set error if height is too high
-            elif user_input[CONF_HEIGHT] < CONSTRAINT_HEIGHT_MIN:  # Validate height
-                errors[CONF_HEIGHT] = "height_low"  # Set error if height is too low
+            if user_input[CONF_HEIGHT] > CONSTRAINT_HEIGHT_MAX:
+                errors[CONF_HEIGHT] = "height_limit"
+            elif user_input[CONF_HEIGHT] < CONSTRAINT_HEIGHT_MIN:
+                errors[CONF_HEIGHT] = "height_low"
 
-            if not errors:  # If no errors
-                return self.async_create_entry(
-                    title=self._data[CONF_NAME], data=self._data, options=user_input  # Create the config entry
-                )
+            return self.async_create_entry(
+                title=self._data[CONF_NAME],
+                data=self._data,
+                options=user_input,
+            )
 
-        user_input = {}  # Initialize user input
+        user_input = user_input or {}
         return self.async_show_form(
             step_id="options",
-            data_schema=_get_options_schema(user_input),  # Schema for the options step
+            data_schema=_get_options_schema(user_input),
             errors=errors,
         )
 
@@ -147,19 +194,16 @@ class BodyMiScaleOptionsFlowHandler(OptionsFlow):
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    ) -> ConfigFlowResult:
         """Manage Body mi scale options."""
 
         if user_input is not None:
-            return self.async_create_entry(
-                title=self._config_entry.title,
-                data=user_input,  # Create the config entry with the options
-            )
+            return self.async_create_entry(data=user_input)
 
-        user_input = self._config_entry.options  # Get the current options
+        # Convert MappingProxyType en dict
+        user_input = dict(self._config_entry.options)
 
         return self.async_show_form(
             step_id="init",
-            data_schema=_get_options_schema(user_input),  # Schema for the options
+            data_schema=_get_options_schema(user_input),
         )
-    

@@ -12,6 +12,7 @@ import keyword
 import logging
 import sys
 import time
+import traceback
 import weakref
 
 import yaml
@@ -70,6 +71,7 @@ TRIGGER_KWARGS = {
     "payload",
     "payload_obj",
     "qos",
+    "retain",
     "topic",
     "trigger_type",
     "trigger_time",
@@ -381,14 +383,17 @@ class EvalFunc:
             "state_active": {"arg_cnt": {1}},
             "state_trigger": {"arg_cnt": {"*"}, "type": {list, set}, "rep_ok": True},
             "service": {"arg_cnt": {0, "*"}},
-            "task_unique": {"arg_cnt": {1, 2}},
+            "task_unique": {"arg_cnt": {1}},
             "time_active": {"arg_cnt": {"*"}},
             "time_trigger": {"arg_cnt": {0, "*"}, "rep_ok": True},
             "webhook_trigger": {"arg_cnt": {1, 2}, "rep_ok": True},
         }
         kwarg_check = {
             "event_trigger": {"kwargs": {dict}},
-            "mqtt_trigger": {"kwargs": {dict}},
+            "mqtt_trigger": {
+                "kwargs": {dict},
+                "encoding": {str},
+            },
             "time_trigger": {"kwargs": {dict}},
             "task_unique": {"kill_me": {bool, int}},
             "time_active": {"hold_off": {int, float}},
@@ -998,6 +1003,14 @@ class AstEval:
                     raise ModuleNotFoundError(f"module '{imp.name}' not found")
                 self.sym_table[imp.name if imp.asname is None else imp.asname] = mod
             return
+        if arg.module == "stubs" or arg.module.startswith("stubs."):
+            for imp in arg.names:
+                if imp.asname is not None:
+                    raise ModuleNotFoundError(
+                        f"from {arg.module} import {imp.name} *as {imp.asname}* not supported for stubs"
+                    )
+            _LOGGER.debug("Skipping stubs import %s", arg.module)
+            return
         mod, error_ctx = await self.global_ctx.module_import(arg.module, arg.level)
         if error_ctx:
             self.exception_obj = error_ctx.exception_obj
@@ -1081,12 +1094,18 @@ class AstEval:
     async def ast_classdef(self, arg):
         """Evaluate class definition."""
         bases = [(await self.aeval(base)) for base in arg.bases]
+        keywords = {kw.arg: await self.aeval(kw.value) for kw in arg.keywords}
+        metaclass = keywords.pop("metaclass", type(bases[0]) if bases else type)
+
         if self.curr_func and arg.name in self.curr_func.global_names:
             sym_table_assign = self.global_sym_table
         else:
             sym_table_assign = self.sym_table
         sym_table_assign[arg.name] = EvalLocalVar(arg.name)
-        sym_table = {}
+        if hasattr(metaclass, "__prepare__"):
+            sym_table = metaclass.__prepare__(arg.name, tuple(bases), **keywords)
+        else:
+            sym_table = {}
         self.sym_table_stack.append(self.sym_table)
         self.sym_table = sym_table
         for arg1 in arg.body:
@@ -1097,11 +1116,17 @@ class AstEval:
                 raise SyntaxError(f"{val.name()} statement outside loop")
         self.sym_table = self.sym_table_stack.pop()
 
+        decorators = [await self.aeval(dec) for dec in arg.decorator_list]
         sym_table["__init__evalfunc_wrap__"] = None
         if "__init__" in sym_table:
             sym_table["__init__evalfunc_wrap__"] = sym_table["__init__"]
             del sym_table["__init__"]
-        sym_table_assign[arg.name].set(type(arg.name, tuple(bases), sym_table))
+        cls = metaclass(arg.name, tuple(bases), sym_table, **keywords)
+        if inspect.iscoroutine(cls):
+            cls = await cls
+        for dec_func in reversed(decorators):
+            cls = await self.call_func(dec_func, None, cls)
+        sym_table_assign[arg.name].set(cls)
 
     async def ast_functiondef(self, arg, async_func=False):
         """Evaluate function definition."""
@@ -1478,7 +1503,11 @@ class AstEval:
         await self.recurse_assign(arg.target, new_val)
 
     async def ast_annassign(self, arg):
-        """Execute type hint assignment statement (just ignore the type hint)."""
+        """Execute type hint assignment statement and track __annotations__."""
+        if isinstance(arg.target, ast.Name):
+            annotations = self.sym_table.setdefault("__annotations__", {})
+            if arg.annotation:
+                annotations[arg.target.id] = await self.aeval(arg.annotation)
         if arg.value is not None:
             rhs = await self.aeval(arg.value)
             await self.recurse_assign(arg.target, rhs)
@@ -1952,7 +1981,8 @@ class AstEval:
         if isinstance(func, (EvalFunc, EvalFuncVar)):
             return await func.call(self, *args, **kwargs)
         if inspect.isclass(func) and hasattr(func, "__init__evalfunc_wrap__"):
-            inst = func()
+            has_init_wrapper = getattr(func, "__init__evalfunc_wrap__") is not None
+            inst = func(*args, **kwargs) if not has_init_wrapper else func()
             #
             # we use weak references when we bind the method calls to the instance inst;
             # otherwise these self references cause the object to not be deleted until
@@ -1960,11 +1990,16 @@ class AstEval:
             #
             inst_weak = weakref.ref(inst)
             for name in dir(inst):
-                value = getattr(inst, name)
+                try:
+                    value = getattr(inst, name)
+                except AttributeError:
+                    # same effect as hasattr (which also catches AttributeError)
+                    # dir() may list names that aren't actually accessible attributes
+                    continue
                 if type(value) is not EvalFuncVar:
                     continue
                 setattr(inst, name, EvalFuncVarClassInst(value.get_func(), value.get_ast_ctx(), inst_weak))
-            if getattr(func, "__init__evalfunc_wrap__") is not None:
+            if has_init_wrapper:
                 #
                 # since our __init__ function is async, call the renamed one
                 #
@@ -2188,11 +2223,9 @@ class AstEval:
         else:
             mesg = f"Exception in <{self.filename}>:\n"
             mesg += f"{type(exc).__name__}: {exc}"
-        #
-        # to get a more detailed traceback on exception (eg, when chasing an internal
-        # error), add an "import traceback" above, and uncomment this next line
-        #
-        # return mesg + "\n" + traceback.format_exc(-1)
+
+        if _LOGGER.isEnabledFor(logging.DEBUG):
+            mesg += "\n" + traceback.format_exc()
         return mesg
 
     def get_exception(self):
