@@ -1,42 +1,56 @@
 """Models module."""
 
-from enum import Enum
+from enum import StrEnum
 
 from .const import (
     ATTR_AGE,
+    ATTR_BCM,
     ATTR_BMI,
     ATTR_BMR,
     ATTR_BODY,
     ATTR_BODY_SCORE,
     ATTR_BONES,
+    ATTR_ECW_TBW_RATIO,
+    ATTR_EXTRACELLULAR_WATER,
     ATTR_FAT,
+    ATTR_INTRACELLULAR_WATER,
+    ATTR_LAST_MEASUREMENT_TIME,
     ATTR_LBM,
     ATTR_METABOLIC,
     ATTR_MUSCLE,
     ATTR_PROTEIN,
+    ATTR_SKELETAL_MUSCLE_MASS,
     ATTR_VISCERAL,
     ATTR_WATER,
     CONF_SENSOR_IMPEDANCE,
-    CONF_SENSOR_LAST_MEASUREMENT_TIME,
+    CONF_SENSOR_IMPEDANCE_HIGH,
+    CONF_SENSOR_IMPEDANCE_LOW,
     CONF_SENSOR_WEIGHT,
 )
 
 
-class Gender(str, Enum):
+class Gender(StrEnum):
     """Gender enum."""
 
     MALE = "male"
     FEMALE = "female"
 
 
-class Metric(str, Enum):
+class Metric(StrEnum):
     """Metric enum."""
 
     STATUS = "status"
     AGE = ATTR_AGE
     WEIGHT = CONF_SENSOR_WEIGHT
+
+    # impedance mode
     IMPEDANCE = CONF_SENSOR_IMPEDANCE
-    LAST_MEASUREMENT_TIME = CONF_SENSOR_LAST_MEASUREMENT_TIME
+    IMPEDANCE_LOW = CONF_SENSOR_IMPEDANCE_LOW
+    IMPEDANCE_HIGH = CONF_SENSOR_IMPEDANCE_HIGH
+
+    LAST_MEASUREMENT_TIME = ATTR_LAST_MEASUREMENT_TIME
+
+    # calculated metrics
     BMI = ATTR_BMI
     BMR = ATTR_BMR
     VISCERAL_FAT = ATTR_VISCERAL
@@ -47,6 +61,15 @@ class Metric(str, Enum):
     MUSCLE_MASS = ATTR_MUSCLE
     METABOLIC_AGE = ATTR_METABOLIC
     PROTEIN_PERCENTAGE = ATTR_PROTEIN
+
+    # specific metrics and scores
     FAT_MASS_2_IDEAL_WEIGHT = "fat_mass_2_ideal_weight"
     BODY_TYPE = ATTR_BODY
     BODY_SCORE = ATTR_BODY_SCORE
+
+    # dual-frequency metrics
+    ECW = ATTR_EXTRACELLULAR_WATER
+    ICW = ATTR_INTRACELLULAR_WATER
+    ECW_TBW_RATIO = ATTR_ECW_TBW_RATIO
+    BCM = ATTR_BCM
+    SKELETAL_MUSCLE_MASS = ATTR_SKELETAL_MUSCLE_MASS

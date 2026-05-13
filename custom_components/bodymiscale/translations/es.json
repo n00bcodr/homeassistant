@@ -1,31 +1,81 @@
 {
+  "common": {
+    "weighing_message": "Nueva medición: {weight:.1f} kg",
+    "weighing_title": "Bodymiscale — ¿Quién está en la báscula?"
+  },
   "config": {
+    "abort": {
+      "already_configured": "Ya se ha configurado un perfil con este nombre."
+    },
     "error": {
-      "already_configured": "Ya configurado",
-      "height_limit": "La altura es demasiado alta (limite: 220 cm)",
-      "height_low": "La altura es demasiado baja (min : 50 cm)",
-      "invalid_date": "Fecha invalida"
+      "height_limit": "Altura demasiado alta (máximo: 220 cm).",
+      "height_low": "Altura demasiado baja (mínimo: 50 cm).",
+      "invalid_date": "Fecha inválida.",
+      "name_already_used": "Este nombre ya está siendo utilizado por otro perfil. Elige uno diferente.",
+      "weight_limit": "Peso demasiado alto (máximo: 200 kg).",
+      "weight_low": "Peso demasiado bajo (mínimo: 10 kg).",
+      "weight_range_invalid": "El peso mínimo debe ser estrictamente menor que el peso máximo.",
+      "weight_range_overlap": "Este rango se solapa con el de otro usuario. Los rangos no deben compartir ningún valor — ajusta los límites en consecuencia."
     },
     "step": {
-      "options": {
+      "modes": {
         "data": {
           "calculation_mode": "Método de cálculo",
-          "height": "Altura",
-          "impedance": "Sensor de immpedancia",
-          "last_measurement_time": "Sensor de la última hora de pesaje",
+          "height": "Altura (cm)",
+          "impedance_mode": "Modo de impedancia",
+          "profile_method": "Método de identificación del usuario"
+        },
+        "data_description": {
+          "calculation_mode": "Xiaomi: idéntico a la app Zepp Life. Científico: fórmulas OMS / Schofield. No disponible en el modo S400 de doble frecuencia.",
+          "impedance_mode": "Ninguno: báscula sin sensor de impedancia. Estándar: frecuencia única (Xiaomi Gen2). Doble frecuencia S400: dos sensores a 50 kHz y 250 kHz.",
+          "profile_method": "Cómo bodymiscale determina a qué usuario asignar una medición. Selecciona \"Ninguno\" si utilizas sensores dedicados por persona."
+        },
+        "title": "Modos de funcionamiento"
+      },
+      "profile": {
+        "data": {
+          "initial_weight": "Peso inicial (kg)",
+          "nearest_tolerance": "Tolerancia de peso más cercano (kg)",
+          "notify_device_id": "Dispositivo móvil que recibe la notificación",
+          "notify_weight_max": "Peso máximo para notificar (opcional)",
+          "notify_weight_min": "Peso mínimo para notificar (opcional)",
+          "profile_id": "ID de perfil (1–5)",
+          "weight_max": "Peso máximo del rango (kg, excluido)",
+          "weight_min": "Peso mínimo del rango (kg, incluido)"
+        },
+        "data_description": {
+          "initial_weight": "Peso actual utilizado para inicializar este usuario cuando se activa por primera vez la coincidencia por peso más cercano.",
+          "nearest_tolerance": "Distancia máxima permitida entre el valor del sensor y el peso actual del usuario. El valor predeterminado es ±5 kg.",
+          "notify_device_id": "El teléfono que recibirá una notificación interactiva después de cada pesaje. Toca tu nombre para confirmar la medición.",
+          "notify_weight_max": "Notificar a este usuario solo si el peso medido es menor o igual a este valor. Dejar vacío para notificar siempre.",
+          "notify_weight_min": "Notificar a este usuario solo si el peso medido es mayor o igual a este valor. Dejar vacío para notificar siempre.",
+          "weight_max": "Límite superior, excluido del rango. Si el siguiente usuario comienza en 65 kg, introduce como máximo 64,99 kg aquí.",
+          "weight_min": "Límite inferior, incluido en el rango. La medición se asigna a este usuario si su peso es ≥ a este valor."
+        },
+        "title": "Configuración del perfil"
+      },
+      "sensors": {
+        "data": {
+          "impedance": "Sensor de impedancia (frecuencia única)",
+          "impedance_high": "Sensor de impedancia de alta frecuencia (250 kHz)",
+          "impedance_low": "Sensor de impedancia de baja frecuencia (50 kHz)",
+          "profile_id_sensor": "Sensor de ID de perfil (ID de báscula)",
           "weight": "Sensor de peso"
         },
         "data_description": {
-          "impedance": "Si su báscula no proporciona la impedancia, deje este campo vacío.",
-          "last_measurement_time": "Deje este campo en blanco si no tiene un sensor para la última hora de pesaje."
-        }
+          "impedance": "Valor de impedancia único proporcionado por tu báscula.",
+          "impedance_high": "Impedancia medida a 250 kHz (S400).",
+          "impedance_low": "Impedancia medida a 50 kHz (S400)."
+        },
+        "title": "Selección de sensores"
       },
       "user": {
         "data": {
-          "birthday": "Cumpleaños",
-          "gender": "Genero",
+          "birthday": "Fecha de nacimiento",
+          "gender": "Género",
           "name": "Nombre"
-        }
+        },
+        "title": "Identidad del usuario"
       }
     }
   },
@@ -33,14 +83,22 @@
     "sensor": {
       "basal_metabolism": { "name": "Metabolismo basal" },
       "bmi": { "name": "IMC" },
+      "body_cell_mass": { "name": "Masa celular corporal" },
       "body_fat": { "name": "Grasa corporal" },
       "body_score": { "name": "Puntuación corporal" },
       "bone_mass": { "name": "Masa ósea" },
-      "last_measurement_time": { "name": "Última hora de pesaje" },
+      "ecw_tbw_ratio": { "name": "Ratio ECW/TBW" },
+      "extracellular_water": { "name": "Agua extracelular" },
+      "impedance": { "name": "Impedancia" },
+      "impedance_high": { "name": "Impedancia (250 kHz)" },
+      "impedance_low": { "name": "Impedancia (50 kHz)" },
+      "intracellular_water": { "name": "Agua intracelular" },
+      "last_measurement_time": { "name": "Última medición" },
       "lean_body_mass": { "name": "Masa corporal magra" },
       "metabolic_age": { "name": "Edad metabólica" },
       "muscle_mass": { "name": "Masa muscular" },
-      "protein": { "name": "Proteína" },
+      "protein": { "name": "Proteínas" },
+      "skeletal_muscle_mass": { "name": "Masa muscular esquelética" },
       "visceral_fat": { "name": "Grasa visceral" },
       "water": { "name": "Agua" },
       "weight": { "name": "Peso" }
@@ -58,70 +116,79 @@
         "basal_metabolism": { "name": "Metabolismo basal" },
         "bmi": { "name": "IMC" },
         "bmi_label": {
-          "name": "Etiqueta IMC",
+          "name": "Clasificación IMC",
           "state": {
             "massive_obesity": "Obesidad masiva",
-            "moderate_ obesity": "Obesidad moderada",
-            "normal_or_healthy_weight": "Normal",
+            "moderate_obesity": "Obesidad moderada",
+            "normal_or_healthy_weight": "Peso normal",
             "overweight": "Sobrepeso",
             "severe_obesity": "Obesidad severa",
             "slight_overweight": "Ligero sobrepeso",
-            "unavailable": "no disponible",
-            "underweight": "Por debajo del peso normal"
+            "unavailable": "No disponible",
+            "underweight": "Bajo peso"
           }
         },
+        "body_cell_mass": { "name": "Masa celular corporal" },
         "body_fat": { "name": "Grasa corporal" },
         "body_score": { "name": "Puntuación corporal" },
         "body_type": {
           "name": "Tipo de cuerpo",
           "state": {
             "balanced": "Equilibrado",
-            "balanced_muscular": "Musculuso equilibrado",
-            "balanced_skinny": "Flaco equilibrado",
-            "lack_exercise": "Falto de ejercicio",
+            "balanced_muscular": "Musculoso equilibrado",
+            "balanced_skinny": "Delgado equilibrado",
+            "lack_exercise": "Falta de ejercicio",
             "obese": "Obeso",
             "overweight": "Sobrepeso",
-            "skinny": "Flaco",
-            "skinny_muscular": "Flaco musculoso",
-            "thick_set": "Rechoncho",
-            "unavailable": "no disponible"
+            "skinny": "Delgado",
+            "skinny_muscular": "Delgado musculoso",
+            "thick_set": "Fuerte",
+            "unavailable": "No disponible"
           }
         },
         "bone_mass": { "name": "Masa ósea" },
+        "ecw_tbw_ratio": { "name": "Ratio ECW/TBW" },
+        "extracellular_water": { "name": "Agua extracelular" },
         "fat_mass_to_gain": { "name": "Masa grasa a ganar" },
         "fat_mass_to_lose": { "name": "Masa grasa a perder" },
         "gender": {
-          "name": "Sexo",
+          "name": "Género",
           "state": {
-            "female": "femenino",
-            "male": "masculino"
+            "female": "Mujer",
+            "male": "Hombre"
           }
         },
         "height": { "name": "Altura" },
-        "ideal": { "name": "Ideal" },
+        "ideal": { "name": "Peso ideal" },
         "impedance": { "name": "Impedancia" },
-        "last_measurement_time": { "name": "Última hora de pesaje" },
+        "impedance_high": { "name": "Impedancia (250 kHz)" },
+        "impedance_low": { "name": "Impedancia (50 kHz)" },
+        "intracellular_water": { "name": "Agua intracelular" },
+        "last_measurement_time": { "name": "Última medición" },
         "lean_body_mass": { "name": "Masa corporal magra" },
         "metabolic_age": { "name": "Edad metabólica" },
         "muscle_mass": { "name": "Masa muscular" },
         "problem": {
           "name": "Problema",
           "state": {
-            "impedance_high": "Impedancia alta",
-            "impedance_low": "Impedancia baja",
+            "impedance_high": "Impedancia demasiado alta",
+            "impedance_high_high": "Impedancia 250 kHz demasiado alta",
+            "impedance_high_low": "Impedancia 250 kHz demasiado baja",
+            "impedance_high_unavailable": "Impedancia 250 kHz no disponible",
+            "impedance_low": "Impedancia demasiado baja",
+            "impedance_low_high": "Impedancia 50 kHz demasiado alta",
+            "impedance_low_low": "Impedancia 50 kHz demasiado baja",
+            "impedance_low_unavailable": "Impedancia 50 kHz no disponible",
             "impedance_unavailable": "Impedancia no disponible",
             "none": "Ninguno",
-            "weight_high": "Peso alto",
-            "weight_high_and_impedance_high": "Peso alto, impedancia alta",
-            "weight_high_and_impedance_low": "Peso alto, impedancia baja",
-            "weight_low": "Peso bajo",
-            "weight_low_and_impedance_high": "Peso bajo, impedancia alta",
-            "weight_low_and_impedance_low": "Peso bajo, impedancia baja",
-            "weight_unavailable": "Peso no disponible",
-            "weight_unavailable_and_impedance_unavailable": "Peso no disponible, impedancia no disponible"
+            "weight_high": "Peso demasiado alto",
+            "weight_invalid_format": "Formato de peso inválido",
+            "weight_low": "Peso demasiado bajo",
+            "weight_unavailable": "Peso no disponible"
           }
         },
-        "protein": { "name": "Proteína" },
+        "protein": { "name": "Proteínas" },
+        "skeletal_muscle_mass": { "name": "Masa muscular esquelética" },
         "visceral_fat": { "name": "Grasa visceral" },
         "water": { "name": "Agua" },
         "weight": { "name": "Peso" }
@@ -129,27 +196,89 @@
     }
   },
   "options": {
+    "error": {
+      "height_limit": "Altura demasiado alta (máximo: 220 cm).",
+      "height_low": "Altura demasiado baja (mínimo: 50 cm).",
+      "weight_limit": "Peso demasiado alto (máximo: 200 kg).",
+      "weight_low": "Peso demasiado bajo (mínimo: 10 kg).",
+      "weight_range_invalid": "El peso mínimo debe ser estrictamente menor que el peso máximo.",
+      "weight_range_overlap": "Este rango se solapa con el de otro usuario. Los rangos no deben compartir ningún valor — ajusta los límites en consecuencia."
+    },
     "step": {
       "init": {
         "data": {
           "calculation_mode": "Método de cálculo",
-          "height": "Altura",
-          "impedance": "Sensor de immpedancia",
-          "last_measurement_time": "Sensor de la última hora de pesaje",
+          "height": "Altura (cm)",
+          "impedance_mode": "Modo de impedancia",
+          "profile_method": "Método de identificación del usuario"
+        },
+        "data_description": {
+          "calculation_mode": "Xiaomi: idéntico a la app Zepp Life. Científico: fórmulas OMS / Schofield. No disponible en el modo S400 de doble frecuencia.",
+          "impedance_mode": "Ninguno: báscula sin sensor de impedancia. Estándar: frecuencia única (Xiaomi Gen2). Doble frecuencia S400: dos sensores a 50 kHz y 250 kHz.",
+          "profile_method": "Cómo bodymiscale determina a qué usuario asignar una medición. Selecciona \"Ninguno\" si utilizas sensores dedicados por persona."
+        },
+        "title": "Editar modos de funcionamiento"
+      },
+      "profile": {
+        "data": {
+          "initial_weight": "Peso inicial (kg)",
+          "nearest_tolerance": "Tolerancia de peso más cercano (kg)",
+          "notify_device_id": "Dispositivo móvil que recibe la notificación",
+          "notify_weight_max": "Peso máximo para notificar (opcional)",
+          "notify_weight_min": "Peso mínimo para notificar (opcional)",
+          "profile_id": "ID de perfil (1–5)",
+          "weight_max": "Peso máximo del rango (kg, excluido)",
+          "weight_min": "Peso mínimo del rango (kg, incluido)"
+        },
+        "data_description": {
+          "initial_weight": "Peso actual utilizado para inicializar este usuario cuando se activa por primera vez la coincidencia por peso más cercano.",
+          "nearest_tolerance": "Distancia máxima permitida entre el valor del sensor y el peso actual del usuario. El valor predeterminado es ±5 kg.",
+          "notify_device_id": "El teléfono que recibirá una notificación interactiva después de cada pesaje. Toca tu nombre para confirmar la medición.",
+          "notify_weight_max": "Notificar a este usuario solo si el peso medido es menor o igual a este valor. Dejar vacío para notificar siempre.",
+          "notify_weight_min": "Notificar a este usuario solo si el peso medido es mayor o igual a este valor. Dejar vacío para notificar siempre.",
+          "weight_max": "Límite superior, excluido del rango. Si el siguiente usuario comienza en 65 kg, introduce como máximo 64,99 kg aquí.",
+          "weight_min": "Límite inferior, incluido en el rango. La medición se asigna a este usuario si su peso es ≥ a este valor."
+        },
+        "title": "Editar perfil"
+      },
+      "sensors": {
+        "data": {
+          "impedance": "Sensor de impedancia (frecuencia única)",
+          "impedance_high": "Sensor de impedancia de alta frecuencia (250 kHz)",
+          "impedance_low": "Sensor de impedancia de baja frecuencia (50 kHz)",
+          "profile_id_sensor": "Sensor de ID de perfil (ID de báscula)",
           "weight": "Sensor de peso"
         },
         "data_description": {
-          "impedance": "Si su báscula no proporciona la impedancia, deje este campo vacío.",
-          "last_measurement_time": "Deje este campo en blanco si no tiene un sensor para la última hora de pesaje."
-        }
+          "impedance": "Valor de impedancia único proporcionado por tu báscula.",
+          "impedance_high": "Impedancia medida a 250 kHz (S400).",
+          "impedance_low": "Impedancia medida a 50 kHz (S400)."
+        },
+        "title": "Editar sensores"
       }
     }
   },
   "selector": {
     "calculation_mode": {
       "options": {
-        "science": "Científico",
-        "xiaomi": "Xiaomi (Legacy 2017)"
+        "science": "Científico — OMS / Schofield",
+        "xiaomi": "Xiaomi — Zepp Life (Legacy 2017)"
+      }
+    },
+    "impedance_mode": {
+      "options": {
+        "dual_frequency": "Doble frecuencia S400 (50 kHz + 250 kHz)",
+        "none": "Sin impedancia",
+        "standard": "Frecuencia única (Xiaomi Gen2, Mi Body Scale 2…)"
+      }
+    },
+    "profile_method": {
+      "options": {
+        "nearest_weight": "Peso actual más cercano",
+        "none": "Ninguno — asignación manual",
+        "notification": "Notificación push interactiva",
+        "profile_id": "ID de perfil (desde la báscula / Xiaomi Home)",
+        "weight_range": "Rango de peso"
       }
     }
   },

@@ -1,0 +1,51 @@
+{
+    "config": {
+        "abort": {
+            "already_configured": "Mae'r ddyfais eisoes wedi'i ffurfweddu"
+        },
+        "error": {
+            "cannot_connect": "Wedi methu cysylltu",
+            "invalid_auth": "Dilysiad annilys",
+            "unknown": "Gwall annisgwyl"
+        },
+        "step": {
+            "user": {
+                "data": {
+                    "host": "Gwesteiwr",
+                    "password": "Cyfrinair",
+                    "username": "Enw defnyddiwr"
+                },
+                "data_description": {
+                    "username": "Y cyfeiriad e-bost sy'n gysylltiedig â'ch cyfrif Eufy.",
+                    "password": "Y cyfrinair a ddefnyddir i fewngofnodi i'r app Eufy."
+                },
+                "description": "Rhowch fanylion eich cyfrif Eufy"
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "Rheoli sugnwyr llwch",
+                "data": {
+                    "selected_vacuum": "Dewiswch y sugnwr llwch i'w olygu"
+                },
+                "data_description": {
+                    "selected_vacuum": "Dewiswch y ddyfais Eufy RoboVac rydych chi am ei ffurfweddu o'r rhestr o sugnwyr llwch a ddarganfuwyd."
+                }
+            },
+            "edit": {
+                "title": "Golygu sugnwr llwch",
+                "data": {
+                    "autodiscovery": "Galluogi awto-ddarganfod",
+                    "ip_address": "Cyfeiriad IP"
+                },
+                "data_description": {
+                    "autodiscovery": "Dod o hyd i'r sugnwr llwch yn awtomatig ar y rhwydwaith.",
+                    "ip_address": "Cyfeiriad IP statig eich sugnwr llwch ar eich rhwydwaith lleol (dewisol os yw awto-ddarganfod wedi'i alluogi)."
+                },
+                "description": "Bydd awto-ddarganfod yn diweddaru'r cyfeiriad IP yn awtomatig"
+            }
+        }
+    }
+}

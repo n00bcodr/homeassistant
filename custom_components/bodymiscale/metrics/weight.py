@@ -1,4 +1,21 @@
-"""Metrics module, which requires only weight."""
+"""Metrics module — weight-based calculations (no impedance required).
+
+Three distinct modes:
+
+  XIAOMI :
+    BMR      : exact Zepp Life formula.
+    Visceral : exact Zepp Life formula.
+
+  SCIENCE :
+    BMR      : Schofield equation (official WHO standard).
+    Visceral : Zepp Life formula (no validated WHO alternative without BIA).
+
+  S400 :
+    BMR      : Katch-McArdle 1996 — BMR = 370 + 21.6 × LBM.
+               More accurate than Harris-Benedict for active/overweight subjects
+               because it uses actual lean body mass instead of total weight.
+    Visceral : Standard Zepp Life formula (no validated WHO alternative without BIA).
+"""
 
 from collections.abc import Mapping
 from datetime import datetime
@@ -6,25 +23,34 @@ from typing import Any
 
 from homeassistant.helpers.typing import StateType
 
-from custom_components.bodymiscale.const import CONF_GENDER, CONF_HEIGHT
-
+from ..const import (
+    ALGO_SCIENCE,
+    ALGO_XIAOMI,
+    CONF_CALCULATION_MODE,
+    CONF_GENDER,
+    CONF_HEIGHT,
+    CONF_IMPEDANCE_MODE,
+    IMPEDANCE_MODE_DUAL,
+)
 from ..models import Gender, Metric
-from ..util import check_value_constraints, to_float
+from ..util import check_value_constraints, get_bmr_schofield, to_float
+
+
+def _is_dual(config: Mapping[str, Any]) -> bool:
+    return config.get(CONF_IMPEDANCE_MODE) == IMPEDANCE_MODE_DUAL
 
 
 def get_bmi(
     config: Mapping[str, Any], metrics: Mapping[Metric, StateType | datetime]
 ) -> float:
-    """Calculate BMI."""
-    height_val = to_float(config.get(CONF_HEIGHT))
-    weight = to_float(metrics.get(Metric.WEIGHT))
+    """Calculate BMI — identical in all modes."""
+    h = to_float(config.get(CONF_HEIGHT))
+    w = to_float(metrics.get(Metric.WEIGHT))
 
-    bmi = 0.0
+    if h <= 0 or w <= 0:
+        return 0.0
 
-    if height_val is not None and weight is not None:
-        height_c = height_val / 100
-        bmi = weight / (height_c * height_c)
-
+    bmi = w / (h / 100.0) ** 2
     return check_value_constraints(bmi, 10, 90)
 
 
@@ -32,72 +58,60 @@ def get_bmr(
     config: Mapping[str, Any], metrics: Mapping[Metric, StateType | datetime]
 ) -> float:
     """Calculate Basal Metabolic Rate (BMR)."""
-    weight = to_float(metrics.get(Metric.WEIGHT))
-    age = to_float(metrics.get(Metric.AGE))
-    height = to_float(config.get(CONF_HEIGHT))
+    w = to_float(metrics.get(Metric.WEIGHT))
+    a = int(to_float(metrics.get(Metric.AGE)))
+    h = to_float(config.get(CONF_HEIGHT))
     gender = config.get(CONF_GENDER)
+    mode = config.get(CONF_CALCULATION_MODE, ALGO_XIAOMI)
 
-    mode = config.get("calculation_mode", "xiaomi")
-
-    if weight is None or age is None or height is None or gender is None:
+    if w <= 0 or a <= 0 or h <= 0 or gender is None:
         return 0.0
 
-    if mode == "science":
-        # --- SCIENTIFIC FORMULA (Mifflin-St Jeor) ---
-        if gender == Gender.MALE:
-            bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5
-        else:
-            bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161
-    else:
-        # --- XIAOMI MODE (Legacy) ---
-        if gender == Gender.FEMALE:
-            bmr = 864.6 + weight * 10.2036
-            bmr -= height * 0.39336
-            bmr -= age * 6.204
-        else:
-            bmr = 877.8 + weight * 14.916
-            bmr -= height * 0.726
-            bmr -= age * 8.976
+    # 1. S400 MODE : Katch-McArdle (Uses LBM for precision)
+    if _is_dual(config):
+        lbm = to_float(metrics.get(Metric.LBM))
 
-    bmr = min(bmr, 5000)
+        # BMR: Katch-McArdle (if LBM available) else fallback to Schofield
+        bmr = 370 + 21.6 * lbm if lbm > 0 else get_bmr_schofield(w, a, gender)
+
+    # 2. SCIENCE MODE : Schofield (WHO Standard)
+    elif mode == ALGO_SCIENCE:
+        bmr = get_bmr_schofield(w, a, gender)
+
+    # 3. XIAOMI MODE : Exact Zepp Life formula
+    else:
+        if gender == Gender.MALE:
+            bmr = 877.8 + w * 14.916 - h * 0.726 - a * 8.976
+        else:
+            bmr = 864.6 + w * 10.2036 - h * 0.39336 - a * 6.204
+
     return check_value_constraints(bmr, 500, 5000)
 
 
 def get_visceral_fat(
     config: Mapping[str, Any], metrics: Mapping[Metric, StateType | datetime]
 ) -> float:
-    """Calculate Visceral Fat."""
-    height = to_float(config.get(CONF_HEIGHT))
-    weight = to_float(metrics.get(Metric.WEIGHT))
-    age = to_float(metrics.get(Metric.AGE))
+    """Calculate Visceral Fat Rating."""
+    h = to_float(config.get(CONF_HEIGHT))
+    w = to_float(metrics.get(Metric.WEIGHT))
+    a = to_float(metrics.get(Metric.AGE))
     gender = config.get(CONF_GENDER)
 
-    if height is None or weight is None or age is None or gender is None:
+    if h <= 0 or w <= 0 or a <= 0 or gender is None:
         return 1.0
 
+    # Common Zepp Life formula
     if gender == Gender.MALE:
-        if height < weight * 1.6 + 63.0:
-            vfal = age * 0.15 + (
-                (weight * 305.0) / ((height * 0.0826 * height - height * 0.4) + 48.0)
-                - 2.9
-            )
+        if h < w * 1.6 + 63.0:
+            vfal = a * 0.15 + ((w * 305.0) / ((h * 0.0826 * h - h * 0.4) + 48.0) - 2.9)
         else:
-            vfal = (
-                age * 0.15
-                + (weight * (height * -0.0015 + 0.765) - height * 0.143)
-                - 5.0
-            )
+            vfal = a * 0.15 + (w * (h * -0.0015 + 0.765) - h * 0.143) - 5.0
     else:
-        if weight <= height * 0.5 - 13.0:
-            vfal = (
-                age * 0.07
-                + (weight * (height * -0.0024 + 0.691) - height * 0.027)
-                - 10.5
-            )
+        if w <= h * 0.5 - 13.0:
+            vfal = a * 0.07 + (w * (h * -0.0024 + 0.691) - h * 0.027) - 10.5
         else:
-            vfal = age * 0.07 + (
-                (weight * 500.0) / ((height * 1.45 + height * 0.1158 * height) - 120.0)
-                - 6.0
+            vfal = a * 0.07 + (
+                (w * 500.0) / ((h * 1.45 + h * 0.1158 * h) - 120.0) - 6.0
             )
 
     return check_value_constraints(vfal, 1, 50)

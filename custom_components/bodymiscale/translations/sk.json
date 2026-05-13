@@ -1,31 +1,81 @@
 {
+  "common": {
+    "weighing_message": "Nové meranie: {weight:.1f} kg",
+    "weighing_title": "Bodymiscale — Kto stojí na váhe?"
+  },
   "config": {
+    "abort": {
+      "already_configured": "Profil s týmto názvom je už nakonfigurovaný."
+    },
     "error": {
-      "already_configured": "Už nakonfigurované",
-      "height_limit": "Výška je príliš vysoká (limit: 220 cm)",
-      "height_low": "Výška je príliš nízka (min: 50 cm)",
-      "invalid_date": "Neplatný dátum"
+      "height_limit": "Výška príliš vysoká (maximum: 220 cm).",
+      "height_low": "Výška príliš nízka (minimum: 50 cm).",
+      "invalid_date": "Neplatný dátum.",
+      "name_already_used": "Tento názov je už používaný iným profilom. Zvoľte iný.",
+      "weight_limit": "Hmotnosť príliš vysoká (maximum: 200 kg).",
+      "weight_low": "Hmotnosť príliš nízka (minimum: 10 kg).",
+      "weight_range_invalid": "Minimálna hmotnosť musí byť striktne menšia ako maximálna hmotnosť.",
+      "weight_range_overlap": "Tento rozsah sa prekrýva s rozsahom iného používateľa. Rozsahy nesmú zdieľať žiadnu hodnotu — upravte hranice podľa toho."
     },
     "step": {
-      "options": {
+      "modes": {
         "data": {
           "calculation_mode": "Metóda výpočtu",
-          "height": "Výška",
-          "impedance": "Senzor impedancie",
-          "last_measurement_time": "Senzor posledného času váženia",
+          "height": "Výška (cm)",
+          "impedance_mode": "Režim impedancie",
+          "profile_method": "Metóda identifikácie používateľa"
+        },
+        "data_description": {
+          "calculation_mode": "Xiaomi: identické s aplikáciou Zepp Life. Vedecká: vzorce WHO / Schofield. Nie je dostupná v dvojfrekvenčnom režime S400.",
+          "impedance_mode": "Žiadny: váha bez senzora impedancie. Štandard: jedna frekvencia (Xiaomi Gen2). Dvojfrekvenčný S400: dva senzory na 50 kHz a 250 kHz.",
+          "profile_method": "Ako bodymiscale určuje, ktorému používateľovi priradiť meranie. Zvoľte \"Žiadny\", ak používate vyhradené senzory pre každú osobu."
+        },
+        "title": "Prevádzkové režimy"
+      },
+      "profile": {
+        "data": {
+          "initial_weight": "Počiatočná hmotnosť (kg)",
+          "nearest_tolerance": "Tolerancia najbližšej hmotnosti (kg)",
+          "notify_device_id": "Mobilné zariadenie prijímajúce notifikáciu",
+          "notify_weight_max": "Maximálna hmotnosť pre notifikáciu (voliteľné)",
+          "notify_weight_min": "Minimálna hmotnosť pre notifikáciu (voliteľné)",
+          "profile_id": "ID profilu (1–5)",
+          "weight_max": "Maximálna hmotnosť rozsahu (kg, vylúčená)",
+          "weight_min": "Minimálna hmotnosť rozsahu (kg, zahrnutá)"
+        },
+        "data_description": {
+          "initial_weight": "Aktuálna hmotnosť použitá na inicializáciu tohto používateľa pri prvom aktivovaní zhody podľa najbližšej hmotnosti.",
+          "nearest_tolerance": "Maximálna povolená vzdialenosť medzi hodnotou senzora a aktuálnou hmotnosťou používateľa. Predvolená hodnota: ±5 kg.",
+          "notify_device_id": "Telefón, ktorý dostane interaktívnu notifikáciu po každom vážení. Klepnite na svoje meno pre potvrdenie merania.",
+          "notify_weight_max": "Notifikovať tohto používateľa iba ak nameraná hmotnosť je menšia alebo rovná tejto hodnote. Nechajte prázdne pre vždy notifikovať.",
+          "notify_weight_min": "Notifikovať tohto používateľa iba ak nameraná hmotnosť je väčšia alebo rovná tejto hodnote. Nechajte prázdne pre vždy notifikovať.",
+          "weight_max": "Horná hranica, vylúčená z rozsahu. Ak nasledujúci používateľ začína od 65 kg, zadajte najviac 64,99 kg.",
+          "weight_min": "Dolná hranica, zahrnutá v rozsahu. Meranie sa priradí tomuto používateľovi, ak jeho hmotnosť je ≥ tejto hodnote."
+        },
+        "title": "Nastavenia profilu"
+      },
+      "sensors": {
+        "data": {
+          "impedance": "Senzor impedancie (jednofrekvenčný)",
+          "impedance_high": "Senzor vysokofrekvenčnej impedancie (250 kHz)",
+          "impedance_low": "Senzor nízkofrekvenčnej impedancie (50 kHz)",
+          "profile_id_sensor": "Senzor ID profilu (ID váhy)",
           "weight": "Senzor hmotnosti"
         },
         "data_description": {
-          "impedance": "Ak vaša váha neposkytuje impedanciu, nechajte toto pole prázdne.",
-          "last_measurement_time": "Ak nemáte senzor posledného času váženia, nechajte toto pole prázdne."
-        }
+          "impedance": "Jedna hodnota impedancie poskytovaná vašou váhou.",
+          "impedance_high": "Impedancia meraná pri 250 kHz (S400).",
+          "impedance_low": "Impedancia meraná pri 50 kHz (S400)."
+        },
+        "title": "Výber senzorov"
       },
       "user": {
         "data": {
-          "birthday": "Narodeniny",
+          "birthday": "Dátum narodenia",
           "gender": "Pohlavie",
           "name": "Meno"
-        }
+        },
+        "title": "Identita používateľa"
       }
     }
   },
@@ -33,16 +83,24 @@
     "sensor": {
       "basal_metabolism": { "name": "Bazálny metabolizmus" },
       "bmi": { "name": "BMI" },
+      "body_cell_mass": { "name": "Bunková hmota tela" },
       "body_fat": { "name": "Telesný tuk" },
       "body_score": { "name": "Skóre tela" },
       "bone_mass": { "name": "Kostná hmota" },
-      "last_measurement_time": { "name": "Posledný čas váženia" },
+      "ecw_tbw_ratio": { "name": "Pomer ECW/TBW" },
+      "extracellular_water": { "name": "Extracelulárna voda" },
+      "impedance": { "name": "Impedance" },
+      "impedance_high": { "name": "Impedance (250 kHz)" },
+      "impedance_low": { "name": "Impedance (50 kHz)" },
+      "intracellular_water": { "name": "Intracelulárna voda" },
+      "last_measurement_time": { "name": "Posledné meranie" },
       "lean_body_mass": { "name": "Čistá telesná hmota" },
       "metabolic_age": { "name": "Metabolický vek" },
       "muscle_mass": { "name": "Svalová hmota" },
-      "protein": { "name": "Proteín" },
+      "protein": { "name": "Bielkoviny" },
+      "skeletal_muscle_mass": { "name": "Kostrová svalová hmota" },
       "visceral_fat": { "name": "Viscerálny tuk" },
-      "water": { "name": "Voda" },
+      "water": { "name": "Voda v tele" },
       "weight": { "name": "Hmotnosť" }
     }
   },
@@ -50,7 +108,7 @@
     "_": {
       "name": "bodymiscale",
       "state": {
-        "ok": "OK",
+        "ok": "V poriadku",
         "problem": "Problém"
       },
       "state_attributes": {
@@ -58,11 +116,11 @@
         "basal_metabolism": { "name": "Bazálny metabolizmus" },
         "bmi": { "name": "BMI" },
         "bmi_label": {
-          "name": "BMI označenie",
+          "name": "Klasifikácia BMI",
           "state": {
             "massive_obesity": "Masívna obezita",
             "moderate_obesity": "Mierna obezita",
-            "normal_or_healthy_weight": "Normálna alebo zdravá hmotnosť",
+            "normal_or_healthy_weight": "Normálna hmotnosť",
             "overweight": "Nadváha",
             "severe_obesity": "Závažná obezita",
             "slight_overweight": "Mierna nadváha",
@@ -70,58 +128,67 @@
             "underweight": "Podváha"
           }
         },
+        "body_cell_mass": { "name": "Bunková hmota tela" },
         "body_fat": { "name": "Telesný tuk" },
         "body_score": { "name": "Skóre tela" },
         "body_type": {
-          "name": "Typ tela",
+          "name": "Typ postavy",
           "state": {
-            "balanced": "Vyvážený",
-            "balanced_muscular": "Vyvážený-svalnatý",
-            "balanced_skinny": "Vyvážený-chudý",
-            "lack_exercise": "Nedostatok-pohybu",
+            "balanced": "Vyvážená",
+            "balanced_muscular": "Vyvážená svalnatá",
+            "balanced_skinny": "Vyvážená chudá",
+            "lack_exercise": "Nedostatok pohybu",
             "obese": "Obezita",
             "overweight": "Nadváha",
-            "skinny": "Chudý",
-            "skinny_muscular": "Chudý-svalnatý",
-            "thick_set": "Hrubý",
+            "skinny": "Chudá",
+            "skinny_muscular": "Chudá svalnatá",
+            "thick_set": "Robustná",
             "unavailable": "Nedostupné"
           }
         },
         "bone_mass": { "name": "Kostná hmota" },
+        "ecw_tbw_ratio": { "name": "Pomer ECW/TBW" },
+        "extracellular_water": { "name": "Extracelulárna voda" },
         "fat_mass_to_gain": { "name": "Tuková hmota na pribratie" },
         "fat_mass_to_lose": { "name": "Tuková hmota na schudnutie" },
         "gender": {
           "name": "Pohlavie",
           "state": {
-            "female": "žena",
-            "male": "muž"
+            "female": "Žena",
+            "male": "Muž"
           }
         },
         "height": { "name": "Výška" },
-        "ideal": { "name": "Ideál" },
+        "ideal": { "name": "Ideálna hmotnosť" },
         "impedance": { "name": "Impedancia" },
-        "last_measurement_time": { "name": "Posledný čas váženia" },
+        "impedance_high": { "name": "Impedancia (250 kHz)" },
+        "impedance_low": { "name": "Impedancia (50 kHz)" },
+        "intracellular_water": { "name": "Intracelulárna voda" },
+        "last_measurement_time": { "name": "Posledné meranie" },
         "lean_body_mass": { "name": "Čistá telesná hmota" },
         "metabolic_age": { "name": "Metabolický vek" },
         "muscle_mass": { "name": "Svalová hmota" },
         "problem": {
           "name": "Problém",
           "state": {
-            "impedance_high": "Vysoká impedancia",
-            "impedance_low": "Nízka impedancia",
+            "impedance_high": "Impedancia príliš vysoká",
+            "impedance_high_high": "Vysokofrekvenčná impedancia príliš vysoká",
+            "impedance_high_low": "Vysokofrekvenčná impedancia príliš nízka",
+            "impedance_high_unavailable": "Vysokofrekvenčná impedancia nedostupná",
+            "impedance_low": "Impedancia príliš nízka",
+            "impedance_low_high": "Nízkofrekvenčná impedancia príliš vysoká",
+            "impedance_low_low": "Nízkofrekvenčná impedancia príliš nízka",
+            "impedance_low_unavailable": "Nízkofrekvenčná impedancia nedostupná",
             "impedance_unavailable": "Impedancia nedostupná",
             "none": "Žiadny",
-            "weight_high": "Vysoká hmotnosť",
-            "weight_high_and_impedance_high": "Vysoká hmotnosť, vysoká impedancia",
-            "weight_high_and_impedance_low": "Vysoká hmotnosť, nízka impedancia",
-            "weight_low": "Nízka hmotnosť",
-            "weight_low_and_impedance_high": "Nízka hmotnosť, vysoká impedancia",
-            "weight_low_and_impedance_low": "Nízka hmotnosť, nízka impedancia",
-            "weight_unavailable": "Hmotnosť nedostupná",
-            "weight_unavailable_and_impedance_unavailable": "Hmotnosť nedostupná, impedancia nedostupná"
+            "weight_high": "Hmotnosť príliš vysoká",
+            "weight_invalid_format": "Neplatný formát hmotnosti",
+            "weight_low": "Hmotnosť príliš nízka",
+            "weight_unavailable": "Hmotnosť nedostupná"
           }
         },
-        "protein": { "name": "Proteín" },
+        "protein": { "name": "Bielkoviny" },
+        "skeletal_muscle_mass": { "name": "Kostrová svalová hmota" },
         "visceral_fat": { "name": "Viscerálny tuk" },
         "water": { "name": "Voda" },
         "weight": { "name": "Hmotnosť" }
@@ -129,27 +196,89 @@
     }
   },
   "options": {
+    "error": {
+      "height_limit": "Výška príliš vysoká (maximum: 220 cm).",
+      "height_low": "Výška príliš nízka (minimum: 50 cm).",
+      "weight_limit": "Hmotnosť príliš vysoká (maximum: 200 kg).",
+      "weight_low": "Hmotnosť príliš nízka (minimum: 10 kg).",
+      "weight_range_invalid": "Minimálna hmotnosť musí byť striktne menšia ako maximálna hmotnosť.",
+      "weight_range_overlap": "Tento rozsah sa prekrýva s rozsahom iného používateľa. Rozsahy nesmú zdieľať žiadnu hodnotu — upravte hranice podľa toho."
+    },
     "step": {
       "init": {
         "data": {
           "calculation_mode": "Metóda výpočtu",
-          "height": "Výška",
-          "impedance": "Senzor impedancie",
-          "last_measurement_time": "Senzor posledného času váženia",
+          "height": "Výška (cm)",
+          "impedance_mode": "Režim impedancie",
+          "profile_method": "Metóda identifikácie používateľa"
+        },
+        "data_description": {
+          "calculation_mode": "Xiaomi: identické s aplikáciou Zepp Life. Vedecká: vzorce WHO / Schofield. Nie je dostupná v dvojfrekvenčnom režime S400.",
+          "impedance_mode": "Žiadny: váha bez senzora impedancie. Štandard: jedna frekvencia (Xiaomi Gen2). Dvojfrekvenčný S400: dva senzory na 50 kHz a 250 kHz.",
+          "profile_method": "Ako bodymiscale určuje, ktorému používateľovi priradiť meranie. Zvoľte \"Žiadny\", ak používate vyhradené senzory pre každú osobu."
+        },
+        "title": "Upraviť prevádzkové režimy"
+      },
+      "profile": {
+        "data": {
+          "initial_weight": "Počiatočná hmotnosť (kg)",
+          "nearest_tolerance": "Tolerancia najbližšej hmotnosti (kg)",
+          "notify_device_id": "Mobilné zariadenie prijímajúce notifikáciu",
+          "notify_weight_max": "Maximálna hmotnosť pre notifikáciu (voliteľné)",
+          "notify_weight_min": "Minimálna hmotnosť pre notifikáciu (voliteľné)",
+          "profile_id": "ID profilu (1–5)",
+          "weight_max": "Maximálna hmotnosť rozsahu (kg, vylúčená)",
+          "weight_min": "Minimálna hmotnosť rozsahu (kg, zahrnutá)"
+        },
+        "data_description": {
+          "initial_weight": "Aktuálna hmotnosť použitá na inicializáciu tohto používateľa pri prvom aktivovaní zhody podľa najbližšej hmotnosti.",
+          "nearest_tolerance": "Maximálna povolená vzdialenosť medzi hodnotou senzora a aktuálnou hmotnosťou používateľa. Predvolená hodnota: ±5 kg.",
+          "notify_device_id": "Telefón, ktorý dostane interaktívnu notifikáciu po každom vážení. Klepnite na svoje meno pre potvrdenie merania.",
+          "notify_weight_max": "Notifikovať tohto používateľa iba ak nameraná hmotnosť je menšia alebo rovná tejto hodnote. Nechajte prázdne pre vždy notifikovať.",
+          "notify_weight_min": "Notifikovať tohto používateľa iba ak nameraná hmotnosť je väčšia alebo rovná tejto hodnote. Nechajte prázdne pre vždy notifikovať.",
+          "weight_max": "Horná hranica, vylúčená z rozsahu. Ak nasledujúci používateľ začína od 65 kg, zadajte najviac 64,99 kg.",
+          "weight_min": "Dolná hranica, zahrnutá v rozsahu. Meranie sa priradí tomuto používateľovi, ak jeho hmotnosť je ≥ tejto hodnote."
+        },
+        "title": "Upraviť profil"
+      },
+      "sensors": {
+        "data": {
+          "impedance": "Senzor impedancie (jednofrekvenčný)",
+          "impedance_high": "Senzor vysokofrekvenčnej impedancie (250 kHz)",
+          "impedance_low": "Senzor nízkofrekvenčnej impedancie (50 kHz)",
+          "profile_id_sensor": "Senzor ID profilu (ID váhy)",
           "weight": "Senzor hmotnosti"
         },
         "data_description": {
-          "impedance": "Ak vaša váha neposkytuje impedanciu, nechajte toto pole prázdne.",
-          "last_measurement_time": "Ak nemáte senzor posledného času váženia, nechajte toto pole prázdne."
-        }
+          "impedance": "Jedna hodnota impedancie poskytovaná vašou váhou.",
+          "impedance_high": "Impedancia meraná pri 250 kHz (S400).",
+          "impedance_low": "Impedancia meraná pri 50 kHz (S400)."
+        },
+        "title": "Upraviť senzory"
       }
     }
   },
   "selector": {
     "calculation_mode": {
       "options": {
-        "science": "Vědecká",
-        "xiaomi": "Xiaomi (Legacy 2017)"
+        "science": "Vedecká — WHO / Schofield",
+        "xiaomi": "Xiaomi — Zepp Life (Legacy 2017)"
+      }
+    },
+    "impedance_mode": {
+      "options": {
+        "dual_frequency": "Dvojfrekvenčný S400 (50 kHz + 250 kHz)",
+        "none": "Bez impedancie",
+        "standard": "Jednofrekvenčný (Xiaomi Gen2, Mi Body Scale 2…)"
+      }
+    },
+    "profile_method": {
+      "options": {
+        "nearest_weight": "Najbližšia aktuálna hmotnosť",
+        "none": "Žiadny — manuálne priradenie",
+        "notification": "Interaktívna push notifikácia",
+        "profile_id": "ID profilu (z váhy / Xiaomi Home)",
+        "weight_range": "Rozsah hmotnosti"
       }
     }
   },

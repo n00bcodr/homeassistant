@@ -140,9 +140,11 @@ async def async_common_step_oauth(self, user_input=None, option_flow = False):  
 		# skip the complete oauth cycle if unchecked (default)
 		if CONF_RENEW_OAUTH in user_input:
 			if not(user_input[CONF_RENEW_OAUTH]):
-				return self.async_show_form(step_id="finish", data_schema=vol.Schema(await async_create_form(self.hass,self.data,3, option_flow)), errors=self._errors)
+				# Set CONF_HEADER_PATH before jumping to finish screen (normally set in oauth2 step)
+				self.data[CONF_HEADER_PATH] = os.path.join(self.hass.config.path(STORAGE_DIR),DEFAULT_HEADER_FILENAME+self.data[CONF_NAME].replace(' ','_')+'.json')
+				return self.async_show_form(step_id="finish", data_schema=vol.Schema(await async_create_form(self.hass,self.data,3, option_flow)), errors=self._errors, description_placeholders={"github_url": "https://github.com/KoljaWindeler/ytube_music_player", "google_console_url": "https://console.cloud.google.com/apis/credentials" })
 			
-	return self.async_show_form(step_id="oauth2", data_schema=vol.Schema(await async_create_form(self.hass,user_input,1, option_flow)), errors=self._errors)
+	return self.async_show_form(step_id="oauth2", data_schema=vol.Schema(await async_create_form(self.hass,user_input,1, option_flow)), errors=self._errors, description_placeholders={"ytubeapi_url": "https://ytmusicapi.readthedocs.io/en/stable/setup/browser.html"})
 
 
 async def async_common_step_oauth2(self, user_input=None, option_flow = False):   # pylint: disable=unused-argument
@@ -158,7 +160,7 @@ async def async_common_step_oauth2(self, user_input=None, option_flow = False): 
 		self.data[CONF_CODE] = self.code
 	except:
 		self._errors["base"] = ERROR_OAUTH
-		return self.async_show_form(step_id="oauth2", data_schema=vol.Schema(await async_create_form(self.hass,self.data,1, option_flow)), errors=self._errors)
+		return self.async_show_form(step_id="oauth2", data_schema=vol.Schema(await async_create_form(self.hass,self.data,1, option_flow)), errors=self._errors, description_placeholders={"ytubeapi_url": "https://ytmusicapi.readthedocs.io/en/stable/setup/browser.html"})
 
 #		OAUTH
 	return self.async_show_form(step_id="oauth3", data_schema=vol.Schema(await async_create_form(self.hass,self.data,2, option_flow)), errors=self._errors)
@@ -183,7 +185,7 @@ async def async_common_step_oauth3(self, user_input=None, option_flow = False): 
 			user_input = self.data
 			return self.async_show_form(step_id="oauth3", data_schema=vol.Schema(await async_create_form(self.hass,self.data,2, option_flow)), errors=self._errors)
 #		OAUTH	
-	return self.async_show_form(step_id="finish", data_schema=vol.Schema(await async_create_form(self.hass,self.data,3, option_flow)), errors=self._errors)
+	return self.async_show_form(step_id="finish", data_schema=vol.Schema(await async_create_form(self.hass,self.data,3, option_flow)), errors=self._errors, description_placeholders={"github_url": "https://github.com/KoljaWindeler/ytube_music_player", "google_console_url": "https://console.cloud.google.com/apis/credentials" })
 
 
 async def async_common_step_finish(self,user_input=None, option_flow = False):
@@ -197,7 +199,7 @@ async def async_common_step_finish(self,user_input=None, option_flow = False):
 	
 	if store_token:
 		await self.hass.async_add_executor_job(lambda: self.refresh_token.store_token(self.data[CONF_HEADER_PATH]))
-	elif self.data[CONF_HEADER_PATH] != self.data[CONF_HEADER_PATH+"_old"]:
+	elif (CONF_HEADER_PATH+"_old" in self.data) and (self.data[CONF_HEADER_PATH] != self.data[CONF_HEADER_PATH+"_old"]):
 		#_LOGGER.error("moving cookie to "+self.data[CONF_HEADER_PATH])
 		if os.path.exists(self.data[CONF_HEADER_PATH+"_old"]):
 			os.rename(self.data[CONF_HEADER_PATH+"_old"],self.data[CONF_HEADER_PATH])
@@ -229,8 +231,8 @@ async def async_create_form(hass, user_input, page=1, option_flow = False):
 
 	if(page == 0):
 		data_schema[vol.Required(CONF_NAME, default=user_input[CONF_NAME])] = str # name of the component without domain
-		if option_flow:
-			data_schema[vol.Required(CONF_RENEW_OAUTH, default=user_input[CONF_RENEW_OAUTH])] = vol.Coerce(bool) # show page 2
+		# Always show the OAuth checkbox (not just for option_flow) to allow skipping OAuth during initial setup
+		data_schema[vol.Required(CONF_RENEW_OAUTH, default=user_input[CONF_RENEW_OAUTH])] = vol.Coerce(bool) # show page 2
 	elif(page == 1):
 		data_schema[vol.Required(CONF_CLIENT_ID, default=user_input[CONF_CLIENT_ID])] = str # configuration of the cookie
 		data_schema[vol.Required(CONF_CLIENT_SECRET, default=user_input[CONF_CLIENT_SECRET])] = str # configuration of the cookie

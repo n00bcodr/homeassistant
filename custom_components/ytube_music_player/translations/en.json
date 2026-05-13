@@ -3,14 +3,14 @@
     "config": {
         "step": {
             "oauth": {
-                "description": "Lets start with an entity name",
+                "description": "⚠️ WARNING: OAuth is currently BROKEN due to YouTube Music changes (Nov 2024). UNCHECK the box below to use browser authentication instead (recommended). See BROWSER_AUTH_GUIDE.md for setup instructions.",
                 "data": {
                     "name": "Name for the entity (without 'media_player' prefix)",
-                    "renew_oauth": "Renew OAuth credentials"
+                    "renew_oauth": "Use OAuth authentication (NOT RECOMMENDED - currently broken, use browser auth instead)"
                 }
             },
             "oauth2": {
-                "description": "Thanks, as of November 2024, YouTube Music requires a Client ID and Secret for the YouTube Data API to connect to the API. Please open https://console.cloud.google.com/apis/credentials, click create credentials -> OAuth Client ID and pick TVs and Limited Input devices.",
+                "description": "⚠️ WARNING: OAuth authentication is currently experiencing issues due to YouTube Music server-side changes (November 2024). Many users report HTTP 400 errors even with valid credentials. If you encounter errors, please uncheck 'Renew OAuth credentials' on the previous screen and manually create a browser-based authentication file instead. See {ytubeapi_url} for instructions. If you still want to try OAuth, enter your credentials below:",
                 "data": {
                     "client_id": "Enter your google client ID",
                     "secret": "Enter your google client secret"
@@ -21,7 +21,7 @@
                 "data": {}
             },
             "finish": {
-                "description": "Please enter the path and the cookie data. Further information available at https://github.com/KoljaWindeler/ytube_music_player. As of November 2024, YouTube Music requires a Client Id and Secret for the YouTube Data API to connect to the API. Please open https://console.cloud.google.com/apis/credentials, click create credentials -> OAuth Client ID and pick TVs and Limited Input devices.",
+                "description": "Please enter the path and the cookie data. Further information available at {github_url}. As of November 2024, YouTube Music requires a Client Id and Secret for the YouTube Data API to connect to the API. Please open {google_console_url}, click create credentials -> OAuth Client ID and pick TVs and Limited Input devices.",
                 "data": {
                     "speakers": "Select the output devices, the first one will be the default device",
                     "api_language": "The language parameter of the ytmusicapi, which determines the language of the returned results",
@@ -68,14 +68,14 @@
     "options": {
         "step": {
             "oauth": {
-                "description": "Lets start with an entity name",
+                "description": "⚠️ WARNING: OAuth is currently BROKEN due to YouTube Music changes (Nov 2024). UNCHECK the box below to use browser authentication instead (recommended). See BROWSER_AUTH_GUIDE.md for setup instructions.",
                 "data": {
                     "name": "Name for the entity (without 'media_player' prefix)",
-                    "renew_oauth": "Renew OAuth credentials"
+                    "renew_oauth": "Use OAuth authentication (NOT RECOMMENDED - currently broken, use browser auth instead)"
                 }
             },
             "oauth2": {
-                "description": "Thanks, as of November 2024, YouTube Music requires a Client ID and Secret for the YouTube Data API to connect to the API. Please open https://console.cloud.google.com/apis/credentials, click create credentials -> OAuth Client ID and pick TVs and Limited Input devices.",
+                "description": "⚠️ WARNING: OAuth authentication is currently experiencing issues due to YouTube Music server-side changes (November 2024). Many users report HTTP 400 errors even with valid credentials. If you encounter errors, please uncheck 'Renew OAuth credentials' on the previous screen and manually create a browser-based authentication file instead. See {ytubeapi_url} for instructions. If you still want to try OAuth, enter your credentials below:",
                 "data": {
                     "client_id": "Enter your google client ID",
                     "secret": "Enter your google client secret"
@@ -86,7 +86,7 @@
                 "data": {}
             },
             "finish": {
-                "description": "Please enter the path and the cookie data. Further information available at https://github.com/KoljaWindeler/ytube_music_player. As of November 2024, YouTube Music requires a Client Id and Secret for the YouTube Data API to connect to the API. Please open https://console.cloud.google.com/apis/credentials, click create credentials -> OAuth Client ID and  pick TVs and Limited Input devices.",
+                "description": "Please enter the path and the cookie data. Further information available at {github_url}. As of November 2024, YouTube Music requires a Client Id and Secret for the YouTube Data API to connect to the API. Please open {google_console_url}, click create credentials -> OAuth Client ID and pick TVs and Limited Input devices.",
                 "data": {
                     "speakers": "Select the output devices, the first one will be the default device",
                     "api_language": "The language parameter of the ytmusicapi, which determines the language of the returned results",

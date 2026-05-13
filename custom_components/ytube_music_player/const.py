@@ -7,8 +7,11 @@ import logging
 import datetime
 import traceback
 import asyncio
+import json
+import os
 from collections import OrderedDict
 from ytmusicapi import YTMusic
+from ytmusicapi.auth.oauth.exceptions import BadOAuthClient
 
 
 from homeassistant.const import (
@@ -262,12 +265,40 @@ async def async_try_login(hass, path, brand_id=None, language='en',oauth=None):
 	ret = {}
 	api = None
 	msg = ""
+
+	# Check if the auth file is an OAuth token file
+	is_oauth_file = False
+	if os.path.exists(path):
+		try:
+			with open(path, 'r') as f:
+				auth_data = json.load(f)
+				# OAuth token files have specific keys like 'token_type', 'access_token', 'refresh_token'
+				if isinstance(auth_data, dict) and ('token_type' in auth_data or 'refresh_token' in auth_data):
+					is_oauth_file = True
+					_LOGGER.debug("- Detected OAuth token file")
+		except:
+			# Not a JSON file, probably browser headers
+			pass
+
+	# If it's an OAuth file but no credentials provided, fail early with helpful message
+	if is_oauth_file and not oauth:
+		msg = "OAuth token file detected but no OAuth credentials provided. NOTE: OAuth authentication is currently experiencing widespread issues due to YouTube Music server-side changes (November 2024). Many users report HTTP 400 errors even with valid OAuth credentials. RECOMMENDED SOLUTION: Use browser-based authentication instead. See https://ytmusicapi.readthedocs.io/en/stable/setup/browser.html for instructions on extracting browser headers."
+		_LOGGER.error(msg)
+		ret["base"] = ERROR_AUTH_USER
+		return [ret, msg, api]
+
 	#### try to init object #####
 	try:
 		if(oauth):
 			api = await hass.async_add_executor_job(lambda: YTMusic(auth=path,oauth_credentials=oauth,user=brand_id,language=language))
 		else:
 			api = await hass.async_add_executor_job(YTMusic,path,brand_id,None,None,language)
+	except BadOAuthClient as err:
+		_LOGGER.debug("- BadOAuthClient exception")
+		msg = "OAuth authentication failed. NOTE: OAuth authentication is currently experiencing widespread issues due to YouTube Music server-side changes (November 2024 - Issue #676, #682). Many users report this error even with valid credentials. RECOMMENDED SOLUTION: Use browser-based authentication instead. See https://ytmusicapi.readthedocs.io/en/stable/setup/browser.html for instructions. If you want to continue with OAuth: (1) Ensure client_id/client_secret match your token, (2) Enable YouTube Data API in Google Cloud Console."
+		_LOGGER.error(msg)
+		_LOGGER.error("Details: " + str(err))
+		ret["base"] = ERROR_AUTH_USER
 	except KeyError as err:
 		_LOGGER.debug("- Key exception")
 		if(str(err)=="'contents'"):
@@ -308,6 +339,7 @@ async def async_try_login(hass, path, brand_id=None, language='en',oauth=None):
 				_LOGGER.error(msg)
 				ret["base"] = ERROR_CONTENTS
 		except Exception as e:
+			error_str = str(e)
 			if hasattr(e, 'args'):
 				if(len(e.args)>0):
 					if(isinstance(e.args[0],str)):
@@ -315,6 +347,14 @@ async def async_try_login(hass, path, brand_id=None, language='en',oauth=None):
 							msg = "The entered information has the correct format, but returned an error 403 (access forbidden). You don't have access with this data (anymore?). Please update the cookie"
 							_LOGGER.error(msg)
 							ret["base"] = ERROR_FORBIDDEN
+						elif "HTTP 400" in e.args[0] and "Bad Request" in e.args[0]:
+							# HTTP 400 often indicates OAuth token issues
+							if is_oauth_file:
+								msg = "HTTP 400 Bad Request error. This is a KNOWN ISSUE with OAuth authentication due to YouTube Music server-side changes (November 2024 - ytmusicapi issues #676, #682). OAuth is currently broken for most users even with valid credentials. RECOMMENDED SOLUTION: Switch to browser-based authentication. See https://ytmusicapi.readthedocs.io/en/stable/setup/browser.html for instructions. To use browser auth: (1) Delete this integration, (2) Extract browser headers using the guide above, (3) Manually create the header file, (4) Reconfigure integration with 'Renew OAuth credentials' unchecked."
+							else:
+								msg = "The entered information has the correct format, but returned an error 400 (bad request). Please update the cookie or reconfigure with OAuth authentication."
+							_LOGGER.error(msg)
+							ret["base"] = ERROR_AUTH_USER
 			else:
 				msg = "Running get_library_songs resulted in an exception, no idea why.. honestly"
 				_LOGGER.error(msg)
