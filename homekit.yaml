@@ -40,7 +40,7 @@
       - switch.boiler
       - switch.bed_warmer
       - switch.kettle
-      - switch.panel_heater
+      - switch.couch_warmer
       - climate.heater
 
   #Configure Each Entity
@@ -119,8 +119,8 @@
     sensor.living_room_humidity:
       name: Living Room Humidity
 
-    switch.panel_heater:
-      name: Panel Heater
+    switch.couch_warmer:
+      name: Couch Warmer
 
     switch.bed_warmer:
       name: Bed Warmer

@@ -138,3 +138,40 @@
               media_stream: system_stream
               command: "{{ value|int }}"
       availability: "{{ has_value('sensor.pixel8pro_volume_level_system') }}"
+
+
+- binary_sensor:
+    - unique_id: chair_occupancy
+      name: "Chair Occupancy"
+      device_class: occupancy
+      availability: "{{ states.binary_sensor.vibration_vibration.state != 'unavailable' }}"
+      icon: "{{ iif(is_state('binary_sensor.chair_occupancy', 'on'), 'mdi:table-chair', 'mdi:account-off') }}"
+      delay_off: "00:00:30"
+      state: >-
+        {{ max(
+            as_timestamp(states.sensor.vibration_angle_x.last_changed),
+            as_timestamp(states.sensor.vibration_angle_y.last_changed),
+            as_timestamp(states.sensor.vibration_angle_z.last_changed)
+          ) > (as_timestamp(now()) - 30) or is_state('binary_sensor.vibration_vibration', 'on')
+        }}
+
+    - unique_id: hacs_updates
+      name: "HACS Updates"
+      device_class: update
+      icon: mdi:package-up
+      availability: "{{ states.update | selectattr('state', 'eq', 'on') | selectattr('entity_id', 'in', integration_entities('hacs')) | map(attribute='name') | list | count | int(-1) > -1 }}"
+      state: "{{ states.update | selectattr('state', 'eq', 'on') | selectattr('entity_id', 'in', integration_entities('hacs')) | map(attribute='name') | list | count }}"
+
+    - unique_id: addon_updates
+      name: "Add-on Updates"
+      device_class: update
+      icon: mdi:package-up
+      availability: "{{ states.update | selectattr('state', 'eq', 'on') | selectattr('entity_id', 'in', integration_entities('hassio')) | rejectattr('entity_id', 'eq', 'update.home_assistant_core_update') | map(attribute='name') | list | count | int(-1) > -1 }}"
+      state: "{{ states.update | selectattr('state', 'eq', 'on') | selectattr('entity_id', 'in', integration_entities('hassio')) | rejectattr('entity_id', 'eq', 'update.home_assistant_core_update') | map(attribute='name') | list | count }}"
+
+    - unique_id: other_updates
+      name: "Other Updates"
+      device_class: update
+      icon: mdi:package-up
+      availability: "{{ states.update | selectattr('state', 'eq', 'on') | rejectattr('entity_id', 'in', integration_entities('hassio')) | rejectattr('entity_id', 'in', integration_entities('hacs')) | map(attribute='name') | list | count | int(-1) > -1 }}"
+      state: "{{ states.update | selectattr('state', 'eq', 'on') | rejectattr('entity_id', 'in', integration_entities('hassio')) | rejectattr('entity_id', 'in', integration_entities('hacs')) | map(attribute='name') | list | count }}"

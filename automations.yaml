@@ -60,35 +60,25 @@
             icon_url: /local/images/party.png
             sticky: 'true'
   mode: single
-- id: spotify_playback
-  alias: "\U0001F3B5Spotify Selected Device Force playback"
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: input_select.speakers_spotify
-  condition: []
-  action:
-  - action: script.spotify_start
-  mode: single
 - id: music_spotify
   alias: "\U0001F3B5Music Jukebox"
-  trigger:
-  - platform: event
-    event_type: tag_scanned
-  condition:
+  triggers:
+  - event_type: tag_scanned
+    trigger: event
+  conditions:
   - condition: template
     value_template: '{{ trigger.event.data.tag_id in tags }}'
-  action:
+  actions:
   - variables:
       uri: '{{ tags[trigger.event.data.tag_id].uri }}'
-  - action: spotcast.start
+  - action: spotcast.play_media
     data:
-      device_name: '{% if is_state(''media_player.spotify'', ''playing'') %} {{state_attr("media_player.spotify",
-        "source")}} {%else%}{{ states(''input_select.speakers_spotify'') }}{%endif%}'
-      uri: '{{ uri }}'
-      random_song: true
-      force_playback: true
-      shuffle: true
+      media_player:
+        entity_id: '{% set src = state_attr(''media_player.spotify'',''source'') if
+          is_state(''media_player.spotify'',''playing'') else states(''input_select.speakers_spotify'')
+          %} media_player.{{ src | lower | replace("''", "_") | replace(" ", "_")
+          }}'
+      spotify_uri: '{{ uri }}'
   mode: restart
   variables:
     tags:
@@ -246,11 +236,11 @@
 - id: '1655814095516'
   alias: "\U0001F3ACCapture Shared URL - Google TV"
   description: Captures the URL shared and updates input_text ccgtv_share_url
-  trigger:
-  - platform: event
-    event_type: mobile_app.share
-  condition: []
-  action:
+  triggers:
+  - event_type: mobile_app.share
+    trigger: event
+  conditions: []
+  actions:
   - choose:
     - conditions:
       - condition: template
@@ -310,8 +300,10 @@
         message: '{{ states(''input_text.ccgtv_share_url'') }}'
   - action: androidtv.adb_command
     data:
-      entity_id: media_player.google_tv
       command: HOME
+    target:
+      entity_id:
+      - media_player.google_tv_streamer
   - action: script.load_share_url_googletv
     data: {}
   mode: single
@@ -337,6 +329,16 @@
     subtype: long
     discovery_id: 0x00124b001eaa8251 action_long
     trigger: device
+  - trigger: state
+    entity_id:
+    - person.pavanthanuj
+    to:
+    - Badminton
+  - trigger: state
+    entity_id:
+    - person.pavanthanuj
+    to:
+    - Work
   conditions: []
   actions:
   - choose:
@@ -392,23 +394,23 @@
 - id: '1670578939434'
   alias: "\U0001F3F0Den Button"
   description: ''
-  trigger:
-  - platform: device
-    domain: mqtt
+  triggers:
+  - domain: mqtt
     device_id: 3fd72c6a517024c03b9531259c2d55d9
     type: action
     subtype: single
     discovery_id: 0x00124b001eaa8251 action_single
     id: click
-  - platform: device
-    domain: mqtt
+    trigger: device
+  - domain: mqtt
     device_id: 3fd72c6a517024c03b9531259c2d55d9
     type: action
     subtype: double
     discovery_id: 0x00124b001eaa8251 action_double
     id: doubleclick
-  condition: []
-  action:
+    trigger: device
+  conditions: []
+  actions:
   - choose:
     - conditions:
       - condition: trigger
@@ -431,7 +433,7 @@
           sequence:
           - action: light.turn_on
             data:
-              color_temp: 153
+              color_temp_kelvin: 6500
               brightness_pct: 100
             target:
               entity_id: light.light
@@ -457,8 +459,8 @@
           sequence:
           - action: light.turn_on
             data:
-              color_temp: 500
               brightness_pct: 100
+              color_temp_kelvin: 2000
             target:
               entity_id: light.light
         default: []
@@ -514,7 +516,7 @@
         minutes: 5
         seconds: 0
   action:
-  - action: notify.mobile_app_s24
+  - action: notify.mobile_app_pixel8pro
     data:
       title: Are you there?
       message: 'No motion detected in Den in the last 5 minutes. '
@@ -627,6 +629,7 @@
     - condition: state
       entity_id: light.led_strip
       state: 'off'
+      enabled: false
     - condition: state
       entity_id: media_player.google_tv_streamer_remote
       state: 'off'
@@ -650,8 +653,7 @@
       sequence:
       - action: light.turn_on
         data:
-          color_temp: 500
-          brightness: 255
+          brightness_pct: 100
         target:
           entity_id: light.living_room_lamp
     - conditions:
@@ -965,7 +967,10 @@
       sequence:
       - action: timer.start
         data:
-          duration: 01:30:00
+          duration:
+            hours: 1
+            minutes: 0
+            seconds: 0
         target:
           entity_id: timer.heating
       - action: notify.mobile_app_pixel8pro
@@ -976,6 +981,7 @@
             when: '{{ ((as_timestamp(now()) + 5400 ) - as_timestamp(''1970-01-01T00:00:00Z''))
               | int }}'
             notification_icon: mdi:heating-coil
+            image: /local/images/heating.png
             sticky: true
             persistant: true
             tag: heat
@@ -1229,23 +1235,26 @@
 - id: '1688497197460'
   alias: "\U0001F3B5Text Search and Play Music on Spotify"
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - input_text.text_spotify
-  condition: []
-  action:
-  - action: spotcast.start
+    trigger: state
+  conditions: []
+  actions:
+  - action: spotcast.play_from_search
     data:
-      force_playback: false
-      random_song: false
-      repeat: 'off'
-      shuffle: false
-      offset: 0
-      ignore_fully_played: false
-      track_name: '{{states.input_text.text_spotify.state}}'
-      device_name: '{% if is_state(''media_player.spotify'', ''playing'') %} {{state_attr("media_player.spotify",
-        "source")}} {%else%}{{ states(''input_select.speakers_spotify'') }}{%endif%}'
+      search_term: '{{states.input_text.text_spotify.state}}'
+      media_player:
+        entity_id: '{% set src = state_attr(''media_player.spotify'',''source'') if
+          is_state(''media_player.spotify'',''playing'') else states(''input_select.speakers_spotify'')
+          %} media_player.{{ src | lower | replace("''", "_") | replace(" ", "_")
+          }}'
+      item_types:
+      - track
+      data:
+        repeat: 'off'
+        shuffle: true
+        offset: 0
   mode: single
 - id: '1691773218286'
   alias: "\U0001F3B5Music Jukebox - Living Room"
@@ -1259,14 +1268,12 @@
   actions:
   - variables:
       uri: '{{ tags[trigger.event.data.tag_id].uri }}'
-  - action: spotcast.start
+  - action: spotcast.play_media
     data:
-      device_name: '{% if is_state(''remote.google_tv_streamer_remote'', ''on'') %}
-        {{''Google TV''}} {%else%}{{''Nest Mini''}}{%endif%}'
-      uri: '{{ uri }}'
-      random_song: true
-      force_playback: true
-      shuffle: true
+      media_player:
+        entity_id: '{% if is_state(''remote.google_tv_streamer_remote'', ''on'') %}
+          {{''media_player.google_tv_streamer''}} {%else%}{{''media_player.nest_mini''}}{%endif%}'
+      spotify_uri: '{{ uri }}'
   - if:
     - condition: state
       entity_id: media_player.google_tv_streamer
@@ -1345,13 +1352,13 @@
 - id: '1698150976885'
   alias: "\U0001F4F3Calvin and Hobbes Notifications"
   description: ''
-  trigger:
-  - platform: sun
-    event: sunrise
+  triggers:
+  - event: sunrise
     offset: 0
     id: sunrise
-  condition: []
-  action:
+    trigger: sun
+  conditions: []
+  actions:
   - delay:
       hours: 0
       minutes: 0
@@ -1365,7 +1372,7 @@
       sequence:
       - action: telegram_bot.send_message
         data:
-          target:
+          chat_id:
           - -1002143785244
           message: 'Calvin and Hobbes - <a href="{{ states.sensor.calvin_and_hobbes.state}}">{{as_timestamp(strptime(states.sensor.calvin_and_hobbes.attributes.publishedDate,''%Y/%m/%d''))
             | timestamp_custom(''%-d %b, %Y'') }}</a>
@@ -1405,22 +1412,56 @@
       minutes: 10
       seconds: 0
     trigger: state
+    id: in
+  - entity_id:
+    - binary_sensor.in_bed
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
+    trigger: state
+    from:
+    - 'on'
+    to:
+    - 'off'
+    id: out
   conditions:
   - condition: or
     conditions:
-    - condition: device
-      type: is_on
-      device_id: 22d3b83188e1ace9ced42e13d76ce319
+    - condition: state
       entity_id: light.shapes
-      domain: light
+      state:
+      - 'on'
     - condition: device
       type: is_off
       device_id: 34bab99947f3fa3c1dc60ce9e4bac9cb
       entity_id: 1c04ba793b3856b58a044bd262b89dc9
       domain: light
   actions:
-  - action: script.bed_routine_script
-    data: {}
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - in
+      sequence:
+      - action: script.bed_routine_script
+        data: {}
+      - action: light.turn_on
+        metadata: {}
+        target:
+          entity_id: light.lamp
+        data: {}
+    - conditions:
+      - condition: trigger
+        id:
+        - in
+        - out
+      sequence:
+      - action: light.turn_off
+        metadata: {}
+        target:
+          entity_id: light.lamp
+        data: {}
   mode: single
 - id: '1699609843837'
   alias: "\U0001F3F0Toggle Phone to Vibrate when at Work"
@@ -1594,16 +1635,10 @@
         id:
         - tag
       sequence:
-      - action: spotcast.start
+      - action: spotcast.play_dj
         data:
-          limit: 20
-          force_playback: true
-          random_song: false
-          repeat: 'off'
-          shuffle: true
-          offset: 0
-          ignore_fully_played: false
-          device_name: Friday
+          media_player:
+            entity_id: media_player.friday
     - conditions:
       - condition: and
         conditions:
@@ -1614,16 +1649,10 @@
           value_template: '{{ is_state_attr(''media_player.spotify'', ''source'',
             ''Pixel 8 Pro'') }}'
       sequence:
-      - action: spotcast.start
+      - action: spotcast.transfer_playback
         data:
-          limit: 20
-          force_playback: false
-          random_song: false
-          repeat: 'off'
-          shuffle: false
-          offset: 0
-          ignore_fully_played: false
-          device_name: Friday
+          media_player:
+            entity_id: media_player.friday
   mode: single
 - id: '1704137731926'
   alias: Hilary's Button
@@ -2461,13 +2490,14 @@
       metadata: {}
       data: {}
       target:
-        entity_id: button.jellyfin_rescan_libraries
+        entity_id:
+        - button.skynet_hq_rescan_libraries
     - wait_for_trigger:
       - entity_id:
-        - sensor.jellyfin_movies
+        - sensor.skynet_hq_movies
         trigger: state
       - entity_id:
-        - sensor.jellyfin_episodes
+        - sensor.skynet_hq_episodes
         trigger: state
       timeout:
         hours: 0
@@ -2475,7 +2505,7 @@
         seconds: 0
         milliseconds: 0
       continue_on_timeout: false
-      enabled: false
+      enabled: true
     - choose:
       - conditions:
         - condition: trigger
@@ -2484,20 +2514,20 @@
         sequence:
         - action: notify.mobile_app_pixel8pro
           data:
-            message: <b>{{ state_attr( "sensor.jellyfin_episodes", "data")[1].title
-              }} - {{ state_attr( "sensor.jellyfin_episodes", "data")[1].number }}
+            message: <b>{{ state_attr( "sensor.skynet_hq_episodes", "data")[1].title
+              }} - {{ state_attr( "sensor.skynet_hq_episodes", "data")[1].number }}
               </b> is downloaded and is available on Jellyfin.
             data:
               notification_icon: mdi:television-box
-              image: '{{ state_attr( "sensor.jellyfin_episodes", "data")[1].fanart}}'
+              image: '{{ state_attr( "sensor.skynet_hq_episodes", "data")[1].fanart}}'
         - action: notify.mobile_app_pavan_thanujs_ipad_3rd_gen
           data:
-            message: '{{ state_attr( "sensor.jellyfin_episodes", "data")[1].title
-              }} - {{ state_attr( "sensor.jellyfin_episodes", "data")[1].number }}
+            message: '{{ state_attr( "sensor.skynet_hq_episodes", "data")[1].title
+              }} - {{ state_attr( "sensor.skynet_hq_episodes", "data")[1].number }}
               is downloaded and is available on Jellyfin.'
             data:
               notification_icon: mdi:television-box
-              image: '{{ state_attr( "sensor.jellyfin_episodes", "data")[1].fanart}}'
+              image: '{{ state_attr( "sensor.skynet_hq_episodes", "data")[1].fanart}}'
       - conditions:
         - condition: trigger
           id:
@@ -2505,19 +2535,19 @@
         sequence:
         - action: notify.mobile_app_pixel8pro
           data:
-            message: <b>{{ state_attr( "sensor.jellyfin_movies", "data")[1].title
+            message: <b>{{ state_attr( "sensor.skynet_hq_movies", "data")[1].title
               }}</b> is downloaded and is available on Jellyfin.
             data:
               notification_icon: mdi:movie-check
-              image: '{{ state_attr( "sensor.jellyfin_movies", "data")[1].fanart}}'
+              image: '{{ state_attr( "sensor.skynet_hq_movies", "data")[1].fanart}}'
         - action: notify.mobile_app_pavan_thanujs_ipad_3rd_gen
           data:
-            message: '{{ state_attr( "sensor.jellyfin_movies", "data")[1].title }}
+            message: '{{ state_attr( "sensor.skynet_hq_movies", "data")[1].title }}
               is downloaded and is available on Jellyfin.'
             data:
               notification_icon: mdi:movie-check
-              image: '{{ state_attr( "sensor.jellyfin_movies", "data")[1].fanart}}'
-      enabled: false
+              image: '{{ state_attr( "sensor.skynet_hq_movies", "data")[1].fanart}}'
+      enabled: true
     enabled: false
   mode: queued
   max: 10
@@ -2606,8 +2636,9 @@
   - condition: and
     conditions:
     - condition: state
-      entity_id: person.rahul_pampati
-      state: not_home
+      entity_id: person.pavanthanuj
+      state:
+      - not_home
     - condition: state
       entity_id: binary_sensor.den_motion
       state: 'off'
@@ -2622,14 +2653,6 @@
     target:
       entity_id: light.shapes
   mode: single
-- id: '1734173801991'
-  alias: ⚙️TV and LED Strip
-  description: ''
-  use_blueprint:
-    path: adchevrier/synchronize-the-on-off-state-of-2-entities.yaml
-    input:
-      entity_1: media_player.google_tv_remote
-      entity_2: light.tv_led_strip
 - id: '1735466814988'
   alias: Add movies to Radarr using Assist
   description: ''
@@ -2644,60 +2667,6 @@
   - action: hassarr.add_radarr_movie
     data:
       title: '{{ trigger.slots.title }}'
-  mode: single
-- id: '1736711298193'
-  alias: Guest Button
-  description: ''
-  triggers:
-  - domain: mqtt
-    device_id: 0f7674241f0842e51cb6ba901f3f0604
-    type: action
-    subtype: 'on'
-    trigger: device
-    id: single
-  - domain: mqtt
-    device_id: 0f7674241f0842e51cb6ba901f3f0604
-    type: action
-    subtype: 'off'
-    id: double
-    trigger: device
-  - domain: mqtt
-    device_id: 0f7674241f0842e51cb6ba901f3f0604
-    type: action
-    subtype: brightness_stop
-    trigger: device
-    id: hold
-  conditions: []
-  actions:
-  - choose:
-    - conditions:
-      - condition: trigger
-        id:
-        - single
-      sequence:
-      - action: homeassistant.toggle
-        data: {}
-        target:
-          entity_id: light.guest_light
-    - conditions:
-      - condition: trigger
-        id:
-        - double
-      sequence:
-      - action: homeassistant.toggle
-        data: {}
-        target:
-          entity_id: light.guest_bed_light
-    - conditions:
-      - condition: trigger
-        id:
-        - hold
-      sequence:
-      - action: homeassistant.toggle
-        data: {}
-        target:
-          entity_id: switch.heating_blanket
-        enabled: false
   mode: single
 - id: '1738348842077'
   alias: Turn on LED strip when watching TV
@@ -2991,3 +2960,303 @@
       alias: Bin is being brought back in (collection has passed)
     alias: Choose action based on collection schedule
   mode: single
+- id: '1765110819002'
+  alias: F1 Track Light
+  triggers:
+  - entity_id:
+    - sensor.f1_session_status
+    - sensor.f1_track_status
+    trigger: state
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: state
+          entity_id: sensor.f1_session_status
+          state: live
+        - condition: state
+          entity_id: sensor.f1_session_status
+          state: pre
+      sequence:
+      - choose:
+        - conditions:
+          - condition: state
+            entity_id: sensor.f1_track_status
+            state: CLEAR
+          sequence:
+          - target:
+              entity_id: light.led_strip
+            data:
+              color_name: green
+            action: light.turn_on
+        - conditions:
+          - condition: state
+            entity_id: sensor.f1_track_status
+            state: YELLOW
+          sequence:
+          - target:
+              entity_id: light.led_strip
+            data:
+              color_name: yellow
+            action: light.turn_on
+        - conditions:
+          - condition: or
+            conditions:
+            - condition: state
+              entity_id: sensor.f1_track_status
+              state: VSC
+            - condition: state
+              entity_id: sensor.f1_track_status
+              state: SC
+          sequence:
+          - target:
+              entity_id: light.led_strip
+            data:
+              color_name: yellow
+              flash: short
+            action: light.turn_on
+        - conditions:
+          - condition: state
+            entity_id: sensor.f1_track_status
+            state: RED
+          sequence:
+          - target:
+              entity_id: light.led_strip
+            data:
+              color_name: red
+            action: light.turn_on
+    - conditions:
+      - condition: not
+        conditions:
+        - condition: state
+          entity_id: sensor.f1_session_status
+          state: live
+      sequence:
+      - target:
+          entity_id: light.led_strip
+        action: light.turn_off
+  mode: restart
+- id: '1765443826556'
+  alias: "\U0001F3F0Leaving and Arriving Home"
+  description: ''
+  triggers:
+  - entity_id:
+    - binary_sensor.pixel8pro_android_auto
+    to: 'on'
+    from: 'off'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: binary_sensor.workday_sensor
+    state: 'on'
+    enabled: false
+  actions:
+  - choose:
+    - conditions:
+      - condition: and
+        conditions:
+        - condition: time
+          after: 07:00:00
+          before: 09:00:00
+          enabled: true
+        - condition: state
+          entity_id: person.pavanthanuj
+          state: home
+      sequence:
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 30
+          milliseconds: 0
+      - action: notify.mobile_app_pixel8pro
+        data:
+          message: command_activity
+          data:
+            intent_uri: https://waze.com/ul?favorite=work&navigate=yes
+            intent_package_name: com.waze
+            intent_action: android.intent.action.VIEW
+      - action: automation.trigger
+        data:
+          skip_condition: true
+        target:
+          entity_id: automation.tag_desk_is_scanned
+        enabled: true
+    - conditions:
+      - condition: and
+        conditions:
+        - condition: time
+          after: '15:00:00'
+          before: '18:00:00'
+      sequence:
+      - action: notify.mobile_app_pixel8pro
+        data:
+          message: command_activity
+          data:
+            intent_uri: https://waze.com/ul?favorite=home&navigate=yes
+            intent_package_name: com.waze
+            intent_action: android.intent.action.VIEW
+      - wait_for_trigger:
+        - entity_id: device_tracker.pixel8pro
+          zone: zone.home
+          event: enter
+          trigger: zone
+        continue_on_timeout: false
+        enabled: true
+      - action: automation.trigger
+        data:
+          skip_condition: true
+        target:
+          entity_id: automation.den_as_it_was
+        enabled: true
+  mode: single
+- id: spotify_playback
+  alias: "\U0001F3B5Spotify Selected Device Force playback"
+  description: ''
+  triggers:
+  - entity_id: input_select.speakers_spotify
+    trigger: state
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: media_player.spotify
+        state:
+        - playing
+        - paused
+      sequence:
+      - action: spotcast.transfer_playback
+        metadata: {}
+        data:
+          media_player:
+            entity_id: media_player.{{ states('input_select.speakers_spotify') | lower
+              | replace("'", "_") | replace(" ", "_") }}
+    - conditions:
+      - condition: not
+        conditions:
+        - condition: state
+          entity_id: media_player.spotify
+          state:
+          - playing
+          - paused
+      sequence:
+      - action: spotcast.play_dj
+        metadata: {}
+        data:
+          media_player:
+            entity_id: media_player.friday
+  mode: single
+- id: '1768417677081'
+  alias: "\U0001F3B5Spotify Selected Device Force playback"
+  description: ''
+  triggers:
+  - entity_id: input_select.speakers_spotify
+    trigger: state
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: media_player.spotify
+        state:
+        - playing
+        - paused
+      sequence:
+      - action: spotcast.transfer_playback
+        metadata: {}
+        data:
+          media_player:
+            entity_id: media_player.{{ states('input_select.speakers_spotify') | lower
+              | replace("'", "_") | replace(" ", "_") }}
+    - conditions:
+      - condition: not
+        conditions:
+        - condition: state
+          entity_id: media_player.spotify
+          state:
+          - playing
+          - paused
+      sequence:
+      - action: spotcast.play_dj
+        metadata: {}
+        data:
+          media_player:
+            entity_id: media_player.{{ states('input_select.speakers_spotify') | lower
+              | replace("'", "_") | replace(" ", "_") }}
+  mode: single
+- id: '1768557172376'
+  alias: "\U0001F3F0Open Curtains when I am away"
+  description: ''
+  triggers:
+  - entity_id: person.pavanthanuj
+    zone: zone.home
+    event: leave
+    id: Away
+    trigger: zone
+  - entity_id: person.pavanthanuj
+    zone: zone.home
+    event: enter
+    id: Home
+    trigger: zone
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: and
+        conditions:
+        - condition: trigger
+          id:
+          - Away
+        - condition: state
+          entity_id: cover.curtains
+          state: closed
+      sequence:
+      - action: cover.open_cover
+        metadata: {}
+        target:
+          entity_id: cover.curtains
+        data: {}
+    - conditions:
+      - condition: trigger
+        id:
+        - Home
+      - condition: state
+        entity_id: cover.curtains
+        state:
+        - open
+      sequence:
+      - action: cover.close_cover
+        metadata: {}
+        target:
+          entity_id: cover.curtains
+        data: {}
+  mode: single
+- id: '1773411963757'
+  alias: IKEA BILRESA - Light Controller (v1.1)
+  description: ''
+  use_blueprint:
+    path: SvKRO/ha-blueprint-ikea-bilresa-scrollwheel_en.yaml
+    input:
+      remote_device: 41d1909bbb664b5ed317f6e3ba868648
+      input_light_1:
+        entity_id: light.light
+      input_click_1:
+      - action: light.toggle
+        metadata: {}
+        target:
+          entity_id: light.light
+        data:
+          color_temp_kelvin: 6500
+          brightness_pct: 100
+      input_double_1:
+      - action: light.toggle
+        metadata: {}
+        target:
+          entity_id: light.light
+        data:
+          color_temp_kelvin: 2000
+          brightness_pct: 100
+      input_transition_1: 50
+      input_sens_1: 3

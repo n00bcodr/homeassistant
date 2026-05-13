@@ -36,19 +36,6 @@ exceptions:
     menu_background: black
     sidebar_border_color: black
     sidebar_background: black
-    # sidebar_button_color: >
-    #   {{states.sensor.pixel8pro_accent_color.state}}
-    # icon_color: >
-    #   {{states.sensor.pixel8pro_accent_color.state}}
-    icon_color_selected: >
-      {{states.sensor.pixel8pro_accent_color.state}}
-    selection_color: >
-      {{states.sensor.pixel8pro_accent_color.state}}
-    text_color_selected: >
-      {{states.sensor.pixel8pro_accent_color.state}}
-    # notification_color: >
-    #   {{states.sensor.pixel8pro_accent_color.state}}
-
     order:
       - item: Overview
 
@@ -90,7 +77,7 @@ exceptions:
 
       - new_item: true
         item: Addons
-        href: "/hassio/dashboard"
+        href: "/config/apps"
         icon: mdi:puzzle
         bottom: true
 
@@ -100,16 +87,12 @@ exceptions:
         icon: mdi:restart
         bottom: true
 
-      - item: Developer Tools
-        href: "/developer-tools/state"
+      - new_item: true
+        item: "dev_tools"
+        name: "Developer Tools"
+        href: "/config/developer-tools/state"
         icon: mdi:hammer
         bottom: true
-
-      - item: Settings
-        bottom: true
-        divider: true
-        divider_color: >
-          {{states.sensor.pixel8pro_accent_color.state}}
 
       - new_item: true
         item: info
@@ -128,11 +111,7 @@ exceptions:
 
       - item: map
         hide: true
-      - item: Logbook
-        hide: true
       - item: History
-        hide: true
-      - item: Shopping List
         hide: true
       - item: To-do lists
         hide: true

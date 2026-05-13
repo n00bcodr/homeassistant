@@ -1,12 +1,3 @@
-spotify_start:
-  alias: 'Spotify: Start Playback'
-  sequence:
-  - action: spotcast.start
-    data:
-      device_name: '{{ states(''input_select.speakers_spotify'') }}'
-      force_playback: true
-  mode: single
-  icon: mdi:spotify
 add_shopping_list:
   alias: Add Shopping Item
   sequence:
@@ -73,7 +64,7 @@ load_share_url_googletv:
       sequence:
       - action: androidtv.adb_command
         data:
-          entity_id: media_player.google_tv
+          entity_id: media_player.google_tv_streamer
           command: am start -a android.intent.action.VIEW -n com.amazon.amazonvideo.livingroom/com.amazon.ignition.IgnitionActivity
             -d {{ states('input_text.ccgtv_share_url') }}
     - conditions:
@@ -83,7 +74,7 @@ load_share_url_googletv:
       sequence:
       - action: androidtv.adb_command
         data:
-          entity_id: media_player.google_tv
+          entity_id: media_player.google_tv_streamer
           command: am start -n com.netflix.ninja/.MainActivity -a android.intent.action.VIEW
             -d netflix://title/{{ states('input_text.ccgtv_share_url')|regex_findall_index(find='netflix.com(?:.*?)([0-9]+)',
             index=0, ignorecase=False) }} -f 0x10000020 -e "amzn_deeplink_data" "{{
@@ -96,7 +87,7 @@ load_share_url_googletv:
       sequence:
       - action: androidtv.adb_command
         data:
-          entity_id: media_player.google_tv
+          entity_id: media_player.google_tv_streamer
           command: am start -a android.intent.action.VIEW -d "{{states('input_text.ccgtv_share_url')
             }}" com.google.android.youtube.tv
     default: []
@@ -108,7 +99,7 @@ bed_routine_script:
   - variables:
       action_yes: '{{ ''YES_'' ~ context.id }}'
       action_no: '{{ ''NO_'' ~ context.id }}'
-  - action: notify.mobile_app_s24
+  - action: notify.mobile_app_pixel8pro
     data:
       message: Going to Bed?
       data:
@@ -163,7 +154,7 @@ bed_routine_script:
       - light.shapes
       - light.chandelier
       - switch.workstation
-  - action: notify.mobile_app_s24
+  - action: notify.mobile_app_pixel8pro
     data:
       message: clear_notification
       data:
@@ -451,4 +442,23 @@ install_other_updates:
         integration_entities(''hacs'')) | map(attribute=''entity_id'') | list }}'
     action: update.install
   alias: Install Other Updates
+  description: ''
+spotcast_phone_dj:
+  sequence:
+  - action: spotcast.play_dj
+    metadata: {}
+    data:
+      media_player:
+        entity_id: media_player.friday
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 1
+      milliseconds: 0
+  - action: spotcast.transfer_playback
+    metadata: {}
+    data:
+      media_player:
+        device_id: 00d99709e541fd7e7befaa15b0a5cc8f
+  alias: Spotcast Phone DJ
   description: ''
