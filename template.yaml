@@ -175,3 +175,192 @@
       icon: mdi:package-up
       availability: "{{ states.update | selectattr('state', 'eq', 'on') | rejectattr('entity_id', 'in', integration_entities('hassio')) | rejectattr('entity_id', 'in', integration_entities('hacs')) | map(attribute='name') | list | count | int(-1) > -1 }}"
       state: "{{ states.update | selectattr('state', 'eq', 'on') | rejectattr('entity_id', 'in', integration_entities('hassio')) | rejectattr('entity_id', 'in', integration_entities('hacs')) | map(attribute='name') | list | count }}"
+      
+      
+- sensor:
+    - name: "Washing Machine State"
+      unique_id: washing_machine_state
+      state: >
+        {% set state_map = {
+          'washer_substate_program_started': 'Idle',
+          'unavailable': 'Idle',
+          'washer_substate_washing': 'Washing',
+          'washer_substate_drying': 'Drying',
+          'washer_substate_rinsing': 'Rinsing',
+          'washer_substate_spin': 'Spinning',
+          'washer_substate_paused': 'Paused',
+          'washer_substate_remove_laundry': 'Cycle Complete',
+          'washer_substate_time_delay_enabled': 'Delayed Start'
+        } %}
+        {% if states('sensor.bob_sub_state') == 'washer_substate_program_started' and states('sensor.bob_state') == 'device_state_off' %}
+          Off
+        {% else %}
+          {{ state_map.get(states('sensor.bob_sub_state'), states('sensor.bob_sub_state')) }}
+        {% endif %}
+      icon: >
+        {% set icon_map = {
+          'washer_substate_program_started': 'mdi:washing-machine-off',
+          'unavailable': 'mdi:washing-machine-alert',
+          'washer_substate_drying': 'mdi:tumble-dryer',
+          'washer_substate_washing': 'mdi:washing-machine',
+          'washer_substate_rinsing': 'mdi:dishwasher',
+          'washer_substate_spin': 'fas:spinner',
+          'washer_substate_paused': 'mdi:pause-box-outline',
+          'washer_substate_remove_laundry': 'mdi:check-circle-outline',
+          'washer_substate_time_delay_enabled': 'phu:rooms-laundry-room'
+        } %}
+        {{ icon_map.get(states('sensor.bob_sub_state'), 'mdi:washing-machine-alert') }}
+
+    - name: "Automation Count"
+      unique_id: count_automations
+      state: "{{ states.automation | count }}"
+      icon: mdi:robot
+      attributes:
+        on: >
+          {{ states.automation | selectattr('state', 'eq', 'on') | map(attribute='name') | list | join(', ') }}
+        off: >
+          {{ states.automation | selectattr('state', 'eq', 'off') | map(attribute='name') | list | join(', ') }}
+
+    - name: "Script Count"
+      unique_id: count_scripts
+      state: "{{ states.script | count }}"
+      icon: mdi:script-text-outline
+      attributes:
+        on: >
+          {{ states.script | selectattr('state', 'eq', 'on') | map(attribute='name') | list | join(', ') }}
+        off: >
+          {{ states.script | selectattr('state', 'eq', 'off') | map(attribute='name') | list | join(', ') }}
+
+    - name: "Device Tracker Count"
+      unique_id: count_device_trackers
+      state: "{{ states.device_tracker | count }}"
+      icon: mdi:lan-connect
+      attributes:
+        on: >
+          {{ states.device_tracker | selectattr('state', 'eq', 'home') | map(attribute='name') | list | join(', ') }}
+        off: >
+          {{ states.device_tracker | selectattr('state', 'eq', 'not_home') | map(attribute='name') | list | join(', ') }}
+
+    - name: "Binary Sensor Count"
+      unique_id: count_binary_sensors
+      state: "{{ states.binary_sensor | count }}"
+      icon: mdi:checkbox-multiple-blank-outline
+      attributes:
+        on: >
+          {{ states.binary_sensor | selectattr('state', 'eq', 'on') | map(attribute='name') | list | join(', ') }}
+        off: >
+          {{ states.binary_sensor | selectattr('state', 'eq', 'off') | map(attribute='name') | list | join(', ') }}
+
+    - name: "Sensor Count"
+      unique_id: count_sensors
+      state: "{{ states.sensor | count }}"
+      icon: mdi:eye
+      attributes:
+        list: >
+          {{ states.sensor | selectattr('state') | map(attribute='name') | list | join(', ') }}
+
+    - name: "Switch Count"
+      unique_id: count_switches
+      state: "{{ states.switch | count }}"
+      icon: mdi:toggle-switch-outline
+      attributes:
+        on: >
+          {{ states.switch | selectattr('state', 'eq', 'on') | map(attribute='name') | list | join(', ') }}
+        off: >
+          {{ states.switch | selectattr('state', 'eq', 'off') | map(attribute='name') | list | join(', ') }}
+
+    - name: "Light Count"
+      unique_id: count_lights
+      state: "{{ states.light | count }}"
+      icon: mdi:lightbulb-outline
+      attributes:
+        on: >
+          {{ states.light | selectattr('state', 'eq', 'on') | map(attribute='name') | list | join(', ') }}
+        off: >
+          {{ states.light | selectattr('state', 'eq', 'off') | map(attribute='name') | list | join(', ') }}
+
+    - name: "Zone Count"
+      unique_id: count_zones
+      state: "{{ states.zone | count }}"
+      icon: mdi:map-clock
+      attributes:
+        list: >
+          {{ states.zone | selectattr('state') | map(attribute='name') | list | join(', ') }}
+
+    - name: "Scene Count"
+      unique_id: count_scenes
+      state: "{{ states.scene | count }}"
+      icon: mdi:palette-outline
+      attributes:
+        list: >
+          {{ states.scene | selectattr('state') | map(attribute='name') | list | join(', ') }}
+
+    - name: "Media Player Count"
+      unique_id: count_media_players
+      state: "{{ states.media_player | count }}"
+      icon: mdi:cast-audio
+      attributes:
+        on: >
+          {{ states.media_player | selectattr('state', 'eq', 'on') | map(attribute='name') | list | join(', ') }}
+        off: >
+          {{ states.media_player | selectattr('state', 'eq', 'off') | map(attribute='name') | list | join(', ') }}
+
+    - name: "Input Boolean Count"
+      unique_id: count_input_booleans
+      state: "{{ states.input_boolean | count }}"
+      icon: mdi:toggle-switch-off-outline
+      attributes:
+        on: >
+          {{ states.input_boolean | selectattr('state', 'eq', 'on') | map(attribute='name') | list | join(', ') }}
+        off: >
+          {{ states.input_boolean | selectattr('state', 'eq', 'off') | map(attribute='name') | list | join(', ') }}
+
+    - name: "Moon Phase"
+      unique_id: moon_phase_image
+      state: "{{ states.sensor.moon.state | replace ('_', ' ') | title}}"
+      picture: /local/moon_phases/{{ states.sensor.moon.state }}.png
+
+    - name: "Chair Occupancy"
+      unique_id: chair_occupancy
+      state: "{{ iif(is_state('binary_sensor.vibration_vibration', 'on'), 'Away', 'At Desk') }}"
+      icon: "{{ iif(is_state('binary_sensor.vibration_vibration', 'on'), 'mdi:account-off', 'mdi:table-chair') }}"
+
+    - name: "Black Bin Pickup"
+      unique_id: black_bin_pickup
+      state: >
+        {{ as_timestamp(state_attr("calendar.black_bin", "start_time")) | timestamp_custom('%B %-d') }}
+      attributes:
+        next_collection: >
+          {{ ((as_timestamp(state_attr("calendar.black_bin", "start_time")) | as_datetime | as_local).date() - now().date()).days }}
+        icon: >
+          mdi:numeric-{{ ((as_timestamp(state_attr("calendar.black_bin", "start_time")) | as_datetime | as_local).date() - now().date()).days }}
+
+    - name: "Blue Bin Pickup"
+      unique_id: blue_bin_pickup
+      state: >
+        {{ as_timestamp(state_attr("calendar.blue_bin", "start_time")) | timestamp_custom('%B %-d') }}
+      attributes:
+        next_collection: >
+          {{ ((as_timestamp(state_attr("calendar.blue_bin", "start_time")) | as_datetime | as_local).date() - now().date()).days }}
+        icon: >
+          mdi:numeric-{{ ((as_timestamp(state_attr("calendar.blue_bin", "start_time")) | as_datetime | as_local).date() - now().date()).days }}
+
+    - name: "Doorbell Image Captures"
+      unique_id: doorbell_images
+      state: >
+        {{states.sensor.doorbell.attributes.number_of_files}}
+      attributes:
+        path: >
+          {{ states.sensor.doorbell.attributes.path }}
+        filter: >
+          {{ states.sensor.doorbell.attributes.filter }}
+        number_of_files: >
+          {{ states.sensor.doorbell.attributes.number_of_files }}
+        bytes: >
+          {{ states.sensor.doorbell.attributes.bytes }}
+        file_list: >
+          {{ states.sensor.doorbell.attributes.file_list | sort }}
+        unit_of_measurement: >
+          {{ states.sensor.doorbell.attributes.unit_of_measurement }}
+        icon: >
+          {{ states.sensor.doorbell.attributes.icon }}      

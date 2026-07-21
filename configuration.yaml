@@ -15,6 +15,9 @@ http:
     - !secret trusted_ip1
     - !secret trusted_ip2
     - 192.168.168.168
+    - 100.100.11.11
+    - 127.0.0.1
+    - ::1    
 
 logger:
   default: critical
@@ -38,7 +41,7 @@ rest_command: !include rest_commands.yaml
 scene: !include scenes.yaml
 script: !include scripts.yaml
 shell_command: !include shell_command.yaml
-sensor: !include_dir_merge_list sensors
+sensor: !include sensor.yaml
 template: !include template.yaml
 media_player: !include mediaplayer.yaml
 tts:
@@ -46,7 +49,8 @@ tts:
 
 frontend:
   themes: !include_dir_merge_named themes
-
+  extra_module_url:
+    - /hacsfiles/custom-sidebar/custom-sidebar-plugin.js
 
 #mariadb config
 recorder:

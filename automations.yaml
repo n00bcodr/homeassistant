@@ -1314,7 +1314,7 @@
       after: sunset
     - condition: numeric_state
       entity_id: sensor.living_room_light
-      below: 20
+      below: 30
       enabled: true
     - condition: state
       entity_id: switch.kitchen_light
@@ -1538,21 +1538,6 @@
             timeout: 30
           message: ' '
   mode: single
-- id: '1699724589577'
-  alias: Hilary Exit
-  description: ''
-  triggers:
-  - tag_id: c37fef6a-a97d-4b46-83a9-f563b9f9a61d
-    trigger: tag
-  conditions: []
-  actions:
-  - action: homeassistant.turn_off
-    data: {}
-    target:
-      entity_id:
-      - light.bed_lamp
-      - switch.salt_lamp
-  mode: single
 - id: '1700567569365'
   alias: "\U0001F6AE\U0001F4F3Is the Bin Outside?"
   description: ''
@@ -1695,21 +1680,12 @@
       - condition: trigger
         id:
         - double
-      sequence:
-      - action: homeassistant.toggle
-        data: {}
-        target:
-          entity_id:
-          - switch.salt_lamp
+      sequence: []
     - conditions:
       - condition: trigger
         id:
         - hold
-      sequence:
-      - action: homeassistant.toggle
-        data: {}
-        target:
-          entity_id: switch.heating_blanket
+      sequence: []
   mode: single
 - id: '1704234098620'
   alias: "\U0001F3F0Curtains - Ikea Remote"
@@ -2034,19 +2010,22 @@
       timestamp: '{{ as_timestamp(trigger.to_state.last_changed) | timestamp_custom(''%Y-%m-%d_%H-%M-%S'')
         }}'
       camera_snapshot: '{{ timestamp }}.jpg'
-  - action: camera.snapshot
+  - alias: Take a Camera Snapshot
+    action: camera.snapshot
     metadata: {}
     data:
       filename: /config/www/doorbell/{{camera_snapshot}}
-      entity_id: camera.doorbell_snapshots_fluent
-    alias: Take a Camera Snapshot
+    target:
+      entity_id:
+      - camera.doorbell
   - alias: Take a Camera Snapshot - Cam SNAPSHOT
     action: camera.snapshot
     metadata: {}
     data:
       filename: /config/www/cam_snapshot.jpg
     target:
-      entity_id: camera.doorbell_snapshots_fluent
+      entity_id:
+      - camera.doorbell
   - parallel:
     - alias: Choose between motion and doorbell press
       choose:
@@ -2782,190 +2761,12 @@
   - data:
       message: Speedtest download is below 100 Mbps for the last 6 hours!
     action: notify.mobile_app_pixel8pro
-- id: '1760072509370'
-  alias: "\U0001F6AE\U0001F4F3Bin Pickup Notification v2"
-  description: Notifies about bin collection and reminds to put bins out
-  triggers:
-  - at: '11:00:00'
-    id: morning
-    trigger: time
-  - at: '21:00:00'
-    id: night
-    trigger: time
-  conditions:
-  - alias: Check if collection is in next two days
-    condition: template
-    value_template: "{{ state_attr('sensor.black_bin', 'next_collection') <= 2 or\n
-      \  state_attr('sensor.blue_bin', 'next_collection') <= 2 }}\n"
-  actions:
-  - alias: Define bin configuration variables
-    variables:
-      bins:
-      - sensor: sensor.black_bin
-        name: Black Bin
-        color: black
-        icon: /local/images/black_bin.png
-        boolean: input_boolean.black_bin_out
-      - sensor: sensor.blue_bin
-        name: Blue Bin
-        color: blue
-        icon: /local/images/blue_bin.png
-        boolean: input_boolean.blue_bin_out
-  - repeat:
-      for_each: '{{ bins }}'
-      sequence:
-      - alias: Get days until collection for current bin
-        variables:
-          days_until: '{{ state_attr(repeat.item.sensor, ''next_collection'') | int
-            }}'
-          collection_date: '{{ states(repeat.item.sensor) }}'
-      - alias: Choose action based on days until collection and time
-        choose:
-        - alias: Collection is in 2 days and it's morning
-          conditions:
-          - '{{ days_until == 2 }}'
-          - condition: trigger
-            id: morning
-          sequence:
-          - alias: Send notification for collection in 2 days
-            action: notify.all_phones
-            data:
-              data:
-                tag: bin_pickup_{{ repeat.item.name | lower | replace(' ', '_') }}
-                notification_icon: mdi:trash-can-outline
-                icon_url: '{{ repeat.item.icon }}'
-                color: '{{ repeat.item.color }}'
-              message: Pickup is in two days on {{ collection_date }}
-              title: '{{ repeat.item.name }}'
-        - alias: Collection is tomorrow and it's morning
-          conditions:
-          - '{{ days_until == 1 }}'
-          - condition: trigger
-            id: morning
-          sequence:
-          - alias: Send notification for collection tomorrow
-            action: notify.all_phones
-            data:
-              data:
-                tag: bin_pickup_{{ repeat.item.name | lower | replace(' ', '_') }}
-                notification_icon: mdi:trash-can-outline
-                icon_url: '{{ repeat.item.icon }}'
-                color: '{{ repeat.item.color }}'
-              message: Pickup is tomorrow, {{ collection_date }}
-              title: '{{ repeat.item.name }}'
-        - alias: Collection is tomorrow and it's night - send reminders
-          conditions:
-          - '{{ days_until == 1 }}'
-          - condition: trigger
-            id: night
-          sequence:
-          - repeat:
-              sequence:
-              - alias: Send reminder to put bin out
-                action: notify.all_phones
-                data:
-                  data:
-                    tag: bin_reminder_{{ repeat.item.name | lower | replace(' ', '_')
-                      }}
-                    notification_icon: mdi:trash-can
-                    icon_url: '{{ repeat.item.icon }}'
-                    color: '{{ repeat.item.color }}'
-                    actions:
-                    - action: BIN_OUT_{{ repeat.item.name | upper | replace(' ', '_')
-                        }}
-                      title: Yeah, the bin is out!
-                  message: Put the {{ repeat.item.name }} out.
-                  title: '{{ repeat.item.name }}'
-              - alias: Wait 30 minutes before next reminder
-                delay:
-                  minutes: 30
-              until:
-              - alias: Check if bin is marked as out or collection day changed
-                condition: template
-                value_template: "{{ states(repeat.item.boolean) == 'on' or\n   state_attr(repeat.item.sensor,
-                  'next_collection') | int > 1 }}\n"
-  mode: single
-- id: '1760072545704'
-  alias: "\U0001F6AE\U0001F4F3Is the Bin Outside? v2"
-  description: Detects when bin is put outside and stops reminders
-  triggers:
-  - entity_id: binary_sensor.back_door_contact
-    from: 'off'
-    to: 'on'
-    trigger: state
-    id: door_opened
-  - event_type: mobile_app_notification_action
-    event_data:
-      action: BIN_OUT
-    trigger: event
-    id: button_pressed
-  conditions: []
-  actions:
-  - variables:
-      black_days: '{{ state_attr(''sensor.black_bin'', ''next_collection'') | int(99)
-        }}'
-      blue_days: '{{ state_attr(''sensor.blue_bin'', ''next_collection'') | int(99)
-        }}'
-      next_collection_days: '{{ [black_days, blue_days] | min }}'
-      collection_tomorrow: '{{ next_collection_days <= 1 }}'
-      collection_past: '{{ next_collection_days >= 2 }}'
-    alias: Calculate days until next collection
-  - choose:
-    - conditions:
-      - '{{ collection_tomorrow }}'
-      - condition: or
-        conditions:
-        - condition: trigger
-          id: button_pressed
-        - condition: and
-          conditions:
-          - condition: trigger
-            id: door_opened
-          - condition: time
-            after: '18:00:00'
-            before: 02:00:00
-      sequence:
-      - action: input_boolean.turn_on
-        target:
-          entity_id: input_boolean.bin
-        alias: Mark bin as outside
-      - action: notify.all_phones
-        data:
-          data:
-            tag: bin_pickup
-          message: clear_notification
-        alias: Clear existing bin pickup notifications
-      - action: notify.all_phones
-        data:
-          data:
-            notification_icon: mdi:delete-empty
-            color: green
-            timeout: 600
-          message: Great! Reminder stopped.
-          title: ✓ The bin is outside
-        alias: Send confirmation notification
-      alias: Bin is going out (collection is tomorrow)
-    - conditions:
-      - '{{ collection_past }}'
-      - condition: trigger
-        id: door_opened
-      - condition: time
-        after: 06:00:00
-        before: '23:00:00'
-      sequence:
-      - action: input_boolean.turn_off
-        target:
-          entity_id: input_boolean.bin
-        alias: Mark bin as brought back in
-      alias: Bin is being brought back in (collection has passed)
-    alias: Choose action based on collection schedule
-  mode: single
 - id: '1765110819002'
   alias: F1 Track Light
   triggers:
   - entity_id:
-    - sensor.f1_session_status
-    - sensor.f1_track_status
+    - sensor.f1_session_f1_session_status
+    - sensor.f1_session_f1_track_status
     trigger: state
   conditions: []
   actions:
@@ -2974,30 +2775,36 @@
       - condition: or
         conditions:
         - condition: state
-          entity_id: sensor.f1_session_status
-          state: live
+          entity_id: sensor.f1_session_f1_session_status
+          state:
+          - live
         - condition: state
-          entity_id: sensor.f1_session_status
-          state: pre
+          entity_id: sensor.f1_session_f1_session_status
+          state:
+          - pre
       sequence:
       - choose:
         - conditions:
           - condition: state
-            entity_id: sensor.f1_track_status
-            state: CLEAR
+            entity_id: sensor.f1_session_f1_track_status
+            state:
+            - CLEAR
           sequence:
           - target:
-              entity_id: light.led_strip
+              entity_id:
+              - light.shapes
             data:
               color_name: green
             action: light.turn_on
         - conditions:
           - condition: state
-            entity_id: sensor.f1_track_status
-            state: YELLOW
+            entity_id: sensor.f1_session_f1_track_status
+            state:
+            - YELLOW
           sequence:
           - target:
-              entity_id: light.led_strip
+              entity_id:
+              - light.shapes
             data:
               color_name: yellow
             action: light.turn_on
@@ -3005,25 +2812,30 @@
           - condition: or
             conditions:
             - condition: state
-              entity_id: sensor.f1_track_status
-              state: VSC
+              entity_id: sensor.f1_session_f1_track_status
+              state:
+              - VSC
             - condition: state
-              entity_id: sensor.f1_track_status
-              state: SC
+              entity_id: sensor.f1_session_f1_track_status
+              state:
+              - SC
           sequence:
           - target:
-              entity_id: light.led_strip
+              entity_id:
+              - light.shapes
             data:
               color_name: yellow
               flash: short
             action: light.turn_on
         - conditions:
           - condition: state
-            entity_id: sensor.f1_track_status
-            state: RED
+            entity_id: sensor.f1_session_f1_track_status
+            state:
+            - RED
           sequence:
           - target:
-              entity_id: light.led_strip
+              entity_id:
+              - light.shapes
             data:
               color_name: red
             action: light.turn_on
@@ -3031,12 +2843,15 @@
       - condition: not
         conditions:
         - condition: state
-          entity_id: sensor.f1_session_status
-          state: live
+          entity_id: sensor.f1_session_f1_session_status
+          state:
+          - live
       sequence:
       - target:
-          entity_id: light.led_strip
+          entity_id:
+          - light.shapes
         action: light.turn_off
+        data: {}
   mode: restart
 - id: '1765443826556'
   alias: "\U0001F3F0Leaving and Arriving Home"
@@ -3260,3 +3075,64 @@
           brightness_pct: 100
       input_transition_1: 50
       input_sens_1: 3
+      input_light_2:
+        entity_id: light.shapes
+      input_click_2:
+      - action: light.toggle
+        metadata: {}
+        target:
+          entity_id: light.shapes
+        data: {}
+      input_sens_2: 3
+      input_transition_2: 50
+- id: '1784467219253'
+  alias: "\U0001F514Backyard Person Detected"
+  description: Sends a snapshot to Pixel 8 Pro when Frigate detects a person on the
+    backyard camera
+  triggers:
+  - entity_id:
+    - binary_sensor.backyard_camera_person_occupancy
+    from: 'off'
+    id: person
+    to: 'on'
+    trigger: state
+  conditions: []
+  actions:
+  - variables:
+      camera_snapshot: '{{ timestamp }}.jpg'
+      timestamp: '{{ as_timestamp(trigger.to_state.last_changed) | timestamp_custom(''%Y-%m-%d_%H-%M-%S'')
+        }}'
+  - action: camera.snapshot
+    alias: Take a Camera Snapshot
+    data:
+      filename: /config/www/backyard/{{ camera_snapshot }}
+    target:
+      entity_id:
+      - camera.backyard_camera
+  - action: notify.mobile_app_pixel8pro
+    alias: Notify Pixel 8 Pro
+    data:
+      data:
+        actions:
+        - action: URI
+          icon: sfsymbols:camera.viewfinder
+          title: Open
+          uri: /lovelace/camera
+        activationMode: foreground
+        channel: Backyard
+        entity_id: camera.backyard_camera
+        image: /local/backyard/{{ camera_snapshot }}
+        notification_icon: mdi:cctv
+        push:
+          category: camera
+          interruption-level: time-sensitive
+        tag: backyard_person
+        ttl: 0
+      message: ' '
+      title: "Person detected in the backyard \U0001F464"
+  - delay:
+      hours: 0
+      milliseconds: 0
+      minutes: 0
+      seconds: 5
+  mode: single
