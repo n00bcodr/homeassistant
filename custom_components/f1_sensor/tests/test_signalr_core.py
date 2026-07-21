@@ -381,8 +381,10 @@ def test_no_auth_live_stream_contract_excludes_gated_and_replay_only_streams():
     assert subscribed.isdisjoint(REPLAY_ONLY_STREAMS)
     assert AUTH_GATED_LIVE_STREAMS == (
         "CarData.z",
+        "Position.z",
         "DriverRaceInfo",
         "ChampionshipPrediction",
+        "TeamRadio",
         "PitStopSeries",
     )
     assert REPLAY_ONLY_STREAMS == ()

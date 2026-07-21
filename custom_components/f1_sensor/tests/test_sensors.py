@@ -18,6 +18,7 @@ from homeassistant.helpers.entity_component import EntityComponent
 from homeassistant.helpers.json import json_bytes
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util.json import json_loads
+from homeassistant.util.unit_system import US_CUSTOMARY_SYSTEM
 import pytest
 
 from custom_components.f1_sensor import (
@@ -47,13 +48,16 @@ from custom_components.f1_sensor.sensor import (
     F1DriverPositionsSensor,
     F1DriverStandingsSensor,
     F1FiaDocumentsSensor,
+    F1LapPositionProgressionSensor,
     F1LastRaceSensor,
     F1LiveTimingModeSensor,
     F1NextRaceSensor,
     F1PitStopsSensor,
     F1SeasonResultsSensor,
     F1SprintResultsSensor,
+    F1TeamRadioSensor,
     F1TopThreePositionSensor,
+    F1TrackTimeSensor,
     F1TvTokenExpiresAtSensor,
     F1TvTokenStatusSensor,
     F1WeatherSensor,
@@ -114,6 +118,7 @@ const methodSources = [
   extractMethod(classSource, "_resolveListMaxHeight() {"),
   extractMethod(classSource, "_extractDocumentNumber(name, explicitNumber = null) {"),
   extractMethod(classSource, "_cleanDocumentTitle(name) {"),
+  extractMethod(classSource, "_safeDocumentUrl(url) {"),
   extractMethod(classSource, "_normalizeDocument(item, fallbackIndex = 0) {"),
   extractMethod(classSource, "_buildDocuments(entity) {"),
   extractMethod(classSource, "_sortDocuments(documents) {"),
@@ -172,6 +177,13 @@ if (payload.action === "documents") {
 
 process.stdout.write(JSON.stringify(result));
 """
+
+
+def test_manifest_keeps_timezone_lookup_optional() -> None:
+    manifest_path = ROOT / "custom_components" / "f1_sensor" / "manifest.json"
+    manifest = json.loads(manifest_path.read_text())
+
+    assert "tzfpy>=1.1.0" not in manifest["requirements"]
 
 
 class _LiveState:
@@ -616,6 +628,7 @@ def _build_pitstops_data(*, cars: int = 20, stops_per_car: int = 8) -> dict:
         "total_stops": cars * stops_per_car,
         "cars": payload,
         "last_update": "2026-03-01T14:59:00Z",
+        "last_reset": "2026-03-01T14:00:00+00:00",
     }
 
 
@@ -1298,9 +1311,163 @@ async def test_next_race_sensor_uses_2026_detailed_circuit_map(
 
 
 @pytest.mark.asyncio
+async def test_next_race_sensor_uses_known_circuit_timezone_without_tzfpy(
+    hass, monkeypatch
+) -> None:
+    monkeypatch.setattr(
+        "custom_components.f1_sensor.helpers.dt_util.utcnow",
+        lambda: datetime(2026, 3, 10, tzinfo=UTC),
+    )
+    monkeypatch.setattr(
+        "custom_components.f1_sensor.sensor._timezone_from_location",
+        lambda _lat, _lon: None,
+    )
+    coordinator = _build_coordinator(
+        hass,
+        {"MRData": {"RaceTable": {"Races": [_build_race(date="2026-03-15")]}}},
+    )
+    entry_id = "test_entry_next_race_timezone"
+    _set_entry_context(hass, entry_id)
+
+    sensor = F1NextRaceSensor(
+        coordinator,
+        f"{entry_id}_next_race",
+        entry_id,
+        "F1",
+    )
+    state = await _add_sensor_and_get_state(hass, sensor)
+
+    assert state.attributes["circuit_timezone"] == "Australia/Melbourne"
+    assert state.attributes["race_start_local"] == "2026-03-15T15:00:00+11:00"
+
+
+@pytest.mark.asyncio
+async def test_next_race_sensor_caches_state_attributes(hass, monkeypatch) -> None:
+    monkeypatch.setattr(
+        "custom_components.f1_sensor.helpers.dt_util.utcnow",
+        lambda: datetime(2026, 3, 10, tzinfo=UTC),
+    )
+    timezone_calls = 0
+
+    def _fake_timezone(_lat, _lon):
+        nonlocal timezone_calls
+        timezone_calls += 1
+        return "Australia/Melbourne"
+
+    monkeypatch.setattr(
+        "custom_components.f1_sensor.sensor._timezone_from_location",
+        _fake_timezone,
+    )
+    coordinator = _build_coordinator(
+        hass,
+        {
+            "MRData": {
+                "RaceTable": {
+                    "Races": [
+                        _build_race(
+                            circuit_id="unknown_test",
+                            date="2026-03-15",
+                        )
+                    ]
+                }
+            }
+        },
+    )
+    entry_id = "test_entry_next_race_cache"
+    _set_entry_context(hass, entry_id)
+
+    sensor = F1NextRaceSensor(
+        coordinator,
+        f"{entry_id}_next_race",
+        entry_id,
+        "F1",
+    )
+    state = await _add_sensor_and_get_state(hass, sensor)
+
+    assert timezone_calls == 1
+    assert state.attributes["circuit_timezone"] == "Australia/Melbourne"
+
+    assert sensor.state == "2026-03-15T04:00:00+00:00"
+    assert sensor.extra_state_attributes["circuit_timezone"] == "Australia/Melbourne"
+    sensor.async_write_ha_state()
+    await hass.async_block_till_done()
+
+    assert timezone_calls == 1
+
+    coordinator.async_set_updated_data(
+        {
+            "MRData": {
+                "RaceTable": {
+                    "Races": [
+                        _build_race(
+                            circuit_id="unknown_test",
+                            round_="2",
+                            date="2026-03-22",
+                        )
+                    ]
+                }
+            }
+        }
+    )
+    await hass.async_block_till_done()
+
+    assert timezone_calls == 2
+    updated_state = hass.states.get(sensor.entity_id)
+    assert updated_state is not None
+    assert updated_state.state == "2026-03-22T04:00:00+00:00"
+
+
+@pytest.mark.asyncio
+async def test_track_time_sensor_exposes_machine_readable_datetimes(
+    hass, monkeypatch
+) -> None:
+    fixed_utc = datetime(2026, 3, 8, 4, 15, 30, tzinfo=UTC)
+
+    class FixedDateTime(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            if tz is None:
+                return fixed_utc.replace(tzinfo=None)
+            return fixed_utc.astimezone(tz)
+
+    monkeypatch.setattr(
+        "custom_components.f1_sensor.sensor.datetime.datetime",
+        FixedDateTime,
+    )
+    monkeypatch.setattr(
+        "custom_components.f1_sensor.sensor._timezone_from_location",
+        lambda _lat, _lon: "Australia/Melbourne",
+    )
+    coordinator = _build_coordinator(
+        hass,
+        {"MRData": {"RaceTable": {"Races": [_build_race(date="2099-03-15")]}}},
+    )
+    entry_id = "test_entry_track_time"
+    _set_entry_context(hass, entry_id)
+
+    sensor = F1TrackTimeSensor(
+        coordinator,
+        f"{entry_id}_track_time",
+        entry_id,
+        "F1",
+    )
+    await _add_sensor_and_get_state(hass, sensor)
+    attrs = sensor.extra_state_attributes
+
+    assert sensor.state == "15:15"
+    assert attrs["timezone"] == "Australia/Melbourne"
+    assert attrs["track_datetime_utc"] == "2026-03-08T04:15:30+00:00"
+    assert attrs["track_datetime_local"] == "2026-03-08T15:15:30+11:00"
+
+
+@pytest.mark.asyncio
 async def test_next_race_sensor_exposes_circuit_history_attrs(
     hass, monkeypatch
 ) -> None:
+    monkeypatch.setattr(
+        "custom_components.f1_sensor.helpers.dt_util.utcnow",
+        lambda: datetime(2026, 6, 27, tzinfo=UTC),
+    )
     next_race, payloads = _build_next_race_history_fixture()
     race_coordinator = _build_coordinator(
         hass,
@@ -1427,6 +1594,10 @@ async def test_next_race_sensor_exposes_circuit_history_attrs(
 async def test_next_race_history_last_year_podium_missing_returns_none(
     hass, monkeypatch
 ) -> None:
+    monkeypatch.setattr(
+        "custom_components.f1_sensor.helpers.dt_util.utcnow",
+        lambda: datetime(2026, 6, 27, tzinfo=UTC),
+    )
     next_race, payloads = _build_next_race_history_fixture(
         include_previous_season=False
     )
@@ -1624,6 +1795,170 @@ async def test_sprint_results_sensor_excludes_races_from_recorder(hass) -> None:
     assert "races" not in shared_attrs
 
 
+def _build_lap_position_progression_data(
+    *, session_count: int = 2, drivers_per_session: int = 3, laps: int = 4
+) -> dict:
+    sessions = []
+    for session_idx in range(1, session_count + 1):
+        labels = [f"L{lap}" for lap in range(1, laps + 1)]
+        drivers = []
+        series = []
+        for driver_idx in range(1, drivers_per_session + 1):
+            code = f"D{driver_idx:02d}"
+            positions = [
+                ((driver_idx + lap - 2) % drivers_per_session) + 1
+                for lap in range(1, laps + 1)
+            ]
+            driver = {
+                "driver_id": f"driver_{driver_idx}",
+                "code": code,
+                "number": str(driver_idx),
+                "name": f"Driver {driver_idx}",
+                "constructor_id": "mclaren",
+                "constructor_name": "McLaren",
+                "color": "#ff8000",
+                "grid": driver_idx,
+                "finish_position": positions[-1],
+                "status": "Finished",
+                "positions": positions,
+                "best_position": min(positions),
+                "worst_position": max(positions),
+                "net_position_change": driver_idx - positions[-1],
+            }
+            drivers.append(driver)
+            series.append(
+                {
+                    "key": code,
+                    "name": driver["name"],
+                    "color": driver["color"],
+                    "data": positions,
+                }
+            )
+        sessions.append(
+            {
+                "key": f"race:2026:{session_idx}",
+                "type": "race",
+                "status": "available",
+                "source": "jolpica_laps",
+                "season": "2026",
+                "round": str(session_idx),
+                "race_name": f"Race {session_idx}",
+                "date": "2026-03-01",
+                "total_laps": laps,
+                "driver_count": drivers_per_session,
+                "labels": labels,
+                "drivers": drivers,
+                "series": {"labels": labels, "series": series},
+            }
+        )
+    sessions.append(
+        {
+            "key": "sprint:2026:5",
+            "type": "sprint",
+            "status": "unsupported",
+            "source": "jolpica_sprint_results",
+            "reason": (
+                "Jolpica exposes sprint classification but not sprint "
+                "lap-by-lap positions"
+            ),
+            "season": "2026",
+            "round": "5",
+            "race_name": "Chinese Grand Prix",
+            "date": "2026-04-12",
+            "total_laps": None,
+            "driver_count": drivers_per_session,
+            "labels": [],
+            "drivers": [],
+            "series": {"labels": [], "series": []},
+        }
+    )
+    return {
+        "season": "2026",
+        "source": "jolpica",
+        "updated_at": "2026-05-29T12:00:00+00:00",
+        "sessions": sessions,
+    }
+
+
+@pytest.mark.asyncio
+async def test_lap_position_progression_sensor_excludes_sessions_from_recorder(
+    hass,
+) -> None:
+    coordinator = _build_coordinator(hass, _build_lap_position_progression_data())
+    entry_id = "test_entry_lap_position"
+    _set_entry_context(hass, entry_id)
+
+    sensor = F1LapPositionProgressionSensor(
+        coordinator,
+        f"{entry_id}_lap_position_progression",
+        entry_id,
+        "F1",
+    )
+    state = await _add_sensor_and_get_state(hass, sensor)
+
+    assert state.state == "3"
+    assert "sessions" in state.attributes
+    assert "drivers" not in state.attributes["sessions"][0]
+    assert "series" not in state.attributes["sessions"][0]
+    assert state.attributes["sessions"][-1]["status"] == "unsupported"
+    assert state.attributes["data_mode"] == "metadata"
+    assert state.attributes["session_data_api"] == "websocket"
+    assert state.attributes["session_data_type"] == "f1_sensor/lap_position/session"
+    assert state.state_info is not None
+    assert "sessions" in state.state_info["unrecorded_attributes"]
+
+    shared_attrs, _ = _recorder_shared_attrs(state)
+    assert "sessions" not in shared_attrs
+    assert shared_attrs["season"] == "2026"
+    assert shared_attrs["source"] == "jolpica"
+
+
+@pytest.mark.asyncio
+async def test_lap_position_progression_sensor_handles_missing_data(hass) -> None:
+    coordinator = _build_coordinator(hass, None)
+    entry_id = "test_entry_lap_position_missing"
+    _set_entry_context(hass, entry_id)
+
+    sensor = F1LapPositionProgressionSensor(
+        coordinator,
+        f"{entry_id}_lap_position_progression",
+        entry_id,
+        "F1",
+    )
+    state = await _add_sensor_and_get_state(hass, sensor)
+
+    assert state.state == "0"
+    assert state.attributes["source"] == "jolpica"
+    assert state.attributes["sessions"] == []
+
+
+@pytest.mark.asyncio
+async def test_lap_position_progression_recorder_payload_stays_below_limit(
+    hass,
+) -> None:
+    coordinator = _build_coordinator(
+        hass,
+        _build_lap_position_progression_data(
+            session_count=24,
+            drivers_per_session=20,
+            laps=60,
+        ),
+    )
+    entry_id = "test_entry_lap_position_size"
+    _set_entry_context(hass, entry_id)
+
+    sensor = F1LapPositionProgressionSensor(
+        coordinator,
+        f"{entry_id}_lap_position_progression",
+        entry_id,
+        "F1",
+    )
+    state = await _add_sensor_and_get_state(hass, sensor)
+
+    _shared_attrs, size = _recorder_shared_attrs(state)
+    assert size < MAX_STATE_ATTRS_BYTES
+
+
 @pytest.mark.asyncio
 async def test_driver_points_progression_excludes_heavy_attrs_from_recorder(
     hass,
@@ -1698,12 +2033,59 @@ async def test_pitstops_sensor_excludes_cars_from_recorder(hass) -> None:
 
     assert "cars" in state.attributes
     assert "last_update" in state.attributes
+    assert state.attributes["state_class"] == "total"
+    assert state.attributes["last_reset"] == "2026-03-01T14:00:00+00:00"
     assert state.state_info is not None
     assert "cars" in state.state_info["unrecorded_attributes"]
 
     shared_attrs, _ = _recorder_shared_attrs(state)
     assert "cars" not in shared_attrs
     assert "last_update" in shared_attrs
+
+    updated_payload = _build_pitstops_data(stops_per_car=8)
+    updated_payload["last_reset"] = "2026-03-01T15:00:00+00:00"
+    sensor._apply_payload(updated_payload)
+
+    assert sensor.last_reset == datetime.fromisoformat("2026-03-01T15:00:00+00:00")
+
+
+@pytest.mark.asyncio
+async def test_team_radio_sensor_exposes_latest_clip_url(hass) -> None:
+    coordinator = _build_coordinator(
+        hass,
+        {
+            "latest": {
+                "Utc": "2026-07-05T14:01:01.3296419Z",
+                "RacingNumber": "44",
+                "Path": "TeamRadio/HAM_44_20260705_154016.mp3",
+                "_static_root": (
+                    "https://livetiming.formula1.com/static/2026/"
+                    "2026-07-05_British_Grand_Prix/2026-07-05_Race"
+                ),
+            },
+            "history": [],
+        },
+    )
+    entry_id = "test_entry_team_radio"
+    _set_entry_context(hass, entry_id, stream_active=True)
+
+    sensor = F1TeamRadioSensor(
+        coordinator,
+        f"{entry_id}_team_radio",
+        entry_id,
+        "F1",
+    )
+    state = await _add_sensor_and_get_state(hass, sensor)
+
+    assert state.state == "2026-07-05T14:01:01+00:00"
+    assert state.attributes["racing_number"] == "44"
+    assert state.attributes["path"] == "TeamRadio/HAM_44_20260705_154016.mp3"
+    assert state.attributes["clip_url"] == (
+        "https://livetiming.formula1.com/static/2026/"
+        "2026-07-05_British_Grand_Prix/2026-07-05_Race/"
+        "TeamRadio/HAM_44_20260705_154016.mp3"
+    )
+    assert state.attributes["history"][0]["clip_url"] == state.attributes["clip_url"]
 
 
 @pytest.mark.asyncio
@@ -2070,6 +2452,27 @@ def test_weather_sensor_uses_celsius_unit(hass) -> None:
 
     assert sensor.device_class == SensorDeviceClass.TEMPERATURE
     assert sensor.native_unit_of_measurement == UnitOfTemperature.CELSIUS
+
+
+@pytest.mark.asyncio
+async def test_weather_sensor_converts_native_temperature_to_ha_unit(hass) -> None:
+    hass.config.units = US_CUSTOMARY_SYSTEM
+    coordinator = _build_coordinator(hass, {"MRData": {"RaceTable": {"Races": []}}})
+    entry_id = "test_entry"
+    _set_entry_context(hass, entry_id)
+
+    sensor = F1WeatherSensor(
+        coordinator,
+        f"{entry_id}_weather",
+        entry_id,
+        "F1",
+    )
+    sensor._current = {"temperature": 21.0}
+
+    state = await _add_sensor_and_get_state(hass, sensor)
+
+    assert state.state == "69.8"
+    assert state.attributes["unit_of_measurement"] == UnitOfTemperature.FAHRENHEIT
 
 
 @pytest.mark.asyncio

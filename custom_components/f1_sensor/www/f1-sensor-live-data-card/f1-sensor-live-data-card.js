@@ -1,16 +1,5 @@
 // Custom F1 Tyres Statistics card for Home Assistant
-const getLit = async () => {
-  if (window.LitElement && window.litHtml) {
-    return {
-      LitElement: window.LitElement,
-      html: window.litHtml.html,
-      css: window.litHtml.css,
-    };
-  }
-  return import('https://unpkg.com/lit@3.1.0?module');
-};
-
-const { LitElement, html, css } = await getLit();
+import { LitElement, html, css, svg } from './f1-lit-3.3.2.js';
 
 let f1FontsInjected = false;
 const ensureF1Fonts = () => {
@@ -49,11 +38,40 @@ const ensureF1Fonts = () => {
 
 const F1_THEME_MODES = ['dark', 'light', 'auto'];
 const DEFAULT_F1_THEME_MODE = 'dark';
+const DEFAULT_FONT_STYLE = 'wide';
+const FONT_STYLE_OPTIONS = [
+  {
+    value: 'wide',
+    label: 'Wide',
+    description: 'Original F1 Sensor typography.',
+  },
+  {
+    value: 'balanced',
+    label: 'Balanced',
+    description: 'F1-inspired style with improved readability on compact/mobile layouts.',
+  },
+  {
+    value: 'system',
+    label: 'System',
+    description: 'Use the Home Assistant/system font.',
+  },
+];
+const VALID_FONT_STYLES = new Set(FONT_STYLE_OPTIONS.map((option) => option.value));
 
 const normalizeThemeMode = (mode) => {
   const value = String(mode || DEFAULT_F1_THEME_MODE).toLowerCase();
   return F1_THEME_MODES.includes(value) ? value : DEFAULT_F1_THEME_MODE;
 };
+
+const normalizeFontStyle = (value) => {
+  const normalized = String(value || '').trim().toLowerCase();
+  return VALID_FONT_STYLES.has(normalized) ? normalized : DEFAULT_FONT_STYLE;
+};
+
+const normalizeSharedCardConfig = (config = {}) => ({
+  ...config,
+  font_style: normalizeFontStyle(config?.font_style),
+});
 
 const applyF1ThemeMode = (element, config, hass = null) => {
   const mode = normalizeThemeMode(config?.theme_mode);
@@ -62,12 +80,116 @@ const applyF1ThemeMode = (element, config, hass = null) => {
   element.dataset.effectiveTheme = isEffectiveLightTheme(hass, config) ? 'light' : 'dark';
 };
 
+const applyFontStyleAttribute = (element, config) => {
+  const fontStyle = normalizeFontStyle(config?.font_style);
+  if (element.getAttribute('data-font-style') !== fontStyle) {
+    element.setAttribute('data-font-style', fontStyle);
+  }
+};
+
 const isEffectiveLightTheme = (hass, config) => {
   const mode = normalizeThemeMode(config?.theme_mode);
   if (mode === 'light') return true;
   if (mode === 'dark') return false;
   return hass?.themes?.darkMode === false;
 };
+
+const formatHassDateTime = (hass, date, options = {}, fallback = '') => {
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) return fallback;
+  const formatOptions = { ...options };
+  const hasTime = ['hour', 'minute', 'second'].some((field) => field in formatOptions);
+  if (hasTime) {
+    const timeFormat = hass?.locale?.time_format;
+    if (timeFormat === '12') {
+      formatOptions.hour12 = true;
+    } else if (timeFormat === '24') {
+      formatOptions.hour12 = false;
+    }
+  }
+  const locale = hass?.locale?.language || undefined;
+  try {
+    return new Intl.DateTimeFormat(locale, formatOptions).format(date);
+  } catch (err) {
+    try {
+      return date.toLocaleString(locale, formatOptions);
+    } catch (_err) {
+      return fallback;
+    }
+  }
+};
+
+function getF1UnitSystemUnit(hass, key, fallback) {
+  const unit = hass?.config?.unit_system?.[key];
+  return typeof unit === 'string' && unit.trim() ? unit : fallback;
+}
+
+function getF1TemperatureUnit(hass, entity) {
+  const entityUnit = entity?.attributes?.unit_of_measurement;
+  if (['°C', '°F', 'K'].includes(entityUnit)) {
+    return entityUnit;
+  }
+  return getF1UnitSystemUnit(hass, 'temperature', '°C');
+}
+
+function convertF1Temperature(value, fromUnit, toUnit) {
+  if (value === null || value === undefined || value === '') return value;
+  const numericValue = Number(value);
+  if (!Number.isFinite(numericValue) || fromUnit === toUnit) return numericValue;
+
+  let celsius;
+  if (fromUnit === '°F') {
+    celsius = (numericValue - 32) / 1.8;
+  } else if (fromUnit === 'K') {
+    celsius = numericValue - 273.15;
+  } else if (fromUnit === '°C') {
+    celsius = numericValue;
+  } else {
+    return numericValue;
+  }
+
+  if (toUnit === '°F') return celsius * 1.8 + 32;
+  if (toUnit === 'K') return celsius + 273.15;
+  return celsius;
+}
+
+function convertF1Speed(value, fromUnit, toUnit) {
+  if (value === null || value === undefined || value === '') return value;
+  const numericValue = Number(value);
+  if (!Number.isFinite(numericValue) || fromUnit === toUnit) return numericValue;
+
+  let metersPerSecond;
+  if (fromUnit === 'Beaufort') {
+    metersPerSecond = 0.836 * numericValue ** 1.5;
+  } else {
+    const fromRatio = {
+      'ft/s': 3.280839895013124,
+      'in/s': 39.37007874015748,
+      'km/h': 3.6,
+      kn: 1.9438444924406046,
+      'm/min': 60,
+      'm/s': 1,
+      'mm/s': 1000,
+      mph: 2.2369362920544025,
+    }[fromUnit];
+    if (!fromRatio) return numericValue;
+    metersPerSecond = numericValue / fromRatio;
+  }
+
+  if (toUnit === 'Beaufort') {
+    return Math.round(((metersPerSecond / 0.836) ** 2) ** (1 / 3));
+  }
+  const toRatio = {
+    'ft/s': 3.280839895013124,
+    'in/s': 39.37007874015748,
+    'km/h': 3.6,
+    kn: 1.9438444924406046,
+    'm/min': 60,
+    'm/s': 1,
+    'mm/s': 1000,
+    mph: 2.2369362920544025,
+  }[toUnit];
+  return toRatio ? metersPerSecond * toRatio : numericValue;
+}
 
 const F1_THEME_STYLES = css`
   :host {
@@ -136,12 +258,41 @@ const F1_THEME_STYLES = css`
     --f1-status-orange-text: #fed7aa;
     --f1-status-orange-bg: rgba(249, 115, 22, 0.14);
     --f1-status-orange-border: rgba(249, 115, 22, 0.30);
+    --f1-table-row-gap: 6px;
+    --f1-table-row-min-height: 34px;
+    --f1-table-row-padding: 6px 8px;
+    --f1-table-row-padding-compact: 5px 6px;
     --f1-timing-overall-fastest-bg: rgba(139, 92, 246, 0.28);
     --f1-timing-overall-fastest-text: #d8b4fe;
     --f1-timing-personal-fastest-bg: rgba(34, 197, 94, 0.22);
     --f1-timing-personal-fastest-text: #86efac;
     --f1-timing-timed-bg: rgba(234, 179, 8, 0.14);
     --f1-timing-timed-text: #fde047;
+    --f1-font-system: var(--primary-font-family, Roboto, Arial, sans-serif);
+    --f1-font-brand-display: "Formula1 Display", "Titillium Web", var(--f1-font-system);
+    --f1-font-brand-wide: "Formula1 Wide", "Formula1 Display", "Titillium Web", var(--f1-font-system);
+  }
+
+  :host([data-font-style='balanced']) {
+    --f1-card-body-font-family: var(--f1-font-system);
+    --f1-card-heading-font-family: var(--f1-font-brand-display);
+    --f1-card-display-font-family: var(--f1-font-brand-display);
+    --f1-card-table-font-family: var(--f1-font-system);
+    --f1-card-label-font-family: var(--f1-font-system);
+    --f1-card-heading-letter-spacing: 0.03em;
+    --f1-card-display-letter-spacing: 0.01em;
+    --f1-card-label-letter-spacing: 0.04em;
+  }
+
+  :host([data-font-style='system']) {
+    --f1-card-body-font-family: var(--f1-font-system);
+    --f1-card-heading-font-family: var(--f1-font-system);
+    --f1-card-display-font-family: var(--f1-font-system);
+    --f1-card-table-font-family: var(--f1-font-system);
+    --f1-card-label-font-family: var(--f1-font-system);
+    --f1-card-heading-letter-spacing: normal;
+    --f1-card-display-letter-spacing: normal;
+    --f1-card-label-letter-spacing: normal;
   }
 
   :host([data-theme-mode='light']) {
@@ -205,6 +356,13 @@ const F1_THEME_STYLES = css`
     --f1-timing-timed-text: #7a5600;
   }
 
+  :host([data-effective-theme='light']) .cpd-delta-pill,
+  :host([data-effective-theme='light']) .cpt-delta-pill,
+  :host([data-effective-theme='light']) .cpd-pos-arrow,
+  :host([data-effective-theme='light']) .cpt-pos-arrow {
+    color: var(--f1-card-text);
+  }
+
   :host([data-theme-mode='auto']) {
     --f1-card-bg: var(--card-background-color, #ffffff);
     --f1-card-bg-soft: var(--primary-background-color, #f7f8fb);
@@ -221,6 +379,93 @@ const F1_THEME_STYLES = css`
     --f1-card-shadow: var(--ha-card-box-shadow, 0 12px 30px rgba(15, 23, 42, 0.14));
     --f1-card-compact-shadow: var(--ha-card-box-shadow, 0 8px 22px rgba(15, 23, 42, 0.12));
     --f1-card-title-shadow: none;
+  }
+
+  .f1-no-spoiler-host {
+    position: relative;
+    display: block;
+    container-type: inline-size;
+    min-width: 0;
+  }
+
+  .f1-no-spoiler-host.active > :not(.f1-no-spoiler-overlay) {
+    opacity: 0.35;
+    filter: grayscale(1) brightness(0.58);
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .f1-no-spoiler-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    box-sizing: border-box;
+    min-height: 96px;
+    padding: 18px;
+    border: 1px solid var(--f1-status-warning-border);
+    border-radius: var(--ha-card-border-radius, 12px);
+    background:
+      linear-gradient(160deg, rgba(10, 10, 10, 0.78), rgba(10, 10, 10, 0.58)),
+      radial-gradient(circle at 50% 0%, rgba(251, 191, 36, 0.22), transparent 58%);
+    color: var(--f1-status-warning-text);
+    text-align: center;
+    text-shadow: 0 4px 18px rgba(0, 0, 0, 0.55);
+  }
+
+  :host([data-effective-theme='light']) .f1-no-spoiler-overlay {
+    background:
+      linear-gradient(160deg, rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.68)),
+      radial-gradient(circle at 50% 0%, rgba(180, 83, 9, 0.18), transparent 58%);
+    text-shadow: none;
+  }
+
+  .f1-no-spoiler-kicker {
+    color: var(--f1-status-warning);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .f1-no-spoiler-title {
+    max-width: 300px;
+    color: var(--f1-card-text);
+    font-family: var(--f1-card-display-font-family, 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif);
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1.18;
+  }
+
+  .f1-no-spoiler-copy {
+    max-width: 310px;
+    color: var(--f1-card-muted);
+    font-size: 12px;
+    letter-spacing: 0;
+    line-height: 1.35;
+  }
+
+  @container (max-width: 420px) {
+    .f1-no-spoiler-overlay {
+      min-height: 88px;
+      padding: 14px;
+    }
+
+    .f1-no-spoiler-title {
+      max-width: 240px;
+      font-size: 14px;
+    }
+
+    .f1-no-spoiler-copy {
+      max-width: 250px;
+      font-size: 11px;
+    }
   }
 
   img[class*='team-logo'] {
@@ -717,6 +962,202 @@ const formatF1DeltaSeconds = (value, zeroValue = '--') => {
   return `${value > 0 ? '+' : ''}${value.toFixed(3)}`;
 };
 
+const parseF1TimingSeconds = (value) => {
+  if (Number.isFinite(value)) return Number(value);
+  if (typeof value !== 'string') return null;
+  const text = value.trim();
+  if (!text) return null;
+  const sections = text.split(':');
+  const seconds = Number(sections.pop());
+  if (!Number.isFinite(seconds)) return null;
+  let total = seconds;
+  let multiplier = 60;
+  for (let index = sections.length - 1; index >= 0; index -= 1) {
+    const part = Number(sections[index]);
+    if (!Number.isFinite(part)) return null;
+    total += part * multiplier;
+    multiplier *= 60;
+  }
+  return Number.isFinite(total) ? total : null;
+};
+
+const resolveF1CurrentSector = (positionInfo, sectorNumber) => {
+  const empty = {
+    time: null,
+    lap: null,
+    source: null,
+    overall_fastest: false,
+    personal_fastest: false,
+  };
+  if (!positionInfo || ![1, 2, 3].includes(sectorNumber)) return empty;
+
+  const current = positionInfo.sectors && typeof positionInfo.sectors === 'object'
+    ? positionInfo.sectors.current
+    : null;
+  const detail = current && typeof current === 'object'
+    ? current[`sector_${sectorNumber}`]
+      ?? current[String(sectorNumber)]
+      ?? current[String(sectorNumber - 1)]
+    : null;
+  if (detail && typeof detail === 'object') {
+    const time = parseF1TimingSeconds(detail.time);
+    const lapValue = detail.lap ?? positionInfo[`sector_${sectorNumber}_lap`];
+    const parsedLap = Number(lapValue);
+    return {
+      time,
+      lap: time != null && Number.isFinite(parsedLap) && parsedLap > 0
+        ? Math.trunc(parsedLap)
+        : null,
+      source: time != null ? String(detail.source || 'current') : null,
+      overall_fastest: time != null && detail.overall_fastest === true,
+      personal_fastest: time != null && detail.personal_fastest === true,
+    };
+  }
+
+  const time = parseF1TimingSeconds(positionInfo[`sector_${sectorNumber}`]);
+  const parsedLap = Number(positionInfo[`sector_${sectorNumber}_lap`]);
+  return {
+    time,
+    lap: time != null && Number.isFinite(parsedLap) && parsedLap > 0
+      ? Math.trunc(parsedLap)
+      : null,
+    source: time != null
+      ? String(positionInfo[`sector_${sectorNumber}_source`] || 'current')
+      : null,
+    overall_fastest: time != null && positionInfo[`sector_${sectorNumber}_overall_fastest`] === true,
+    personal_fastest: time != null && positionInfo[`sector_${sectorNumber}_personal_fastest`] === true,
+  };
+};
+
+const resolveF1CurrentSectorSet = (card, positionInfo) => {
+  const direct = [1, 2, 3].map((sectorNumber) => (
+    resolveF1CurrentSector(positionInfo, sectorNumber)
+  ));
+  if (!card || !positionInfo) return direct;
+
+  const driverKey = String(
+    positionInfo.racing_number
+      ?? positionInfo.racingNumber
+      ?? positionInfo.driver_number
+      ?? positionInfo.tla
+      ?? '',
+  ).trim();
+  if (!driverKey) return direct;
+
+  if (!(card._f1SectorLapCache instanceof Map)) {
+    card._f1SectorLapCache = new Map();
+  }
+  let driverCache = card._f1SectorLapCache.get(driverKey);
+  if (!driverCache) {
+    driverCache = {
+      laps: new Map(),
+      unscoped: [null, null, null],
+    };
+    card._f1SectorLapCache.set(driverKey, driverCache);
+  }
+
+  const parseLap = (value) => {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) && parsed > 0 ? Math.trunc(parsed) : null;
+  };
+  const sectorState = String(
+    positionInfo.sector_state ?? positionInfo.sectors?.state ?? '',
+  ).trim().toLowerCase();
+  const explicitCurrentLap = parseLap(
+    positionInfo.sector_current_lap ?? positionInfo.sectors?.current_lap,
+  );
+  const directLaps = direct
+    .map((timing) => timing.lap)
+    .filter((lap) => lap !== null);
+  const targetLap = directLaps.length > 0
+    ? Math.max(...directLaps)
+    : explicitCurrentLap;
+
+  let selected;
+  if (targetLap !== null) {
+    for (const timing of direct) {
+      if (!Number.isFinite(timing.time)) continue;
+      const sectorLap = timing.lap ?? targetLap;
+      let lapSectors = driverCache.laps.get(sectorLap);
+      if (!lapSectors) {
+        lapSectors = [null, null, null];
+        driverCache.laps.set(sectorLap, lapSectors);
+      }
+      const sectorIndex = direct.indexOf(timing);
+      lapSectors[sectorIndex] = {
+        ...timing,
+        lap: sectorLap,
+        source: timing.source || 'current',
+      };
+    }
+    selected = driverCache.laps.get(targetLap) || [null, null, null];
+
+    const cachedLaps = [...driverCache.laps.keys()].sort((left, right) => left - right);
+    while (cachedLaps.length > 3) {
+      driverCache.laps.delete(cachedLaps.shift());
+    }
+  } else {
+    if (sectorState === 's1_done' && Number.isFinite(direct[0].time)) {
+      driverCache.unscoped = [null, null, null];
+    }
+    direct.forEach((timing, index) => {
+      if (!Number.isFinite(timing.time)) return;
+      driverCache.unscoped[index] = {
+        ...timing,
+        source: timing.source || 'current',
+      };
+    });
+    selected = driverCache.unscoped;
+  }
+
+  const completedLaps = parseLap(positionInfo.completed_laps);
+  const previousLap = sectorState === 'lap_complete'
+    || (
+      targetLap !== null
+      && completedLaps !== null
+      && targetLap <= completedLaps
+    );
+
+  return selected.map((timing) => {
+    if (!timing || !Number.isFinite(timing.time)) {
+      return {
+        time: null,
+        lap: targetLap,
+        source: null,
+        previous_lap: false,
+        overall_fastest: false,
+        personal_fastest: false,
+      };
+    }
+    return {
+      ...timing,
+      source: previousLap ? 'previous_lap' : timing.source || 'current',
+      previous_lap: previousLap,
+    };
+  });
+};
+
+const formatF1SectorSeconds = (value) => {
+  if (!Number.isFinite(value)) return '--';
+  const totalMs = Math.round(value * 1000);
+  const milliseconds = totalMs % 1000;
+  const totalSeconds = Math.floor(totalMs / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  const suffix = `${String(seconds).padStart(minutes > 0 ? 2 : 1, '0')}.${String(milliseconds).padStart(3, '0')}`;
+  return minutes > 0 ? `${minutes}:${suffix}` : suffix;
+};
+
+const getF1TimingClass = (timing) => {
+  if (!timing || !Number.isFinite(timing.time)) return '';
+  if (timing.previous_lap === true || timing.source === 'previous_lap') {
+    return 'previous-lap';
+  }
+  if (timing.overall_fastest === true) return 'overall-fastest';
+  if (timing.personal_fastest === true) return 'personal-fastest';
+  return 'timed';
+};
+
 const renderEditorSelect = (editor, name, label, options, helper = null) => {
   const schema = [{
     name,
@@ -745,17 +1186,69 @@ const renderEditorSelect = (editor, name, label, options, helper = null) => {
   `;
 };
 
-const renderThemeModeSelect = (editor) => renderEditorSelect(
+const renderFontStyleSelect = (editor) => renderEditorSelect(
   editor,
-  'theme_mode',
-  'Theme mode',
-  [
-    { value: 'dark', label: 'Dark (default)' },
-    { value: 'light', label: 'Light' },
-    { value: 'auto', label: 'Follow Home Assistant theme' },
-  ],
-  'Default keeps the current dark F1 style for existing cards.',
+  'font_style',
+  'Font style',
+  FONT_STYLE_OPTIONS.map((option) => ({
+    value: option.value,
+    label: option.label,
+  })),
+  'Controls card typography. Wide uses F1 wide styling. Balanced reduces wide-font usage. System uses Home Assistant font.',
 );
+
+const renderThemeModeSelect = (editor) => html`
+  ${renderEditorSelect(
+    editor,
+    'theme_mode',
+    'Theme mode',
+    [
+      { value: 'dark', label: 'Dark (default)' },
+      { value: 'light', label: 'Light' },
+      { value: 'auto', label: 'Follow Home Assistant theme' },
+    ],
+    'Default keeps the current dark F1 style for existing cards.',
+  )}
+  ${renderFontStyleSelect(editor)}
+`;
+
+const installFontStyleSupport = (CardClass) => {
+  if (!CardClass?.prototype || CardClass.prototype._f1FontStyleSupportInstalled) {
+    return;
+  }
+
+  const proto = CardClass.prototype;
+  const originalSetConfig = proto.setConfig;
+  const originalConnectedCallback = proto.connectedCallback;
+  const originalUpdated = proto.updated;
+
+  proto.setConfig = function setConfig(config = {}) {
+    const normalizedConfig = normalizeSharedCardConfig(config);
+    if (typeof originalSetConfig === 'function') {
+      originalSetConfig.call(this, normalizedConfig);
+    } else {
+      this.config = normalizedConfig;
+    }
+    this.config = normalizeSharedCardConfig(this.config || normalizedConfig);
+    applyFontStyleAttribute(this, this.config);
+  };
+
+  proto.connectedCallback = function connectedCallback(...args) {
+    if (typeof originalConnectedCallback === 'function') {
+      originalConnectedCallback.call(this, ...args);
+    }
+    applyFontStyleAttribute(this, this.config);
+  };
+
+  proto.updated = function updated(changed, ...args) {
+    if (typeof originalUpdated === 'function') {
+      originalUpdated.call(this, changed, ...args);
+    }
+    applyFontStyleAttribute(this, this.config);
+  };
+
+  proto._f1FontStyleSupportInstalled = true;
+};
 
 const DELTA_PILL = {
   HARD: 'linear-gradient(135deg, #6b1b6b, #32133e)',
@@ -793,9 +1286,16 @@ const LEGACY_ENTITY_ID_FALLBACKS = {
   'sensor.f1_drivers_tyre_statistics': 'sensor.f1_tyre_statistics',
   'sensor.f1_drivers_current_tyres': 'sensor.f1_current_tyres',
   'sensor.f1_drivers_pitstops': 'sensor.f1_pitstops',
-  'sensor.f1_drivers_driver_positions': 'sensor.f1_driver_positions',
+  'sensor.f1_driver_positions': 'sensor.f1_drivers_f1_driver_positions',
+  'sensor.f1_drivers_driver_positions': 'sensor.f1_drivers_f1_driver_positions',
   'sensor.f1_championship_championship_prediction_drivers': 'sensor.f1_championship_prediction_drivers',
   'sensor.f1_championship_championship_prediction_teams': 'sensor.f1_championship_prediction_teams',
+  'sensor.f1_driver_points_progression': 'sensor.f1_championship_f1_driver_points_progression',
+  'sensor.f1_constructor_points_progression': 'sensor.f1_championship_f1_constructor_points_progression',
+  'sensor.f1_championship_driver_points_progression': 'sensor.f1_championship_f1_driver_points_progression',
+  'sensor.f1_championship_constructor_points_progression': 'sensor.f1_championship_f1_constructor_points_progression',
+  'sensor.f1_current_season': 'sensor.f1_race_f1_current_season',
+  'sensor.f1_race_current_season': 'sensor.f1_race_f1_current_season',
   'sensor.f1_officials_investigations': 'sensor.f1_investigations',
   'sensor.f1_officials_track_limits': 'sensor.f1_track_limits',
   'sensor.f1_officials_race_control': 'sensor.f1_race_control',
@@ -924,8 +1424,8 @@ const buildF1DataAvailabilityNotice = (hass, config, feature) => {
     return {
       tone: 'info',
       message: isPitStop
-        ? 'Pit stop data is hidden because F1TV access is not configured. It is still available in Replay Mode.'
-        : 'Predicted points are hidden because F1TV access is not configured. They are still available in Replay Mode.',
+        ? 'Connect F1TV access to show live pit stop data. Replay data remains available.'
+        : 'Connect F1TV access to show live predicted points. Replay data remains available.',
     };
   }
 
@@ -1037,6 +1537,11 @@ const cloneTimingSnapshotRows = (rows) => (
 
 const syncTimingSnapshotSession = (card, sessionKey) => {
   if (!card) return;
+  const normalizedSessionKey = sessionKey || null;
+  if (card._f1SectorSessionKey !== normalizedSessionKey) {
+    card._f1SectorSessionKey = normalizedSessionKey;
+    card._f1SectorLapCache = new Map();
+  }
   if (!sessionKey || card._postSessionSnapshot?.key !== sessionKey) {
     card._postSessionSnapshot = null;
   }
@@ -1193,6 +1698,73 @@ const isRaceSessionActive = (sessionState, sessionStatusState) => {
 };
 
 const isNoSpoilerModeActive = (entityState) => String(entityState?.state || '').trim().toLowerCase() === 'on';
+
+const DEFAULT_NO_SPOILER_ENTITY = 'switch.f1_no_spoiler_mode';
+
+const getNoSpoilerStateForCard = (hass, config) => {
+  const configuredEntity = String(config?.no_spoiler_entity || DEFAULT_NO_SPOILER_ENTITY).trim();
+  const entityId = configuredEntity || DEFAULT_NO_SPOILER_ENTITY;
+  return getEntityStateWithFallback(hass, entityId);
+};
+
+const isNoSpoilerModeActiveForCard = (hass, config) => (
+  isNoSpoilerModeActive(getNoSpoilerStateForCard(hass, config))
+);
+
+const renderNoSpoilerOverlay = () => html`
+  <div class="f1-no-spoiler-overlay" role="status" aria-live="polite">
+    <div class="f1-no-spoiler-kicker">No Spoiler Mode</div>
+    <div class="f1-no-spoiler-title">No Spoiler Mode is active</div>
+    <div class="f1-no-spoiler-copy">Live and results data is frozen until the switch is turned off.</div>
+  </div>
+`;
+
+const renderWithNoSpoilerOverlay = (content, active) => (
+  active
+    ? html`
+      <div class="f1-no-spoiler-host active">
+        ${content}
+        ${renderNoSpoilerOverlay()}
+      </div>
+    `
+    : content
+);
+
+const installNoSpoilerOverlay = (CardClass) => {
+  if (!CardClass?.prototype || CardClass.prototype._f1NoSpoilerOverlayInstalled) {
+    return;
+  }
+
+  const proto = CardClass.prototype;
+  const originalSetConfig = proto.setConfig;
+  const originalRender = proto.render;
+
+  if (typeof originalRender !== 'function') {
+    return;
+  }
+
+  proto.setConfig = function setConfig(config = {}) {
+    if (typeof originalSetConfig === 'function') {
+      originalSetConfig.call(this, config);
+    } else {
+      this.config = { ...config };
+    }
+
+    if (this.config && !this.config.no_spoiler_entity) {
+      this.config.no_spoiler_entity = DEFAULT_NO_SPOILER_ENTITY;
+    }
+  };
+
+  proto.render = function render(...args) {
+    const content = originalRender.call(this, ...args);
+    return renderWithNoSpoilerOverlay(
+      content,
+      isNoSpoilerModeActiveForCard(this.hass, this.config),
+    );
+  };
+
+  proto._f1NoSpoilerOverlayInstalled = true;
+};
 
 const measureRenderedCardHeight = (host) => {
   const card = host?.renderRoot?.querySelector?.('ha-card');
@@ -1479,7 +2051,7 @@ class F1TyreStatisticsCard extends LitElement {
       --ts-chip: var(--f1-card-chip);
       --ts-shadow: var(--f1-card-shadow);
       display: block;
-      font-family: 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-body-font-family, 'Formula1 Display', 'Noto Sans', sans-serif);
     }
 
     ha-card {
@@ -1504,7 +2076,7 @@ class F1TyreStatisticsCard extends LitElement {
 
     .ts-header {
       text-align: center;
-      font-family: 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-display-font-family, 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif);
       font-size: clamp(16px, 2.6vw, 22px);
       font-weight: 700;
       letter-spacing: clamp(0.03em, 0.06em, 0.08em);
@@ -1558,7 +2130,7 @@ class F1TyreStatisticsCard extends LitElement {
     }
 
     .ts-compound-name {
-      font-family: 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-body-font-family, 'Formula1 Display', 'Noto Sans', sans-serif);
       font-size: clamp(12px, 3.2cqw, 22px);
       font-weight: 700;
       letter-spacing: clamp(0.05em, 0.08em, 0.1em);
@@ -1580,7 +2152,7 @@ class F1TyreStatisticsCard extends LitElement {
     .ts-times,
     .ts-stats {
       display: grid;
-      gap: 6px;
+      gap: var(--f1-table-row-gap);
       width: 100%;
     }
 
@@ -2179,7 +2751,7 @@ class F1PitStopOverviewCard extends LitElement {
       --ts-chip: var(--f1-card-chip);
       --ts-shadow: var(--f1-card-shadow);
       display: block;
-      font-family: 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-body-font-family, 'Formula1 Display', 'Noto Sans', sans-serif);
     }
 
     ha-card {
@@ -2208,7 +2780,7 @@ class F1PitStopOverviewCard extends LitElement {
 
     .ps-header {
       text-align: center;
-      font-family: 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-display-font-family, 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif);
       font-size: clamp(16px, 2.4vw, 20px);
       font-weight: 700;
       letter-spacing: clamp(0.03em, 0.06em, 0.08em);
@@ -2223,7 +2795,7 @@ class F1PitStopOverviewCard extends LitElement {
 
     .ps-table {
       display: grid;
-      gap: var(--f1-live-table-stack-gap, 4px);
+      gap: var(--f1-table-row-gap);
       min-width: 0;
       width: 100%;
     }
@@ -2316,7 +2888,7 @@ class F1PitStopOverviewCard extends LitElement {
     .ps-tla.full-name {
       letter-spacing: 0.01em;
       text-transform: none;
-      font-family: 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-body-font-family, 'Formula1 Display', 'Noto Sans', sans-serif);
       font-weight: 600;
     }
 
@@ -3634,7 +4206,7 @@ class F1DriverLapTimesCard extends LitElement {
       --ts-chip: var(--f1-card-chip);
       --ts-shadow: var(--f1-card-shadow);
       display: block;
-      font-family: 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-body-font-family, 'Formula1 Display', 'Noto Sans', sans-serif);
     }
 
     ha-card {
@@ -3673,7 +4245,7 @@ class F1DriverLapTimesCard extends LitElement {
 
     .dl-header {
       text-align: center;
-      font-family: 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-display-font-family, 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif);
       font-size: clamp(16px, 2.4vw, 20px);
       font-weight: 700;
       letter-spacing: clamp(0.03em, 0.06em, 0.08em);
@@ -3718,7 +4290,7 @@ class F1DriverLapTimesCard extends LitElement {
 
     .dl-table {
       display: grid;
-      gap: var(--f1-live-table-stack-gap, 4px);
+      gap: var(--f1-table-row-gap);
       min-width: 0;
       width: 100%;
     }
@@ -3862,7 +4434,7 @@ class F1DriverLapTimesCard extends LitElement {
     .dl-tla.full-name {
       letter-spacing: 0.01em;
       text-transform: none;
-      font-family: 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-body-font-family, 'Formula1 Display', 'Noto Sans', sans-serif);
       font-weight: 600;
     }
 
@@ -4953,7 +5525,7 @@ class F1ChampionshipPredictionDriversCard extends LitElement {
       --ts-chip: var(--f1-card-chip);
       --ts-shadow: var(--f1-card-shadow);
       display: block;
-      font-family: 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-body-font-family, 'Formula1 Display', 'Noto Sans', sans-serif);
     }
 
     ha-card {
@@ -4978,7 +5550,7 @@ class F1ChampionshipPredictionDriversCard extends LitElement {
 
     .cpd-header {
       text-align: center;
-      font-family: 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-display-font-family, 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif);
       font-size: clamp(16px, 2.4vw, 20px);
       font-weight: 700;
       letter-spacing: clamp(0.03em, 0.06em, 0.08em);
@@ -5063,7 +5635,7 @@ class F1ChampionshipPredictionDriversCard extends LitElement {
 
     .cpd-table {
       display: grid;
-      gap: 6px;
+      gap: var(--f1-table-row-gap);
       min-width: 0;
       width: 100%;
     }
@@ -5163,7 +5735,7 @@ class F1ChampionshipPredictionDriversCard extends LitElement {
     .cpd-driver.full {
       letter-spacing: 0.01em;
       text-transform: none;
-      font-family: 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-body-font-family, 'Formula1 Display', 'Noto Sans', sans-serif);
       font-weight: 600;
     }
 
@@ -6111,7 +6683,7 @@ class F1ChampionshipPredictionTeamsCard extends LitElement {
       --ts-chip: var(--f1-card-chip);
       --ts-shadow: var(--f1-card-shadow);
       display: block;
-      font-family: 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-body-font-family, 'Formula1 Display', 'Noto Sans', sans-serif);
     }
 
     ha-card {
@@ -6136,7 +6708,7 @@ class F1ChampionshipPredictionTeamsCard extends LitElement {
 
     .cpt-header {
       text-align: center;
-      font-family: 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-display-font-family, 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif);
       font-size: clamp(16px, 2.4vw, 20px);
       font-weight: 700;
       letter-spacing: clamp(0.03em, 0.06em, 0.08em);
@@ -6221,7 +6793,7 @@ class F1ChampionshipPredictionTeamsCard extends LitElement {
 
     .cpt-table {
       display: grid;
-      gap: 6px;
+      gap: var(--f1-table-row-gap);
       min-width: 0;
       width: 100%;
     }
@@ -7052,6 +7624,3379 @@ class F1ChampionshipPredictionTeamsCard extends LitElement {
         detail: { entityId: this._actionEntityId || this.config.current_entity || this.config.entity },
       }));
     }
+  }
+}
+
+const F1_SEASON_PROGRESSION_DRIVER_COLORS = {
+  VER: '#4781d7',
+  PER: '#6c98ff',
+  NOR: '#f47600',
+  PIA: '#ff8700',
+  LEC: '#ed1131',
+  HAM: '#dc0000',
+  RUS: '#00d7b6',
+  ANT: '#27f4d2',
+  ALO: '#229971',
+  STR: '#358c75',
+  ALB: '#1868db',
+  SAI: '#37bedd',
+  HUL: '#01c00e',
+  BOR: '#52e252',
+  LAW: '#6c98ff',
+  HAD: '#5e8faa',
+  TSU: '#356cac',
+  OCO: '#b6babd',
+  BEA: '#9c9fa2',
+  GAS: '#00a1e8',
+  DOO: '#0090cc',
+  COL: '#0072ff',
+  BOT: '#52e252',
+  ZHO: '#01c00e',
+  MAG: '#b6babd',
+  RIC: '#6c98ff',
+  SAR: '#1868db',
+};
+
+const F1_SEASON_PROGRESSION_CONSTRUCTOR_COLORS = {
+  red_bull: '#4781d7',
+  redbull: '#4781d7',
+  oracle_red_bull_racing: '#4781d7',
+  mclaren: '#f47600',
+  ferrari: '#ed1131',
+  mercedes: '#00d7b6',
+  aston_martin: '#229971',
+  astonmartin: '#229971',
+  williams: '#1868db',
+  sauber: '#01c00e',
+  kick_sauber: '#01c00e',
+  stake_sauber: '#01c00e',
+  rb: '#6c98ff',
+  racing_bulls: '#6c98ff',
+  visa_cash_app_rb: '#6c98ff',
+  alpha_tauri: '#5e8faa',
+  alphatauri: '#5e8faa',
+  alpine: '#00a1e8',
+  haas: '#b6babd',
+  audi: '#c8c8c8',
+  cadillac: '#c7a467',
+};
+
+const F1_SEASON_PROGRESSION_FALLBACK_COLORS = [
+  '#e10600',
+  '#00d7b6',
+  '#f47600',
+  '#4781d7',
+  '#ed1131',
+  '#229971',
+  '#1868db',
+  '#ffb000',
+  '#9c27b0',
+  '#00a1e8',
+  '#b6babd',
+  '#8bc34a',
+  '#ff5f5f',
+  '#40c4ff',
+];
+
+const DEFAULT_F1_SEASON_PROGRESSION_CONFIG = {
+  mode: 'drivers',
+  entity: 'sensor.f1_driver_points_progression',
+  calendar_entity: 'sensor.f1_current_season',
+  driver_list_entity: 'sensor.f1_driver_list',
+  title: 'Season progression - drivers points',
+  theme_mode: 'auto',
+  show_header: true,
+  show_legend: true,
+  legend_position: 'bottom',
+  show_legend_points: true,
+  show_full_name: false,
+  show_points: true,
+  show_round_labels: true,
+  show_future_rounds: true,
+  top_limit: 0,
+  chart_height: 320,
+};
+
+const F1_SEASON_PROGRESSION_MODE_OPTIONS = [
+  { value: 'drivers', label: 'Drivers' },
+  { value: 'constructors', label: 'Constructors' },
+];
+
+const F1_SEASON_PROGRESSION_LEGEND_POSITION_OPTIONS = [
+  { value: 'bottom', label: 'Below chart' },
+  { value: 'left', label: 'Left of chart' },
+  { value: 'right', label: 'Right of chart' },
+];
+
+const DEFAULT_F1_LAP_POSITION_PROGRESSION_CONFIG = {
+  entity: 'sensor.f1_lap_position_progression',
+  drivers_entity: 'sensor.f1_driver_list',
+  no_spoiler_entity: 'switch.f1_no_spoiler_mode',
+  title: 'Lap Position Progression',
+  theme_mode: 'auto',
+  show_header: true,
+  show_session_selector: true,
+  show_points: true,
+  show_round_labels: true,
+  show_full_name: false,
+  team_logo_style: 'color',
+  chart_height: 420,
+  top_limit: 0,
+};
+
+// ============================================================================
+// F1 Season Progression Card
+// ============================================================================
+
+class F1SeasonProgressionCard extends LitElement {
+  static properties = {
+    hass: {},
+    config: {},
+    _hoverPoint: { state: true },
+    _hiddenSeriesKeys: { state: true },
+  };
+
+  static styles = [
+    F1_THEME_STYLES,
+    css`
+      :host {
+        display: block;
+        --sp-accent: #e10600;
+        --sp-bg: var(--f1-card-bg, var(--ha-card-background, var(--card-background-color, #ffffff)));
+        --sp-bg-soft: var(--f1-card-bg-soft, var(--primary-background-color, #f7f8fb));
+        --sp-bg-end: var(--f1-card-bg-end, var(--secondary-background-color, #eef1f6));
+        --sp-border: var(--f1-card-border, var(--ha-card-border-color, var(--divider-color, rgba(17, 24, 39, 0.14))));
+        --sp-text: var(--f1-card-text, var(--primary-text-color, #111827));
+        --sp-muted: var(--f1-card-muted, var(--secondary-text-color, #6b7280));
+        --sp-grid: var(--f1-card-divider, var(--divider-color, rgba(17, 24, 39, 0.1)));
+        --sp-axis: var(--f1-card-soft, color-mix(in srgb, var(--primary-text-color, #111827) 50%, transparent));
+        --sp-chip: var(--f1-card-chip, color-mix(in srgb, var(--primary-text-color, #111827) 7%, transparent));
+        --sp-panel: var(--f1-card-panel, color-mix(in srgb, var(--primary-text-color, #111827) 5%, transparent));
+        --sp-panel-soft: var(--f1-card-panel-soft, color-mix(in srgb, var(--primary-text-color, #111827) 3%, transparent));
+        --sp-shadow: var(--f1-card-shadow, var(--ha-card-box-shadow, 0 12px 30px rgba(15, 23, 42, 0.14)));
+        --sp-chart-height: 320px;
+        font-family: var(--f1-card-body-font-family, "Formula1 Display", "Noto Sans", system-ui, sans-serif);
+      }
+
+      ha-card {
+        background: transparent;
+        border: 0;
+        box-shadow: none;
+        overflow: visible;
+      }
+
+      .sp-card {
+        position: relative;
+        overflow: hidden;
+        padding: 18px;
+        border: 1px solid var(--sp-border);
+        border-radius: var(--ha-card-border-radius, 12px);
+        background: linear-gradient(180deg, var(--sp-bg) 0%, var(--sp-bg-soft) 100%);
+        color: var(--sp-text);
+        box-shadow: var(--sp-shadow);
+        container-type: inline-size;
+      }
+
+      :host([data-effective-theme="dark"]) .sp-card,
+      .sp-card[data-theme="dark"] {
+        background:
+          linear-gradient(180deg, var(--sp-bg-soft) 0%, var(--sp-bg) 62%, var(--sp-bg-end) 100%);
+      }
+
+      .sp-card::before {
+        content: "";
+        position: absolute;
+        inset: 0 0 auto 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--sp-accent), #ff2800 42%, transparent 100%);
+        opacity: 0.95;
+      }
+
+      .sp-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        margin: 2px 0 10px;
+      }
+
+      .sp-title-block {
+        min-width: 0;
+      }
+
+      .sp-title {
+        margin: 0;
+        color: var(--sp-text);
+        font-size: 16px;
+        font-weight: 800;
+        letter-spacing: 0;
+        line-height: 1.25;
+        text-transform: uppercase;
+      }
+
+      .sp-subtitle {
+        margin-top: 4px;
+        color: var(--sp-muted);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        line-height: 1.25;
+        text-transform: uppercase;
+      }
+
+      .sp-badges {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 6px;
+        flex: 0 0 auto;
+      }
+
+      .sp-badge {
+        display: inline-flex;
+        align-items: center;
+        min-height: 22px;
+        padding: 3px 8px;
+        border: 1px solid color-mix(in srgb, var(--sp-accent) 28%, var(--sp-border));
+        border-radius: 999px;
+        background: var(--sp-chip);
+        color: var(--sp-text);
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        line-height: 1;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      .sp-chart-shell {
+        grid-area: chart;
+        position: relative;
+        min-width: 0;
+        padding: 8px 0 2px;
+      }
+
+      .sp-chart {
+        display: block;
+        width: 100%;
+        height: var(--sp-chart-height);
+        overflow: visible;
+      }
+
+      .sp-axis-label {
+        fill: var(--sp-muted);
+        font-family: var(--f1-card-body-font-family, "Formula1 Display", "Noto Sans", system-ui, sans-serif);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+
+      .sp-grid-line {
+        stroke: var(--sp-grid);
+        stroke-width: 1;
+        vector-effect: non-scaling-stroke;
+      }
+
+      .sp-axis-line {
+        stroke: var(--sp-axis);
+        stroke-width: 1;
+        vector-effect: non-scaling-stroke;
+      }
+
+      .sp-series-line {
+        fill: none;
+        stroke: var(--series-color);
+        stroke-width: 2.4;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.18));
+        vector-effect: non-scaling-stroke;
+      }
+
+      .sp-point {
+        fill: var(--sp-bg);
+        stroke: var(--series-color);
+        stroke-width: 2.2;
+        vector-effect: non-scaling-stroke;
+        cursor: pointer;
+      }
+
+      .sp-point:hover,
+      .sp-point:focus {
+        fill: var(--series-color);
+        outline: none;
+      }
+
+      .sp-tooltip {
+        position: absolute;
+        z-index: 2;
+        left: var(--tooltip-left, 50%);
+        top: var(--tooltip-top, 50%);
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        align-items: center;
+        gap: 10px;
+        max-width: min(240px, calc(100% - 24px));
+        padding: 9px 10px;
+        border: 1px solid color-mix(in srgb, var(--tooltip-color, var(--sp-accent)) 34%, var(--sp-border));
+        border-left: 3px solid var(--tooltip-color, var(--sp-accent));
+        border-radius: 8px;
+        background: color-mix(in srgb, var(--sp-bg) 94%, var(--sp-bg-soft) 6%);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+        color: var(--sp-text);
+        pointer-events: none;
+        transform: translate(var(--tooltip-translate-x, -50%), calc(-100% - 10px));
+      }
+
+      .sp-tooltip-content {
+        min-width: 0;
+      }
+
+      .sp-tooltip-media {
+        width: 46px;
+        height: 46px;
+        border: 1px solid color-mix(in srgb, var(--tooltip-color, var(--sp-accent)) 30%, var(--sp-border));
+        border-radius: 50%;
+        background: var(--sp-panel-soft);
+        object-fit: cover;
+        object-position: center top;
+      }
+
+      .sp-tooltip-media.team-logo,
+      .sp-tooltip-media.constructor-logo {
+        border-radius: 8px;
+        padding: 6px;
+        box-sizing: border-box;
+        object-fit: contain;
+        object-position: center;
+        filter: var(--f1-team-logo-filter, none);
+      }
+
+      .sp-tooltip-title {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        min-width: 0;
+        color: var(--sp-text);
+        font-size: 12px;
+        font-weight: 800;
+        line-height: 1.25;
+      }
+
+      .sp-tooltip-swatch {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--tooltip-color, var(--sp-accent));
+        flex: 0 0 auto;
+      }
+
+      .sp-tooltip-meta {
+        margin-top: 4px;
+        color: var(--sp-muted);
+        font-size: 11px;
+        font-weight: 600;
+        line-height: 1.3;
+      }
+
+      .sp-tooltip-points {
+        margin-top: 6px;
+        color: var(--sp-text);
+        font-size: 15px;
+        font-weight: 900;
+        line-height: 1.1;
+      }
+
+      .sp-main {
+        display: grid;
+        align-items: start;
+        gap: 12px;
+      }
+
+      .sp-main[data-legend-position="bottom"] {
+        grid-template-areas:
+          "chart"
+          "legend";
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .sp-main[data-legend-position="left"] {
+        grid-template-areas: "legend chart";
+        grid-template-columns: minmax(160px, 230px) minmax(0, 1fr);
+      }
+
+      .sp-main[data-legend-position="right"] {
+        grid-template-areas: "chart legend";
+        grid-template-columns: minmax(0, 1fr) minmax(160px, 230px);
+      }
+
+      .sp-legend {
+        grid-area: legend;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px 10px;
+        margin-top: 0;
+      }
+
+      .sp-main[data-legend-position="left"] .sp-legend,
+      .sp-main[data-legend-position="right"] .sp-legend {
+        align-content: flex-start;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        max-height: var(--sp-chart-height);
+        overflow-y: auto;
+        padding-right: 2px;
+      }
+
+      .sp-legend-item {
+        display: inline-grid;
+        box-sizing: border-box;
+        grid-template-columns: 10px minmax(0, auto) auto;
+        align-items: center;
+        gap: 6px;
+        max-width: 100%;
+        min-height: 22px;
+        padding: 3px 7px;
+        border: 1px solid color-mix(in srgb, var(--series-color) 18%, var(--sp-border));
+        border-radius: 8px;
+        background: var(--sp-panel);
+        color: var(--sp-text);
+        cursor: pointer;
+        font-size: 11px;
+        font-weight: 750;
+        font-family: inherit;
+        line-height: 1.2;
+        text-align: left;
+        transition: opacity 0.16s ease, background-color 0.16s ease, border-color 0.16s ease;
+        appearance: none;
+        -webkit-appearance: none;
+      }
+
+      .sp-legend-item[data-show-points="false"] {
+        grid-template-columns: 10px minmax(0, 1fr);
+      }
+
+      .sp-legend-item:hover,
+      .sp-legend-item:focus-visible {
+        border-color: color-mix(in srgb, var(--series-color) 42%, var(--sp-border));
+        background: color-mix(in srgb, var(--series-color) 8%, var(--sp-panel));
+        outline: none;
+      }
+
+      .sp-legend-item[data-hidden="true"] {
+        opacity: 0.42;
+        border-color: color-mix(in srgb, var(--sp-muted) 24%, var(--sp-border));
+        background: var(--sp-panel-soft);
+      }
+
+      .sp-legend-item[data-hidden="true"] .sp-legend-swatch {
+        background: transparent;
+        border: 1px solid var(--series-color);
+      }
+
+      .sp-legend-item[data-hidden="true"] .sp-legend-name {
+        text-decoration: line-through;
+        text-decoration-thickness: 1px;
+      }
+
+      .sp-main[data-legend-position="left"] .sp-legend-item,
+      .sp-main[data-legend-position="right"] .sp-legend-item {
+        grid-template-columns: 10px minmax(0, 1fr) auto;
+        width: 100%;
+      }
+
+      .sp-main[data-legend-position="left"] .sp-legend-item[data-show-points="false"],
+      .sp-main[data-legend-position="right"] .sp-legend-item[data-show-points="false"] {
+        grid-template-columns: 10px minmax(0, 1fr);
+      }
+
+      .sp-legend-swatch {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--series-color);
+      }
+
+      .sp-legend-name {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .sp-legend-points {
+        color: var(--sp-muted);
+        font-size: 10px;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+
+      .sp-empty {
+        display: grid;
+        place-items: center;
+        min-height: 180px;
+        padding: 18px;
+        border: 1px dashed color-mix(in srgb, var(--sp-muted) 36%, transparent);
+        border-radius: 8px;
+        background: var(--sp-panel-soft);
+        color: var(--sp-muted);
+        font-size: 13px;
+        font-weight: 700;
+        text-align: center;
+      }
+
+      @container (max-width: 520px) {
+        .sp-card {
+          padding: 14px 12px;
+        }
+
+        .sp-header {
+          display: grid;
+          gap: 8px;
+        }
+
+        .sp-badges {
+          justify-content: flex-start;
+        }
+
+        .sp-title {
+          font-size: 14px;
+        }
+
+        .sp-legend {
+          gap: 6px;
+        }
+
+        .sp-main[data-legend-position="left"],
+        .sp-main[data-legend-position="right"] {
+          grid-template-areas:
+            "chart"
+            "legend";
+          grid-template-columns: minmax(0, 1fr);
+        }
+
+        .sp-main[data-legend-position="left"] .sp-legend,
+        .sp-main[data-legend-position="right"] .sp-legend {
+          flex-direction: row;
+          flex-wrap: wrap;
+          max-height: none;
+          overflow: visible;
+          padding-right: 0;
+        }
+
+        .sp-legend-item {
+          grid-template-columns: 9px minmax(44px, 1fr) auto;
+          flex: 1 1 calc(50% - 6px);
+          padding-inline: 6px;
+        }
+
+        .sp-legend-item[data-show-points="false"],
+        .sp-main[data-legend-position="left"] .sp-legend-item[data-show-points="false"],
+        .sp-main[data-legend-position="right"] .sp-legend-item[data-show-points="false"] {
+          grid-template-columns: 9px minmax(44px, 1fr);
+        }
+
+        .sp-axis-label {
+          font-size: 9px;
+        }
+      }
+    `,
+  ];
+
+  constructor() {
+    super();
+    this.config = { ...DEFAULT_F1_SEASON_PROGRESSION_CONFIG };
+    this._hoverPoint = null;
+    this._hiddenSeriesKeys = new Set();
+  }
+
+  static getStubConfig() {
+    return {
+      type: 'custom:f1-season-progression-card',
+      ...DEFAULT_F1_SEASON_PROGRESSION_CONFIG,
+    };
+  }
+
+  static getConfigElement() {
+    return document.createElement('f1-season-progression-card-editor');
+  }
+
+  setConfig(config) {
+    const mode = this._normalizeMode(config?.mode);
+    const previousEntity = config?.entity;
+    const defaultEntity = this._defaultEntity(mode);
+    this.config = {
+      ...DEFAULT_F1_SEASON_PROGRESSION_CONFIG,
+      ...config,
+      mode,
+      entity: previousEntity || defaultEntity,
+      calendar_entity: config?.calendar_entity || DEFAULT_F1_SEASON_PROGRESSION_CONFIG.calendar_entity,
+      title: config?.title || this._defaultTitle(mode),
+      theme_mode: config?.theme_mode || DEFAULT_F1_SEASON_PROGRESSION_CONFIG.theme_mode,
+      show_future_rounds: config?.show_future_rounds !== false,
+      legend_position: this._normalizeLegendPosition(config?.legend_position),
+      show_legend_points: config?.show_legend_points !== false,
+      show_full_name: config?.show_full_name === true,
+      chart_height: this._clampNumber(config?.chart_height, 240, 520, DEFAULT_F1_SEASON_PROGRESSION_CONFIG.chart_height),
+      top_limit: Math.max(0, Math.floor(Number(config?.top_limit) || 0)),
+    };
+    applyF1ThemeMode(this, this.config, this.hass);
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    ensureF1Fonts();
+    applyF1ThemeMode(this, this.config, this.hass);
+  }
+
+  updated(changedProps) {
+    if (changedProps.has('hass') || changedProps.has('config')) {
+      applyF1ThemeMode(this, this.config, this.hass);
+    }
+  }
+
+  getCardSize() {
+    return 6;
+  }
+
+  getGridOptions() {
+    return {
+      columns: 12,
+      min_columns: 4,
+      rows: 6,
+      min_rows: 4,
+    };
+  }
+
+  render() {
+    if (!this.hass || !this.config) return html``;
+
+    const entityState = getEntityStateWithFallback(this.hass, this.config.entity);
+    if (!entityState || isUnavailableLikeEntityState(entityState)) {
+      return this._renderCard(this._renderEmpty('Progression entity not found'));
+    }
+
+    const model = this._buildChartModel(entityState);
+    if (!model.series.length || !model.rounds.length) {
+      return this._renderCard(this._renderEmpty('No progression data'), entityState);
+    }
+
+    const legendPosition = this.config.show_legend !== false
+      ? this._normalizeLegendPosition(this.config.legend_position)
+      : 'bottom';
+    const activeSeries = this._activeSeries(model.series);
+    return this._renderCard(html`
+      ${this.config.show_header !== false ? this._renderHeader(model, entityState) : ''}
+      <div class="sp-main" data-legend-position=${legendPosition}>
+        <div class="sp-chart-shell">
+          ${this._renderSvg({ ...model, series: activeSeries })}
+          ${this._renderTooltip()}
+        </div>
+        ${this.config.show_legend !== false ? this._renderLegend(model.series) : ''}
+      </div>
+    `, entityState);
+  }
+
+  _renderCard(content, entityState = null) {
+    const chartHeight = this._clampNumber(this.config?.chart_height, 240, 520, DEFAULT_F1_SEASON_PROGRESSION_CONFIG.chart_height);
+    const theme = isEffectiveLightTheme(this.hass, this.config) ? 'light' : 'dark';
+    return html`
+      <ha-card @click=${() => this._handleCardAction()}>
+        <div
+          class="sp-card"
+          data-theme=${theme}
+          data-layout=${getResponsiveLayoutMode(this)}
+          style=${`--sp-chart-height: ${chartHeight}px;`}
+        >
+          ${content}
+        </div>
+      </ha-card>
+    `;
+  }
+
+  _renderHeader(model, entityState) {
+    const roundCount = model.rounds.length;
+    const visibleCount = model.series.length;
+    const allCount = model.totalSeriesCount || visibleCount;
+    const entityName = entityState?.attributes?.friendly_name || entityState?.entity_id || '';
+    const limitLabel = this.config.top_limit > 0 && allCount > visibleCount
+      ? `Top ${visibleCount} of ${allCount}`
+      : `${visibleCount} ${this.config.mode === 'constructors' ? 'teams' : 'drivers'}`;
+
+    return html`
+      <div class="sp-header">
+        <div class="sp-title-block">
+          <h3 class="sp-title">${this.config.title || this._defaultTitle(this.config.mode)}</h3>
+          <div class="sp-subtitle">${entityName}</div>
+        </div>
+        <div class="sp-badges">
+          <span class="sp-badge">${this.config.mode}</span>
+          <span class="sp-badge">${roundCount} rounds</span>
+          <span class="sp-badge">${limitLabel}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  _renderSvg(model) {
+    const width = 720;
+    const height = this._clampNumber(this.config.chart_height, 240, 520, DEFAULT_F1_SEASON_PROGRESSION_CONFIG.chart_height);
+    const showRoundLabels = this.config.show_round_labels !== false;
+    const margin = {
+      top: 18,
+      right: 22,
+      bottom: showRoundLabels ? 54 : 28,
+      left: 46,
+    };
+    const innerWidth = width - margin.left - margin.right;
+    const innerHeight = height - margin.top - margin.bottom;
+    const maxY = model.maxY || 1;
+    const tickCount = 4;
+    const xStep = model.rounds.length > 1 ? innerWidth / (model.rounds.length - 1) : 0;
+
+    const pointFor = (value, index) => {
+      if (!Number.isFinite(value)) return null;
+      const x = margin.left + (model.rounds.length > 1 ? index * xStep : innerWidth / 2);
+      const y = margin.top + innerHeight - ((value / maxY) * innerHeight);
+      return { x, y };
+    };
+
+    const yTicks = Array.from({ length: tickCount + 1 }, (_, index) => {
+      const value = (maxY / tickCount) * index;
+      const y = margin.top + innerHeight - ((value / maxY) * innerHeight);
+      return { value, y };
+    });
+
+    const visibleRoundLabels = this._visibleRoundLabels(model.rounds);
+    const ariaLabel = `${this.config.title || this._defaultTitle(this.config.mode)} with ${model.series.length} visible series across ${model.rounds.length} rounds`;
+
+    return svg`
+      <svg
+        class="sp-chart"
+        viewBox=${`0 0 ${width} ${height}`}
+        role="img"
+        aria-label=${ariaLabel}
+        @pointerleave=${() => this._clearHoverPoint()}
+      >
+        ${yTicks.map((tick) => svg`
+          <line class="sp-grid-line" x1=${margin.left} x2=${width - margin.right} y1=${tick.y} y2=${tick.y}></line>
+          <text class="sp-axis-label" x=${margin.left - 10} y=${tick.y + 3} text-anchor="end">
+            ${this._formatPoints(tick.value)}
+          </text>
+        `)}
+        <line class="sp-axis-line" x1=${margin.left} x2=${margin.left} y1=${margin.top} y2=${height - margin.bottom}></line>
+        <line class="sp-axis-line" x1=${margin.left} x2=${width - margin.right} y1=${height - margin.bottom} y2=${height - margin.bottom}></line>
+        ${showRoundLabels ? visibleRoundLabels.map(({ round, index }) => {
+          const x = margin.left + (model.rounds.length > 1 ? index * xStep : innerWidth / 2);
+          return svg`
+            <text
+              class="sp-axis-label"
+              x=${x}
+              y=${height - 20}
+              text-anchor="end"
+              transform=${`rotate(-32 ${x} ${height - 20})`}
+            >
+              <title>${round.longLabel || round.label}</title>
+              ${round.label}
+            </text>
+          `;
+        }) : ''}
+        ${model.series.map((series) => {
+          const points = series.values.map((value, index) => {
+            const base = pointFor(value, index);
+            return base ? { ...base, value, round: model.rounds[index], index } : null;
+          });
+          const path = this._buildPath(points);
+          return svg`
+            <g style=${`--series-color: ${series.color};`}>
+              ${path ? svg`<path class="sp-series-line" d=${path}></path>` : ''}
+              ${this.config.show_points !== false ? points.filter(Boolean).map((point) => svg`
+                <circle
+                  class="sp-point"
+                  cx=${point.x}
+                  cy=${point.y}
+                  r="4"
+                  tabindex="0"
+                  role="graphics-symbol"
+                  aria-label=${`${series.name}, ${point.round?.longLabel || `R${point.index + 1}`}, ${this._formatPoints(point.value)} points`}
+                  @pointerenter=${() => this._setHoverPoint(series, point, width, height)}
+                  @pointermove=${() => this._setHoverPoint(series, point, width, height)}
+                  @focus=${() => this._setHoverPoint(series, point, width, height)}
+                  @click=${(ev) => {
+                    ev.stopPropagation();
+                    this._setHoverPoint(series, point, width, height);
+                  }}
+                  @blur=${() => this._clearHoverPoint()}
+                >
+                  <title>${series.name} - ${point.round?.longLabel || `R${point.index + 1}`} - ${this._formatPoints(point.value)} points</title>
+                </circle>
+              `) : ''}
+            </g>
+          `;
+        })}
+      </svg>
+    `;
+  }
+
+  _renderTooltip() {
+    const point = this._hoverPoint;
+    if (!point) return '';
+    const raceName = point.raceName ? html`<div>${point.raceName}</div>` : '';
+    const media = point.media?.src ? html`
+      <img
+        class=${`sp-tooltip-media ${point.media.kind || 'media'}`}
+        src=${point.media.src}
+        data-fallback=${point.media.fallback || ''}
+        alt=${point.media.kind === 'headshot' ? point.name : `${point.name} logo`}
+        loading="eager"
+        decoding="async"
+        @error=${(ev) => this._handleTooltipMediaError(ev)}
+      >
+    ` : '';
+    return html`
+      <div
+        class="sp-tooltip"
+        style=${`--tooltip-left: ${point.left}%; --tooltip-top: ${point.top}%; --tooltip-color: ${point.color}; --tooltip-translate-x: ${point.translateX};`}
+      >
+        ${media}
+        <div class="sp-tooltip-content">
+          <div class="sp-tooltip-title">
+            <span class="sp-tooltip-swatch"></span>
+            <span>${point.name}</span>
+          </div>
+          <div class="sp-tooltip-meta">
+            <div>${point.roundLabel}</div>
+            ${raceName}
+          </div>
+          <div class="sp-tooltip-points">${point.points} points</div>
+        </div>
+      </div>
+    `;
+  }
+
+  _renderLegend(seriesList) {
+    return html`
+      <div class="sp-legend" aria-label="Season progression legend">
+        ${seriesList.map((series) => {
+          const hidden = this._isSeriesHidden(series);
+          const name = this._legendName(series);
+          return html`
+          <button
+            type="button"
+            class="sp-legend-item"
+            data-hidden=${hidden ? 'true' : 'false'}
+            data-show-points=${this.config.show_legend_points !== false ? 'true' : 'false'}
+            aria-pressed=${hidden ? 'false' : 'true'}
+            aria-label=${`${name}: ${hidden ? 'hidden' : 'visible'}. Toggle series visibility.`}
+            title=${`${name}: ${hidden ? 'show in chart' : 'hide from chart'}`}
+            style=${`--series-color: ${series.color};`}
+            @click=${(ev) => this._toggleSeriesVisibility(series, ev)}
+          >
+            <span class="sp-legend-swatch"></span>
+            <span class="sp-legend-name" title=${series.name}>${name}</span>
+            ${this.config.show_legend_points !== false ? html`
+              <span class="sp-legend-points">${this._formatPoints(series.latest)} pts</span>
+            ` : ''}
+          </button>
+        `;
+        })}
+      </div>
+    `;
+  }
+
+  _renderEmpty(message) {
+    return html`
+      ${this.config?.show_header !== false ? html`
+        <div class="sp-header">
+          <div class="sp-title-block">
+            <h3 class="sp-title">${this.config?.title || this._defaultTitle(this.config?.mode)}</h3>
+            <div class="sp-subtitle">${this.config?.entity || this._defaultEntity(this.config?.mode)}</div>
+          </div>
+        </div>
+      ` : ''}
+      <div class="sp-empty">${message}</div>
+    `;
+  }
+
+  _buildChartModel(entityState) {
+    const attrs = entityState?.attributes || {};
+    const mode = this._normalizeMode(this.config?.mode);
+    const progressionRounds = this._normalizeRounds(attrs.rounds, attrs.labels);
+    const calendarRounds = this.config?.show_future_rounds !== false
+      ? this._getCalendarRounds()
+      : [];
+    const rounds = this._mergeRounds(progressionRounds, calendarRounds);
+    const source = mode === 'constructors' ? attrs.constructors : attrs.drivers;
+    const series = this._normalizeSeriesCollection(source, mode, rounds.length);
+    const fallbackSeries = !series.length ? this._normalizeSeriesCollection(attrs.series, mode, rounds.length) : [];
+    const allSeries = series.length ? series : fallbackSeries;
+    const maxLength = Math.max(
+      rounds.length,
+      ...allSeries.map((entry) => entry.values.length),
+      0
+    );
+    const normalizedRounds = rounds.length
+      ? [...rounds]
+      : this._normalizeRounds(Array.from({ length: maxLength }, (_, index) => ({ round: index + 1 })));
+    while (normalizedRounds.length < maxLength) {
+      const index = normalizedRounds.length;
+      normalizedRounds.push({
+        index,
+        roundNumber: index + 1,
+        label: `R${index + 1}`,
+        raceName: '',
+        date: '',
+        longLabel: `R${index + 1}`,
+      });
+    }
+
+    const ranked = allSeries
+      .map((entry, index) => ({
+        ...entry,
+        color: entry.color || this._resolveSeriesColor(mode, entry, index),
+        latest: this._latestFinite(entry.values),
+      }))
+      .filter((entry) => Number.isFinite(entry.latest))
+      .sort((a, b) => {
+        const pointsDiff = b.latest - a.latest;
+        if (Math.abs(pointsDiff) > 0.0001) return pointsDiff;
+        return String(a.name).localeCompare(String(b.name));
+      });
+
+    const limit = Math.max(0, Math.floor(Number(this.config?.top_limit) || 0));
+    const visible = limit > 0 ? ranked.slice(0, limit) : ranked;
+    const maxValue = Math.max(
+      0,
+      ...visible.flatMap((entry) => entry.values.filter((value) => Number.isFinite(value)))
+    );
+
+    return {
+      rounds: normalizedRounds.slice(0, maxLength || normalizedRounds.length),
+      series: visible,
+      totalSeriesCount: ranked.length,
+      maxY: this._niceMax(maxValue),
+    };
+  }
+
+  _normalizeRounds(rounds, labels = null) {
+    if (Array.isArray(rounds) && rounds.length) {
+      return rounds.map((round, index) => {
+        const roundNumber = this._firstDefined(round?.round, round?.round_number, round?.number, index + 1);
+        const parsedRoundNumber = Number(roundNumber);
+        const displayRoundNumber = Number.isFinite(parsedRoundNumber) ? parsedRoundNumber : index + 1;
+        const raceName = this._firstDefined(round?.race_name, round?.raceName, round?.race, round?.grand_prix, round?.name, '');
+        const label = this._firstDefined(round?.label, round?.short_name, `R${roundNumber}`);
+        const date = this._firstDefined(round?.date, round?.race_start, round?.race_start_utc, round?.time, '');
+        return {
+          index,
+          roundNumber: displayRoundNumber,
+          label: String(label || `R${index + 1}`),
+          raceName: String(raceName || ''),
+          date: String(date || ''),
+          longLabel: raceName ? `${label} - ${raceName}` : String(label || `R${index + 1}`),
+        };
+      });
+    }
+
+    if (Array.isArray(labels) && labels.length) {
+      return labels.map((label, index) => ({
+        index,
+        roundNumber: index + 1,
+        label: String(label || `R${index + 1}`),
+        raceName: '',
+        date: '',
+        longLabel: String(label || `R${index + 1}`),
+      }));
+    }
+
+    return [];
+  }
+
+  _getCalendarRounds() {
+    if (!this.hass || !this.config?.calendar_entity) return [];
+    const calendarState = getEntityStateWithFallback(this.hass, this.config.calendar_entity);
+    if (!calendarState || isUnavailableLikeEntityState(calendarState)) return [];
+    return this._normalizeCalendarRounds(calendarState.attributes || {});
+  }
+
+  _normalizeCalendarRounds(attrs) {
+    const races = Array.isArray(attrs.races)
+      ? attrs.races
+      : Array.isArray(attrs.rounds)
+        ? attrs.rounds
+        : Array.isArray(attrs.calendar)
+          ? attrs.calendar
+          : [];
+    return races
+      .map((race, index) => {
+        const roundNumber = this._firstDefined(race?.round, race?.round_number, race?.number, index + 1);
+        const parsedRoundNumber = Number(roundNumber);
+        const displayRoundNumber = Number.isFinite(parsedRoundNumber) ? parsedRoundNumber : index + 1;
+        const raceName = this._firstDefined(race?.race_name, race?.raceName, race?.grand_prix, race?.name, '');
+        const label = this._firstDefined(race?.label, race?.short_name, `R${displayRoundNumber}`);
+        const date = this._firstDefined(race?.date, race?.race_start, race?.race_start_utc, race?.time, '');
+        return {
+          index,
+          roundNumber: displayRoundNumber,
+          label: String(label || `R${displayRoundNumber}`),
+          raceName: String(raceName || ''),
+          date: String(date || ''),
+          longLabel: raceName ? `${label} - ${raceName}` : String(label || `R${displayRoundNumber}`),
+        };
+      })
+      .sort((a, b) => a.roundNumber - b.roundNumber)
+      .map((round, index) => ({ ...round, index }));
+  }
+
+  _mergeRounds(progressionRounds, calendarRounds) {
+    if (!calendarRounds.length) {
+      return progressionRounds;
+    }
+
+    const byRoundNumber = new Map(
+      progressionRounds.map((round, index) => [
+        String(round.roundNumber || index + 1),
+        round,
+      ])
+    );
+
+    const usedRoundNumbers = new Set();
+    const merged = calendarRounds.map((calendarRound, index) => {
+      const roundNumber = calendarRound.roundNumber || index + 1;
+      const progressionRound = byRoundNumber.get(String(roundNumber));
+      usedRoundNumbers.add(String(roundNumber));
+      const label = calendarRound.label || progressionRound?.label || `R${roundNumber}`;
+      const raceName = progressionRound?.raceName || calendarRound.raceName || '';
+      const date = progressionRound?.date || calendarRound.date || '';
+      return {
+        ...calendarRound,
+        ...progressionRound,
+        index,
+        roundNumber,
+        label,
+        raceName,
+        date,
+        longLabel: raceName ? `${label} - ${raceName}` : String(label),
+      };
+    });
+
+    progressionRounds.forEach((round) => {
+      const roundNumber = round.roundNumber || merged.length + 1;
+      if (usedRoundNumbers.has(String(roundNumber))) return;
+      merged.push({
+        ...round,
+        index: merged.length,
+        roundNumber,
+      });
+    });
+
+    return merged.map((round, index) => ({ ...round, index }));
+  }
+
+  _normalizeSeriesCollection(source, mode, expectedLength = 0) {
+    const entries = [];
+    if (Array.isArray(source?.series)) {
+      source.series.forEach((entry, index) => entries.push(this._normalizeSeriesEntry(entry, entry?.key || entry?.id || index, mode, index, expectedLength)));
+    } else if (Array.isArray(source)) {
+      source.forEach((entry, index) => entries.push(this._normalizeSeriesEntry(entry, entry?.key || entry?.id || index, mode, index, expectedLength)));
+    } else if (source && typeof source === 'object') {
+      Object.entries(source).forEach(([key, entry], index) => entries.push(this._normalizeSeriesEntry(entry, key, mode, index, expectedLength)));
+    }
+
+    return entries.filter((entry) => entry && entry.values.some((value) => Number.isFinite(value)));
+  }
+
+  _normalizeSeriesEntry(entry, key, mode, index, expectedLength) {
+    const dataSource = entry && typeof entry === 'object' ? entry : { values: entry };
+    const identity = dataSource.identity || dataSource.driver || dataSource.constructor || dataSource.team || {};
+    const values = this._normalizePointValues(
+      dataSource.cumulative_points
+        || dataSource.points_progression
+        || dataSource.progression
+        || dataSource.values
+        || dataSource.data
+        || dataSource.points
+        || []
+    );
+
+    if (expectedLength > values.length) {
+      values.push(...Array.from({ length: expectedLength - values.length }, () => null));
+    }
+
+    const code = String(this._firstDefined(dataSource.tla, dataSource.code, identity.tla, identity.code, key, '') || '').trim();
+    const name = String(this._firstDefined(
+      dataSource.display_name,
+      dataSource.name,
+      identity.full_name,
+      identity.display_name,
+      identity.name,
+      code,
+      key
+    ) || '').trim();
+    const shortName = String(this._firstDefined(dataSource.short_name, dataSource.abbreviation, identity.tla, identity.code, code, name) || '').trim();
+    const rawColor = this._firstDefined(dataSource.color, dataSource.team_color, identity.color, identity.team_color, dataSource.constructor_color, '');
+    const teamName = this._firstDefined(dataSource.team_name, dataSource.team, identity.team_name, identity.team, identity.constructor_name, identity.name, '');
+
+    return {
+      key: String(key),
+      code,
+      mode,
+      name: name || String(key),
+      shortName: shortName || name || String(key),
+      teamName,
+      rawColor,
+      color: this._usableColor(rawColor),
+      media: this._resolveSeriesMedia(mode, dataSource, identity, {
+        key,
+        code,
+        name,
+        shortName,
+        teamName,
+      }),
+      values,
+      sourceIndex: index,
+    };
+  }
+
+  _normalizePointValues(values) {
+    const array = Array.isArray(values) ? values : Object.values(values || {});
+    return array.map((value) => {
+      const rawValue = value && typeof value === 'object'
+        ? this._firstDefined(value.cumulative_points, value.points, value.value, value.y, value.total)
+        : value;
+      const num = Number(rawValue);
+      return Number.isFinite(num) ? num : null;
+    });
+  }
+
+  _visibleRoundLabels(rounds) {
+    return rounds.map((round, index) => ({ round, index }));
+  }
+
+  _buildPath(points) {
+    let path = '';
+    let drawing = false;
+    points.forEach((point) => {
+      if (!point) {
+        drawing = false;
+        return;
+      }
+      path += `${drawing ? 'L' : 'M'} ${point.x.toFixed(2)} ${point.y.toFixed(2)} `;
+      drawing = true;
+    });
+    return path.trim();
+  }
+
+  _resolveSeriesColor(mode, entry, index) {
+    if (mode === 'drivers') {
+      const code = String(entry.code || entry.shortName || entry.key || '').toUpperCase();
+      if (F1_SEASON_PROGRESSION_DRIVER_COLORS[code]) {
+        return F1_SEASON_PROGRESSION_DRIVER_COLORS[code];
+      }
+      const teamColor = this._usableColor(entry.rawColor);
+      if (teamColor) return teamColor;
+      const teamKey = this._colorKey(entry.teamName);
+      if (F1_SEASON_PROGRESSION_CONSTRUCTOR_COLORS[teamKey]) {
+        return F1_SEASON_PROGRESSION_CONSTRUCTOR_COLORS[teamKey];
+      }
+    }
+
+    const constructorKeys = [
+      entry.key,
+      entry.code,
+      entry.shortName,
+      entry.name,
+      entry.teamName,
+      normalizeTeamName(entry.name),
+      normalizeTeamName(entry.teamName),
+    ].map((value) => this._colorKey(value)).filter(Boolean);
+
+    const constructorColor = constructorKeys
+      .map((key) => F1_SEASON_PROGRESSION_CONSTRUCTOR_COLORS[key])
+      .find(Boolean);
+    if (constructorColor) return constructorColor;
+
+    const suppliedColor = this._usableColor(entry.rawColor);
+    if (suppliedColor) return suppliedColor;
+
+    return F1_SEASON_PROGRESSION_FALLBACK_COLORS[index % F1_SEASON_PROGRESSION_FALLBACK_COLORS.length];
+  }
+
+  _resolveSeriesMedia(mode, dataSource, identity, seriesMeta) {
+    if (mode === 'constructors') {
+      const teamName = this._firstDefined(
+        dataSource.logo_team,
+        dataSource.team_name,
+        dataSource.team,
+        identity.team_name,
+        identity.constructor_name,
+        identity.name,
+        seriesMeta.name,
+        seriesMeta.key,
+      );
+      const directLogo = this._normalizeMediaUrl(
+        dataSource.logo_url,
+        dataSource.logo,
+        dataSource.image_url,
+        dataSource.image,
+        identity.logo_url,
+        identity.logo,
+        identity.image_url,
+        identity.image,
+      );
+      if (directLogo) {
+        return { src: directLogo, fallback: '', kind: 'constructor-logo' };
+      }
+      const logo = getTeamLogoMeta(
+        teamName,
+        52,
+        'color',
+        isEffectiveLightTheme(this.hass, this.config),
+      );
+      return logo ? { ...logo, kind: 'constructor-logo' } : null;
+    }
+
+    const driverMeta = this._findProgressionDriverMeta(seriesMeta, identity);
+    const directHeadshot = this._normalizeMediaUrl(
+      dataSource.headshot_large,
+      dataSource.headshot_small,
+      dataSource.headshot,
+      dataSource.portrait_url,
+      dataSource.portrait,
+      dataSource.image_url,
+      dataSource.image,
+      identity.headshot_large,
+      identity.headshot_small,
+      identity.headshot,
+      identity.portrait_url,
+      identity.portrait,
+      identity.image_url,
+      identity.image,
+      driverMeta?.headshot_large,
+      driverMeta?.headshot_small,
+    );
+    const teamName = this._firstDefined(seriesMeta.teamName, driverMeta?.team, identity.team, dataSource.team);
+    const teamLogo = getTeamLogoMeta(
+      teamName,
+      52,
+      'color',
+      isEffectiveLightTheme(this.hass, this.config),
+    );
+
+    if (directHeadshot) {
+      return {
+        src: directHeadshot,
+        fallback: teamLogo?.src || teamLogo?.fallback || '',
+        kind: 'headshot',
+      };
+    }
+
+    return teamLogo ? { ...teamLogo, kind: 'team-logo' } : null;
+  }
+
+  _findProgressionDriverMeta(seriesMeta, identity) {
+    const drivers = this._getProgressionDriverList();
+    if (!drivers.length) return null;
+    const code = String(seriesMeta.code || seriesMeta.shortName || seriesMeta.key || identity?.code || '').trim().toUpperCase();
+    const driverId = this._searchKey(identity?.driverId || identity?.driver_id || seriesMeta.key);
+    const nameKey = this._searchKey(seriesMeta.name || identity?.name);
+
+    return drivers.find((driver) => {
+      const tla = String(driver?.tla || driver?.code || '').trim().toUpperCase();
+      if (code && tla === code) return true;
+      const reference = this._searchKey(driver?.reference || driver?.driverId || driver?.driver_id);
+      if (driverId && reference.includes(driverId)) return true;
+      const driverName = this._searchKey(driver?.full_name || driver?.name || `${driver?.first_name || ''} ${driver?.last_name || ''}`);
+      return Boolean(nameKey && driverName === nameKey);
+    }) || null;
+  }
+
+  _getProgressionDriverList() {
+    const entityId = this.config?.driver_list_entity || DEFAULT_F1_SEASON_PROGRESSION_CONFIG.driver_list_entity;
+    const state = getEntityStateWithFallback(this.hass, entityId);
+    const drivers = state?.attributes?.drivers;
+    return Array.isArray(drivers) ? drivers : [];
+  }
+
+  _normalizeMediaUrl(...values) {
+    const value = values.find((item) => typeof item === 'string' && item.trim());
+    return value ? value.trim() : '';
+  }
+
+  _handleTooltipMediaError(ev) {
+    const img = ev.target;
+    const fallback = img?.dataset?.fallback;
+    if (fallback && img.src !== fallback) {
+      img.src = fallback;
+      img.dataset.fallback = '';
+      return;
+    }
+    img.style.display = 'none';
+  }
+
+  _setHoverPoint(series, point, width, height) {
+    const left = Math.max(4, Math.min(96, (point.x / width) * 100));
+    this._hoverPoint = {
+      name: series.name,
+      color: series.color,
+      media: series.media || null,
+      roundLabel: point.round?.label || `R${point.index + 1}`,
+      raceName: point.round?.raceName || '',
+      points: this._formatPoints(point.value),
+      left,
+      top: Math.max(8, Math.min(92, (point.y / height) * 100)),
+      translateX: left < 18 ? '0' : left > 82 ? '-100%' : '-50%',
+    };
+  }
+
+  _clearHoverPoint() {
+    this._hoverPoint = null;
+  }
+
+  _handleCardAction() {
+    const action = this.config?.tap_action || { action: 'more-info' };
+    if (action.action === 'none') return;
+    if (action.action === 'more-info') {
+      this.dispatchEvent(new CustomEvent('hass-more-info', {
+        bubbles: true,
+        composed: true,
+        detail: { entityId: resolveEntityIdWithFallback(this.hass, this.config?.entity) },
+      }));
+    }
+  }
+
+  _defaultEntity(mode) {
+    return this._normalizeMode(mode) === 'constructors'
+      ? 'sensor.f1_constructor_points_progression'
+      : 'sensor.f1_driver_points_progression';
+  }
+
+  _defaultTitle(mode) {
+    return this._normalizeMode(mode) === 'constructors'
+      ? 'Season progression - constructors points'
+      : 'Season progression - drivers points';
+  }
+
+  _normalizeMode(mode) {
+    return mode === 'constructors' ? 'constructors' : 'drivers';
+  }
+
+  _normalizeLegendPosition(position) {
+    const normalized = String(position || DEFAULT_F1_SEASON_PROGRESSION_CONFIG.legend_position).trim().toLowerCase();
+    return ['bottom', 'left', 'right'].includes(normalized) ? normalized : DEFAULT_F1_SEASON_PROGRESSION_CONFIG.legend_position;
+  }
+
+  _activeSeries(seriesList) {
+    return seriesList.filter((series) => !this._isSeriesHidden(series));
+  }
+
+  _isSeriesHidden(series) {
+    return this._hiddenSeriesKeys?.has(this._seriesFilterKey(series));
+  }
+
+  _toggleSeriesVisibility(series, ev) {
+    ev?.stopPropagation();
+    const key = this._seriesFilterKey(series);
+    const hiddenKeys = new Set(this._hiddenSeriesKeys || []);
+    if (hiddenKeys.has(key)) {
+      hiddenKeys.delete(key);
+    } else {
+      hiddenKeys.add(key);
+    }
+    this._hiddenSeriesKeys = hiddenKeys;
+    this._clearHoverPoint();
+  }
+
+  _seriesFilterKey(series) {
+    return [
+      this._normalizeMode(series?.mode || this.config?.mode),
+      series?.key || series?.code || series?.shortName || series?.name || '',
+    ].join(':');
+  }
+
+  _legendName(series) {
+    return this.config?.show_full_name === true
+      ? series.name
+      : series.shortName || series.name;
+  }
+
+  _searchKey(value) {
+    return String(value || '')
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim();
+  }
+
+  _firstDefined(...values) {
+    return values.find((value) => value !== undefined && value !== null && value !== '');
+  }
+
+  _latestFinite(values) {
+    for (let index = values.length - 1; index >= 0; index -= 1) {
+      if (Number.isFinite(values[index])) return values[index];
+    }
+    return null;
+  }
+
+  _niceMax(value) {
+    if (!Number.isFinite(value) || value <= 0) return 1;
+    const magnitude = 10 ** Math.floor(Math.log10(value));
+    const normalized = value / magnitude;
+    const niceNormalized = normalized <= 1 ? 1 : normalized <= 2 ? 2 : normalized <= 5 ? 5 : 10;
+    return niceNormalized * magnitude;
+  }
+
+  _formatPoints(value) {
+    if (!Number.isFinite(value)) return '--';
+    if (Math.abs(value - Math.round(value)) < 0.0001) return String(Math.round(value));
+    return Number(value).toFixed(1);
+  }
+
+  _clampNumber(value, min, max, fallback) {
+    const num = Number(value);
+    if (!Number.isFinite(num)) return fallback;
+    return Math.max(min, Math.min(max, num));
+  }
+
+  _colorKey(value) {
+    return String(value || '')
+      .trim()
+      .toLowerCase()
+      .replace(/&/g, 'and')
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '');
+  }
+
+  _usableColor(value) {
+    const color = String(value || '').trim();
+    if (/^#[0-9a-f]{3,8}$/i.test(color)) return color;
+    if (/^rgba?\([\d\s,.%]+\)$/i.test(color)) return color;
+    if (/^hsla?\([\d\s,.%]+\)$/i.test(color)) return color;
+    return null;
+  }
+}
+
+// ============================================================================
+// F1 Season Progression Card Editor
+// ============================================================================
+
+class F1SeasonProgressionCardEditor extends LitElement {
+  static properties = {
+    hass: {},
+    _config: {},
+    _activeTab: { state: true },
+  };
+
+  static styles = css`
+    .card-config {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--divider-color);
+      margin-bottom: 16px;
+    }
+
+    .tabs button {
+      flex: 1;
+      padding: 12px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--primary-text-color);
+      font-size: 14px;
+      font-family: inherit;
+      transition: color 0.2s;
+    }
+
+    .tabs button:hover {
+      color: var(--primary-color);
+    }
+
+    .tabs button.active {
+      color: var(--primary-color);
+      border-bottom: 2px solid var(--primary-color);
+    }
+
+    .section,
+    .display-section {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .section-header {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--secondary-text-color);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .helper {
+      font-size: 12px;
+      line-height: 1.35;
+      color: var(--secondary-text-color);
+      margin-top: -8px;
+    }
+
+    ha-textfield {
+      width: 100%;
+    }
+  `;
+
+  constructor() {
+    super();
+    this._activeTab = 'sources';
+  }
+
+  setConfig(config) {
+    const mode = this._normalizeMode(config?.mode);
+    this._config = {
+      ...DEFAULT_F1_SEASON_PROGRESSION_CONFIG,
+      ...config,
+      mode,
+      entity: config?.entity || this._defaultEntity(mode),
+      calendar_entity: config?.calendar_entity || DEFAULT_F1_SEASON_PROGRESSION_CONFIG.calendar_entity,
+      title: config?.title || this._defaultTitle(mode),
+      theme_mode: config?.theme_mode || DEFAULT_F1_SEASON_PROGRESSION_CONFIG.theme_mode,
+      show_future_rounds: config?.show_future_rounds !== false,
+      legend_position: this._normalizeLegendPosition(config?.legend_position),
+      show_legend_points: config?.show_legend_points !== false,
+      show_full_name: config?.show_full_name === true,
+      chart_height: this._clampNumber(config?.chart_height, 240, 520, DEFAULT_F1_SEASON_PROGRESSION_CONFIG.chart_height),
+      top_limit: Math.max(0, Math.floor(Number(config?.top_limit) || 0)),
+    };
+  }
+
+  render() {
+    if (!this.hass || !this._config) return html``;
+    return html`
+      <div class="card-config">
+        <div class="tabs">
+          <button
+            class=${this._activeTab === 'sources' ? 'active' : ''}
+            @click=${() => this._activeTab = 'sources'}
+          >
+            Data Sources
+          </button>
+          <button
+            class=${this._activeTab === 'display' ? 'active' : ''}
+            @click=${() => this._activeTab = 'display'}
+          >
+            Display
+          </button>
+        </div>
+
+        ${this._activeTab === 'sources' ? this._renderDataSourcesTab() : this._renderDisplayTab()}
+      </div>
+    `;
+  }
+
+  _renderDataSourcesTab() {
+    return html`
+      <div class="section">
+        <div class="section-header">PROGRESSION SENSOR</div>
+        ${renderEditorSelect(this, 'mode', 'Progression type', F1_SEASON_PROGRESSION_MODE_OPTIONS)}
+        ${this._renderEntityPicker(
+          'entity',
+          'Progression entity',
+          'Uses the existing rounds plus drivers or constructors progression attributes.',
+          true,
+          'sensor'
+        )}
+        <div class="section-header">SEASON CALENDAR</div>
+        ${this._renderEntityPicker(
+          'calendar_entity',
+          'Season calendar entity',
+          'Optional. Keeps future races visible on the x-axis while the line stops at the latest progression data.',
+          false,
+          'sensor'
+        )}
+        ${this._config.mode === 'drivers' ? html`
+          <div class="section-header">DRIVER MEDIA</div>
+          ${this._renderEntityPicker(
+            'driver_list_entity',
+            'Driver list entity',
+            'Optional. Provides driver headshots for progression tooltips.',
+            false,
+            'sensor'
+          )}
+        ` : ''}
+      </div>
+    `;
+  }
+
+  _renderDisplayTab() {
+    return html`
+      <div class="display-section">
+        ${renderThemeModeSelect(this)}
+        <ha-textfield
+          .label=${'Title'}
+          .value=${this._config.title || ''}
+          @input=${(e) => this._valueChanged('title', e.target.value)}
+        ></ha-textfield>
+
+        <div class="section-header">LAYOUT</div>
+        ${this._renderSwitch('show_header', 'Show header')}
+        ${this._renderSwitch('show_legend', 'Show legend')}
+        ${renderEditorSelect(this, 'legend_position', 'Legend position', F1_SEASON_PROGRESSION_LEGEND_POSITION_OPTIONS)}
+        ${this._renderSwitch('show_legend_points', 'Show legend points')}
+        ${this._renderSwitch('show_full_name', 'Use full names')}
+
+        <div class="section-header">CHART</div>
+        ${this._renderSwitch('show_points', 'Show chart points')}
+        ${this._renderSwitch('show_round_labels', 'Show round labels')}
+        ${this._renderSwitch('show_future_rounds', 'Show future rounds')}
+
+        ${this._renderNumberField('top_limit', 'Top limit', 'Use 0 to show all entries.', 0, 30, 1)}
+        ${this._renderNumberField('chart_height', 'Chart height', null, 240, 520, 10)}
+      </div>
+    `;
+  }
+
+  _renderEntityPicker(name, label, helper, required, domain) {
+    const schema = [{ name, label, required, selector: { entity: { domain } } }];
+    return html`
+      <div class="field">
+        <ha-form
+          .hass=${this.hass}
+          .data=${this._config}
+          .schema=${schema}
+          .computeLabel=${() => label}
+          @value-changed=${this._formValueChanged}
+        ></ha-form>
+        <div class="helper">${helper}</div>
+      </div>
+    `;
+  }
+
+  _renderSwitch(name, label) {
+    const schema = [{ name, label, selector: { boolean: {} } }];
+    return html`
+      <ha-form
+        .hass=${this.hass}
+        .data=${this._config}
+        .schema=${schema}
+        .computeLabel=${() => label}
+        @value-changed=${this._formValueChanged}
+      ></ha-form>
+    `;
+  }
+
+  _renderNumberField(name, label, helper, min, max, step) {
+    const schema = [{
+      name,
+      label,
+      selector: {
+        number: {
+          mode: 'box',
+          min,
+          max,
+          step,
+        },
+      },
+    }];
+    return html`
+      <div class="field">
+        <ha-form
+          .hass=${this.hass}
+          .data=${this._config}
+          .schema=${schema}
+          .computeLabel=${() => label}
+          @value-changed=${this._formValueChanged}
+        ></ha-form>
+        ${helper ? html`<div class="helper">${helper}</div>` : ''}
+      </div>
+    `;
+  }
+
+  _formValueChanged(ev) {
+    if (!this._config) return;
+    const value = ev.detail?.value || {};
+    let newConfig = { ...this._config, ...value };
+
+    if (value.mode && value.mode !== this._config.mode) {
+      const previousDefaultEntity = this._defaultEntity(this._config.mode);
+      const previousDefaultTitle = this._defaultTitle(this._config.mode);
+      const nextMode = this._normalizeMode(value.mode);
+      const shouldSwapEntity = !this._config.entity || this._config.entity === previousDefaultEntity;
+      const shouldSwapTitle = !this._config.title || this._config.title === previousDefaultTitle;
+      newConfig = {
+        ...newConfig,
+        mode: nextMode,
+        entity: shouldSwapEntity ? this._defaultEntity(nextMode) : newConfig.entity,
+        title: shouldSwapTitle ? this._defaultTitle(nextMode) : newConfig.title,
+      };
+    }
+
+    if (Object.prototype.hasOwnProperty.call(value, 'legend_position')) {
+      newConfig.legend_position = this._normalizeLegendPosition(value.legend_position);
+    }
+
+    if (Object.prototype.hasOwnProperty.call(value, 'top_limit')) {
+      newConfig.top_limit = Math.max(0, Math.floor(Number(value.top_limit) || 0));
+    }
+
+    if (Object.prototype.hasOwnProperty.call(value, 'chart_height')) {
+      newConfig.chart_height = this._clampNumber(value.chart_height, 240, 520, DEFAULT_F1_SEASON_PROGRESSION_CONFIG.chart_height);
+    }
+
+    this._config = newConfig;
+    this.dispatchEvent(new CustomEvent('config-changed', { detail: { config: newConfig } }));
+  }
+
+  _valueChanged(name, value) {
+    if (!this._config) return;
+    const newConfig = { ...this._config, [name]: value };
+    this._config = newConfig;
+    this.dispatchEvent(new CustomEvent('config-changed', { detail: { config: newConfig } }));
+  }
+
+  _defaultEntity(mode) {
+    return this._normalizeMode(mode) === 'constructors'
+      ? 'sensor.f1_constructor_points_progression'
+      : 'sensor.f1_driver_points_progression';
+  }
+
+  _defaultTitle(mode) {
+    return this._normalizeMode(mode) === 'constructors'
+      ? 'Season progression - constructors points'
+      : 'Season progression - drivers points';
+  }
+
+  _normalizeMode(mode) {
+    return mode === 'constructors' ? 'constructors' : 'drivers';
+  }
+
+  _normalizeLegendPosition(position) {
+    const normalized = String(position || DEFAULT_F1_SEASON_PROGRESSION_CONFIG.legend_position).trim().toLowerCase();
+    return ['bottom', 'left', 'right'].includes(normalized) ? normalized : DEFAULT_F1_SEASON_PROGRESSION_CONFIG.legend_position;
+  }
+
+  _clampNumber(value, min, max, fallback) {
+    const num = Number(value);
+    if (!Number.isFinite(num)) return fallback;
+    return Math.max(min, Math.min(max, num));
+  }
+}
+
+// ============================================================================
+// F1 Lap Position Progression Card
+// ============================================================================
+
+class F1LapPositionProgressionCard extends LitElement {
+  static properties = {
+    hass: {},
+    config: {},
+    _selectedSessionKey: { state: true },
+    _sessionData: { state: true },
+    _sessionLoadingKey: { state: true },
+    _sessionError: { state: true },
+    _hoverPoint: { state: true },
+    _hiddenSeriesKeys: { state: true },
+  };
+
+  static styles = [
+    F1_THEME_STYLES,
+    css`
+      :host {
+        display: block;
+        --lp-accent: #e10600;
+        --lp-bg: var(--f1-card-bg, var(--ha-card-background, var(--card-background-color, #ffffff)));
+        --lp-bg-soft: var(--f1-card-bg-soft, var(--primary-background-color, #f7f8fb));
+        --lp-bg-end: var(--f1-card-bg-end, var(--secondary-background-color, #eef1f6));
+        --lp-border: var(--f1-card-border, var(--ha-card-border-color, var(--divider-color, rgba(17, 24, 39, 0.14))));
+        --lp-text: var(--f1-card-text, var(--primary-text-color, #111827));
+        --lp-muted: var(--f1-card-muted, var(--secondary-text-color, #6b7280));
+        --lp-grid: var(--f1-card-divider, var(--divider-color, rgba(17, 24, 39, 0.1)));
+        --lp-axis: var(--f1-card-soft, color-mix(in srgb, var(--primary-text-color, #111827) 50%, transparent));
+        --lp-chip: var(--f1-card-chip, color-mix(in srgb, var(--primary-text-color, #111827) 7%, transparent));
+        --lp-panel: var(--f1-card-panel, color-mix(in srgb, var(--primary-text-color, #111827) 5%, transparent));
+        --lp-panel-soft: var(--f1-card-panel-soft, color-mix(in srgb, var(--primary-text-color, #111827) 3%, transparent));
+        --lp-shadow: var(--f1-card-shadow, var(--ha-card-box-shadow, 0 12px 30px rgba(15, 23, 42, 0.14)));
+        --lp-chart-height: 320px;
+        font-family: var(--f1-card-body-font-family, "Formula1 Display", "Noto Sans", system-ui, sans-serif);
+      }
+
+      ha-card {
+        background: transparent;
+        border: 0;
+        box-shadow: none;
+        overflow: visible;
+      }
+
+      .lp-card {
+        position: relative;
+        overflow: hidden;
+        padding: 16px;
+        border: 1px solid var(--lp-border);
+        border-radius: var(--ha-card-border-radius, 12px);
+        background: linear-gradient(180deg, var(--lp-bg) 0%, var(--lp-bg-soft) 100%);
+        color: var(--lp-text);
+        box-shadow: var(--lp-shadow);
+        container-type: inline-size;
+      }
+
+      :host([data-effective-theme="dark"]) .lp-card,
+      .lp-card[data-theme="dark"] {
+        background:
+          linear-gradient(180deg, var(--lp-bg-soft) 0%, var(--lp-bg) 62%, var(--lp-bg-end) 100%);
+      }
+
+      .lp-card::before {
+        content: "";
+        position: absolute;
+        inset: 0 0 auto 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--lp-accent), #ff2800 42%, transparent 100%);
+      }
+
+      .lp-header {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: start;
+        margin: 2px 0 14px;
+      }
+
+      .lp-title {
+        margin: 0;
+        color: var(--lp-text);
+        font-size: 16px;
+        font-weight: 800;
+        letter-spacing: 0;
+        line-height: 1.25;
+        text-transform: uppercase;
+      }
+
+      .lp-subtitle {
+        margin-top: 4px;
+        color: var(--lp-muted);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        line-height: 1.25;
+        text-transform: uppercase;
+      }
+
+      .lp-badges {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 6px;
+      }
+
+      .lp-badge {
+        display: inline-flex;
+        align-items: center;
+        min-height: 22px;
+        padding: 3px 8px;
+        border: 1px solid color-mix(in srgb, var(--lp-accent) 28%, var(--lp-border));
+        border-radius: 999px;
+        background: var(--lp-chip);
+        color: var(--lp-text);
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        line-height: 1;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      .lp-badge.unsupported,
+      .lp-badge.pending,
+      .lp-badge.error {
+        border-color: rgba(251, 191, 36, 0.28);
+        background: rgba(251, 191, 36, 0.12);
+        color: #fcd34d;
+      }
+
+      .lp-selector-row {
+        grid-column: 1 / -1;
+        display: flex;
+        justify-content: center;
+      }
+
+      .lp-session-select {
+        width: min(100%, 480px);
+        min-height: 36px;
+        border-radius: 9px;
+        border: 1px solid var(--f1-card-divider-strong);
+        background: var(--f1-card-chip);
+        color: var(--lp-text);
+        padding: 6px 34px 6px 10px;
+        font-family: inherit;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        outline: none;
+      }
+
+      .lp-session-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary-color) 28%, transparent);
+      }
+
+      .lp-main {
+        display: grid;
+        align-items: start;
+        gap: 0;
+        grid-template-areas: "chart";
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .lp-chart-shell {
+        grid-area: chart;
+        position: relative;
+        min-width: 0;
+        padding: 2px 0 0;
+      }
+
+      .lp-chart {
+        display: block;
+        width: 100%;
+        height: var(--lp-chart-height);
+        overflow: visible;
+      }
+
+      .lp-grid-line {
+        stroke: var(--lp-grid);
+        stroke-width: 1;
+        vector-effect: non-scaling-stroke;
+      }
+
+      .lp-axis-line {
+        stroke: var(--lp-axis);
+        stroke-width: 1;
+        vector-effect: non-scaling-stroke;
+      }
+
+      .lp-axis-label {
+        fill: var(--lp-muted);
+        font-family: var(--f1-card-body-font-family, "Formula1 Display", "Noto Sans", system-ui, sans-serif);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+
+      .lp-side-heading {
+        fill: var(--lp-muted);
+        font-family: var(--f1-card-body-font-family, "Formula1 Display", "Noto Sans", system-ui, sans-serif);
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0;
+      }
+
+      .lp-side-label {
+        fill: var(--lp-text);
+        font-family: var(--f1-card-body-font-family, "Formula1 Display", "Noto Sans", system-ui, sans-serif);
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0;
+      }
+
+      .lp-side-position {
+        fill: var(--lp-muted);
+        font-family: var(--f1-card-body-font-family, "Formula1 Display", "Noto Sans", system-ui, sans-serif);
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 0;
+      }
+
+      .lp-side-marker {
+        fill: var(--series-color);
+        stroke: var(--lp-bg);
+        stroke-width: 1.4;
+        vector-effect: non-scaling-stroke;
+      }
+
+      .lp-side-entry {
+        cursor: pointer;
+        transition: opacity 0.15s ease;
+      }
+
+      .lp-side-entry:hover .lp-side-label,
+      .lp-side-entry:focus-visible .lp-side-label {
+        fill: var(--series-color);
+      }
+
+      .lp-side-entry:focus-visible {
+        outline: none;
+      }
+
+      .lp-side-entry:focus-visible .lp-side-marker {
+        stroke: var(--primary-color);
+        stroke-width: 2.2;
+      }
+
+      .lp-side-entry[data-hidden="true"] {
+        opacity: 0.32;
+      }
+
+      .lp-side-entry[data-hidden="true"] .lp-side-label {
+        text-decoration: line-through;
+        text-decoration-thickness: 1px;
+      }
+
+      .lp-series-line {
+        fill: none;
+        stroke: var(--series-color);
+        stroke-width: 2.4;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.18));
+        vector-effect: non-scaling-stroke;
+      }
+
+      .lp-point {
+        fill: var(--lp-bg);
+        stroke: var(--series-color);
+        stroke-width: 2.2;
+        vector-effect: non-scaling-stroke;
+        cursor: pointer;
+      }
+
+      .lp-point:hover,
+      .lp-point:focus {
+        fill: var(--series-color);
+        outline: none;
+      }
+
+      .lp-tooltip {
+        position: absolute;
+        z-index: 2;
+        left: var(--tooltip-left, 50%);
+        top: var(--tooltip-top, 50%);
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        align-items: center;
+        gap: 10px;
+        max-width: min(260px, calc(100% - 24px));
+        padding: 9px 10px;
+        border: 1px solid color-mix(in srgb, var(--tooltip-color, var(--lp-accent)) 34%, var(--lp-border));
+        border-left: 3px solid var(--tooltip-color, var(--lp-accent));
+        border-radius: 8px;
+        background: color-mix(in srgb, var(--lp-bg) 94%, var(--lp-bg-soft) 6%);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+        color: var(--lp-text);
+        pointer-events: none;
+        transform: translate(var(--tooltip-translate-x, -50%), calc(-100% - 10px));
+      }
+
+      .lp-tooltip-media {
+        width: 42px;
+        height: 42px;
+        border: 1px solid color-mix(in srgb, var(--tooltip-color, var(--lp-accent)) 30%, var(--lp-border));
+        border-radius: 8px;
+        background: var(--lp-panel-soft);
+        object-fit: contain;
+        padding: 6px;
+        box-sizing: border-box;
+        filter: var(--f1-team-logo-filter, none);
+      }
+
+      .lp-tooltip-title {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        min-width: 0;
+        color: var(--lp-text);
+        font-size: 12px;
+        font-weight: 800;
+        line-height: 1.25;
+      }
+
+      .lp-tooltip-swatch {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--tooltip-color, var(--lp-accent));
+        flex: 0 0 auto;
+      }
+
+      .lp-tooltip-meta {
+        margin-top: 4px;
+        color: var(--lp-muted);
+        font-size: 11px;
+        font-weight: 600;
+        line-height: 1.35;
+      }
+
+      .lp-tooltip-position {
+        margin-top: 6px;
+        color: var(--lp-text);
+        font-size: 15px;
+        font-weight: 900;
+        line-height: 1.1;
+      }
+
+      .lp-empty {
+        display: grid;
+        place-items: center;
+        min-height: 180px;
+        padding: 18px;
+        border: 1px dashed color-mix(in srgb, var(--lp-muted) 36%, transparent);
+        border-radius: 8px;
+        background: var(--lp-panel-soft);
+        color: var(--lp-muted);
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1.4;
+        text-align: center;
+      }
+
+      @container (max-width: 540px) {
+        .lp-card {
+          padding: 14px 10px;
+        }
+
+        .lp-header {
+          grid-template-columns: minmax(0, 1fr);
+          gap: 8px;
+        }
+
+        .lp-badges {
+          justify-content: flex-start;
+        }
+
+        .lp-title {
+          font-size: 14px;
+        }
+
+        .lp-axis-label {
+          font-size: 9px;
+        }
+
+        .lp-side-heading,
+        .lp-side-label {
+          font-size: 9px;
+        }
+
+        .lp-side-position {
+          font-size: 8px;
+        }
+      }
+    `,
+  ];
+
+  constructor() {
+    super();
+    this.config = { ...DEFAULT_F1_LAP_POSITION_PROGRESSION_CONFIG };
+    this._selectedSessionKey = null;
+    this._sessionData = null;
+    this._sessionLoadingKey = null;
+    this._sessionError = null;
+    this._sessionDataCache = new Map();
+    this._sessionLoadToken = 0;
+    this._hoverPoint = null;
+    this._hiddenSeriesKeys = new Set();
+  }
+
+  static getStubConfig() {
+    return {
+      type: 'custom:f1-lap-position-progression-card',
+      ...DEFAULT_F1_LAP_POSITION_PROGRESSION_CONFIG,
+    };
+  }
+
+  static getConfigElement() {
+    return document.createElement('f1-lap-position-progression-card-editor');
+  }
+
+  setConfig(config) {
+    this.config = {
+      ...DEFAULT_F1_LAP_POSITION_PROGRESSION_CONFIG,
+      ...config,
+      entity: config?.entity || DEFAULT_F1_LAP_POSITION_PROGRESSION_CONFIG.entity,
+      drivers_entity: config?.drivers_entity || DEFAULT_F1_LAP_POSITION_PROGRESSION_CONFIG.drivers_entity,
+      no_spoiler_entity: config?.no_spoiler_entity || DEFAULT_F1_LAP_POSITION_PROGRESSION_CONFIG.no_spoiler_entity,
+      title: config?.title || DEFAULT_F1_LAP_POSITION_PROGRESSION_CONFIG.title,
+      theme_mode: config?.theme_mode || DEFAULT_F1_LAP_POSITION_PROGRESSION_CONFIG.theme_mode,
+      show_full_name: config?.show_full_name === true,
+      team_logo_style: config?.team_logo_style || DEFAULT_F1_LAP_POSITION_PROGRESSION_CONFIG.team_logo_style,
+      chart_height: this._clampNumber(config?.chart_height, 300, 720, DEFAULT_F1_LAP_POSITION_PROGRESSION_CONFIG.chart_height),
+      top_limit: Math.max(0, Math.floor(Number(config?.top_limit) || 0)),
+    };
+    applyF1ThemeMode(this, this.config, this.hass);
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    ensureF1Fonts();
+    applyF1ThemeMode(this, this.config, this.hass);
+  }
+
+  updated(changedProps) {
+    if (changedProps.has('hass') || changedProps.has('config')) {
+      applyF1ThemeMode(this, this.config, this.hass);
+    }
+  }
+
+  getCardSize() {
+    return 8;
+  }
+
+  getGridOptions() {
+    return {
+      columns: 12,
+      max_columns: 12,
+      min_columns: 6,
+      rows: 8,
+      min_rows: 6,
+    };
+  }
+
+  render() {
+    if (!this.hass || !this.config) return html``;
+    const entityState = getEntityStateWithFallback(this.hass, this.config.entity);
+    if (!entityState || isUnavailableLikeEntityState(entityState)) {
+      return this._renderCard(this._renderEmpty('Lap position entity not found'));
+    }
+
+    const sessions = this._buildSessions(entityState);
+    const selectedSession = this._resolveSelectedSession(sessions);
+    this._actionEntityId = resolveEntityIdWithFallback(this.hass, this.config.entity);
+    if (!selectedSession) {
+      return this._renderCard(this._renderEmpty('No lap position data', null, sessions));
+    }
+
+    const header = this.config.show_header !== false
+      ? this._renderHeader(selectedSession, sessions)
+      : null;
+
+    if (selectedSession.status !== 'available') {
+      return this._renderCard(html`
+        ${header}
+        ${this._renderStatusState(selectedSession)}
+      `);
+    }
+
+    const loadedSession = this._sessionForRender(selectedSession);
+    if (!loadedSession) {
+      this._ensureSessionData(selectedSession);
+      return this._renderCard(html`
+        ${header}
+        ${this._renderStatusState({ ...selectedSession, status: 'loading', reason: this._sessionError })}
+      `);
+    }
+
+    const renderSession = { ...selectedSession, ...loadedSession };
+    if (renderSession.status !== 'available') {
+      return this._renderCard(html`
+        ${this.config.show_header !== false ? this._renderHeader(renderSession, sessions) : null}
+        ${this._renderStatusState(renderSession)}
+      `);
+    }
+
+    const model = this._buildChartModel(renderSession);
+    if (!model.series.length || !model.labels.length) {
+      return this._renderCard(html`
+        ${this.config.show_header !== false ? this._renderHeader(renderSession, sessions) : null}
+        ${this._renderStatusState({ ...renderSession, status: 'pending' })}
+      `);
+    }
+
+    return this._renderCard(html`
+      ${header}
+      <div class="lp-main">
+        <div class="lp-chart-shell">
+          ${this._renderSvg(model)}
+          ${this._renderTooltip()}
+        </div>
+      </div>
+    `);
+  }
+
+  _renderCard(content) {
+    const chartHeight = this._clampNumber(this.config?.chart_height, 300, 720, DEFAULT_F1_LAP_POSITION_PROGRESSION_CONFIG.chart_height);
+    const theme = isEffectiveLightTheme(this.hass, this.config) ? 'light' : 'dark';
+    return html`
+      <ha-card @click=${() => this._handleCardAction()}>
+        <div
+          class="lp-card"
+          data-theme=${theme}
+          data-layout=${getResponsiveLayoutMode(this)}
+          style=${`--lp-chart-height: ${chartHeight}px;`}
+        >
+          ${content}
+        </div>
+      </ha-card>
+    `;
+  }
+
+  _renderHeader(session, sessions) {
+    const driverCount = Number(session?.driver_count);
+    const lapCount = Number(session?.total_laps);
+    return html`
+      <div class="lp-header">
+        <div>
+          <h3 class="lp-title">${this.config.title || DEFAULT_F1_LAP_POSITION_PROGRESSION_CONFIG.title}</h3>
+          <div class="lp-subtitle">${this._sessionDisplayTitle(session)}</div>
+        </div>
+        <div class="lp-badges">
+          <span class="lp-badge ${session?.type === 'sprint' ? 'unsupported' : ''}">${this._sessionTypeLabel(session)}</span>
+          ${Number.isFinite(lapCount) && lapCount > 0 ? html`<span class="lp-badge">${lapCount} laps</span>` : null}
+          ${Number.isFinite(driverCount) && driverCount > 0 ? html`<span class="lp-badge">${driverCount} drivers</span>` : null}
+          ${session?.status && session.status !== 'available' ? html`<span class="lp-badge ${session.status}">${session.status}</span>` : null}
+        </div>
+        ${this._renderSessionSelector(sessions, session)}
+      </div>
+    `;
+  }
+
+  _renderSessionSelector(sessions, selectedSession) {
+    const list = Array.isArray(sessions) ? sessions : [];
+    if (this.config.show_session_selector === false || list.length <= 1) return null;
+    return html`
+      <div class="lp-selector-row" @click=${(ev) => ev.stopPropagation()}>
+        <select
+          class="lp-session-select"
+          .value=${selectedSession?.key || ''}
+          @change=${this._sessionSelectionChanged}
+        >
+          ${list.map((session) => html`
+            <option value=${session.key}>${this._sessionOptionLabel(session)}</option>
+          `)}
+        </select>
+      </div>
+    `;
+  }
+
+  _renderStatusState(session) {
+    const reason = String(session?.reason || '').trim();
+    const message = session?.status === 'unsupported'
+      ? 'Sprint lap position data is not available'
+      : session?.status === 'loading'
+        ? 'Loading lap position data'
+        : session?.status === 'blocked'
+          ? 'No Spoiler Mode is active'
+          : session?.status === 'not_found'
+            ? 'Lap position session was not found'
+            : session?.status === 'error'
+              ? this._statusErrorMessage(reason)
+              : 'Lap position data is pending';
+    return html`<div class="lp-empty">${message}</div>`;
+  }
+
+  _renderEmpty(message, selectedSession = null, sessions = []) {
+    return html`
+      ${this.config?.show_header !== false && selectedSession ? this._renderHeader(selectedSession, sessions) : null}
+      <div class="lp-empty">${message}</div>
+    `;
+  }
+
+  _renderSvg(model) {
+    const width = 900;
+    const height = this._clampNumber(this.config.chart_height, 300, 720, DEFAULT_F1_LAP_POSITION_PROGRESSION_CONFIG.chart_height);
+    const showLapLabels = this.config.show_round_labels !== false;
+    const startOrderLabels = this._startOrderLabels(model.series);
+    const currentOrderLabels = this._currentOrderLabels(model.series);
+    const startPositionBySeries = new Map(startOrderLabels.map((item) => [item.series, item.position]));
+    const margin = {
+      top: 30,
+      right: this._sideLabelWidth(currentOrderLabels, 'current'),
+      bottom: showLapLabels ? 52 : 28,
+      left: this._sideLabelWidth(startOrderLabels, 'start'),
+    };
+    const chartRight = width - margin.right;
+    const innerWidth = width - margin.left - margin.right;
+    const innerHeight = height - margin.top - margin.bottom;
+    const maxPosition = Math.max(1, model.maxPosition || 1);
+    const xStep = model.labels.length ? innerWidth / model.labels.length : 0;
+    const yForPosition = (position) => {
+      if (!Number.isFinite(position)) return null;
+      if (maxPosition <= 1) return margin.top;
+      return margin.top + ((position - 1) / (maxPosition - 1)) * innerHeight;
+    };
+    const pointFor = (value, index) => {
+      const y = yForPosition(value);
+      if (!Number.isFinite(y)) return null;
+      const x = margin.left + ((index + 1) * xStep);
+      return { x, y, value, index, label: model.labels[index] || `L${index + 1}` };
+    };
+    const startPointFor = (series) => {
+      const position = startPositionBySeries.get(series);
+      const y = yForPosition(position);
+      if (!Number.isFinite(y)) return null;
+      return { x: margin.left, y, value: position, index: -1, label: 'Start' };
+    };
+    const ticks = this._positionTicks(maxPosition).map((position) => ({
+      position,
+      y: yForPosition(position),
+    })).filter((tick) => Number.isFinite(tick.y));
+    const visibleLapLabels = this._visibleLapLabels(model.labels);
+    const ariaLabel = `${this.config.title || DEFAULT_F1_LAP_POSITION_PROGRESSION_CONFIG.title} for ${model.session?.race_name || 'selected race'}`;
+
+    return svg`
+      <svg
+        class="lp-chart"
+        viewBox=${`0 0 ${width} ${height}`}
+        role="img"
+        aria-label=${ariaLabel}
+        @pointerleave=${() => this._clearHoverPoint()}
+      >
+        <text class="lp-side-heading" x=${margin.left - 14} y=${margin.top - 13} text-anchor="end">START</text>
+        <text class="lp-side-heading" x=${chartRight + 10} y=${margin.top - 13}>CURRENT</text>
+        ${ticks.map((tick) => svg`
+          <line class="lp-grid-line" x1=${margin.left} x2=${chartRight} y1=${tick.y} y2=${tick.y}></line>
+        `)}
+        <line class="lp-axis-line" x1=${margin.left} x2=${margin.left} y1=${margin.top} y2=${height - margin.bottom}></line>
+        <line class="lp-axis-line" x1=${margin.left} x2=${chartRight} y1=${height - margin.bottom} y2=${height - margin.bottom}></line>
+        ${startOrderLabels.map((item) => {
+          const y = yForPosition(item.position);
+          if (!Number.isFinite(y)) return null;
+          const hidden = this._isSeriesHidden(item.series);
+          return svg`
+            <g
+              class="lp-side-entry"
+              data-hidden=${hidden ? 'true' : 'false'}
+              style=${`--series-color: ${item.series.color};`}
+              role="button"
+              tabindex="0"
+              aria-pressed=${hidden ? 'false' : 'true'}
+              aria-label=${`${item.series.name}: ${hidden ? 'show' : 'hide'} lap position line`}
+              @click=${(ev) => this._toggleSeriesVisibility(item.series, ev)}
+              @keydown=${(ev) => this._toggleSeriesVisibilityFromKey(item.series, ev)}
+            >
+              <text class="lp-side-label left" x=${margin.left - 14} y=${y} text-anchor="end" dominant-baseline="middle">${item.label}</text>
+              <circle class="lp-side-marker" cx=${margin.left - 5} cy=${y} r="3"></circle>
+            </g>
+          `;
+        })}
+        ${currentOrderLabels.map((item) => {
+          const y = yForPosition(item.position);
+          if (!Number.isFinite(y)) return null;
+          const hidden = this._isSeriesHidden(item.series);
+          return svg`
+            <g
+              class="lp-side-entry"
+              data-hidden=${hidden ? 'true' : 'false'}
+              style=${`--series-color: ${item.series.color};`}
+              role="button"
+              tabindex="0"
+              aria-pressed=${hidden ? 'false' : 'true'}
+              aria-label=${`${item.series.name}: ${hidden ? 'show' : 'hide'} lap position line`}
+              @click=${(ev) => this._toggleSeriesVisibility(item.series, ev)}
+              @keydown=${(ev) => this._toggleSeriesVisibilityFromKey(item.series, ev)}
+            >
+              <circle class="lp-side-marker" cx=${chartRight + 7} cy=${y} r="3"></circle>
+              <text class="lp-side-position" x=${chartRight + 15} y=${y} dominant-baseline="middle">P${this._formatPosition(item.position)}</text>
+              <text class="lp-side-label right" x=${chartRight + 36} y=${y} dominant-baseline="middle">${item.label}</text>
+            </g>
+          `;
+        })}
+        ${showLapLabels ? visibleLapLabels.map(({ label, index }) => {
+          const x = margin.left + ((index + 1) * xStep);
+          return svg`
+            <text
+              class="lp-axis-label"
+              x=${x}
+              y=${height - 20}
+              text-anchor="end"
+              transform=${`rotate(-32 ${x} ${height - 20})`}
+            >
+              ${label}
+            </text>
+          `;
+        }) : null}
+        ${model.series.map((series) => {
+          if (this._isSeriesHidden(series)) return null;
+          const points = series.positions.map((value, index) => pointFor(value, index));
+          const startPoint = startPointFor(series);
+          const pathPoints = [startPoint, ...points];
+          const path = pathPoints.filter(Boolean).length > 1 ? this._buildPath(pathPoints) : '';
+          return svg`
+            <g style=${`--series-color: ${series.color};`}>
+              ${path ? svg`<path class="lp-series-line" d=${path}></path>` : null}
+              ${this.config.show_points !== false ? points.filter(Boolean).map((point) => svg`
+                <circle
+                  class="lp-point"
+                  cx=${point.x}
+                  cy=${point.y}
+                  r="4"
+                  tabindex="0"
+                  role="graphics-symbol"
+                  aria-label=${`${series.name}, ${point.label}, position ${point.value}`}
+                  @pointerenter=${() => this._setHoverPoint(series, point, model.session, width, height)}
+                  @pointermove=${() => this._setHoverPoint(series, point, model.session, width, height)}
+                  @focus=${() => this._setHoverPoint(series, point, model.session, width, height)}
+                  @click=${(ev) => {
+                    ev.stopPropagation();
+                    this._setHoverPoint(series, point, model.session, width, height);
+                  }}
+                  @blur=${() => this._clearHoverPoint()}
+                >
+                  <title>${series.name} - ${point.label} - P${point.value}</title>
+                </circle>
+              `) : null}
+            </g>
+          `;
+        })}
+      </svg>
+    `;
+  }
+
+  _renderTooltip() {
+    const point = this._hoverPoint;
+    if (!point) return null;
+    const media = point.media?.src ? html`
+      <img
+        class="lp-tooltip-media"
+        src=${point.media.src}
+        data-fallback=${point.media.fallback || ''}
+        alt=""
+        loading="eager"
+        decoding="async"
+        @error=${handleTeamLogoError}
+      >
+    ` : null;
+    return html`
+      <div
+        class="lp-tooltip"
+        style=${`--tooltip-left: ${point.left}%; --tooltip-top: ${point.top}%; --tooltip-color: ${point.color}; --tooltip-translate-x: ${point.translateX};`}
+      >
+        ${media}
+        <div>
+          <div class="lp-tooltip-title">
+            <span class="lp-tooltip-swatch"></span>
+            <span>${point.name}</span>
+          </div>
+          <div class="lp-tooltip-meta">
+            <div>${point.lap}</div>
+            <div>${point.raceName}</div>
+            ${point.movement ? html`<div>${point.movement}</div>` : null}
+          </div>
+          <div class="lp-tooltip-position">P${point.position}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  _buildSessions(entityState) {
+    const sessions = asEntityList(entityState?.attributes?.sessions)
+      .map((session, index) => this._normalizeSession(session, index))
+      .filter((session) => session.key);
+    return sessions.sort((a, b) => {
+      if (Number.isFinite(a.roundNumber) && Number.isFinite(b.roundNumber)) {
+        const roundDiff = b.roundNumber - a.roundNumber;
+        if (roundDiff !== 0) return roundDiff;
+      }
+      if (Number.isFinite(a.roundNumber) && !Number.isFinite(b.roundNumber)) return -1;
+      if (!Number.isFinite(a.roundNumber) && Number.isFinite(b.roundNumber)) return 1;
+      if (a.type !== b.type) return a.type === 'race' ? -1 : 1;
+      return String(a.label || '').localeCompare(String(b.label || ''));
+    });
+  }
+
+  _sessionForRender(selectedSession) {
+    const key = selectedSession?.key;
+    if (!key) return null;
+    if (this._sessionData?.key === key) return this._sessionData;
+    const cached = this._sessionDataCache?.get(key);
+    if (cached?.key === key) {
+      this._sessionData = cached;
+      return cached;
+    }
+    if (Array.isArray(selectedSession?.drivers) && selectedSession.drivers.length) {
+      return selectedSession;
+    }
+    return null;
+  }
+
+  async _ensureSessionData(selectedSession) {
+    const key = selectedSession?.key;
+    if (!this.hass || !key || selectedSession?.type !== 'race' || selectedSession?.status !== 'available') {
+      return;
+    }
+    if (this._sessionData?.key === key || this._sessionDataCache?.has(key) || this._sessionLoadingKey === key) {
+      return;
+    }
+
+    const entityId = resolveEntityIdWithFallback(this.hass, this.config.entity) || this.config.entity;
+    const token = ++this._sessionLoadToken;
+    this._sessionLoadingKey = key;
+    this._sessionError = null;
+
+    try {
+      const response = await this._callWS({
+        type: 'f1_sensor/lap_position/session',
+        entity_id: entityId,
+        session_key: key,
+      });
+      if (token !== this._sessionLoadToken) return;
+      const responseSession = response?.session || {};
+      const session = this._normalizeSession({
+        ...selectedSession,
+        ...responseSession,
+        status: responseSession.status || response?.status || selectedSession.status,
+        reason: responseSession.reason || response?.reason || null,
+      }, 0);
+      this._sessionData = session;
+      if (session.status === 'available') {
+        this._sessionDataCache.set(key, session);
+      }
+      this._sessionLoadingKey = null;
+      this._sessionError = null;
+    } catch (err) {
+      if (token !== this._sessionLoadToken) return;
+      this._sessionData = {
+        ...selectedSession,
+        status: 'error',
+        reason: err?.message || 'Home Assistant WebSocket API is unavailable',
+      };
+      this._sessionLoadingKey = null;
+      this._sessionError = this._sessionData.reason;
+    }
+  }
+
+  async _callWS(message) {
+    if (typeof this.hass?.callWS === 'function') {
+      return this.hass.callWS(message);
+    }
+    if (this.hass?.connection?.sendMessagePromise) {
+      return this.hass.connection.sendMessagePromise(message);
+    }
+    throw new Error('Home Assistant WebSocket API is unavailable');
+  }
+
+  _normalizeSession(session, index) {
+    const type = session?.type === 'sprint' ? 'sprint' : 'race';
+    const roundNumber = this._parsePosition(session?.round);
+    const key = String(session?.key || `${type}:${session?.season || ''}:${session?.round || index}`).trim();
+    return {
+      ...session,
+      key,
+      type,
+      status: String(session?.status || 'pending').trim().toLowerCase(),
+      roundNumber,
+      label: session?.label || this._sessionDisplayTitle(session),
+      drivers: asEntityList(session?.drivers),
+    };
+  }
+
+  _resolveSelectedSession(sessions) {
+    const list = Array.isArray(sessions) ? sessions : [];
+    if (!list.length) return null;
+    const selected = this._selectedSessionKey
+      ? list.find((session) => session.key === this._selectedSessionKey)
+      : null;
+    if (selected) return selected;
+    return list.find((session) => session.type === 'race' && session.status === 'available')
+      || list.find((session) => session.status === 'available')
+      || list[0];
+  }
+
+  _buildChartModel(session) {
+    const labels = this._normalizeLabels(session);
+    const driverList = this._getDriverList();
+    const normalized = asEntityList(session?.drivers)
+      .map((driver, index) => this._normalizeDriverSeries(driver, labels.length, driverList, index))
+      .filter((driver) => this._hasLapPositionSeries(driver));
+    const fallbackSeries = normalized.length ? [] : asEntityList(session?.series?.series)
+      .map((series, index) => this._normalizeFallbackSeries(series, labels.length, index))
+      .filter((series) => this._hasLapPositionSeries(series));
+    const ranked = (normalized.length ? normalized : fallbackSeries).sort((a, b) => {
+      const positionDiff = this._comparePositionAscending(a.finishPosition, b.finishPosition);
+      if (positionDiff !== 0) return positionDiff;
+      return String(a.name).localeCompare(String(b.name));
+    });
+    const limit = Math.max(0, Math.floor(Number(this.config?.top_limit) || 0));
+    const visible = limit > 0 ? ranked.slice(0, limit) : ranked;
+    const maxPosition = Math.max(
+      1,
+      visible.length,
+      ...visible.flatMap((series) => [
+        ...series.positions,
+        this._seriesCurrentPosition(series),
+      ].filter((position) => Number.isFinite(position) && position > 0)),
+    );
+    return {
+      session,
+      labels,
+      series: visible,
+      totalSeriesCount: ranked.length,
+      maxPosition,
+    };
+  }
+
+  _normalizeLabels(session) {
+    const labels = Array.isArray(session?.labels) && session.labels.length
+      ? session.labels
+      : Array.isArray(session?.series?.labels)
+        ? session.series.labels
+        : [];
+    if (labels.length) return labels.map((label, index) => String(label || `L${index + 1}`));
+    const maxLength = Math.max(
+      0,
+      ...asEntityList(session?.drivers).map((driver) => Array.isArray(driver?.positions) ? driver.positions.length : 0),
+      ...asEntityList(session?.series?.series).map((series) => Array.isArray(series?.data) ? series.data.length : 0),
+    );
+    return Array.from({ length: maxLength }, (_value, index) => `L${index + 1}`);
+  }
+
+  _normalizeDriverSeries(driver, expectedLength, driverList, index) {
+    const rawPositions = this._normalizePositions(driver?.positions, expectedLength);
+    const finishPosition = this._toNumber(driver?.finish_position) ?? this._latestFinite(rawPositions);
+    const positions = this._withClassifiedFinish(rawPositions, finishPosition);
+    const code = String(driver?.code || '').trim().toUpperCase();
+    const name = String(driver?.name || code || driver?.driver_id || `Driver ${index + 1}`).trim();
+    const meta = this._findDriverMeta(driver, driverList);
+    const teamName = driver?.constructor_name || meta?.team || meta?.team_name || '';
+    const color = this._usableColor(driver?.color || meta?.team_color) || F1_SEASON_PROGRESSION_FALLBACK_COLORS[index % F1_SEASON_PROGRESSION_FALLBACK_COLORS.length];
+    return {
+      key: String(driver?.driver_id || code || index),
+      code,
+      name,
+      shortName: code || name,
+      color,
+      positions,
+      grid: this._toNumber(driver?.grid),
+      finishPosition,
+      status: driver?.status || '',
+      media: this._resolveDriverMedia(teamName),
+    };
+  }
+
+  _normalizeFallbackSeries(series, expectedLength, index) {
+    const positions = this._normalizePositions(series?.data || series?.values || [], expectedLength);
+    const name = String(series?.name || series?.key || `Driver ${index + 1}`).trim();
+    return {
+      key: String(series?.key || name || index),
+      code: String(series?.key || '').trim().toUpperCase(),
+      name,
+      shortName: String(series?.key || name).trim(),
+      color: this._usableColor(series?.color) || F1_SEASON_PROGRESSION_FALLBACK_COLORS[index % F1_SEASON_PROGRESSION_FALLBACK_COLORS.length],
+      positions,
+      grid: null,
+      finishPosition: this._latestFinite(positions),
+      status: '',
+      media: null,
+    };
+  }
+
+  _hasLapPositionSeries(series) {
+    return series.positions.some((position) => Number.isFinite(position))
+      || Number.isFinite(this._seriesStartPosition(series))
+      || Number.isFinite(this._seriesCurrentPosition(series));
+  }
+
+  _normalizePositions(values, expectedLength) {
+    const array = Array.isArray(values) ? values : Object.values(values || {});
+    const positions = array.map((value) => {
+      if (value === null || value === undefined || String(value).trim() === '') {
+        return null;
+      }
+      const num = Number(value);
+      return Number.isFinite(num) ? num : null;
+    });
+    if (expectedLength > positions.length) {
+      positions.push(...Array.from({ length: expectedLength - positions.length }, () => null));
+    }
+    return positions;
+  }
+
+  _withClassifiedFinish(positions, finishPosition) {
+    const reconciled = [...positions];
+    if (!Number.isFinite(finishPosition) || finishPosition <= 0) {
+      return reconciled;
+    }
+    // Lap timing excludes post-race classification changes such as penalties.
+    for (let index = reconciled.length - 1; index >= 0; index -= 1) {
+      if (Number.isFinite(reconciled[index])) {
+        reconciled[index] = finishPosition;
+        break;
+      }
+    }
+    return reconciled;
+  }
+
+  _positionTicks(maxPosition) {
+    const max = Math.max(1, Math.floor(Number(maxPosition) || 1));
+    if (max <= 10) {
+      return Array.from({ length: max }, (_value, index) => index + 1);
+    }
+    const ticks = new Set([1, max]);
+    const step = Math.max(1, Math.ceil(max / 5));
+    for (let position = step; position < max; position += step) {
+      ticks.add(position);
+    }
+    return Array.from(ticks).sort((a, b) => a - b);
+  }
+
+  _visibleLapLabels(labels) {
+    const list = Array.isArray(labels) ? labels : [];
+    if (list.length <= 12) {
+      return list.map((label, index) => ({ label, index }));
+    }
+    const stride = Math.ceil(list.length / 10);
+    return list
+      .map((label, index) => ({ label, index }))
+      .filter(({ index }) => index === 0 || index === list.length - 1 || index % stride === 0);
+  }
+
+  _startOrderLabels(seriesList) {
+    return this._orderedSideLabels(seriesList, 'start');
+  }
+
+  _currentOrderLabels(seriesList) {
+    return this._orderedSideLabels(seriesList, 'current');
+  }
+
+  _orderedSideLabels(seriesList, side) {
+    const ordered = asEntityList(seriesList)
+      .map((series) => ({
+        series,
+        position: side === 'start' ? this._seriesStartPosition(series) : this._seriesCurrentPosition(series),
+        label: this._sideDriverLabel(series, side),
+      }))
+      .filter((item) => Number.isFinite(item.position) && item.position > 0 && item.label)
+      .sort((a, b) => {
+        const positionDiff = this._comparePositionAscending(a.position, b.position);
+        if (positionDiff !== 0) return positionDiff;
+        return String(a.label).localeCompare(String(b.label));
+      });
+    if (side !== 'start') {
+      return ordered;
+    }
+    return ordered.map((item, index) => ({
+      ...item,
+      sourcePosition: item.position,
+      position: index + 1,
+    }));
+  }
+
+  _sideLabelWidth(labels, side) {
+    const longest = asEntityList(labels).reduce((max, item) => Math.max(max, String(item?.label || '').length), 0);
+    const fullName = this.config?.show_full_name === true;
+    const baseWidth = side === 'start' ? 58 : 92;
+    const maxWidth = side === 'start'
+      ? (fullName ? 176 : 86)
+      : (fullName ? 188 : 148);
+    const labelOffset = side === 'start' ? 24 : 46;
+    return Math.max(baseWidth, Math.min(maxWidth, Math.ceil((longest * 6.4) + labelOffset)));
+  }
+
+  _sideDriverLabel(series, side) {
+    const fullName = String(series?.name || series?.shortName || series?.code || '').trim();
+    if (this.config?.show_full_name === true) {
+      return this._truncateSvgLabel(fullName, 22);
+    }
+    if (side === 'start') {
+      return this._truncateSvgLabel(String(series?.shortName || series?.code || this._familyName(fullName) || fullName).trim().toUpperCase(), 6);
+    }
+    return this._truncateSvgLabel(String(this._familyName(fullName) || series?.shortName || series?.code || fullName).trim().toUpperCase(), 13);
+  }
+
+  _seriesStartPosition(series) {
+    const grid = Number(series?.grid);
+    return Number.isFinite(grid) && grid > 0
+      ? grid
+      : this._firstFinite(series?.positions) ?? this._seriesCurrentPosition(series);
+  }
+
+  _seriesCurrentPosition(series) {
+    const finish = Number(series?.finishPosition);
+    return Number.isFinite(finish) && finish > 0
+      ? finish
+      : this._latestFinite(series?.positions || []);
+  }
+
+  _familyName(name) {
+    const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+    return parts.length ? parts[parts.length - 1] : '';
+  }
+
+  _truncateSvgLabel(label, maxLength) {
+    const normalized = String(label || '').trim();
+    if (!normalized || normalized.length <= maxLength) return normalized;
+    return `${normalized.slice(0, Math.max(1, maxLength - 3))}...`;
+  }
+
+  _buildPath(points) {
+    let path = '';
+    let drawing = false;
+    points.forEach((point) => {
+      if (!point) {
+        drawing = false;
+        return;
+      }
+      path += `${drawing ? 'L' : 'M'} ${point.x.toFixed(2)} ${point.y.toFixed(2)} `;
+      drawing = true;
+    });
+    return path.trim();
+  }
+
+  _setHoverPoint(series, point, session, width, height) {
+    const left = Math.max(4, Math.min(96, (point.x / width) * 100));
+    const grid = Number(series.grid);
+    const finish = Number(series.finishPosition);
+    const movement = Number.isFinite(grid) && grid > 0 && Number.isFinite(finish)
+      ? `Grid P${grid}, finish P${finish}`
+      : '';
+    this._hoverPoint = {
+      name: series.name,
+      color: series.color,
+      media: series.media || null,
+      lap: point.label,
+      position: point.value,
+      raceName: this._sessionDisplayTitle(session),
+      movement,
+      left,
+      top: Math.max(8, Math.min(92, (point.y / height) * 100)),
+      translateX: left < 18 ? '0' : left > 82 ? '-100%' : '-50%',
+    };
+  }
+
+  _clearHoverPoint() {
+    this._hoverPoint = null;
+  }
+
+  _sessionSelectionChanged(ev) {
+    ev.stopPropagation();
+    this._selectedSessionKey = ev.target.value;
+    this._sessionData = this._sessionDataCache.get(this._selectedSessionKey) || null;
+    this._sessionError = null;
+    this._clearHoverPoint();
+  }
+
+  _sessionDisplayTitle(session) {
+    const raceName = String(session?.race_name || '').trim();
+    if (!raceName) return 'Lap Position Progression';
+    return raceName.replace(' Grand Prix', ' GP');
+  }
+
+  _sessionOptionLabel(session) {
+    const round = session?.round ? `R${session.round}` : null;
+    const status = session?.status && session.status !== 'available'
+      ? session.status.toUpperCase()
+      : null;
+    return [round, this._sessionTypeLabel(session), this._sessionDisplayTitle(session), status]
+      .filter(Boolean)
+      .join(' - ');
+  }
+
+  _sessionTypeLabel(session) {
+    return session?.type === 'sprint' ? 'SPRINT' : 'RACE';
+  }
+
+  _getDriverList() {
+    const state = getEntityStateWithFallback(this.hass, this.config?.drivers_entity);
+    const drivers = state?.attributes?.drivers;
+    return Array.isArray(drivers) ? drivers : [];
+  }
+
+  _findDriverMeta(driver, driverList) {
+    const code = String(driver?.code || '').trim().toUpperCase();
+    const number = String(driver?.number || '').trim();
+    const driverId = this._searchKey(driver?.driver_id);
+    return (driverList || []).find((entry) => {
+      const entryCode = String(entry?.tla || entry?.code || '').trim().toUpperCase();
+      if (code && entryCode === code) return true;
+      const entryNumber = String(entry?.racing_number || entry?.number || '').trim();
+      if (number && entryNumber === number) return true;
+      const reference = this._searchKey(entry?.reference || entry?.driverId || entry?.driver_id);
+      return Boolean(driverId && reference.includes(driverId));
+    }) || null;
+  }
+
+  _resolveDriverMedia(teamName) {
+    const logo = getTeamLogoMeta(
+      teamName,
+      52,
+      this.config.team_logo_style,
+      isEffectiveLightTheme(this.hass, this.config),
+    );
+    return logo ? { ...logo, kind: 'team-logo' } : null;
+  }
+
+  _isSeriesHidden(series) {
+    return this._hiddenSeriesKeys?.has(this._seriesFilterKey(series));
+  }
+
+  _toggleSeriesVisibility(series, ev) {
+    ev?.stopPropagation?.();
+    ev?.preventDefault?.();
+    const key = this._seriesFilterKey(series);
+    const hiddenKeys = new Set(this._hiddenSeriesKeys || []);
+    if (hiddenKeys.has(key)) {
+      hiddenKeys.delete(key);
+    } else {
+      hiddenKeys.add(key);
+    }
+    this._hiddenSeriesKeys = hiddenKeys;
+    this._clearHoverPoint();
+  }
+
+  _toggleSeriesVisibilityFromKey(series, ev) {
+    if (!['Enter', ' ', 'Spacebar'].includes(ev?.key)) return;
+    this._toggleSeriesVisibility(series, ev);
+  }
+
+  _seriesFilterKey(series) {
+    return String(series?.key || series?.code || series?.name || '');
+  }
+
+  _handleCardAction() {
+    const action = this.config?.tap_action || { action: 'more-info' };
+    if (action.action === 'none') return;
+    if (action.action === 'more-info') {
+      this.dispatchEvent(new CustomEvent('hass-more-info', {
+        bubbles: true,
+        composed: true,
+        detail: { entityId: this._actionEntityId || resolveEntityIdWithFallback(this.hass, this.config?.entity) },
+      }));
+    }
+  }
+
+  _comparePositionAscending(a, b) {
+    if (Number.isFinite(a) && Number.isFinite(b)) {
+      const diff = a - b;
+      return diff === 0 ? 0 : diff;
+    }
+    if (Number.isFinite(a)) return -1;
+    if (Number.isFinite(b)) return 1;
+    return 0;
+  }
+
+  _parsePosition(value) {
+    if (value === null || value === undefined) return null;
+    const match = String(value).match(/\d+/);
+    if (!match) return null;
+    const num = Number(match[0]);
+    return Number.isFinite(num) ? num : null;
+  }
+
+  _toNumber(value) {
+    const num = Number(value);
+    return Number.isFinite(num) ? num : null;
+  }
+
+  _latestFinite(values) {
+    for (let index = values.length - 1; index >= 0; index -= 1) {
+      if (Number.isFinite(values[index])) return values[index];
+    }
+    return null;
+  }
+
+  _firstFinite(values) {
+    const list = Array.isArray(values) ? values : [];
+    for (let index = 0; index < list.length; index += 1) {
+      if (Number.isFinite(list[index])) return list[index];
+    }
+    return null;
+  }
+
+  _formatPosition(value) {
+    return Number.isFinite(value) ? String(Math.round(value)) : '--';
+  }
+
+  _statusErrorMessage(reason) {
+    const normalized = String(reason || '').toLowerCase();
+    if (normalized.includes('429') || normalized.includes('too many requests')) {
+      return 'Jolpica rate limit reached. Try again later.';
+    }
+    return 'Lap position data could not be loaded';
+  }
+
+  _searchKey(value) {
+    return String(value || '')
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim();
+  }
+
+  _usableColor(value) {
+    const color = String(value || '').trim();
+    if (/^#[0-9a-f]{3,8}$/i.test(color)) return color;
+    if (/^rgba?\([\d\s,.%]+\)$/i.test(color)) return color;
+    if (/^hsla?\([\d\s,.%]+\)$/i.test(color)) return color;
+    return null;
+  }
+
+  _clampNumber(value, min, max, fallback) {
+    const num = Number(value);
+    if (!Number.isFinite(num)) return fallback;
+    return Math.max(min, Math.min(max, num));
+  }
+}
+
+// ============================================================================
+// F1 Lap Position Progression Card Editor
+// ============================================================================
+
+class F1LapPositionProgressionCardEditor extends LitElement {
+  static properties = {
+    hass: {},
+    _config: {},
+    _activeTab: { state: true },
+  };
+
+  static styles = css`
+    .card-config {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--divider-color);
+      margin-bottom: 16px;
+    }
+
+    .tabs button {
+      flex: 1;
+      padding: 12px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--primary-text-color);
+      font-size: 14px;
+      font-family: inherit;
+      transition: color 0.2s;
+    }
+
+    .tabs button:hover {
+      color: var(--primary-color);
+    }
+
+    .tabs button.active {
+      color: var(--primary-color);
+      border-bottom: 2px solid var(--primary-color);
+    }
+
+    .section,
+    .display-section {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .section-header {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--secondary-text-color);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .helper {
+      font-size: 12px;
+      line-height: 1.35;
+      color: var(--secondary-text-color);
+      margin-top: -8px;
+    }
+
+    ha-textfield {
+      width: 100%;
+    }
+  `;
+
+  constructor() {
+    super();
+    this._activeTab = 'sources';
+  }
+
+  setConfig(config) {
+    this._config = {
+      ...DEFAULT_F1_LAP_POSITION_PROGRESSION_CONFIG,
+      ...config,
+      entity: config?.entity || DEFAULT_F1_LAP_POSITION_PROGRESSION_CONFIG.entity,
+      drivers_entity: config?.drivers_entity || DEFAULT_F1_LAP_POSITION_PROGRESSION_CONFIG.drivers_entity,
+      no_spoiler_entity: config?.no_spoiler_entity || DEFAULT_F1_LAP_POSITION_PROGRESSION_CONFIG.no_spoiler_entity,
+      title: config?.title || DEFAULT_F1_LAP_POSITION_PROGRESSION_CONFIG.title,
+      theme_mode: config?.theme_mode || DEFAULT_F1_LAP_POSITION_PROGRESSION_CONFIG.theme_mode,
+      show_full_name: config?.show_full_name === true,
+      team_logo_style: config?.team_logo_style || DEFAULT_F1_LAP_POSITION_PROGRESSION_CONFIG.team_logo_style,
+      chart_height: this._clampNumber(config?.chart_height, 300, 720, DEFAULT_F1_LAP_POSITION_PROGRESSION_CONFIG.chart_height),
+      top_limit: Math.max(0, Math.floor(Number(config?.top_limit) || 0)),
+    };
+  }
+
+  render() {
+    if (!this.hass || !this._config) return html``;
+    return html`
+      <div class="card-config">
+        <div class="tabs">
+          <button
+            class=${this._activeTab === 'sources' ? 'active' : ''}
+            @click=${() => this._activeTab = 'sources'}
+          >
+            Data Sources
+          </button>
+          <button
+            class=${this._activeTab === 'display' ? 'active' : ''}
+            @click=${() => this._activeTab = 'display'}
+          >
+            Display
+          </button>
+        </div>
+
+        ${this._activeTab === 'sources' ? this._renderDataSourcesTab() : this._renderDisplayTab()}
+      </div>
+    `;
+  }
+
+  _renderDataSourcesTab() {
+    return html`
+      <div class="section">
+        <div class="section-header">LAP POSITION SENSOR</div>
+        ${this._renderEntityPicker(
+          'entity',
+          'Lap position entity',
+          'Provides completed race sessions and sprint metadata.',
+          true,
+          'sensor',
+        )}
+        ${this._renderEntityPicker(
+          'drivers_entity',
+          'Driver list entity',
+          'Optional. Provides driver team metadata for colors and logos.',
+          false,
+          'sensor',
+        )}
+        ${this._renderEntityPicker(
+          'no_spoiler_entity',
+          'No Spoiler switch',
+          'Masks the chart while No Spoiler Mode is active.',
+          false,
+          'switch',
+        )}
+      </div>
+    `;
+  }
+
+  _renderDisplayTab() {
+    return html`
+      <div class="display-section">
+        ${renderThemeModeSelect(this)}
+        <ha-textfield
+          .label=${'Title'}
+          .value=${this._config.title || ''}
+          @input=${(e) => this._valueChanged('title', e.target.value)}
+        ></ha-textfield>
+
+        <div class="section-header">LAYOUT</div>
+        ${this._renderSwitch('show_header', 'Show header')}
+        ${this._renderSwitch('show_session_selector', 'Show race selector')}
+        ${this._renderSwitch('show_full_name', 'Use full names')}
+        ${renderEditorSelect(this, 'team_logo_style', 'Team logo style', [
+          { value: 'color', label: 'Color (fallback to white)' },
+          { value: 'white', label: 'White' },
+        ])}
+
+        <div class="section-header">CHART</div>
+        ${this._renderSwitch('show_points', 'Show chart points')}
+        ${this._renderSwitch('show_round_labels', 'Show lap labels')}
+        ${this._renderNumberField('top_limit', 'Top limit', 'Use 0 to show all drivers.', 0, 30, 1)}
+        ${this._renderNumberField('chart_height', 'Chart height', null, 300, 720, 10)}
+      </div>
+    `;
+  }
+
+  _renderEntityPicker(name, label, helper, required, domain) {
+    const schema = [{ name, label, required, selector: { entity: { domain } } }];
+    return html`
+      <div class="field">
+        <ha-form
+          .hass=${this.hass}
+          .data=${this._config}
+          .schema=${schema}
+          .computeLabel=${() => label}
+          @value-changed=${this._formValueChanged}
+        ></ha-form>
+        <div class="helper">${helper}</div>
+      </div>
+    `;
+  }
+
+  _renderSwitch(name, label) {
+    const schema = [{ name, label, selector: { boolean: {} } }];
+    return html`
+      <ha-form
+        .hass=${this.hass}
+        .data=${this._config}
+        .schema=${schema}
+        .computeLabel=${() => label}
+        @value-changed=${this._formValueChanged}
+      ></ha-form>
+    `;
+  }
+
+  _renderNumberField(name, label, helper, min, max, step) {
+    const schema = [{
+      name,
+      label,
+      selector: {
+        number: {
+          mode: 'box',
+          min,
+          max,
+          step,
+        },
+      },
+    }];
+    return html`
+      <div class="field">
+        <ha-form
+          .hass=${this.hass}
+          .data=${this._config}
+          .schema=${schema}
+          .computeLabel=${() => label}
+          @value-changed=${this._formValueChanged}
+        ></ha-form>
+        ${helper ? html`<div class="helper">${helper}</div>` : null}
+      </div>
+    `;
+  }
+
+  _formValueChanged(ev) {
+    if (!this._config) return;
+    const value = ev.detail?.value || {};
+    let newConfig = { ...this._config, ...value };
+    if (Object.prototype.hasOwnProperty.call(value, 'top_limit')) {
+      newConfig.top_limit = Math.max(0, Math.floor(Number(value.top_limit) || 0));
+    }
+    if (Object.prototype.hasOwnProperty.call(value, 'chart_height')) {
+      newConfig.chart_height = this._clampNumber(value.chart_height, 300, 720, DEFAULT_F1_LAP_POSITION_PROGRESSION_CONFIG.chart_height);
+    }
+    this._config = newConfig;
+    this.dispatchEvent(new CustomEvent('config-changed', { detail: { config: newConfig } }));
+  }
+
+  _valueChanged(name, value) {
+    if (!this._config) return;
+    const newConfig = { ...this._config, [name]: value };
+    this._config = newConfig;
+    this.dispatchEvent(new CustomEvent('config-changed', { detail: { config: newConfig } }));
+  }
+
+  _clampNumber(value, min, max, fallback) {
+    const num = Number(value);
+    if (!Number.isFinite(num)) return fallback;
+    return Math.max(min, Math.min(max, num));
   }
 }
 
@@ -8123,7 +12068,7 @@ class F1LastRaceResultsCard extends LitElement {
       --ts-chip: var(--f1-card-chip);
       --ts-shadow: var(--f1-card-shadow);
       display: block;
-      font-family: 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-body-font-family, 'Formula1 Display', 'Noto Sans', sans-serif);
     }
 
     ha-card {
@@ -8148,7 +12093,7 @@ class F1LastRaceResultsCard extends LitElement {
 
     .cpd-header {
       text-align: center;
-      font-family: 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-display-font-family, 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif);
       font-size: clamp(16px, 2.4vw, 20px);
       font-weight: 700;
       letter-spacing: clamp(0.03em, 0.06em, 0.08em);
@@ -8233,7 +12178,7 @@ class F1LastRaceResultsCard extends LitElement {
 
     .cpd-table {
       display: grid;
-      gap: 6px;
+      gap: var(--f1-table-row-gap);
       min-width: 0;
       width: 100%;
     }
@@ -8292,7 +12237,7 @@ class F1LastRaceResultsCard extends LitElement {
     .cpd-cell.points-secondary {
       color: var(--ts-muted);
     }
-
+    
     .cpd-cell.align {
       justify-content: center;
       text-align: center;
@@ -8338,7 +12283,7 @@ class F1LastRaceResultsCard extends LitElement {
     .cpd-driver.full {
       letter-spacing: 0.01em;
       text-transform: none;
-      font-family: 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-body-font-family, 'Formula1 Display', 'Noto Sans', sans-serif);
       font-weight: 600;
     }
 
@@ -8455,7 +12400,7 @@ class F1LastRaceResultsCard extends LitElement {
       background: var(--f1-card-chip);
       color: var(--ts-text);
       padding: 6px 34px 6px 10px;
-      font-family: 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-body-font-family, 'Formula1 Display', 'Noto Sans', sans-serif);
       font-size: 12px;
       font-weight: 700;
       letter-spacing: 0.02em;
@@ -9229,7 +13174,7 @@ class F1InvestigationsCard extends LitElement {
       --ts-chip: var(--f1-card-chip);
       --ts-shadow: var(--f1-card-shadow);
       display: block;
-      font-family: 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-body-font-family, 'Formula1 Display', 'Noto Sans', sans-serif);
     }
 
     ha-card {
@@ -9254,7 +13199,7 @@ class F1InvestigationsCard extends LitElement {
 
     .inv-header {
       text-align: center;
-      font-family: 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-display-font-family, 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif);
       font-size: clamp(16px, 2.4vw, 20px);
       font-weight: 700;
       letter-spacing: clamp(0.03em, 0.06em, 0.08em);
@@ -9269,7 +13214,7 @@ class F1InvestigationsCard extends LitElement {
 
     .inv-table {
       display: grid;
-      gap: 6px;
+      gap: var(--f1-table-row-gap);
       min-width: 0;
       width: 100%;
     }
@@ -9327,7 +13272,7 @@ class F1InvestigationsCard extends LitElement {
     .inv-tla.full-name {
       letter-spacing: 0.01em;
       text-transform: none;
-      font-family: 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-body-font-family, 'Formula1 Display', 'Noto Sans', sans-serif);
       font-weight: 600;
     }
 
@@ -10110,7 +14055,7 @@ class F1TrackLimitsCard extends LitElement {
       --ts-chip: var(--f1-card-chip);
       --ts-shadow: var(--f1-card-shadow);
       display: block;
-      font-family: 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-body-font-family, 'Formula1 Display', 'Noto Sans', sans-serif);
     }
 
     ha-card {
@@ -10135,7 +14080,7 @@ class F1TrackLimitsCard extends LitElement {
 
     .tl-header {
       text-align: center;
-      font-family: 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-display-font-family, 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif);
       font-size: clamp(16px, 2.4vw, 20px);
       font-weight: 700;
       letter-spacing: clamp(0.03em, 0.06em, 0.08em);
@@ -10150,7 +14095,7 @@ class F1TrackLimitsCard extends LitElement {
 
     .tl-table {
       display: grid;
-      gap: 6px;
+      gap: var(--f1-table-row-gap);
       min-width: 0;
       width: 100%;
     }
@@ -10210,7 +14155,7 @@ class F1TrackLimitsCard extends LitElement {
     .tl-tla.full-name {
       letter-spacing: 0.01em;
       text-transform: none;
-      font-family: 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-body-font-family, 'Formula1 Display', 'Noto Sans', sans-serif);
       font-weight: 600;
     }
 
@@ -10929,7 +14874,7 @@ class F1LiveSessionCard extends LitElement {
     }
 
     .ls-card {
-      font-family: 'Formula1 Display', 'Titillium Web', Arial, sans-serif;
+      font-family: var(--f1-card-body-font-family, 'Formula1 Display', 'Titillium Web', Arial, sans-serif);
       display: flex;
       flex-direction: column;
       gap: clamp(8px, 1.5vw, 12px);
@@ -10974,7 +14919,7 @@ class F1LiveSessionCard extends LitElement {
     }
 
     .ls-gp-name {
-      font-family: 'Formula1 Wide', 'Formula1 Display', Arial, sans-serif;
+      font-family: var(--f1-card-display-font-family, 'Formula1 Wide', 'Formula1 Display', Arial, sans-serif);
       font-weight: 600;
       font-size: clamp(13px, 2.2vw, 16px);
       letter-spacing: 0.02em;
@@ -11063,7 +15008,7 @@ class F1LiveSessionCard extends LitElement {
       align-items: center;
       padding: clamp(4px, 0.7vw, 6px) clamp(10px, 1.5vw, 14px);
       border-radius: 20px;
-      font-family: 'Formula1 Display', Arial, sans-serif;
+      font-family: var(--f1-card-body-font-family, 'Formula1 Display', Arial, sans-serif);
       font-weight: 700;
       font-size: clamp(9px, 1.3vw, 11px);
       text-transform: uppercase;
@@ -11154,7 +15099,7 @@ class F1LiveSessionCard extends LitElement {
     }
 
     .ls-weather-value {
-      font-family: 'Formula1 Display', Arial, sans-serif;
+      font-family: var(--f1-card-body-font-family, 'Formula1 Display', Arial, sans-serif);
       font-weight: 700;
       font-size: clamp(11px, 1.5vw, 13px);
       white-space: normal;
@@ -11195,71 +15140,202 @@ class F1LiveSessionCard extends LitElement {
       letter-spacing: 0.04em;
     }
 
-    .ls-time-value {
-      font-family: 'Formula1 Display', Arial, sans-serif;
-      font-weight: 700;
-      font-size: clamp(11px, 1.5vw, 13px);
-      color: var(--ls-text);
-    }
+	    .ls-time-value {
+	      font-family: var(--f1-card-body-font-family, 'Formula1 Display', Arial, sans-serif);
+	      font-weight: 700;
+	      font-size: clamp(11px, 1.5vw, 13px);
+	      color: var(--ls-text);
+	    }
 
-    @container (max-width: 400px) {
-      .ls-weather {
-        gap: clamp(6px, 1vw, 10px);
-      }
-      .ls-weather-col {
-        flex: 0 1 auto;
-      }
-      .ls-laps-group {
-        display: none;
-      }
-    }
+	    .ls-layout-compact {
+	      gap: 8px;
+	      padding: 10px 12px;
+	    }
 
-    @container (max-width: 760px) {
-      .ls-laps-group,
-      .ls-time-group {
-        margin-left: 0;
-        padding-left: 0;
-        border-left: none;
-        flex: 1 1 150px;
-      }
+	    .ls-layout-compact .ls-header {
+	      display: grid;
+	      grid-template-columns: minmax(0, 1fr) auto;
+	      align-items: center;
+	      gap: 8px 10px;
+	    }
 
-      .ls-status-group {
-        margin-left: 0;
-        width: 100%;
-        align-items: flex-start;
-      }
+	    .ls-layout-compact .ls-session-info {
+	      flex: 1 1 auto;
+	      width: auto;
+	    }
 
-      .ls-status-row {
-        justify-content: flex-start;
-      }
-    }
+	    .ls-layout-compact .ls-flag {
+	      width: 24px;
+	    }
 
-    @container (max-width: 520px) {
-      .ls-header {
-        flex-direction: column;
-      }
+	    .ls-layout-compact .ls-gp-name {
+	      font-size: 13px;
+	      line-height: 1.05;
+	    }
 
-      .ls-session-info,
-      .ls-laps-group,
-      .ls-time-group,
-      .ls-status-group {
-        width: 100%;
-      }
+	    .ls-layout-compact .ls-session-type {
+	      gap: 4px;
+	      font-size: 9px;
+	      line-height: 1.2;
+	    }
 
-      .ls-weather {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
+	    .ls-layout-compact .ls-laps-group,
+	    .ls-layout-compact .ls-time-group {
+	      margin-left: 0;
+	      padding-left: 0;
+	      border-left: none;
+	      width: auto;
+	    }
 
-      .ls-weather-col {
-        align-items: flex-start;
-      }
+	    .ls-layout-compact .ls-laps-group {
+	      grid-column: 1 / 2;
+	      flex: 1 1 auto;
+	    }
 
-      .ls-weather-value {
-        text-align: left;
-      }
-    }
-  `];
+	    .ls-layout-compact .ls-time-group {
+	      grid-column: 2 / 3;
+	      justify-self: end;
+	      align-items: flex-end;
+	      gap: 2px;
+	    }
+
+	    .ls-layout-compact .ls-time-row {
+	      gap: 4px;
+	    }
+
+	    .ls-layout-compact .ls-status-group {
+	      grid-column: 2 / 3;
+	      grid-row: 1;
+	      justify-self: end;
+	      margin-left: 0;
+	      width: auto;
+	      align-items: flex-end;
+	    }
+
+	    .ls-layout-compact .ls-status-row {
+	      justify-content: flex-end;
+	    }
+
+	    .ls-layout-compact .ls-status-pill {
+	      padding: 4px 8px;
+	      border-radius: 14px;
+	      font-size: 9px;
+	    }
+
+	    .ls-layout-compact .ls-aero-pill {
+	      padding: 2px 5px;
+	      font-size: 7px;
+	    }
+
+	    .ls-layout-compact .ls-weather {
+	      display: grid;
+	      grid-template-columns: repeat(3, minmax(0, 1fr));
+	      gap: 6px 8px;
+	      padding-top: 8px;
+	    }
+
+	    .ls-layout-compact .ls-weather-col {
+	      min-width: 0;
+	      align-items: flex-start;
+	      gap: 0;
+	    }
+
+	    .ls-layout-compact .ls-weather-label {
+	      font-size: 8px;
+	      line-height: 1.1;
+	    }
+
+	    .ls-layout-compact .ls-weather-value {
+	      font-size: 11px;
+	      line-height: 1.1;
+	      text-align: left;
+	      overflow-wrap: anywhere;
+	    }
+
+	    @container (max-width: 400px) {
+	      .ls-layout-full .ls-weather {
+	        gap: clamp(6px, 1vw, 10px);
+	      }
+	      .ls-layout-full .ls-weather-col {
+	        flex: 0 1 auto;
+	      }
+	      .ls-layout-full .ls-laps-group {
+	        display: none;
+	      }
+	    }
+
+	    @container (max-width: 760px) {
+	      .ls-layout-full .ls-laps-group,
+	      .ls-layout-full .ls-time-group {
+	        margin-left: 0;
+	        padding-left: 0;
+	        border-left: none;
+	        flex: 1 1 150px;
+	      }
+
+	      .ls-layout-full .ls-status-group {
+	        margin-left: 0;
+	        width: 100%;
+	        align-items: flex-start;
+	      }
+
+	      .ls-layout-full .ls-status-row {
+	        justify-content: flex-start;
+	      }
+	    }
+
+	    @container (max-width: 520px) {
+	      .ls-layout-full .ls-header {
+	        flex-direction: column;
+	      }
+
+	      .ls-layout-full .ls-session-info,
+	      .ls-layout-full .ls-laps-group,
+	      .ls-layout-full .ls-time-group,
+	      .ls-layout-full .ls-status-group {
+	        width: 100%;
+	      }
+
+	      .ls-layout-full .ls-weather {
+	        display: grid;
+	        grid-template-columns: repeat(2, minmax(0, 1fr));
+	      }
+
+	      .ls-layout-full .ls-weather-col {
+	        align-items: flex-start;
+	      }
+
+	      .ls-layout-full .ls-weather-value {
+	        text-align: left;
+	      }
+	    }
+
+	    @container (max-width: 360px) {
+	      .ls-layout-compact .ls-header {
+	        grid-template-columns: minmax(0, 1fr);
+	      }
+
+	      .ls-layout-compact .ls-laps-group,
+	      .ls-layout-compact .ls-time-group,
+	      .ls-layout-compact .ls-status-group {
+	        grid-column: 1 / -1;
+	        justify-self: start;
+	        align-items: flex-start;
+	      }
+
+	      .ls-layout-compact .ls-status-group {
+	        grid-row: auto;
+	      }
+
+	      .ls-layout-compact .ls-status-row {
+	        justify-content: flex-start;
+	      }
+
+	      .ls-layout-compact .ls-weather {
+	        grid-template-columns: repeat(2, minmax(0, 1fr));
+	      }
+	    }
+	  `];
 
   connectedCallback() {
     super.connectedCallback();
@@ -11272,12 +15348,13 @@ class F1LiveSessionCard extends LitElement {
     this._clearSessionClockTimer();
   }
 
-  setConfig(config) {
-    this.config = {
-      theme_mode: DEFAULT_F1_THEME_MODE,
-      show_flag: true,
-      show_lap_progress: true,
-      show_track_status: true,
+	  setConfig(config) {
+	    this.config = {
+	      theme_mode: DEFAULT_F1_THEME_MODE,
+	      layout_mode: 'auto',
+	      show_flag: true,
+	      show_lap_progress: true,
+	      show_track_status: true,
       show_weather: true,
       show_time_remaining: false,
       show_time_elapsed: false,
@@ -11301,11 +15378,12 @@ class F1LiveSessionCard extends LitElement {
       weather_entity: '',
       next_race_entity: '',
       session_time_remaining_entity: '',
-      session_time_elapsed_entity: '',
-      overtake_mode_entity: '',
-      straight_mode_entity: '',
-    };
-  }
+	      session_time_elapsed_entity: '',
+	      overtake_mode_entity: '',
+	      straight_mode_entity: '',
+	      layout_mode: 'auto',
+	    };
+	  }
 
   getCardSize() {
     return 2;
@@ -11632,19 +15710,17 @@ class F1LiveSessionCard extends LitElement {
   _formatLocalTime(value, offset) {
     const dt = this._parseDateWithOffset(value, offset);
     if (!dt) return null;
-    const timeFormat = this.hass?.locale?.time_format;
-    const hour12 = timeFormat === '12';
     const timeZone = this._getTimeZone();
-    try {
-      return new Intl.DateTimeFormat(this.hass?.locale?.language || undefined, {
+    return formatHassDateTime(
+      this.hass,
+      dt,
+      {
         hour: '2-digit',
         minute: '2-digit',
-        hour12,
         timeZone,
-      }).format(dt);
-    } catch (err) {
-      return dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12, timeZone });
-    }
+      },
+      null,
+    );
   }
 
   _getTimeZone() {
@@ -11810,7 +15886,24 @@ class F1LiveSessionCard extends LitElement {
     if (!entity || entity.state === 'unavailable' || entity.state === 'unknown') {
       return null;
     }
-    return entity.attributes || {};
+    const attributes = entity.attributes || {};
+    const temperatureUnit = getF1TemperatureUnit(this.hass, entity);
+    const windSpeedUnit = getF1UnitSystemUnit(this.hass, 'wind_speed', 'm/s');
+    const entityTemperature = Number(entity.state);
+    return {
+      ...attributes,
+      air_temperature: Number.isFinite(entityTemperature)
+        ? entityTemperature
+        : convertF1Temperature(attributes.air_temperature, '°C', temperatureUnit),
+      track_temperature: convertF1Temperature(
+        attributes.track_temperature,
+        '°C',
+        temperatureUnit,
+      ),
+      temperature_unit: temperatureUnit,
+      wind_speed: convertF1Speed(attributes.wind_speed, 'm/s', windSpeedUnit),
+      wind_speed_unit: windSpeedUnit,
+    };
   }
 
   _getCountryFlagUrl(country) {
@@ -11855,17 +15948,30 @@ class F1LiveSessionCard extends LitElement {
     return '';
   }
 
-  _isCountdownImminent() {
-    const sessionStatus = this._getSessionStatusData();
-    const startValue = this._getSessionStartValue(sessionStatus);
-    const start = this._parseDateWithOffset(startValue, sessionStatus?.gmt_offset);
-    if (!start) return false;
-    const diffMs = start.getTime() - Date.now();
-    return diffMs > 0 && diffMs < 5 * 60 * 1000; // Less than 5 minutes
-  }
+	  _isCountdownImminent() {
+	    const sessionStatus = this._getSessionStatusData();
+	    const startValue = this._getSessionStartValue(sessionStatus);
+	    const start = this._parseDateWithOffset(startValue, sessionStatus?.gmt_offset);
+	    if (!start) return false;
+	    const diffMs = start.getTime() - Date.now();
+	    return diffMs > 0 && diffMs < 5 * 60 * 1000; // Less than 5 minutes
+	  }
 
-  render() {
-    if (!this.hass || !this.config) {
+	  _normalizeLayoutMode(value) {
+	    const mode = String(value || 'auto').trim().toLowerCase();
+	    if (mode === 'compact' || mode === 'full') return mode;
+	    return 'auto';
+	  }
+
+	  _getEffectiveLayoutMode() {
+	    const mode = this._normalizeLayoutMode(this.config?.layout_mode);
+	    if (mode !== 'auto') return mode;
+	    const width = this._responsiveCardWidth || measureRenderedCardWidth(this);
+	    return width > 0 && width <= 520 ? 'compact' : 'full';
+	  }
+
+	  render() {
+	    if (!this.hass || !this.config) {
       return html`<ha-card><div class="ls-card ls-unavailable">Loading...</div></ha-card>`;
     }
     const sessionEntityId = this._configuredEntityId(
@@ -11881,18 +15987,20 @@ class F1LiveSessionCard extends LitElement {
     const nextRace = (!session && !sessionStatus) ? this._getNextRaceData() : null;
     if (!session && !sessionStatus && !nextRace) {
       return html`<ha-card><div class="ls-card ls-unavailable">No session data</div></ha-card>`;
-    }
-    this._ensureCountdownTimer(sessionStatus, nextRace);
-    this._ensureSessionClockTimer();
+	    }
+	    this._ensureCountdownTimer(sessionStatus, nextRace);
+	    this._ensureSessionClockTimer();
+	    const layoutMode = this._getEffectiveLayoutMode();
+	    const compactLayout = layoutMode === 'compact';
 
-    if (nextRace) {
+	    if (nextRace) {
       const gpName = nextRace.race_name?.replace(' Grand Prix', ' GP') || nextRace.race_name || 'Next race';
       const countdown = this._getNextRaceCountdown(nextRace);
       const flagUrl = nextRace.country_flag_url;
-      return html`
-        <ha-card>
-          <div class="ls-card">
-            <div class="ls-header">
+	      return html`
+	        <ha-card>
+	          <div class="ls-card ls-layout-${layoutMode}">
+	            <div class="ls-header">
               ${this.config.show_flag !== false ? html`
                 <div class="ls-session-info">
                   ${flagUrl ? html`<img class="ls-flag" src="${flagUrl}" alt="${nextRace.circuit_country || ''}" />` : null}
@@ -11951,10 +16059,10 @@ class F1LiveSessionCard extends LitElement {
     const statusColor = trackStatusColors[trackStatus] || trackStatusColors.CLEAR;
     const statusLabel = TRACK_STATUS_LABELS[trackStatus] || 'Unknown';
 
-    return html`
-      <ha-card>
-        <div class="ls-card">
-          <div class="ls-header">
+	    return html`
+	      <ha-card>
+	        <div class="ls-card ls-layout-${layoutMode}">
+	          <div class="ls-header">
             ${this.config.show_flag !== false ? html`
               <div class="ls-session-info">
                 ${flagUrl ? html`<img class="ls-flag" src="${flagUrl}" alt="${data.meeting_country || ''}" />` : null}
@@ -12000,11 +16108,11 @@ class F1LiveSessionCard extends LitElement {
               const showElapsed = this.config.show_time_elapsed && clockData.elapsed;
               return (showRemaining || showElapsed) ? html`
                 <div class="ls-time-group">
-                  ${showRemaining ? html`
-                    <div class="ls-time-row">
-                      <span class="ls-time-label">Remaining</span>
-                      <span class="ls-time-value">${clockData.remaining}</span>
-                    </div>
+	                  ${showRemaining ? html`
+	                    <div class="ls-time-row">
+	                      <span class="ls-time-label">${compactLayout ? 'Left' : 'Remaining'}</span>
+	                      <span class="ls-time-value">${clockData.remaining}</span>
+	                    </div>
                   ` : null}
                   ${showElapsed ? html`
                     <div class="ls-time-row">
@@ -12047,22 +16155,22 @@ class F1LiveSessionCard extends LitElement {
 
           ${this.config.show_weather !== false && weather ? html`
             <div class="ls-weather">
-              ${weather.wind_speed !== undefined ? html`
+              ${weather.wind_speed !== undefined && weather.wind_speed !== null ? html`
                 <div class="ls-weather-col">
                   <span class="ls-weather-label">Wind</span>
-                  <span class="ls-weather-value">${Number(weather.wind_speed).toFixed(1)} m/s ${this._windDirectionToCardinal(weather.wind_from_direction_degrees)}</span>
+                  <span class="ls-weather-value">${Number(weather.wind_speed).toFixed(1)} ${weather.wind_speed_unit || 'm/s'} ${this._windDirectionToCardinal(weather.wind_from_direction_degrees)}</span>
                 </div>
               ` : null}
-              ${weather.track_temperature !== undefined ? html`
+              ${weather.track_temperature !== undefined && weather.track_temperature !== null ? html`
                 <div class="ls-weather-col">
                   <span class="ls-weather-label">Track</span>
-                  <span class="ls-weather-value">${Number(weather.track_temperature).toFixed(1)} °C</span>
+                  <span class="ls-weather-value">${Number(weather.track_temperature).toFixed(1)} ${weather.temperature_unit || '°C'}</span>
                 </div>
               ` : null}
-              ${weather.air_temperature !== undefined ? html`
+              ${weather.air_temperature !== undefined && weather.air_temperature !== null ? html`
                 <div class="ls-weather-col">
                   <span class="ls-weather-label">Air</span>
-                  <span class="ls-weather-value">${Number(weather.air_temperature).toFixed(1)} °C</span>
+                  <span class="ls-weather-value">${Number(weather.air_temperature).toFixed(1)} ${weather.temperature_unit || '°C'}</span>
                 </div>
               ` : null}
               ${weather.humidity !== undefined ? html`
@@ -12192,10 +16300,11 @@ class F1LiveSessionCardEditor extends LitElement {
     this._activeTab = 'sources';
   }
 
-  setConfig(config) {
-    this._config = {
-      show_flag: true,
-      show_lap_progress: true,
+	  setConfig(config) {
+	    this._config = {
+	      layout_mode: 'auto',
+	      show_flag: true,
+	      show_lap_progress: true,
       show_track_status: true,
       show_weather: true,
       show_time_remaining: false,
@@ -12321,9 +16430,14 @@ class F1LiveSessionCardEditor extends LitElement {
 
   _renderDisplayTab() {
     return html`
-      <div class="display-section">
-        ${renderThemeModeSelect(this)}
-        ${this._renderSwitch('show_flag', 'Show country flag')}
+	      <div class="display-section">
+	        ${renderThemeModeSelect(this)}
+	        ${renderEditorSelect(this, 'layout_mode', 'Layout mode', [
+	          { value: 'auto', label: 'Auto compact on narrow cards' },
+	          { value: 'compact', label: 'Compact' },
+	          { value: 'full', label: 'Full' },
+	        ], 'Auto keeps the full desktop layout and condenses the card on narrow mobile or Sections layouts.')}
+	        ${this._renderSwitch('show_flag', 'Show country flag')}
         ${this._renderSwitch('show_lap_progress', 'Show lap progress')}
         ${this._renderSwitch('show_track_status', 'Show track status pill')}
         ${this._renderSwitch('show_weather', 'Show weather data')}
@@ -12414,6 +16528,8 @@ const F1_REPLAY_STATUS_META = {
   paused: { label: 'PAUSED', tone: 'paused', icon: 'mdi:pause' },
 };
 
+const F1_MEDIA_PLAYER_SEEK_FEATURE = 2;
+
 const F1_REPLAY_ACTIONS = [
   {
     key: 'load_button_entity',
@@ -12476,11 +16592,15 @@ class F1ReplayControlCard extends LitElement {
     hass: {},
     config: {},
     _actionBusy: { state: true },
+    _seekBusy: { state: true },
+    _seekPreviewPosition: { state: true },
   };
 
   constructor() {
     super();
     this._actionBusy = null;
+    this._seekBusy = false;
+    this._seekPreviewPosition = null;
   }
 
   static styles = [F1_THEME_STYLES, css`
@@ -12520,7 +16640,7 @@ class F1ReplayControlCard extends LitElement {
     }
 
     .rc-card {
-      font-family: 'Formula1 Display', 'Titillium Web', Arial, sans-serif;
+      font-family: var(--f1-card-body-font-family, 'Formula1 Display', 'Titillium Web', Arial, sans-serif);
       display: flex;
       flex-direction: column;
       gap: 10px;
@@ -12556,7 +16676,7 @@ class F1ReplayControlCard extends LitElement {
     }
 
     .rc-title {
-      font-family: 'Formula1 Wide', 'Formula1 Display', Arial, sans-serif;
+      font-family: var(--f1-card-display-font-family, 'Formula1 Wide', 'Formula1 Display', Arial, sans-serif);
       font-weight: 600;
       font-size: 14px;
       letter-spacing: 0.018em;
@@ -12849,6 +16969,81 @@ class F1ReplayControlCard extends LitElement {
       overflow: hidden;
     }
 
+    .rc-seek-wrap {
+      position: relative;
+      min-width: 0;
+      height: 24px;
+      display: grid;
+      align-items: center;
+    }
+
+    .rc-seek-input {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 24px;
+      margin: 0;
+      appearance: none;
+      background: transparent;
+      cursor: pointer;
+      accent-color: #e10600;
+    }
+
+    .rc-seek-input::-webkit-slider-runnable-track {
+      height: 4px;
+      border-radius: 999px;
+      background: linear-gradient(
+        90deg,
+        #e10600 0%,
+        #ff3b30 var(--rc-progress, 0%),
+        var(--rc-chip) var(--rc-progress, 0%),
+        var(--rc-chip) 100%
+      );
+    }
+
+    .rc-seek-input::-moz-range-track {
+      height: 4px;
+      border-radius: 999px;
+      background: linear-gradient(
+        90deg,
+        #e10600 0%,
+        #ff3b30 var(--rc-progress, 0%),
+        var(--rc-chip) var(--rc-progress, 0%),
+        var(--rc-chip) 100%
+      );
+    }
+
+    .rc-seek-input::-webkit-slider-thumb {
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      margin-top: -5px;
+      border-radius: 50%;
+      border: 2px solid #ffffff;
+      background: #e10600;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
+    }
+
+    .rc-seek-input::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid #ffffff;
+      background: #e10600;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
+    }
+
+    .rc-seek-input:focus-visible {
+      outline: 2px solid color-mix(in srgb, #e10600 64%, transparent);
+      outline-offset: 3px;
+      border-radius: 999px;
+    }
+
+    .rc-seek-input:disabled {
+      cursor: not-allowed;
+      opacity: 0.58;
+    }
+
     .rc-progress-bar {
       height: 100%;
       width: var(--rc-progress, 0%);
@@ -12920,6 +17115,11 @@ class F1ReplayControlCard extends LitElement {
 
     .rc-card.compact .rc-progress-track {
       height: 3px;
+    }
+
+    .rc-card.compact .rc-seek-wrap,
+    .rc-card.compact .rc-seek-input {
+      height: 22px;
     }
 
     .rc-card.compact .rc-button-label {
@@ -13169,16 +17369,99 @@ class F1ReplayControlCard extends LitElement {
     const attrs = statusEntity?.attributes || {};
     const playerAttrs = playerEntity?.attributes || {};
     const position = Number(
-      attrs.playback_position_s ?? playerAttrs.playback_position_s ?? playerEntity?.attributes?.media_position ?? 0,
+      playerAttrs.playback_position_s ?? playerAttrs.media_position ?? attrs.playback_position_s ?? attrs.media_position ?? 0,
     );
     const total = Number(
-      attrs.playback_total_s ?? playerAttrs.playback_total_s ?? playerEntity?.attributes?.media_duration ?? 0,
+      playerAttrs.playback_total_s ?? playerAttrs.media_duration ?? attrs.playback_total_s ?? attrs.media_duration ?? 0,
     );
     const downloadProgress = Number(attrs.download_progress ?? 0);
     const progress = total > 0
       ? Math.max(0, Math.min(100, (position / total) * 100))
       : Math.max(0, Math.min(100, downloadProgress));
     return { position, total, progress };
+  }
+
+  _clampPlaybackPosition(value, total) {
+    const numericValue = Number(value);
+    const numericTotal = Number(total);
+    if (!Number.isFinite(numericValue)) return 0;
+    const max = Number.isFinite(numericTotal) && numericTotal > 0 ? numericTotal : 0;
+    return Math.max(0, Math.min(max, numericValue));
+  }
+
+  _supportsMediaSeek(playerEntity) {
+    if (!this._isUsableEntity(playerEntity)) return false;
+    const features = Number(playerEntity?.attributes?.supported_features || 0);
+    return Boolean(features & F1_MEDIA_PLAYER_SEEK_FEATURE);
+  }
+
+  _playbackPreview(playback) {
+    if (this._seekPreviewPosition === null || this._seekPreviewPosition === undefined) {
+      return playback;
+    }
+    const position = this._clampPlaybackPosition(this._seekPreviewPosition, playback.total);
+    const progress = playback.total > 0
+      ? Math.max(0, Math.min(100, (position / playback.total) * 100))
+      : playback.progress;
+    return { ...playback, position, progress };
+  }
+
+  _handleSeekInput(ev, playback) {
+    this._seekPreviewPosition = this._clampPlaybackPosition(ev?.target?.value, playback.total);
+  }
+
+  async _handleSeekChange(ev, playback, state) {
+    if (this._seekBusy || this._isBusyState(state) || typeof this.hass?.callService !== 'function') return;
+    const playerId = this._configuredEntityId('player_entity');
+    if (!playerId) return;
+
+    const seekPosition = this._clampPlaybackPosition(ev?.target?.value, playback.total);
+    this._seekPreviewPosition = seekPosition;
+    this._seekBusy = true;
+    try {
+      await this.hass.callService('media_player', 'media_seek', {
+        entity_id: playerId,
+        seek_position: seekPosition,
+      });
+    } finally {
+      this._seekBusy = false;
+      this._seekPreviewPosition = null;
+    }
+  }
+
+  _renderProgress(playback, playerEntity, state) {
+    const canSeek = this._supportsMediaSeek(playerEntity) && playback.total > 0;
+    const preview = this._playbackPreview(playback);
+    const progressStyle = `--rc-progress: ${preview.progress.toFixed(1)}%;`;
+    const disabled = this._seekBusy || this._isBusyState(state);
+
+    return html`
+      <div class="rc-progress">
+        <span class="rc-progress-time">${this._formatTime(preview.position)}</span>
+        ${canSeek ? html`
+          <span class="rc-seek-wrap">
+            <input
+              class="rc-seek-input"
+              type="range"
+              min="0"
+              max=${Math.max(0, Math.floor(playback.total))}
+              step="1"
+              .value=${String(Math.floor(preview.position))}
+              style=${progressStyle}
+              aria-label="Replay position"
+              ?disabled=${disabled}
+              @input=${(ev) => this._handleSeekInput(ev, playback)}
+              @change=${(ev) => this._handleSeekChange(ev, playback, state)}
+            />
+          </span>
+        ` : html`
+          <div class="rc-progress-track">
+            <div class="rc-progress-bar" style=${progressStyle}></div>
+          </div>
+        `}
+        <span class="rc-progress-time">${this._formatTime(playback.total)}</span>
+      </div>
+    `;
   }
 
   _downloadError(statusEntity) {
@@ -13365,7 +17648,6 @@ class F1ReplayControlCard extends LitElement {
       || statusEntity?.attributes?.selected_year
       || '--';
     const playback = this._playback(statusEntity, playerEntity);
-    const progressStyle = `--rc-progress: ${playback.progress.toFixed(1)}%;`;
     const downloadError = this._downloadError(statusEntity);
     const showSecondarySelects = this.config.show_secondary_selects !== false && !compact;
     const showStatusDetails = this.config.show_status_details !== false && !compact;
@@ -13413,15 +17695,7 @@ class F1ReplayControlCard extends LitElement {
               : compact ? null : this._renderSetupActionsGroup(state)}
           </div>
 
-          ${this.config.show_progress !== false ? html`
-            <div class="rc-progress">
-              <span class="rc-progress-time">${this._formatTime(playback.position)}</span>
-              <div class="rc-progress-track">
-                <div class="rc-progress-bar" style=${progressStyle}></div>
-              </div>
-              <span class="rc-progress-time">${this._formatTime(playback.total)}</span>
-            </div>
-          ` : null}
+          ${this.config.show_progress !== false ? this._renderProgress(playback, playerEntity, state) : null}
 
           <div class="rc-controls">
             ${this._visibleActions().map((action) => this._renderAction(action, state))}
@@ -13715,7 +17989,7 @@ class F1NextRaceCard extends LitElement {
     .nr-card {
       position: relative;
       overflow: hidden;
-      font-family: 'Formula1 Display', 'Titillium Web', Arial, sans-serif;
+      font-family: var(--f1-card-body-font-family, 'Formula1 Display', 'Titillium Web', Arial, sans-serif);
       display: flex;
       flex-direction: column;
       gap: clamp(6px, 1vw, 10px);
@@ -13774,10 +18048,10 @@ class F1NextRaceCard extends LitElement {
     }
 
     .nr-title {
-      font-family: 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-heading-font-family, 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif);
       font-size: clamp(14px, 2vw, 18px);
       line-height: 1.06;
-      letter-spacing: 0.02em;
+      letter-spacing: var(--f1-card-heading-letter-spacing, 0.02em);
       text-wrap: balance;
       margin: 0;
     }
@@ -13790,7 +18064,7 @@ class F1NextRaceCard extends LitElement {
       font-size: clamp(9px, 1.15vw, 11px);
       color: var(--nr-muted);
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: var(--f1-card-label-letter-spacing, 0.05em);
     }
 
     .nr-countdown-compact {
@@ -13818,14 +18092,14 @@ class F1NextRaceCard extends LitElement {
 
     .nr-countdown-inline,
     .nr-metric-value {
-      font-family: 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-display-font-family, 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif);
       line-height: 1.05;
       white-space: nowrap;
     }
 
     .nr-countdown-inline {
       font-size: clamp(13px, 1.7vw, 17px);
-      letter-spacing: 0.03em;
+      letter-spacing: var(--f1-card-display-letter-spacing, 0.03em);
     }
 
     .nr-countdown-meta,
@@ -13846,9 +18120,10 @@ class F1NextRaceCard extends LitElement {
     .nr-section-label,
     .nr-weather-label,
     .nr-history-label {
+      font-family: var(--f1-card-label-font-family, 'Formula1 Display', 'Titillium Web', Arial, sans-serif);
       font-size: 8px;
       font-weight: 700;
-      letter-spacing: 0.12em;
+      letter-spacing: var(--f1-card-label-letter-spacing, 0.12em);
       text-transform: uppercase;
       color: var(--nr-soft);
     }
@@ -13898,9 +18173,9 @@ class F1NextRaceCard extends LitElement {
 
     .nr-section-title,
     .nr-mini-title {
-      font-family: 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-heading-font-family, 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif);
       font-size: clamp(10px, 1vw, 11px);
-      letter-spacing: 0.05em;
+      letter-spacing: var(--f1-card-heading-letter-spacing, 0.05em);
       margin: 0;
       text-transform: uppercase;
       color: var(--nr-text);
@@ -13952,9 +18227,10 @@ class F1NextRaceCard extends LitElement {
     }
 
     .nr-summary-countdown-value {
-      font-family: 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-display-font-family, 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif);
       font-size: clamp(15px, 2vw, 19px);
       line-height: 1.05;
+      letter-spacing: var(--f1-card-display-letter-spacing, normal);
       color: var(--nr-text);
       white-space: nowrap;
     }
@@ -14038,11 +18314,12 @@ class F1NextRaceCard extends LitElement {
     }
 
     .nr-schedule-head {
+      font-family: var(--f1-card-label-font-family, 'Formula1 Display', 'Titillium Web', Arial, sans-serif);
       padding: 0 0 4px;
       border-bottom: 1px solid var(--f1-card-divider);
       font-size: 8px;
       font-weight: 700;
-      letter-spacing: 0.12em;
+      letter-spacing: var(--f1-card-label-letter-spacing, 0.12em);
       text-transform: uppercase;
       color: var(--nr-soft);
     }
@@ -14082,6 +18359,7 @@ class F1NextRaceCard extends LitElement {
     }
 
     .nr-schedule-cell {
+      font-family: var(--f1-card-table-font-family, 'Formula1 Display', 'Titillium Web', Arial, sans-serif);
       min-width: 0;
       font-size: 10px;
       color: var(--nr-text);
@@ -14147,9 +18425,10 @@ class F1NextRaceCard extends LitElement {
     }
 
     .nr-schedule-inline-time label {
+      font-family: var(--f1-card-label-font-family, 'Formula1 Display', 'Titillium Web', Arial, sans-serif);
       font-size: 8px;
       color: var(--nr-soft);
-      letter-spacing: 0.08em;
+      letter-spacing: var(--f1-card-label-letter-spacing, 0.08em);
       text-transform: uppercase;
     }
 
@@ -14321,9 +18600,10 @@ class F1NextRaceCard extends LitElement {
     }
 
     .nr-weather-row-label {
+      font-family: var(--f1-card-label-font-family, 'Formula1 Display', 'Titillium Web', Arial, sans-serif);
       font-size: 8px;
       font-weight: 700;
-      letter-spacing: 0.1em;
+      letter-spacing: var(--f1-card-label-letter-spacing, 0.1em);
       text-transform: uppercase;
       color: var(--nr-soft);
     }
@@ -14422,7 +18702,7 @@ class F1NextRaceCard extends LitElement {
     }
 
     .nr-map-fallback-title {
-      font-family: 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-display-font-family, 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif);
       font-size: clamp(11px, 1.4vw, 14px);
       line-height: 1;
       max-width: 14ch;
@@ -14436,6 +18716,7 @@ class F1NextRaceCard extends LitElement {
     }
 
     .nr-chip {
+      font-family: var(--f1-card-label-font-family, 'Formula1 Display', 'Titillium Web', Arial, sans-serif);
       display: inline-flex;
       align-items: center;
       gap: 4px;
@@ -14443,7 +18724,7 @@ class F1NextRaceCard extends LitElement {
       border-radius: 999px;
       font-size: 8px;
       font-weight: 700;
-      letter-spacing: 0.1em;
+      letter-spacing: var(--f1-card-label-letter-spacing, 0.1em);
       text-transform: uppercase;
       color: var(--nr-text);
       background: var(--f1-card-chip);
@@ -14532,10 +18813,11 @@ class F1NextRaceCard extends LitElement {
     }
 
     .nr-time-line span {
+      font-family: var(--f1-card-label-font-family, 'Formula1 Display', 'Titillium Web', Arial, sans-serif);
       font-size: 8px;
       color: var(--nr-muted);
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: var(--f1-card-label-letter-spacing, 0.08em);
     }
 
     .nr-time-line strong {
@@ -14627,6 +18909,7 @@ class F1NextRaceCard extends LitElement {
     }
 
     .nr-history-toggle {
+      font-family: var(--f1-card-label-font-family, 'Formula1 Display', 'Titillium Web', Arial, sans-serif);
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -14639,7 +18922,7 @@ class F1NextRaceCard extends LitElement {
       font: inherit;
       font-size: 9px;
       font-weight: 700;
-      letter-spacing: 0.06em;
+      letter-spacing: var(--f1-card-label-letter-spacing, 0.06em);
       text-transform: uppercase;
       cursor: pointer;
     }
@@ -15132,41 +19415,21 @@ class F1NextRaceCard extends LitElement {
 
   _formatDate(date, timeZone = this._getTimeZone()) {
     if (!(date instanceof Date) || Number.isNaN(date.getTime())) return '';
-    try {
-      return new Intl.DateTimeFormat(this.hass?.locale?.language || undefined, {
-        weekday: 'short',
-        day: 'numeric',
-        month: 'short',
-        timeZone,
-      }).format(date);
-    } catch (err) {
-      return date.toLocaleDateString([], {
-        weekday: 'short',
-        day: 'numeric',
-        month: 'short',
-        timeZone,
-      });
-    }
+    return formatHassDateTime(this.hass, date, {
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short',
+      timeZone,
+    });
   }
 
   _formatTime(date, timeZone = this._getTimeZone()) {
     if (!(date instanceof Date) || Number.isNaN(date.getTime())) return '';
-    const hour12 = this.hass?.locale?.time_format === '12';
-    try {
-      return new Intl.DateTimeFormat(this.hass?.locale?.language || undefined, {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12,
-        timeZone,
-      }).format(date);
-    } catch (err) {
-      return date.toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12,
-        timeZone,
-      });
-    }
+    return formatHassDateTime(this.hass, date, {
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone,
+    });
   }
 
   _formatDateTimeParts(date, timeZone = this._getTimeZone()) {
@@ -15315,6 +19578,11 @@ class F1NextRaceCard extends LitElement {
   _resolveWeatherComparison(weatherState, trackWeatherState, sessionStatus) {
     const weatherAttrs = weatherState?.attributes || {};
     const trackAttrs = trackWeatherState?.attributes || {};
+    const weatherTemperatureUnit = getF1TemperatureUnit(this.hass, weatherState);
+    const trackTemperatureUnit = getF1TemperatureUnit(this.hass, trackWeatherState);
+    const windSpeedUnit = getF1UnitSystemUnit(this.hass, 'wind_speed', 'm/s');
+    const weatherStateTemperature = Number(weatherState?.state);
+    const trackStateTemperature = Number(trackWeatherState?.state);
     const status = String(sessionStatus?.state || '').toLowerCase();
     const weekendActive = ['pre', 'live', 'suspended', 'break'].includes(status);
     const useLiveNow = this.config.prefer_live_weather !== false
@@ -15330,9 +19598,21 @@ class F1NextRaceCard extends LitElement {
           icon: weatherAttrs.icon || 'mdi:weather-partly-cloudy',
           title: 'Now at circuit',
           status: 'Live track feed',
-          temperature: trackAttrs.air_temperature,
-          trackTemperature: trackAttrs.track_temperature,
-          windSpeed: trackAttrs.wind_speed,
+          temperature: Number.isFinite(trackStateTemperature)
+            ? trackStateTemperature
+            : convertF1Temperature(
+              trackAttrs.air_temperature,
+              '°C',
+              trackTemperatureUnit,
+            ),
+          trackTemperature: convertF1Temperature(
+            trackAttrs.track_temperature,
+            '°C',
+            trackTemperatureUnit,
+          ),
+          temperatureUnit: trackTemperatureUnit,
+          windSpeed: convertF1Speed(trackAttrs.wind_speed, 'm/s', windSpeedUnit),
+          windSpeedUnit,
           windDirection: trackAttrs.wind_from_direction_degrees,
           rainfall: trackAttrs.rainfall,
           precipitationProbability: null,
@@ -15344,9 +19624,21 @@ class F1NextRaceCard extends LitElement {
           icon: weatherAttrs.icon || 'mdi:weather-partly-cloudy',
           title: 'Now at circuit',
           status: 'Current forecast',
-          temperature: weatherAttrs.current_temperature,
+          temperature: Number.isFinite(weatherStateTemperature)
+            ? weatherStateTemperature
+            : convertF1Temperature(
+              weatherAttrs.current_temperature,
+              '°C',
+              weatherTemperatureUnit,
+            ),
           trackTemperature: null,
-          windSpeed: weatherAttrs.current_wind_speed,
+          temperatureUnit: weatherTemperatureUnit,
+          windSpeed: convertF1Speed(
+            weatherAttrs.current_wind_speed,
+            'm/s',
+            windSpeedUnit,
+          ),
+          windSpeedUnit,
           windDirection: weatherAttrs.current_wind_from_direction_degrees,
           rainfall: weatherAttrs.current_precipitation,
           precipitationProbability: weatherAttrs.current_precipitation_probability,
@@ -15359,9 +19651,15 @@ class F1NextRaceCard extends LitElement {
       icon: weatherAttrs.race_weather_icon || weatherAttrs.icon || 'mdi:weather-partly-cloudy',
       title: 'Race start',
       status: 'Race start forecast',
-      temperature: weatherAttrs.race_temperature,
+      temperature: convertF1Temperature(
+        weatherAttrs.race_temperature,
+        '°C',
+        weatherTemperatureUnit,
+      ),
       trackTemperature: null,
-      windSpeed: weatherAttrs.race_wind_speed,
+      temperatureUnit: weatherTemperatureUnit,
+      windSpeed: convertF1Speed(weatherAttrs.race_wind_speed, 'm/s', windSpeedUnit),
+      windSpeedUnit,
       windDirection: weatherAttrs.race_wind_from_direction_degrees,
       rainfall: weatherAttrs.race_precipitation,
       precipitationProbability: weatherAttrs.race_precipitation_probability,
@@ -15386,9 +19684,9 @@ class F1NextRaceCard extends LitElement {
     return directions[index];
   }
 
-  _formatTemperature(value) {
+  _formatTemperature(value, unit) {
     const num = Number(value);
-    return Number.isFinite(num) ? `${num.toFixed(1)} °C` : 'n/a';
+    return Number.isFinite(num) ? `${num.toFixed(1)} ${unit || '°C'}` : 'n/a';
   }
 
   _formatNumber(value, suffix = '', digits = 0) {
@@ -15397,11 +19695,11 @@ class F1NextRaceCard extends LitElement {
     return `${num.toFixed(digits)}${suffix}`;
   }
 
-  _formatWind(speed, directionDegrees) {
+  _formatWind(speed, directionDegrees, unit) {
     const speedValue = Number(speed);
     if (!Number.isFinite(speedValue)) return 'n/a';
     const direction = this._windDirectionToCardinal(directionDegrees);
-    return `${speedValue.toFixed(1)} m/s${direction ? ` ${direction}` : ''}`;
+    return `${speedValue.toFixed(1)} ${unit || 'm/s'}${direction ? ` ${direction}` : ''}`;
   }
 
   _formatCountdownCompact(countdown) {
@@ -15650,7 +19948,7 @@ class F1NextRaceCard extends LitElement {
       ? this._formatNumber(block.humidity, '%')
       : 'n/a';
     const trackOrHumidity = block.trackTemperature !== null && block.trackTemperature !== undefined
-      ? this._formatTemperature(block.trackTemperature)
+      ? this._formatTemperature(block.trackTemperature, block.temperatureUnit)
       : humidityValue;
     const trackOrHumidityLabel = block.trackTemperature !== null && block.trackTemperature !== undefined
       ? 'Track'
@@ -15660,9 +19958,19 @@ class F1NextRaceCard extends LitElement {
       : this._formatNumber(block.rainfall, ' mm', 1);
 
     return [
-      { label: 'Air', value: this._formatTemperature(block.temperature) },
+      {
+        label: 'Air',
+        value: this._formatTemperature(block.temperature, block.temperatureUnit),
+      },
       { label: trackOrHumidityLabel, value: trackOrHumidity },
-      { label: 'Wind', value: this._formatWind(block.windSpeed, block.windDirection) },
+      {
+        label: 'Wind',
+        value: this._formatWind(
+          block.windSpeed,
+          block.windDirection,
+          block.windSpeedUnit,
+        ),
+      },
       { label: 'Rain', value: rainValue },
     ].filter((item) => item.value !== 'n/a');
   }
@@ -15820,15 +20128,31 @@ class F1NextRaceCard extends LitElement {
       : this._formatNumber(block.rainfall, ' mm', 1);
 
     const secondaryMetric = block.trackTemperature !== null && block.trackTemperature !== undefined
-      ? { label: 'Track', value: this._formatTemperature(block.trackTemperature) }
+      ? {
+          label: 'Track',
+          value: this._formatTemperature(
+            block.trackTemperature,
+            block.temperatureUnit,
+          ),
+        }
       : block.humidity !== null && block.humidity !== undefined
         ? { label: 'Humidity', value: this._formatNumber(block.humidity, '%') }
         : null;
 
     return [
-      { label: 'Air', value: this._formatTemperature(block.temperature) },
+      {
+        label: 'Air',
+        value: this._formatTemperature(block.temperature, block.temperatureUnit),
+      },
       secondaryMetric,
-      { label: 'Wind', value: this._formatWind(block.windSpeed, block.windDirection) },
+      {
+        label: 'Wind',
+        value: this._formatWind(
+          block.windSpeed,
+          block.windDirection,
+          block.windSpeedUnit,
+        ),
+      },
       rainValue !== 'n/a'
         ? { label: 'Rain', value: rainValue }
         : block.humidity !== null && block.humidity !== undefined && secondaryMetric?.label !== 'Humidity'
@@ -16554,7 +20878,7 @@ class F1SeasonCalendarCard extends LitElement {
       --sc-shadow: var(--f1-card-shadow);
       --sc-panel: var(--f1-card-panel);
       display: block;
-      font-family: 'Formula1 Display', 'Titillium Web', Arial, sans-serif;
+      font-family: var(--f1-card-body-font-family, 'Formula1 Display', 'Titillium Web', Arial, sans-serif);
     }
 
     ha-card {
@@ -16618,7 +20942,7 @@ class F1SeasonCalendarCard extends LitElement {
 
     .sc-title {
       margin: 0;
-      font-family: 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-display-font-family, 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif);
       font-size: clamp(14px, 2vw, 18px);
       line-height: 1.06;
       letter-spacing: 0.02em;
@@ -16790,7 +21114,7 @@ class F1SeasonCalendarCard extends LitElement {
     }
 
     .sc-date {
-      font-family: 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-display-font-family, 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif);
       font-size: 10px;
       line-height: 1.1;
       color: var(--sc-text);
@@ -17398,7 +21722,7 @@ class F1RaceControlCard extends LitElement {
     }
 
     .rc-card {
-      font-family: 'Formula1 Display', 'Titillium Web', Arial, sans-serif;
+      font-family: var(--f1-card-body-font-family, 'Formula1 Display', 'Titillium Web', Arial, sans-serif);
       display: flex;
       align-items: center;
       flex-wrap: wrap;
@@ -17513,7 +21837,7 @@ class F1RaceControlCard extends LitElement {
     }
 
     .rc-list-shell {
-      font-family: 'Formula1 Display', 'Titillium Web', Arial, sans-serif;
+      font-family: var(--f1-card-body-font-family, 'Formula1 Display', 'Titillium Web', Arial, sans-serif);
       border-radius: var(--ha-card-border-radius, 12px);
       background:
         radial-gradient(circle at 10% 20%, var(--f1-card-panel), transparent 40%),
@@ -18287,6 +22611,7 @@ class F1RaceControlCard extends LitElement {
       entity: 'sensor.f1_race_control',
       show_fia_logo: true,
       hide_blue_flags: false,
+      hide_track_limits: false,
       min_display_time: 0,
       ...config,
     };
@@ -18387,8 +22712,10 @@ class F1RaceControlCard extends LitElement {
 
   _shouldHideMessage(item) {
     if (!item) return true;
-    if (this.config?.hide_blue_flags !== true) return false;
-    return this._isBlueFlagMessage(item);
+    if (this.config?.hide_blue_flags === true && this._isBlueFlagMessage(item)) {
+      return true;
+    }
+    return this.config?.hide_track_limits === true && this._isTrackLimitsMessage(item);
   }
 
   _isBlueFlagMessage(item) {
@@ -18398,6 +22725,11 @@ class F1RaceControlCard extends LitElement {
 
     const message = this._formatMessage(item?.message || '').toLowerCase();
     return message.includes('waved blue flag') || message.includes('blue flag');
+  }
+
+  _isTrackLimitsMessage(item) {
+    const message = this._formatMessage(item?.message || '').toUpperCase();
+    return message.includes('TRACK LIMITS');
   }
 
   _parseIncidentTime(value) {
@@ -18496,7 +22828,7 @@ class F1RaceControlCard extends LitElement {
           ` : null}
 
           <div class="rc-content">
-            <div class="rc-message ${messageClass}" .innerHTML=${formattedMessage}></div>
+            <div class="rc-message ${messageClass}">${formattedMessage}</div>
             ${queueCount > 0 ? html`
               <span class="rc-queue-indicator">+${queueCount}</span>
             ` : null}
@@ -18713,6 +23045,7 @@ class F1RaceControlCardEditor extends LitElement {
       display_mode: 'latest',
       show_fia_logo: true,
       hide_blue_flags: false,
+      hide_track_limits: false,
       min_display_time: 0,
       list_max_height: 600,
       show_clear_button: true,
@@ -18804,6 +23137,11 @@ class F1RaceControlCardEditor extends LitElement {
           'hide_blue_flags',
           'Hide blue flag messages',
           'Remove blue flag notices from the banner or list without deleting them from saved history'
+        )}
+        ${this._renderSwitch(
+          'hide_track_limits',
+          'Hide track limits messages',
+          'Remove track limits notices from the banner or list without deleting them from saved history'
         )}
 
         ${this._config.display_mode === 'list' ? html`
@@ -18934,7 +23272,7 @@ class F1FiaDocumentsCard extends LitElement {
       --fd-shadow: var(--f1-card-compact-shadow);
       --fd-red: #ff3b30;
       display: block;
-      font-family: 'Formula1 Display', 'Titillium Web', Arial, sans-serif;
+      font-family: var(--f1-card-body-font-family, 'Formula1 Display', 'Titillium Web', Arial, sans-serif);
     }
 
     ha-card {
@@ -19404,11 +23742,33 @@ class F1FiaDocumentsCard extends LitElement {
     return cleaned || text;
   }
 
+  _safeDocumentUrl(url) {
+    const value = String(url || '').trim();
+    if (!value) return '';
+    try {
+      const base = globalThis.window?.location?.origin || 'https://www.fia.com';
+      const parsed = new URL(value, base);
+      const host = parsed.hostname.toLowerCase();
+      if (
+        parsed.protocol === 'https:'
+        && (host === 'www.fia.com' || host === 'fia.com')
+        && parsed.pathname.toLowerCase().includes('.pdf')
+      ) {
+        return parsed.href;
+      }
+    } catch (_err) {
+      return '';
+    }
+    return '';
+  }
+
   _normalizeDocument(item, fallbackIndex = 0) {
     if (!item || typeof item !== 'object') return null;
     const name = item.name || item.title || item.document_name || '';
-    const url = String(item.url || item.href || '').trim();
+    const rawUrl = String(item.url || item.href || '').trim();
+    const url = rawUrl ? this._safeDocumentUrl(rawUrl) : '';
     const published = item.published || item.published_at || item.date || null;
+    if (rawUrl && !url) return null;
     if (!url && !name) return null;
     const documentNumber = this._extractDocumentNumber(name, item.document_number);
     const title = this._cleanDocumentTitle(name);
@@ -19480,32 +23840,16 @@ class F1FiaDocumentsCard extends LitElement {
     const parsed = this._parseDateTs(value);
     if (!Number.isFinite(parsed)) return 'Time unavailable';
     const date = new Date(parsed);
-    const locale = this.hass?.locale?.language || undefined;
     const timeZone = this.hass?.config?.time_zone || this.hass?.locale?.time_zone || undefined;
-    const timeFormat = this.hass?.locale?.time_format;
-    const hour12 = timeFormat === '12' ? true : timeFormat === '24' ? false : undefined;
     const currentYear = new Date().getFullYear();
-    try {
-      return new Intl.DateTimeFormat(locale, {
-        day: 'numeric',
-        month: 'short',
-        year: date.getFullYear() === currentYear ? undefined : 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12,
-        timeZone,
-      }).format(date);
-    } catch (_err) {
-      return date.toLocaleString(locale, {
-        day: 'numeric',
-        month: 'short',
-        year: date.getFullYear() === currentYear ? undefined : 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12,
-        timeZone,
-      });
-    }
+    return formatHassDateTime(this.hass, date, {
+      day: 'numeric',
+      month: 'short',
+      year: date.getFullYear() === currentYear ? undefined : 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone,
+    });
   }
 
   _documentTypeLabel(title) {
@@ -19655,7 +23999,8 @@ class F1FiaDocumentsCard extends LitElement {
       </div>
     `;
 
-    if (!doc.url) {
+    const safeUrl = this._safeDocumentUrl(doc.url);
+    if (!safeUrl) {
       return html`<div class=${rowClass} style="animation-delay: ${index * 30}ms;">${rowContent}</div>`;
     }
 
@@ -19663,7 +24008,7 @@ class F1FiaDocumentsCard extends LitElement {
       <a
         class=${rowClass}
         style="animation-delay: ${index * 30}ms;"
-        href=${doc.url}
+        href=${safeUrl}
         target=${newTab ? '_blank' : '_self'}
         rel=${newTab ? 'noopener noreferrer' : ''}
         aria-label=${`Open FIA document: ${doc.title}`}
@@ -20045,7 +24390,7 @@ class F1QualifyingTimingCard extends LitElement {
       --qt-chip: var(--f1-card-chip);
       --qt-shadow: var(--f1-card-shadow);
       display: block;
-      font-family: 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-body-font-family, 'Formula1 Display', 'Noto Sans', sans-serif);
     }
 
     ha-card {
@@ -20083,7 +24428,7 @@ class F1QualifyingTimingCard extends LitElement {
 
     .qt-header {
       text-align: center;
-      font-family: 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-display-font-family, 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif);
       font-size: clamp(16px, 2.4vw, 20px);
       font-weight: 700;
       letter-spacing: clamp(0.03em, 0.06em, 0.08em);
@@ -20104,7 +24449,7 @@ class F1QualifyingTimingCard extends LitElement {
       background: rgba(139, 92, 246, 0.22);
       border: 1px solid rgba(139, 92, 246, 0.45);
       color: #d8b4fe;
-      font-family: 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-display-font-family, 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif);
       font-size: clamp(13px, 2vw, 16px);
       font-weight: 700;
       letter-spacing: 0.06em;
@@ -20119,7 +24464,7 @@ class F1QualifyingTimingCard extends LitElement {
 
     .qt-table {
       display: grid;
-      gap: 4px;
+      gap: var(--f1-table-row-gap);
       min-width: 0;
       width: 100%;
     }
@@ -20190,7 +24535,7 @@ class F1QualifyingTimingCard extends LitElement {
     .qt-tla.full-name {
       letter-spacing: 0.01em;
       text-transform: none;
-      font-family: 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-body-font-family, 'Formula1 Display', 'Noto Sans', sans-serif);
       font-weight: 600;
     }
 
@@ -20287,6 +24632,12 @@ class F1QualifyingTimingCard extends LitElement {
     .qt-sector.timed {
       --sector-bg: var(--f1-timing-timed-bg, rgba(234, 179, 8, 0.18));
       --sector-text: var(--f1-timing-timed-text, #fde047);
+    }
+
+    .qt-sector.previous-lap {
+      --sector-bg: rgba(148, 163, 184, 0.12);
+      --sector-text: var(--qt-muted);
+      opacity: 0.72;
     }
 
     .qt-sector.source-personal-best {
@@ -20985,9 +25336,10 @@ class F1QualifyingTimingCard extends LitElement {
         )
         : compoundBaseColor;
       const tyreAge = tyre?.stint_laps ?? null;
-      const sector1 = this._resolveSectorDisplay(pos, 1, sectorDisplayMode);
-      const sector2 = this._resolveSectorDisplay(pos, 2, sectorDisplayMode);
-      const sector3 = this._resolveSectorDisplay(pos, 3, sectorDisplayMode);
+      const currentSectors = resolveF1CurrentSectorSet(this, pos);
+      const sector1 = this._resolveSectorDisplay(pos, 1, sectorDisplayMode, currentSectors);
+      const sector2 = this._resolveSectorDisplay(pos, 2, sectorDisplayMode, currentSectors);
+      const sector3 = this._resolveSectorDisplay(pos, 3, sectorDisplayMode, currentSectors);
       return {
         rn,
         tla: driverDisplay.tla || tla || '--',
@@ -21062,6 +25414,10 @@ class F1QualifyingTimingCard extends LitElement {
         const source = row[`sector_${idx}_source`];
         if (!Number.isFinite(time)) {
           row[`sector_${idx}_class`] = '';
+          continue;
+        }
+        if (source === 'previous_lap') {
+          row[`sector_${idx}_class`] = 'previous-lap';
           continue;
         }
         if (source === 'personal_best') {
@@ -21229,8 +25585,10 @@ class F1QualifyingTimingCard extends LitElement {
     return 'current';
   }
 
-  _resolveSectorDisplay(pos, idx, mode = 'current') {
-    const current = this._sectorFromSource(pos, idx, 'current');
+  _resolveSectorDisplay(pos, idx, mode = 'current', currentSectors = null) {
+    const current = Array.isArray(currentSectors)
+      ? currentSectors[idx - 1] || this._sectorFromSource(pos, idx, 'current')
+      : this._sectorFromSource(pos, idx, 'current');
     const personalBest = this._sectorFromSource(pos, idx, 'personal_best');
     if (mode === 'personal_best') return personalBest;
     if (mode === 'hybrid' && current.time == null) return personalBest;
@@ -21660,7 +26018,7 @@ class F1PracticeTimingCard extends LitElement {
       --pt-chip: var(--f1-card-chip);
       --pt-shadow: var(--f1-card-shadow);
       display: block;
-      font-family: 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-body-font-family, 'Formula1 Display', 'Noto Sans', sans-serif);
     }
 
     ha-card {
@@ -21697,7 +26055,7 @@ class F1PracticeTimingCard extends LitElement {
 
     .pt-header {
       text-align: center;
-      font-family: 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-display-font-family, 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif);
       font-size: clamp(16px, 2.4vw, 20px);
       font-weight: 700;
       letter-spacing: clamp(0.03em, 0.06em, 0.08em);
@@ -21716,7 +26074,7 @@ class F1PracticeTimingCard extends LitElement {
 
     .pt-table {
       display: grid;
-      gap: 4px;
+      gap: var(--f1-table-row-gap);
       min-width: 0;
       width: 100%;
     }
@@ -21793,7 +26151,7 @@ class F1PracticeTimingCard extends LitElement {
     .pt-driver.full-name {
       letter-spacing: 0.01em;
       text-transform: none;
-      font-family: 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-body-font-family, 'Formula1 Display', 'Noto Sans', sans-serif);
       font-weight: 600;
     }
 
@@ -21871,6 +26229,42 @@ class F1PracticeTimingCard extends LitElement {
       text-align: right;
     }
 
+    .pt-sector {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px 5px;
+      border-radius: 5px;
+      box-sizing: border-box;
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+      min-width: 52px;
+      font-size: clamp(9px, 1.4vw, 11px);
+      background: var(--sector-bg, transparent);
+      color: var(--sector-text, var(--pt-muted));
+    }
+
+    .pt-sector.overall-fastest {
+      --sector-bg: var(--f1-timing-overall-fastest-bg, rgba(139, 92, 246, 0.28));
+      --sector-text: var(--f1-timing-overall-fastest-text, #d8b4fe);
+    }
+
+    .pt-sector.personal-fastest {
+      --sector-bg: var(--f1-timing-personal-fastest-bg, rgba(34, 197, 94, 0.22));
+      --sector-text: var(--f1-timing-personal-fastest-text, #86efac);
+    }
+
+    .pt-sector.timed {
+      --sector-bg: var(--f1-timing-timed-bg, rgba(234, 179, 8, 0.18));
+      --sector-text: var(--f1-timing-timed-text, #fde047);
+    }
+
+    .pt-sector.previous-lap {
+      --sector-bg: rgba(148, 163, 184, 0.12);
+      --sector-text: var(--pt-muted);
+      opacity: 0.72;
+    }
+
     .pt-lap {
       display: inline-flex;
       align-items: center;
@@ -21886,6 +26280,7 @@ class F1PracticeTimingCard extends LitElement {
       color: var(--lap-text, var(--pt-muted));
     }
 
+    .pt-cell.center .pt-sector,
     .pt-cell.center .pt-lap {
       width: 100%;
       max-width: 100%;
@@ -21951,6 +26346,7 @@ class F1PracticeTimingCard extends LitElement {
       show_status: true,
       show_tyre: true,
       show_tyre_age: true,
+      show_sectors: false,
       show_last_lap: true,
       show_fastest_lap: true,
       show_timing_indicators: false,
@@ -21996,6 +26392,7 @@ class F1PracticeTimingCard extends LitElement {
       positions_entity: '',
       session_entity: 'sensor.f1_current_session',
       title: 'Free Practice',
+      show_sectors: false,
     };
   }
 
@@ -22086,20 +26483,20 @@ class F1PracticeTimingCard extends LitElement {
     let rows = [];
     let title = this._buildTitle(sessionState);
     const positionsMissing = !positionsState;
-    if (positionsState && !isUnavailableLikeEntityState(positionsState)) {
+    if (positionsState && this._hasUsableDriversEntity(positionsState)) {
       const positionDrivers = this._asDriversList(positionsState?.attributes?.drivers);
 
       const tyresState = this.config.tyres_entity
         ? getEntityStateWithFallback(this.hass, this.config.tyres_entity)
         : null;
-      const tyresDrivers = tyresState && !isUnavailableLikeEntityState(tyresState)
+      const tyresDrivers = tyresState && this._hasUsableDriversEntity(tyresState)
         ? this._asDriversList(tyresState?.attributes?.drivers)
         : [];
 
       const driversState = this.config.drivers_entity
         ? getEntityStateWithFallback(this.hass, this.config.drivers_entity)
         : null;
-      const driverList = driversState && !isUnavailableLikeEntityState(driversState)
+      const driverList = driversState && this._hasUsableDriversEntity(driversState)
         ? this._asDriversList(driversState?.attributes?.drivers)
         : [];
 
@@ -22177,6 +26574,18 @@ class F1PracticeTimingCard extends LitElement {
     }
     if (this.config.show_tyre_age !== false && !mediumLayout && !narrowLayout) {
       columns.push({ key: 'tyre_age', label: 'Age', width: 'minmax(28px, 0.28fr)', center: true });
+    }
+    if (this.config.show_sectors === true) {
+      const sectorWidth = narrowLayout
+        ? 'minmax(54px, 0.72fr)'
+        : mediumLayout
+          ? 'minmax(58px, 0.72fr)'
+          : 'minmax(62px, 0.75fr)';
+      columns.push(
+        { key: 'sector_1', label: 'S1', width: sectorWidth, center: true, groupStart: true },
+        { key: 'sector_2', label: 'S2', width: sectorWidth, center: true },
+        { key: 'sector_3', label: 'S3', width: sectorWidth, center: true },
+      );
     }
     if (this.config.show_last_lap !== false) {
       columns.push({ key: 'last_lap', label: 'Last Lap', width: narrowLayout ? 'minmax(72px, 1fr)' : 'minmax(78px, 0.95fr)', center: true, groupStart: true });
@@ -22259,6 +26668,16 @@ class F1PracticeTimingCard extends LitElement {
       return html`
         <div class="${classes.join(' ')}">
           <span class="pt-tyre-age">${row.tyre_age != null ? row.tyre_age : '-'}</span>
+        </div>
+      `;
+    }
+
+    if (col.key === 'sector_1' || col.key === 'sector_2' || col.key === 'sector_3') {
+      const sectorClass = row[`${col.key}_class`] || '';
+      const indicator = this._timingIndicator(sectorClass);
+      return html`
+        <div class="${classes.join(' ')}">
+          <span class="pt-sector ${sectorClass}">${indicator}${formatF1SectorSeconds(row[col.key])}</span>
         </div>
       `;
     }
@@ -22376,6 +26795,7 @@ class F1PracticeTimingCard extends LitElement {
       // the integration only exposes top-level fastest_lap metadata during race sessions.
       const lapSnapshot = this._buildLapSnapshot(pos);
       const position = this._parsePosition(pos?.current_position ?? pos?.grid_position);
+      const [sector1, sector2, sector3] = resolveF1CurrentSectorSet(this, pos);
 
       return {
         rn,
@@ -22391,6 +26811,18 @@ class F1PracticeTimingCard extends LitElement {
         compound_short: compoundShort || '-',
         compound_color: compoundColor,
         tyre_age: tyreAge,
+        sector_1: sector1.time,
+        sector_1_lap: sector1.lap,
+        sector_1_source: sector1.source,
+        sector_1_class: getF1TimingClass(sector1),
+        sector_2: sector2.time,
+        sector_2_lap: sector2.lap,
+        sector_2_source: sector2.source,
+        sector_2_class: getF1TimingClass(sector2),
+        sector_3: sector3.time,
+        sector_3_lap: sector3.lap,
+        sector_3_source: sector3.source,
+        sector_3_class: getF1TimingClass(sector3),
         last_lap: lapSnapshot.last_lap,
         best_lap: lapSnapshot.best_lap,
         best_lap_seconds: lapSnapshot.best_lap_seconds,
@@ -22489,6 +26921,16 @@ class F1PracticeTimingCard extends LitElement {
     if (Array.isArray(value)) return value;
     if (!value || typeof value !== 'object') return [];
     return Object.values(value).filter((entry) => entry && typeof entry === 'object');
+  }
+
+  _hasUsableDriversEntity(entityState) {
+    return Boolean(
+      entityState
+        && (
+          !isUnavailableLikeEntityState(entityState)
+          || this._asDriversList(entityState?.attributes?.drivers).length > 0
+        ),
+    );
   }
 
   _buildLapSnapshot(positionInfo) {
@@ -22843,6 +27285,7 @@ class F1PracticeTimingCardEditor extends LitElement {
         ${this._renderSwitch('show_gap_toggle', 'Show live gap toggle', 'Lets viewers switch between car ahead and leader from the card header')}
         ${this._renderSwitch('show_tyre', 'Show tyre')}
         ${this._renderSwitch('show_tyre_age', 'Show tyre age')}
+        ${this._renderSwitch('show_sectors', 'Show S1-S3 sectors', 'Shows live sector progress from the driver positions sensor')}
         ${this._renderSwitch('show_last_lap', 'Show last lap')}
         ${this._renderSwitch('show_fastest_lap', 'Show fastest lap')}
 
@@ -22962,7 +27405,7 @@ class F1RaceLapCard extends LitElement {
       --rl-chip: var(--f1-card-chip);
       --rl-shadow: var(--f1-card-shadow);
       display: block;
-      font-family: 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-body-font-family, 'Formula1 Display', 'Noto Sans', sans-serif);
     }
 
     ha-card {
@@ -23000,7 +27443,7 @@ class F1RaceLapCard extends LitElement {
 
     .rl-header {
       text-align: center;
-      font-family: 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-display-font-family, 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif);
       font-size: clamp(16px, 2.4vw, 20px);
       font-weight: 700;
       letter-spacing: clamp(0.03em, 0.06em, 0.08em);
@@ -23050,7 +27493,7 @@ class F1RaceLapCard extends LitElement {
 
     .rl-table {
       display: grid;
-      gap: 4px;
+      gap: var(--f1-table-row-gap);
       min-width: 0;
       width: 100%;
     }
@@ -23127,7 +27570,7 @@ class F1RaceLapCard extends LitElement {
     .rl-driver.full-name {
       letter-spacing: 0.01em;
       text-transform: none;
-      font-family: 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-body-font-family, 'Formula1 Display', 'Noto Sans', sans-serif);
       font-weight: 600;
     }
 
@@ -23211,6 +27654,42 @@ class F1RaceLapCard extends LitElement {
       text-align: right;
     }
 
+    .rl-sector {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px 5px;
+      border-radius: 5px;
+      box-sizing: border-box;
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+      min-width: 52px;
+      font-size: clamp(9px, 1.4vw, 11px);
+      background: var(--sector-bg, transparent);
+      color: var(--sector-text, var(--rl-muted));
+    }
+
+    .rl-sector.overall-fastest {
+      --sector-bg: var(--f1-timing-overall-fastest-bg, rgba(139, 92, 246, 0.28));
+      --sector-text: var(--f1-timing-overall-fastest-text, #d8b4fe);
+    }
+
+    .rl-sector.personal-fastest {
+      --sector-bg: var(--f1-timing-personal-fastest-bg, rgba(34, 197, 94, 0.22));
+      --sector-text: var(--f1-timing-personal-fastest-text, #86efac);
+    }
+
+    .rl-sector.timed {
+      --sector-bg: var(--f1-timing-timed-bg, rgba(234, 179, 8, 0.18));
+      --sector-text: var(--f1-timing-timed-text, #fde047);
+    }
+
+    .rl-sector.previous-lap {
+      --sector-bg: rgba(148, 163, 184, 0.12);
+      --sector-text: var(--rl-muted);
+      opacity: 0.72;
+    }
+
     .rl-lap {
       display: inline-flex;
       align-items: center;
@@ -23227,6 +27706,7 @@ class F1RaceLapCard extends LitElement {
     }
 
     .rl-cell.center .rl-gap,
+    .rl-cell.center .rl-sector,
     .rl-cell.center .rl-lap {
       width: 100%;
       max-width: 100%;
@@ -23326,6 +27806,7 @@ class F1RaceLapCard extends LitElement {
       show_tyre: true,
       show_tyre_age: true,
       show_pit_count: true,
+      show_sectors: false,
       show_last_lap: true,
       show_fastest_lap: true,
       show_timing_indicators: false,
@@ -23399,6 +27880,7 @@ class F1RaceLapCard extends LitElement {
       positions_entity: '',
       session_entity: 'sensor.f1_current_session',
       title: 'Race Lap',
+      show_sectors: false,
     };
   }
 
@@ -23620,6 +28102,18 @@ class F1RaceLapCard extends LitElement {
     if (this.config.show_pit_count !== false && !suppressPit) {
       columns.push({ key: 'pit_count', label: 'Pit', width: 'minmax(30px, 0.32fr)', center: true });
     }
+    if (this.config.show_sectors === true) {
+      const sectorWidth = narrowLayout
+        ? 'minmax(54px, 0.72fr)'
+        : mediumLayout
+          ? 'minmax(58px, 0.72fr)'
+          : 'minmax(62px, 0.75fr)';
+      columns.push(
+        { key: 'sector_1', label: 'S1', width: sectorWidth, center: true, groupStart: true },
+        { key: 'sector_2', label: 'S2', width: sectorWidth, center: true },
+        { key: 'sector_3', label: 'S3', width: sectorWidth, center: true },
+      );
+    }
     if (this.config.show_last_lap !== false) {
       columns.push({ key: 'last_lap', label: 'Last Lap', width: narrowLayout ? 'minmax(72px, 1fr)' : 'minmax(78px, 0.95fr)', center: true, groupStart: true });
     }
@@ -23717,6 +28211,16 @@ class F1RaceLapCard extends LitElement {
       return html`<div class="${classes.join(' ')}">${row.pit_count != null ? row.pit_count : '-'}</div>`;
     }
 
+    if (col.key === 'sector_1' || col.key === 'sector_2' || col.key === 'sector_3') {
+      const sectorClass = row[`${col.key}_class`] || '';
+      const indicator = this._timingIndicator(sectorClass);
+      return html`
+        <div class="${classes.join(' ')}">
+          <span class="rl-sector ${sectorClass}">${indicator}${formatF1SectorSeconds(row[col.key])}</span>
+        </div>
+      `;
+    }
+
     if (col.key === 'last_lap') {
       const lastLap = row.last_lap || '--:--.---';
       const isPersonalFastest = this._isLapTimeMatch(row.last_lap, row.best_lap);
@@ -23812,6 +28316,7 @@ class F1RaceLapCard extends LitElement {
       const bestLap = lapSnapshot.best_lap || (typeof pos?.fastest_lap_time === 'string' ? pos.fastest_lap_time.trim() : null);
       const isFastest = Boolean(pos?.fastest_lap) || this._matchesFastest(rn, tla, fastestInfo);
       const position = this._parsePosition(pos?.current_position ?? pos?.grid_position);
+      const [sector1, sector2, sector3] = resolveF1CurrentSectorSet(this, pos);
 
       let pitCount = null;
       if (hasPitState) {
@@ -23835,6 +28340,18 @@ class F1RaceLapCard extends LitElement {
         compound_color: compoundColor,
         tyre_age: tyreAge,
         pit_count: pitCount,
+        sector_1: sector1.time,
+        sector_1_lap: sector1.lap,
+        sector_1_source: sector1.source,
+        sector_1_class: getF1TimingClass(sector1),
+        sector_2: sector2.time,
+        sector_2_lap: sector2.lap,
+        sector_2_source: sector2.source,
+        sector_2_class: getF1TimingClass(sector2),
+        sector_3: sector3.time,
+        sector_3_lap: sector3.lap,
+        sector_3_source: sector3.source,
+        sector_3_class: getF1TimingClass(sector3),
         last_lap: lapSnapshot.last_lap,
         best_lap: bestLap,
         gap_to_leader: normalizeF1GapValue(pos?.gap_to_leader),
@@ -24311,6 +28828,7 @@ class F1RaceLapCardEditor extends LitElement {
         ${this._renderSwitch('show_tyre', 'Show tyre')}
         ${this._renderSwitch('show_tyre_age', 'Show tyre age')}
         ${this._renderSwitch('show_pit_count', 'Show pit stops')}
+        ${this._renderSwitch('show_sectors', 'Show S1-S3 sectors', 'Shows live sector progress from the driver positions sensor')}
         ${this._renderSwitch('show_last_lap', 'Show last lap')}
         ${this._renderSwitch('show_fastest_lap', 'Show fastest lap')}
         ${this._renderSwitch(
@@ -24417,7 +28935,7 @@ class F1StartingGridCard extends LitElement {
       --sg-chip: var(--f1-card-chip);
       --sg-shadow: var(--f1-card-shadow);
       display: block;
-      font-family: 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-body-font-family, 'Formula1 Display', 'Noto Sans', sans-serif);
     }
 
     ha-card {
@@ -24464,7 +28982,7 @@ class F1StartingGridCard extends LitElement {
 
     .sg-header {
       text-align: center;
-      font-family: 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif;
+      font-family: var(--f1-card-display-font-family, 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif);
       font-size: clamp(16px, 2.4vw, 20px);
       font-weight: 700;
       letter-spacing: clamp(0.03em, 0.06em, 0.08em);
@@ -24814,7 +29332,7 @@ class F1StartingGridCard extends LitElement {
 
     .sg-table {
       display: grid;
-      gap: 4px;
+      gap: var(--f1-table-row-gap);
       min-width: 0;
       width: 100%;
     }
@@ -25476,11 +29994,13 @@ class F1StartingGridCard extends LitElement {
     if (!value) return null;
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return String(value);
-    return date.toLocaleString(undefined, {
+    const timeZone = this.hass?.config?.time_zone || this.hass?.locale?.time_zone || undefined;
+    return formatHassDateTime(this.hass, date, {
       month: 'short',
       day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
+      timeZone,
     });
   }
 
@@ -25790,6 +30310,1747 @@ class F1StartingGridCardEditor extends LitElement {
   }
 }
 
+class F1TrackMapCard extends LitElement {
+  static properties = {
+    hass: { attribute: false },
+    config: { attribute: false },
+    _snapshot: { state: true },
+    _status: { state: true },
+    _error: { state: true },
+  };
+
+  static styles = [
+    F1_THEME_STYLES,
+    css`
+      :host {
+        display: block;
+        font-family: var(--f1-card-body-font-family, 'Formula1 Display', 'Titillium Web', Arial, sans-serif);
+      }
+
+      ha-card {
+        padding: 0;
+        background: transparent;
+        box-shadow: none;
+        border: none;
+        overflow: hidden;
+      }
+
+      .tm-card {
+        --tm-status-color: var(--f1-status-success);
+        --tm-status-bg: var(--f1-status-success-bg);
+        --tm-status-border: var(--f1-status-success-border);
+        --tm-track-color: #34c759;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        min-height: 360px;
+        padding: clamp(12px, 2vw, 18px);
+        border-radius: var(--ha-card-border-radius, 12px);
+        background:
+          radial-gradient(circle at 12% 8%, var(--f1-card-panel), transparent 42%),
+          linear-gradient(160deg, var(--f1-card-bg) 0%, var(--f1-card-bg-soft) 62%, var(--f1-card-bg-end) 100%);
+        border: 1px solid var(--f1-card-border);
+        box-shadow: var(--f1-card-shadow);
+        color: var(--f1-card-text);
+        container-type: inline-size;
+        overflow: hidden;
+      }
+
+      .tm-card[data-track-status="YELLOW"] {
+        --tm-track-color: #ffd60a;
+      }
+
+      .tm-card[data-track-status="VSC"],
+      .tm-card[data-track-status="SC"] {
+        --tm-track-color: #ff9500;
+      }
+
+      .tm-card[data-track-status="RED"] {
+        --tm-track-color: #ff3b30;
+      }
+
+      .tm-card[data-state="stale"] {
+        --tm-status-color: var(--f1-status-warning);
+        --tm-status-bg: var(--f1-status-warning-bg);
+        --tm-status-border: var(--f1-status-warning-border);
+      }
+
+      .tm-card[data-state="seeking"],
+      .tm-card[data-state="no_position_data"] {
+        --tm-status-color: var(--f1-status-info);
+        --tm-status-bg: var(--f1-status-info-bg);
+        --tm-status-border: var(--f1-status-info-border);
+      }
+
+      .tm-card[data-state="paused"],
+      .tm-card[data-state="no_geometry"] {
+        --tm-status-color: var(--f1-status-warning);
+        --tm-status-bg: var(--f1-status-warning-bg);
+        --tm-status-border: var(--f1-status-warning-border);
+      }
+
+      .tm-card[data-state="not_loaded"],
+      .tm-card[data-state="no_session"],
+      .tm-card[data-state="closed"] {
+        --tm-status-color: var(--f1-status-neutral);
+        --tm-status-bg: var(--f1-status-neutral-bg);
+        --tm-status-border: var(--f1-status-neutral-border);
+      }
+
+      .tm-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 14px;
+        min-width: 0;
+      }
+
+      .tm-title-block {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        min-width: 0;
+        flex: 1 1 auto;
+      }
+
+      .tm-title {
+        font-family: var(--f1-card-display-font-family, 'Formula1 Wide', 'Formula1 Display', 'Noto Sans', sans-serif);
+        font-size: clamp(16px, 2.4vw, 20px);
+        font-weight: 700;
+        line-height: 1.1;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        text-shadow: var(--f1-card-title-shadow);
+        overflow-wrap: anywhere;
+      }
+
+      .tm-subtitle {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 7px;
+        color: var(--f1-card-muted);
+        font-size: var(--f1-table-meta-font-size, 10px);
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        line-height: 1.35;
+      }
+
+      .tm-badges {
+        display: flex;
+        align-items: flex-start;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: 7px;
+        flex: 0 1 auto;
+      }
+
+      .tm-status {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 25px;
+        padding: 4px 10px;
+        border: 1px solid var(--tm-status-border);
+        border-radius: 999px;
+        background: var(--tm-status-bg);
+        color: var(--tm-status-color);
+        font-size: var(--f1-table-meta-font-size, 10px);
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      .tm-status.track {
+        --tm-status-color: var(--tm-track-color);
+        --tm-status-bg: color-mix(in srgb, var(--tm-track-color) 18%, transparent);
+        --tm-status-border: color-mix(in srgb, var(--tm-track-color) 48%, transparent);
+      }
+
+      .tm-status.track.alert {
+        animation: tmPulse 1.6s ease-in-out infinite;
+      }
+
+      .tm-lap-group {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 98px;
+      }
+
+      .tm-lap-progress {
+        height: 4px;
+        border-radius: 999px;
+        background: var(--f1-card-chip);
+        overflow: hidden;
+      }
+
+      .tm-lap-bar {
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #e10600, #ff3b30);
+        transition: width 0.35s ease-out;
+      }
+
+      .tm-canvas-frame {
+        position: relative;
+        flex: 1 1 auto;
+        min-height: 280px;
+        aspect-ratio: 16 / 8;
+        border: 1px solid var(--f1-card-divider-strong);
+        border-radius: 10px;
+        background: #07090c;
+        overflow: hidden;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+      }
+
+      canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+        min-height: inherit;
+      }
+
+      .tm-empty {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 24px 28px;
+        background: linear-gradient(180deg, rgba(7, 9, 12, 0.24), rgba(7, 9, 12, 0.58));
+        color: var(--f1-card-muted);
+        text-align: center;
+        pointer-events: none;
+      }
+
+      .tm-empty-title {
+        color: var(--f1-card-text);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .tm-empty-detail {
+        max-width: 360px;
+        font-size: 12px;
+        line-height: 1.35;
+      }
+
+      .tm-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        color: var(--f1-card-muted);
+        font-size: var(--f1-table-meta-font-size, 10px);
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        min-width: 0;
+      }
+
+      .tm-footer span {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .tm-card[data-layout='compact'] {
+        gap: 9px;
+        min-height: 320px;
+        padding: 12px;
+      }
+
+      .tm-card[data-layout='compact'] .tm-header,
+      .tm-card[data-layout='compact'] .tm-footer {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .tm-card[data-layout='compact'] .tm-badges {
+        justify-content: flex-start;
+      }
+
+      .tm-card[data-layout='compact'] .tm-canvas-frame {
+        min-height: 240px;
+        aspect-ratio: 4 / 3;
+      }
+
+      @keyframes tmPulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.72; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+
+      @container (max-width: 560px) {
+        .tm-header,
+        .tm-footer {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .tm-badges {
+          justify-content: flex-start;
+        }
+
+        .tm-canvas-frame {
+          min-height: 240px;
+          aspect-ratio: 4 / 3;
+        }
+      }
+
+      @container (max-width: 380px) {
+        .tm-title {
+          font-size: 15px;
+        }
+
+        .tm-status {
+          min-height: 23px;
+          padding: 3px 8px;
+          font-size: 9px;
+        }
+      }
+    `,
+  ];
+
+  constructor() {
+    super();
+    this.config = {};
+    this._snapshot = null;
+    this._status = 'not_loaded';
+    this._error = null;
+    this._unsubscribeTrackMap = null;
+    this._subscriptionKey = null;
+    this._subscriptionToken = 0;
+    this._drawRaf = 0;
+    this._resizeObserver = null;
+    this._driverSamples = new Map();
+    this._viewportBounds = null;
+    this._viewportSessionKey = null;
+    this._lastSnapshotAt = 0;
+    this._snapshotIntervalMs = 0;
+    this._driverSampleIntervalMs = 0;
+    this._renderClockAt = 0;
+    this._staleTimer = 0;
+  }
+
+  setConfig(config) {
+    this.config = this._normalizeConfig(config);
+    applyF1ThemeMode(this, this.config, this.hass);
+  }
+
+  static getStubConfig() {
+    return {
+      type: 'custom:f1-track-map-card',
+      title: 'F1 Track Map',
+      entry_id: 'auto',
+      lap_count_entity: 'auto',
+      driver_positions_entity: 'auto',
+      track_status_entity: 'auto',
+    };
+  }
+
+  static getConfigElement() {
+    return document.createElement('f1-track-map-card-editor');
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    ensureF1Fonts();
+    this._ensureSubscription();
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this._teardownSubscription();
+    if (this._drawRaf) {
+      cancelAnimationFrame(this._drawRaf);
+      this._drawRaf = 0;
+    }
+    if (this._resizeObserver) {
+      this._resizeObserver.disconnect();
+      this._resizeObserver = null;
+    }
+    this._clearStaleTimer();
+  }
+
+  firstUpdated() {
+    const frame = this.renderRoot?.querySelector('.tm-canvas-frame');
+    if (frame && typeof ResizeObserver !== 'undefined') {
+      this._resizeObserver = new ResizeObserver(() => this._scheduleDraw());
+      this._resizeObserver.observe(frame);
+    }
+    this._scheduleDraw();
+  }
+
+  updated(changed) {
+    if (changed.has('config') || changed.has('hass')) {
+      applyF1ThemeMode(this, this.config, this.hass);
+      this._ensureSubscription();
+    }
+    this._scheduleDraw();
+  }
+
+  getCardSize() {
+    return 4;
+  }
+
+  getGridOptions() {
+    return {
+      columns: 12,
+      min_columns: 4,
+      min_rows: 3,
+    };
+  }
+
+  _normalizeConfig(config = {}) {
+    const merged = {
+      theme_mode: DEFAULT_F1_THEME_MODE,
+      title: 'F1 Track Map',
+      entry_id: 'auto',
+      throttle_ms: 100,
+      interpolation_ms: 'auto',
+      invert_y: true,
+      show_header: true,
+      show_footer: true,
+      show_session_info: true,
+      show_driver_count: true,
+      show_lap_progress: true,
+      show_track_status: true,
+      lap_count_entity: 'auto',
+      driver_positions_entity: 'auto',
+      track_status_entity: 'auto',
+      track_status_line_mode: 'accent',
+      layout_mode: 'auto',
+      ...config,
+    };
+
+    merged.theme_mode = normalizeThemeMode(merged.theme_mode);
+    merged.title = String(merged.title || 'F1 Track Map').trim() || 'F1 Track Map';
+    merged.entry_id = String(merged.entry_id || 'auto').trim() || 'auto';
+    merged.throttle_ms = this._clampInteger(merged.throttle_ms, 100, 0, 5000);
+    merged.interpolation_ms = this._normalizeInterpolation(merged.interpolation_ms);
+    merged.invert_y = merged.invert_y !== false;
+    merged.show_header = merged.show_header !== false;
+    merged.show_footer = merged.show_footer !== false;
+    merged.show_session_info = merged.show_session_info !== false;
+    merged.show_driver_count = merged.show_driver_count !== false;
+    merged.show_lap_progress = merged.show_lap_progress !== false;
+    merged.show_track_status = merged.show_track_status !== false;
+    merged.lap_count_entity = this._normalizeOptionalSource(merged.lap_count_entity, 'auto');
+    merged.driver_positions_entity = this._normalizeOptionalSource(merged.driver_positions_entity, 'auto');
+    merged.track_status_entity = this._normalizeOptionalSource(merged.track_status_entity, 'auto');
+
+    const lineMode = String(merged.track_status_line_mode || 'accent').trim().toLowerCase();
+    merged.track_status_line_mode = ['accent', 'full', 'off'].includes(lineMode)
+      ? lineMode
+      : 'accent';
+
+    const layoutMode = String(merged.layout_mode || 'auto').trim().toLowerCase();
+    merged.layout_mode = ['auto', 'compact', 'full'].includes(layoutMode)
+      ? layoutMode
+      : 'auto';
+
+    const legacyLabelsOff = merged.driver_label_mode == null && merged.show_labels === false;
+    const labelMode = legacyLabelsOff
+      ? 'off'
+      : String(merged.driver_label_mode || 'tla').trim().toLowerCase();
+    merged.driver_label_mode = ['tla', 'number', 'off'].includes(labelMode) ? labelMode : 'tla';
+    merged.show_labels = merged.driver_label_mode !== 'off';
+    return merged;
+  }
+
+  _clampInteger(value, fallback, min, max) {
+    const parsed = Number.parseInt(value, 10);
+    if (!Number.isFinite(parsed)) return fallback;
+    return Math.min(max, Math.max(min, parsed));
+  }
+
+  _normalizeInterpolation(value) {
+    const text = String(value ?? 'auto').trim().toLowerCase();
+    if (!text || text === 'auto') return 'auto';
+    return this._clampInteger(text, 500, 0, 5000);
+  }
+
+  _normalizeOptionalSource(value, fallback = 'auto') {
+    if (value == null) return fallback;
+    return String(value).trim();
+  }
+
+  async _ensureSubscription() {
+    if (!this.hass || !this.isConnected) return;
+    const entryId = this.config?.entry_id && this.config.entry_id !== 'auto'
+      ? String(this.config.entry_id)
+      : null;
+    const throttleMs = this._clampInteger(this.config?.throttle_ms, 100, 0, 5000);
+    const key = `${entryId || 'auto'}:${throttleMs}`;
+    if (this._subscriptionKey === key && this._unsubscribeTrackMap) return;
+
+    this._teardownSubscription();
+    this._subscriptionKey = key;
+    this._error = null;
+    const token = ++this._subscriptionToken;
+    const message = {
+      type: 'f1_sensor/track_map/subscribe',
+      throttle_ms: throttleMs,
+    };
+    if (entryId) message.entry_id = entryId;
+
+    const connection = this.hass.connection;
+    if (!connection || typeof connection.subscribeMessage !== 'function') {
+      await this._loadSnapshotOnce(entryId, token);
+      return;
+    }
+
+    try {
+      const unsubscribe = await connection.subscribeMessage(
+        (event) => this._handleTrackMapMessage(event),
+        message
+      );
+      if (!this.isConnected || token !== this._subscriptionToken) {
+        this._callUnsubscribe(unsubscribe);
+        return;
+      }
+      this._unsubscribeTrackMap = unsubscribe;
+    } catch (err) {
+      if (token !== this._subscriptionToken) return;
+      this._error = err?.message || 'Track map websocket unavailable';
+      this._status = 'not_loaded';
+    }
+  }
+
+  async _loadSnapshotOnce(entryId, token) {
+    try {
+      const message = { type: 'f1_sensor/track_map/get' };
+      if (entryId) message.entry_id = entryId;
+      const response = typeof this.hass?.callWS === 'function'
+        ? await this.hass.callWS(message)
+        : await this.hass?.connection?.sendMessagePromise?.(message);
+      if (token !== this._subscriptionToken) return;
+      this._handleTrackMapMessage(response);
+    } catch (err) {
+      if (token !== this._subscriptionToken) return;
+      this._error = err?.message || 'Track map websocket unavailable';
+      this._status = 'not_loaded';
+    }
+  }
+
+  _teardownSubscription() {
+    this._subscriptionToken += 1;
+    this._subscriptionKey = null;
+    this._callUnsubscribe(this._unsubscribeTrackMap);
+    this._unsubscribeTrackMap = null;
+    this._driverSamples.clear();
+    this._viewportBounds = null;
+    this._viewportSessionKey = null;
+    this._lastSnapshotAt = 0;
+    this._snapshotIntervalMs = 0;
+    this._driverSampleIntervalMs = 0;
+    this._renderClockAt = 0;
+    this._clearStaleTimer();
+  }
+
+  _callUnsubscribe(unsubscribe) {
+    if (typeof unsubscribe !== 'function') return;
+    try {
+      const result = unsubscribe();
+      if (result && typeof result.catch === 'function') {
+        result.catch(() => {});
+      }
+    } catch (_err) {
+      // Dashboard teardown can race websocket cleanup.
+    }
+  }
+
+  _handleTrackMapMessage(message) {
+    const snapshot = message?.snapshot || null;
+    this._resetVisualStateIfSessionChanged(snapshot);
+    this._noteSnapshotArrival(snapshot);
+    this._snapshot = snapshot;
+    this._status = message?.status || this._snapshot?.status || 'not_loaded';
+    this._error = null;
+    this._ingestDriverSamples(snapshot);
+    this._scheduleStaleTransition(snapshot);
+    this.requestUpdate();
+    this._scheduleDraw();
+  }
+
+  _statusLabel() {
+    const replayState = String(this._snapshot?.replay_state || '').toLowerCase();
+    if (this._replaySnapshotIsStale()) return 'No position data';
+    if (replayState === 'paused') return 'Paused';
+    if (replayState === 'seeking') return 'Seeking';
+    if (replayState === 'playing') return 'Replay';
+    if (this._liveSnapshotIsStale()) return 'No session';
+    const sourceLabel = this._sourceLabel(this._snapshot);
+    const labels = {
+      active: sourceLabel,
+      no_geometry: 'No geometry',
+      stale: 'Stale',
+      no_position_data: 'Waiting',
+      no_session: 'No session',
+      not_loaded: 'Not loaded',
+      closed: 'Closed',
+    };
+    return labels[this._status] || String(this._status || 'Unknown').replaceAll('_', ' ');
+  }
+
+  _visualStatusState() {
+    const replayState = String(this._snapshot?.replay_state || '').toLowerCase();
+    if (this._replaySnapshotIsStale()) return 'stale';
+    if (['playing', 'paused', 'seeking'].includes(replayState)) return replayState;
+    if (this._liveSnapshotIsStale()) return 'no_session';
+    return this._status || 'not_loaded';
+  }
+
+  _emptyText() {
+    return this._emptyState()?.title || '';
+  }
+
+  _emptyState() {
+    if (this._error) {
+      return {
+        title: 'Track map unavailable',
+        detail: this._error,
+      };
+    }
+    if (!this._snapshot) {
+      return {
+        title: 'Waiting for track map data',
+        detail: 'The card is connected and waiting for the first websocket snapshot.',
+      };
+    }
+    const isLive = this._snapshot.source === 'live';
+    if (this._replaySnapshotIsStale(this._snapshot)) {
+      return {
+        title: 'Replay position data unavailable',
+        detail: 'The source stream does not contain valid Position.z samples at this point.',
+      };
+    }
+    if (this._liveSnapshotIsStale(this._snapshot)) {
+      return {
+        title: 'No active live session',
+        detail: 'Live timing is waiting for the next active session.',
+      };
+    }
+    if (!this._snapshot.session) {
+      return {
+        title: isLive ? 'No live timing session loaded' : 'No replay session loaded',
+        detail: isLive
+          ? 'Live timing has not published a session for the track map yet.'
+          : 'Load a replay session to show the circuit and cars.',
+      };
+    }
+    if (!Array.isArray(this._snapshot.drivers) || this._snapshot.drivers.length === 0) {
+      return {
+        title: isLive ? 'Waiting for live car positions' : 'Waiting for replay car positions',
+        detail: isLive
+          ? 'The session is loaded, but live Position.z data has not arrived yet.'
+          : 'Replay is loaded, but Position.z samples are not available at this point.',
+      };
+    }
+    if (!this._snapshot.track) {
+      return {
+        title: isLive ? 'Waiting for live track geometry' : 'Building replay track geometry',
+        detail: 'Cars can be tracked once the circuit geometry is available.',
+      };
+    }
+    return null;
+  }
+
+  _sourceLabel(snapshot = this._snapshot) {
+    const source = String(snapshot?.source || '').trim().toLowerCase();
+    if (source === 'live') return 'Live';
+    if (source === 'replay') return 'Replay';
+    if (!source) return 'Idle';
+    return source.replaceAll('_', ' ');
+  }
+
+  render() {
+    const snapshot = this._snapshot;
+    const presentation = this._presentationState(snapshot);
+    const drivers = this._visibleDrivers(snapshot?.drivers);
+    const session = presentation.session;
+    const title = this.config?.title || 'F1 Track Map';
+    const sessionText = this._sessionText(session);
+    const footer = this._footerText(snapshot, drivers.length);
+    const empty = this._emptyState();
+    const layoutMode = this._effectiveLayoutMode();
+    const trackStatus = presentation.show_badges ? this._trackStatusInfo() : null;
+    const lapData = presentation.show_badges ? this._lapData() : null;
+    const visualStatus = this._visualStatusState();
+    const driverCountText = this.config.show_driver_count !== false
+      ? `${drivers.length} ${drivers.length === 1 ? 'car' : 'cars'}`
+      : null;
+
+    return html`
+      <ha-card>
+        <div
+          class="tm-card"
+          data-layout=${layoutMode}
+          data-state=${visualStatus}
+          data-track-status=${trackStatus?.status || 'NONE'}
+          style="--tm-track-color: ${trackStatus?.color || '#34c759'};"
+        >
+          ${this.config.show_header !== false ? html`
+            <div class="tm-header">
+              <div class="tm-title-block">
+                <div class="tm-title">${title}</div>
+                ${presentation.show_session_info ? html`
+                  <div class="tm-subtitle">
+                    <span>${sessionText}</span>
+                    ${driverCountText ? html`<span>${driverCountText}</span>` : null}
+                  </div>
+                ` : null}
+              </div>
+              ${presentation.show_badges ? html`<div class="tm-badges">
+                <span class="tm-status">${this._statusLabel()}</span>
+                ${trackStatus && this.config.show_track_status !== false ? html`
+                  <span class="tm-status track ${trackStatus.alert ? 'alert' : ''}">${trackStatus.label}</span>
+                ` : null}
+                ${lapData && this.config.show_lap_progress !== false ? this._renderLapBadge(lapData) : null}
+              </div>` : null}
+            </div>
+          ` : null}
+          <div class="tm-canvas-frame">
+            <canvas></canvas>
+            ${empty ? html`
+              <div class="tm-empty">
+                <div class="tm-empty-title">${empty.title}</div>
+                <div class="tm-empty-detail">${empty.detail}</div>
+              </div>
+            ` : null}
+          </div>
+          ${presentation.show_footer ? html`<div class="tm-footer">
+            <span>${sessionText}</span>
+            <span>${footer}</span>
+          </div>` : null}
+        </div>
+      </ha-card>
+    `;
+  }
+
+  _renderLapBadge(lapData) {
+    const text = this._lapLabel(lapData);
+    const pct = this._lapProgressPercent(lapData);
+    return html`
+      <span class="tm-status tm-lap-group">
+        <span>${text}</span>
+        ${pct !== null ? html`
+          <span class="tm-lap-progress" aria-hidden="true">
+            <span class="tm-lap-bar" style="width: ${pct}%"></span>
+          </span>
+        ` : null}
+      </span>
+    `;
+  }
+
+  _sessionText(session) {
+    const meeting = String(session?.meeting_name || '').trim();
+    const circuit = String(session?.circuit_short_name || '').trim();
+    const name = String(session?.session_name || '').trim();
+    return [meeting || circuit, name].filter(Boolean).join(' / ') || 'No session';
+  }
+
+  _footerText(snapshot, driverCount) {
+    if (this._liveSnapshotIsStale(snapshot)) return '';
+    const parts = [this._sourceLabel(snapshot)];
+    if (snapshot?.stream_timestamp) parts.push(`Updated ${this._formatShortTime(snapshot.stream_timestamp)}`);
+    parts.push(`${driverCount} ${driverCount === 1 ? 'car' : 'cars'}`);
+    return parts.join(' / ');
+  }
+
+  _formatShortTime(value) {
+    const parsed = Date.parse(String(value || ''));
+    if (!Number.isFinite(parsed)) return '--:--:--';
+    const date = new Date(parsed);
+    return [date.getHours(), date.getMinutes(), date.getSeconds()]
+      .map((part) => String(part).padStart(2, '0'))
+      .join(':');
+  }
+
+  _effectiveLayoutMode() {
+    const mode = String(this.config?.layout_mode || 'auto').toLowerCase();
+    if (mode === 'compact' || mode === 'full') return mode;
+    const width = this._responsiveCardWidth || measureRenderedCardWidth(this);
+    return width > 0 && width <= 560 ? 'compact' : 'full';
+  }
+
+  _entityFromConfig(name, candidates) {
+    const hasExplicit = Object.prototype.hasOwnProperty.call(this.config || {}, name);
+    const configured = this.config?.[name];
+    const text = String(configured ?? 'auto').trim();
+    if (hasExplicit && text === '') return null;
+    if (text && text !== 'auto') {
+      return getEntityStateWithFallback(this.hass, text);
+    }
+    for (const entityId of candidates) {
+      const state = getEntityStateWithFallback(this.hass, entityId);
+      if (state && !isUnavailableLikeEntityState(state)) return state;
+    }
+    return null;
+  }
+
+  _lapData() {
+    if (this.config?.show_lap_progress === false) return null;
+    const entity = this._entityFromConfig('lap_count_entity', [
+      'sensor.f1_session_f1_race_lap_count',
+      'sensor.f1_race_lap_count',
+      'sensor.f1_session_race_lap_count',
+    ]);
+    if (!entity || isUnavailableLikeEntityState(entity)) return null;
+    const current = this._parsePositiveInteger(entity.state);
+    if (current === null) return null;
+    return {
+      current,
+      total: this._parsePositiveInteger(entity.attributes?.total_laps),
+    };
+  }
+
+  _lapLabel(lapData) {
+    if (!lapData) return '';
+    if (Number.isFinite(lapData.total) && lapData.total > 0) {
+      return `Lap ${lapData.current}/${lapData.total}`;
+    }
+    return `Lap ${lapData.current}`;
+  }
+
+  _lapProgressPercent(lapData) {
+    if (!lapData || !Number.isFinite(lapData.total) || lapData.total <= 0) return null;
+    return Math.max(0, Math.min(100, (lapData.current / lapData.total) * 100));
+  }
+
+  _trackStatusInfo() {
+    if (this.config?.show_track_status === false) return null;
+    const entity = this._entityFromConfig('track_status_entity', [
+      'sensor.f1_session_f1_track_status',
+      'sensor.f1_track_status',
+      'sensor.f1_session_track_status',
+    ]);
+    if (!entity || isUnavailableLikeEntityState(entity)) return null;
+    const status = this._normalizeTrackStatus(entity.state);
+    if (!status) return null;
+    const colorMap = isEffectiveLightTheme(this.hass, this.config)
+      ? TRACK_STATUS_LIGHT_COLORS
+      : TRACK_STATUS_COLORS;
+    return {
+      status,
+      label: TRACK_STATUS_LABELS[status] || status,
+      color: colorMap[status] || colorMap.CLEAR || '#34c759',
+      alert: status === 'YELLOW' || status === 'VSC' || status === 'SC' || status === 'RED',
+    };
+  }
+
+  _normalizeTrackStatus(value) {
+    const text = String(value || '').trim().toUpperCase();
+    if (!text) return null;
+    if (text === 'GREEN' || text === 'CLEAR' || text === 'TRACK CLEAR') return 'CLEAR';
+    if (text === 'YELLOW' || text === 'YELLOW FLAG' || text.includes('YELLOW')) return 'YELLOW';
+    if (text === 'RED' || text === 'RED FLAG' || text.includes('RED')) return 'RED';
+    if (text === 'SC' || text === 'SAFETY CAR' || text.includes('SAFETY')) return 'SC';
+    if (text === 'VSC' || text === 'VIRTUAL SC' || text.includes('VIRTUAL')) return 'VSC';
+    return null;
+  }
+
+  _parsePositiveInteger(value) {
+    const parsed = Number.parseInt(value, 10);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+  }
+
+  _liveSnapshotIsStale(snapshot = this._snapshot) {
+    if (String(snapshot?.source || '').trim().toLowerCase() !== 'live') return false;
+    const status = String(snapshot?.status || this._status || '').trim().toLowerCase();
+    if (snapshot?.stale === true || status === 'stale') return true;
+    const streamTimestamp = Date.parse(String(snapshot?.stream_timestamp || ''));
+    const staleAfterSeconds = Number(snapshot?.stale_after_seconds);
+    if (!Number.isFinite(streamTimestamp) || !Number.isFinite(staleAfterSeconds)) return false;
+    return Date.now() >= streamTimestamp + (Math.max(0, staleAfterSeconds) * 1000);
+  }
+
+  _replaySnapshotIsStale(snapshot = this._snapshot) {
+    if (String(snapshot?.source || '').trim().toLowerCase() !== 'replay') return false;
+    const status = String(snapshot?.status || this._status || '').trim().toLowerCase();
+    return snapshot?.stale === true || status === 'stale';
+  }
+
+  _presentationState(snapshot = this._snapshot) {
+    const hideLiveMetadata = this._liveSnapshotIsStale(snapshot);
+    return {
+      hide_live_metadata: hideLiveMetadata,
+      session: hideLiveMetadata ? {} : (snapshot?.session || {}),
+      show_badges: !hideLiveMetadata,
+      show_footer: !hideLiveMetadata && this.config?.show_footer !== false,
+      show_session_info: !hideLiveMetadata && this.config?.show_session_info !== false,
+    };
+  }
+
+  _scheduleStaleTransition(snapshot) {
+    this._clearStaleTimer();
+    if (String(snapshot?.source || '').trim().toLowerCase() !== 'live') return;
+    if (this._liveSnapshotIsStale(snapshot)) return;
+    const streamTimestamp = Date.parse(String(snapshot?.stream_timestamp || ''));
+    const staleAfterSeconds = Number(snapshot?.stale_after_seconds);
+    if (!Number.isFinite(streamTimestamp) || !Number.isFinite(staleAfterSeconds)) return;
+    const delay = streamTimestamp + (Math.max(0, staleAfterSeconds) * 1000) - Date.now();
+    if (delay <= 0) return;
+    this._staleTimer = window.setTimeout(() => {
+      this._staleTimer = 0;
+      this._driverSamples.clear();
+      this.requestUpdate();
+      this._scheduleDraw();
+    }, delay + 25);
+  }
+
+  _clearStaleTimer() {
+    if (!this._staleTimer) return;
+    window.clearTimeout(this._staleTimer);
+    this._staleTimer = 0;
+  }
+
+  _scheduleDraw() {
+    if (this._drawRaf) return;
+    this._drawRaf = requestAnimationFrame(() => {
+      this._drawRaf = 0;
+      this._drawCanvas();
+    });
+  }
+
+  _drawCanvas() {
+    const canvas = this.renderRoot?.querySelector('canvas');
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return;
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    const width = Math.max(1, Math.round(rect.width * dpr));
+    const height = Math.max(1, Math.round(rect.height * dpr));
+    if (canvas.width !== width || canvas.height !== height) {
+      canvas.width = width;
+      canvas.height = height;
+    }
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, rect.width, rect.height);
+    ctx.fillStyle = '#07090c';
+    ctx.fillRect(0, 0, rect.width, rect.height);
+    this._drawGrid(ctx, rect.width, rect.height);
+
+    const snapshot = this._snapshot;
+    if (this._liveSnapshotIsStale(snapshot)) return;
+    const presentation = this._presentationTransform(snapshot?.track);
+    const bounds = this._drawableBounds(snapshot, presentation);
+    if (!snapshot || !bounds) return;
+
+    const canvasTransform = this._buildTransform(bounds, rect.width, rect.height);
+    const transform = (x, y) => {
+      const point = this._applyPresentationTransform(x, y, presentation);
+      return canvasTransform(point.x, point.y);
+    };
+    const drivers = this._displayDrivers(snapshot.drivers);
+    this._drawTrack(ctx, snapshot.track?.points, transform);
+    this._drawDrivers(ctx, drivers, transform, rect.width);
+    if (this._hasActiveDriverMotion()) this._scheduleDraw();
+  }
+
+  _drawGrid(ctx, width, height) {
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.055)';
+    ctx.lineWidth = 1;
+    const step = 40;
+    for (let x = step; x < width; x += step) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, height);
+      ctx.stroke();
+    }
+    for (let y = step; y < height; y += step) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(width, y);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  _drawTrack(ctx, points, transform) {
+    if (!Array.isArray(points) || points.length === 0) return;
+    const trackStatus = this._trackStatusInfo();
+    const lineMode = this.config?.track_status_line_mode || 'accent';
+    const statusColor = trackStatus?.color || '#34c759';
+    const lightTheme = isEffectiveLightTheme(this.hass, this.config);
+    const baseColor = lightTheme ? 'rgba(20, 24, 31, 0.82)' : 'rgba(238, 242, 246, 0.9)';
+    const accentAlpha = lineMode === 'full' ? 0.30 : 0.22;
+    ctx.save();
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    const drawPath = () => {
+      ctx.beginPath();
+      points.forEach((point, index) => {
+        if (!Array.isArray(point) || point.length < 2) return;
+        const xy = transform(Number(point[0]), Number(point[1]));
+        if (index === 0) ctx.moveTo(xy.x, xy.y);
+        else ctx.lineTo(xy.x, xy.y);
+      });
+    };
+
+    if (lineMode !== 'off' && trackStatus) {
+      ctx.strokeStyle = this._rgba(statusColor, accentAlpha);
+      ctx.lineWidth = lineMode === 'full' ? 11 : 8;
+      drawPath();
+      ctx.stroke();
+    }
+
+    ctx.strokeStyle = lineMode === 'full' && trackStatus ? statusColor : baseColor;
+    ctx.lineWidth = lineMode === 'full' && trackStatus ? 4 : 3;
+    drawPath();
+    ctx.stroke();
+
+    if (lineMode === 'accent' && trackStatus && trackStatus.status !== 'CLEAR') {
+      ctx.strokeStyle = this._rgba(statusColor, 0.34);
+      ctx.lineWidth = 2;
+      drawPath();
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  _rgba(color, alpha) {
+    const text = String(color || '').trim();
+    const match = text.match(/^#?([0-9a-fA-F]{6})$/);
+    if (!match) return text;
+    const hex = match[1];
+    const r = Number.parseInt(hex.slice(0, 2), 16);
+    const g = Number.parseInt(hex.slice(2, 4), 16);
+    const b = Number.parseInt(hex.slice(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+
+  _drawDrivers(ctx, drivers, transform, canvasWidth = 0) {
+    if (!Array.isArray(drivers)) return;
+    const labelMode = this.config?.driver_label_mode || (this.config?.show_labels === false ? 'off' : 'tla');
+    const ordered = this._visibleDrivers(drivers)
+      .sort((a, b) => Number(a.racing_number) - Number(b.racing_number));
+    for (const driver of ordered) {
+      const x = Number(driver?.x);
+      const y = Number(driver?.y);
+      if (!Number.isFinite(x) || !Number.isFinite(y)) continue;
+      const xy = transform(x, y);
+      const color = this._teamColor(driver?.team_color);
+      const stale = Boolean(driver?.stale);
+      ctx.save();
+      ctx.globalAlpha = stale ? 0.45 : 1;
+      ctx.fillStyle = color;
+      ctx.strokeStyle = '#05070a';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(xy.x, xy.y, 6.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      const label = this._driverLabel(driver, labelMode);
+      if (label) {
+        const alignRight = canvasWidth > 0 && xy.x > canvasWidth - 54;
+        const labelX = xy.x + (alignRight ? -9 : 9);
+        const labelFontFamily = getComputedStyle(this)
+          .getPropertyValue('--f1-card-label-font-family')
+          .trim() || '"Formula1 Display", sans-serif';
+        ctx.font = `700 11px ${labelFontFamily}`;
+        ctx.textAlign = alignRight ? 'right' : 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#f6f8fb';
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.74)';
+        ctx.lineWidth = 3;
+        ctx.strokeText(label, labelX, xy.y);
+        ctx.fillText(label, labelX, xy.y);
+      }
+      ctx.restore();
+    }
+  }
+
+  _driverLabel(driver, mode) {
+    if (mode === 'off') return '';
+    if (mode === 'number') return String(driver?.racing_number || '').slice(0, 3);
+    return String(driver?.tla || driver?.racing_number || '').slice(0, 3);
+  }
+
+  _visibleDrivers(drivers, snapshot = this._snapshot) {
+    if (!Array.isArray(drivers)) return [];
+    if (this._liveSnapshotIsStale(snapshot) || this._replaySnapshotIsStale(snapshot)) {
+      return [];
+    }
+    const retiredKeys = this._retiredDriverKeys();
+    return drivers.filter((driver) => !this._isRetiredDriver(driver, retiredKeys));
+  }
+
+  _isRetiredDriver(driver, retiredKeys = null) {
+    if (!driver || typeof driver !== 'object') return false;
+    if (this._statusMarksRetired(driver)) return true;
+    const keys = retiredKeys || this._retiredDriverKeys();
+    const racingNumber = String(driver.racing_number ?? '').trim();
+    const tla = String(driver.tla ?? '').trim().toUpperCase();
+    return (racingNumber && keys.has(`rn:${racingNumber}`)) || (tla && keys.has(`tla:${tla}`));
+  }
+
+  _statusMarksRetired(info) {
+    if (!info || typeof info !== 'object') return false;
+    const status = String(info.status || '').trim().toLowerCase();
+    return info.retired === true || status === 'retired' || status === 'out';
+  }
+
+  _retiredDriverKeys() {
+    const entity = this._entityFromConfig('driver_positions_entity', [
+      'sensor.f1_drivers_f1_driver_positions',
+      'sensor.f1_driver_positions',
+      'sensor.f1_session_f1_driver_positions',
+      'sensor.f1_session_driver_positions',
+    ]);
+    if (!entity || isUnavailableLikeEntityState(entity)) return new Set();
+    const drivers = entity.attributes?.drivers;
+    const keys = new Set();
+    const addDriver = (driver, fallbackKey = '') => {
+      if (!this._statusMarksRetired(driver)) return;
+      const racingNumber = String(driver?.racing_number ?? fallbackKey).match(/\d+/)?.[0] || '';
+      const tla = String(driver?.tla ?? '').trim().toUpperCase();
+      if (racingNumber) keys.add(`rn:${racingNumber}`);
+      if (tla) keys.add(`tla:${tla}`);
+    };
+    if (Array.isArray(drivers)) {
+      drivers.forEach((driver) => addDriver(driver));
+    } else if (drivers && typeof drivers === 'object') {
+      Object.entries(drivers).forEach(([key, driver]) => addDriver(driver, key));
+    }
+    return keys;
+  }
+
+  _teamColor(value) {
+    const text = String(value || '').trim().replace(/^#/, '');
+    return /^[0-9a-fA-F]{6}$/.test(text) ? `#${text}` : '#d8dee8';
+  }
+
+  _resetVisualStateIfSessionChanged(snapshot) {
+    const session = snapshot?.session || {};
+    const nextKey = session.session_key || session.path || null;
+    if (nextKey === this._viewportSessionKey) return;
+    this._driverSamples.clear();
+    this._viewportBounds = null;
+    this._viewportSessionKey = nextKey;
+    this._lastSnapshotAt = 0;
+    this._snapshotIntervalMs = 0;
+    this._driverSampleIntervalMs = 0;
+    this._renderClockAt = 0;
+  }
+
+  _noteSnapshotArrival(snapshot) {
+    const replayState = String(snapshot?.replay_state || '').toLowerCase();
+    const drivers = this._visibleDrivers(snapshot?.drivers, snapshot);
+    if (!drivers.length || replayState === 'paused' || replayState === 'seeking') {
+      this._lastSnapshotAt = 0;
+      this._renderClockAt = 0;
+      return;
+    }
+    const now = this._nowMs();
+    if (this._lastSnapshotAt > 0) {
+      const interval = now - this._lastSnapshotAt;
+      if (interval >= 120 && interval <= 3000) {
+        this._snapshotIntervalMs = this._snapshotIntervalMs
+          ? (this._snapshotIntervalMs * 0.65) + (interval * 0.35)
+          : interval;
+      }
+    }
+    this._lastSnapshotAt = now;
+  }
+
+  _ingestDriverSamples(snapshot) {
+    const drivers = this._visibleDrivers(snapshot?.drivers, snapshot);
+    if (!drivers.length) {
+      this._driverSamples.clear();
+      return;
+    }
+    const replayState = String(snapshot?.replay_state || '').toLowerCase();
+    const shouldSnap = replayState === 'paused' || replayState === 'seeking';
+    const now = this._nowMs();
+    if (shouldSnap) this._renderClockAt = 0;
+    const nextKeys = new Set();
+    for (const driver of drivers) {
+      const key = String(driver?.racing_number || '').trim();
+      const x = Number(driver?.x);
+      const y = Number(driver?.y);
+      if (!key || !Number.isFinite(x) || !Number.isFinite(y)) continue;
+      nextKeys.add(key);
+      const sample = { ...driver, x, y, arrivalAt: now };
+      const samples = this._driverSamples.get(key) || [];
+      const previous = samples[samples.length - 1];
+      const liveAuto = this._usesLiveAutoSmoothing();
+      const transitionFrom = liveAuto && previous && !shouldSnap
+        ? this._sampledLiveAutoDriverPosition(samples, now)
+        : previous;
+      const timestampKey = String(driver?.timestamp || '');
+      const unchanged = previous
+        && previous.timestampKey === timestampKey
+        && Number(previous.x) === x
+        && Number(previous.y) === y;
+      if (unchanged && !shouldSnap) continue;
+      sample.timestampKey = timestampKey;
+      if (shouldSnap || !previous || this._isLargeDriverJump(transitionFrom, sample)) {
+        this._driverSamples.set(key, [sample]);
+        continue;
+      }
+      this._noteDriverSampleInterval(now - previous.arrivalAt);
+      if (liveAuto && transitionFrom) {
+        this._driverSamples.set(key, [
+          { ...previous, ...transitionFrom, arrivalAt: now },
+          sample,
+        ]);
+        continue;
+      }
+      this._driverSamples.set(key, [...samples.slice(-5), sample]);
+    }
+    for (const key of [...this._driverSamples.keys()]) {
+      if (!nextKeys.has(key)) this._driverSamples.delete(key);
+    }
+  }
+
+  _displayDrivers(drivers) {
+    const visibleDrivers = this._visibleDrivers(drivers);
+    if (!visibleDrivers.length || this._driverSamples.size === 0) return visibleDrivers;
+    const renderAt = this._driverRenderTime();
+    return visibleDrivers.map((driver) => {
+      const key = String(driver?.racing_number || '').trim();
+      const current = this._sampledDriverPosition(key, renderAt);
+      return current ? { ...driver, x: current.x, y: current.y } : driver;
+    });
+  }
+
+  _sampledDriverPosition(key, renderAt) {
+    const samples = this._driverSamples.get(key);
+    if (!Array.isArray(samples) || samples.length === 0) return null;
+    if (this._usesLiveAutoSmoothing()) {
+      return this._sampledLiveAutoDriverPosition(samples, renderAt);
+    }
+    if (samples.length === 1 || renderAt <= samples[0].arrivalAt) return samples[0];
+    for (let index = 0; index < samples.length - 1; index += 1) {
+      const from = samples[index];
+      const to = samples[index + 1];
+      if (renderAt < from.arrivalAt || renderAt > to.arrivalAt) continue;
+      const duration = Math.max(1, to.arrivalAt - from.arrivalAt);
+      const progress = Math.max(0, Math.min(1, (renderAt - from.arrivalAt) / duration));
+      const eased = progress * progress * (3 - (2 * progress));
+      return {
+        ...to,
+        x: Number(from.x) + ((Number(to.x) - Number(from.x)) * eased),
+        y: Number(from.y) + ((Number(to.y) - Number(from.y)) * eased),
+      };
+    }
+    return samples[samples.length - 1];
+  }
+
+  _sampledLiveAutoDriverPosition(samples, now) {
+    const latest = samples[samples.length - 1];
+    if (samples.length === 1) return latest;
+    const previous = samples[samples.length - 2];
+    const duration = this._liveAutoSmoothingDuration();
+    if (duration <= 0) return latest;
+    const elapsed = Math.max(0, now - Number(latest.arrivalAt || 0));
+    if (elapsed >= duration) return latest;
+    const progress = Math.max(0, Math.min(1, elapsed / duration));
+    return {
+      ...latest,
+      x: Number(previous.x) + ((Number(latest.x) - Number(previous.x)) * progress),
+      y: Number(previous.y) + ((Number(latest.y) - Number(previous.y)) * progress),
+    };
+  }
+
+  _noteDriverSampleInterval(interval) {
+    if (!Number.isFinite(interval) || interval < 120 || interval > 5000) return;
+    this._driverSampleIntervalMs = this._driverSampleIntervalMs
+      ? (this._driverSampleIntervalMs * 0.7) + (interval * 0.3)
+      : interval;
+  }
+
+  _usesLiveAutoSmoothing() {
+    if (Number.isFinite(Number(this.config?.interpolation_ms))) return false;
+    return String(this._snapshot?.source || '').trim().toLowerCase() === 'live';
+  }
+
+  _liveAutoSmoothingDuration() {
+    if (this._driverSampleIntervalMs > 0) {
+      return Math.max(350, Math.min(2000, this._driverSampleIntervalMs * 0.95));
+    }
+    if (this._snapshotIntervalMs > 0) {
+      return Math.max(350, Math.min(2000, this._snapshotIntervalMs * 0.95));
+    }
+    const throttle = Number(this.config?.throttle_ms);
+    return Number.isFinite(throttle) && throttle > 0
+      ? Math.max(500, Math.min(1200, throttle * 9))
+      : 900;
+  }
+
+  _driverRenderTime() {
+    const desired = Math.max(0, this._nowMs() - this._driverRenderLag());
+    if (!this._renderClockAt) {
+      this._renderClockAt = desired;
+      return this._renderClockAt;
+    }
+    this._renderClockAt = Math.max(this._renderClockAt, desired);
+    return this._renderClockAt;
+  }
+
+  _driverRenderLag() {
+    const configured = Number(this.config?.interpolation_ms);
+    if (Number.isFinite(configured)) {
+      return Math.max(0, Math.min(5000, configured));
+    }
+    if (String(this._snapshot?.source || '').trim().toLowerCase() === 'live') {
+      return 0;
+    }
+    if (this._driverSampleIntervalMs > 0) {
+      return Math.max(220, Math.min(900, this._driverSampleIntervalMs * 1.8));
+    }
+    if (this._snapshotIntervalMs > 0) {
+      return Math.max(260, Math.min(1000, this._snapshotIntervalMs * 2));
+    }
+    const throttle = Number(this.config?.throttle_ms);
+    return Number.isFinite(throttle) ? Math.max(300, Math.min(1000, throttle * 3)) : 500;
+  }
+
+  _isLargeDriverJump(previous, target) {
+    const fromX = Number(previous?.x);
+    const fromY = Number(previous?.y);
+    const toX = Number(target?.x);
+    const toY = Number(target?.y);
+    if (![fromX, fromY, toX, toY].every(Number.isFinite)) return true;
+    return Math.hypot(toX - fromX, toY - fromY) > 2500;
+  }
+
+  _hasActiveDriverMotion() {
+    const replayState = String(this._snapshot?.replay_state || '').toLowerCase();
+    const source = String(this._snapshot?.source || '').toLowerCase();
+    const status = String(this._snapshot?.status || this._status || '').toLowerCase();
+    const activeReplay = replayState === 'playing';
+    const activeLive = source === 'live' && status === 'active' && this._snapshot?.stale !== true;
+    if (!activeReplay && !activeLive) return false;
+    const renderAt = this._driverRenderTime();
+    for (const samples of this._driverSamples.values()) {
+      const latest = samples?.[samples.length - 1];
+      if (!samples?.length || !latest) continue;
+      if (this._usesLiveAutoSmoothing()) {
+        if (
+          samples.length > 1
+          && renderAt < Number(latest.arrivalAt || 0) + this._liveAutoSmoothingDuration()
+        ) {
+          return true;
+        }
+        continue;
+      }
+      if (samples.length > 1 && renderAt < latest.arrivalAt) return true;
+    }
+    return false;
+  }
+
+  _nowMs() {
+    return typeof performance !== 'undefined' && typeof performance.now === 'function'
+      ? performance.now()
+      : Date.now();
+  }
+
+  _presentationTransform(track) {
+    const rotation = Number(track?.rotation);
+    if (!Number.isFinite(rotation) || Math.abs(rotation) < 0.001) return null;
+    const bounds = this._normalizeBounds(track?.bounds) || this._boundsFromTrackPoints(track?.points, null);
+    if (!bounds) return null;
+    const radians = (rotation * Math.PI) / 180;
+    return {
+      centerX: (bounds.minX + bounds.maxX) / 2,
+      centerY: (bounds.minY + bounds.maxY) / 2,
+      cos: Math.cos(radians),
+      sin: Math.sin(radians),
+    };
+  }
+
+  _applyPresentationTransform(x, y, presentation) {
+    if (!presentation) return { x, y };
+    const dx = x - presentation.centerX;
+    const dy = y - presentation.centerY;
+    return {
+      x: presentation.centerX + (dx * presentation.cos) - (dy * presentation.sin),
+      y: presentation.centerY + (dx * presentation.sin) + (dy * presentation.cos),
+    };
+  }
+
+  _drawableBounds(snapshot, presentation = null) {
+    const trackBounds = this._normalizeBounds(snapshot?.track?.bounds);
+    if (trackBounds) {
+      if (!presentation) return trackBounds;
+      return this._boundsFromTrackPoints(snapshot?.track?.points, presentation)
+        || this._boundsFromNormalizedBounds(trackBounds, presentation)
+        || trackBounds;
+    }
+
+    const drivers = this._visibleDrivers(snapshot?.drivers, snapshot);
+    const driverBounds = this._boundsFromDrivers(drivers, presentation);
+    if (!driverBounds) return null;
+    return this._stableViewportBounds(driverBounds);
+  }
+
+  _boundsFromDrivers(drivers, presentation = null) {
+    const points = (Array.isArray(drivers) ? drivers : [])
+      .map((driver) => ({
+        x: Number(driver?.x),
+        y: Number(driver?.y),
+      }));
+    return this._boundsFromCoordinateList(points, presentation);
+  }
+
+  _boundsFromTrackPoints(points, presentation = null) {
+    const normalizedPoints = (Array.isArray(points) ? points : [])
+      .map((point) => ({
+        x: Number(point?.[0]),
+        y: Number(point?.[1]),
+      }));
+    return this._boundsFromCoordinateList(normalizedPoints, presentation);
+  }
+
+  _boundsFromNormalizedBounds(bounds, presentation = null) {
+    if (!bounds) return null;
+    return this._boundsFromCoordinateList([
+      { x: bounds.minX, y: bounds.minY },
+      { x: bounds.minX, y: bounds.maxY },
+      { x: bounds.maxX, y: bounds.minY },
+      { x: bounds.maxX, y: bounds.maxY },
+    ], presentation);
+  }
+
+  _boundsFromCoordinateList(points, presentation = null) {
+    const transformed = [];
+    for (const point of points) {
+      const x = Number(point?.x);
+      const y = Number(point?.y);
+      if (!Number.isFinite(x) || !Number.isFinite(y)) continue;
+      transformed.push(this._applyPresentationTransform(x, y, presentation));
+    }
+    const xs = transformed.map((point) => point.x);
+    const ys = transformed.map((point) => point.y);
+    if (!xs.length || !ys.length) return null;
+    return this._normalizeBounds({
+      min_x: Math.min(...xs),
+      max_x: Math.max(...xs),
+      min_y: Math.min(...ys),
+      max_y: Math.max(...ys),
+    });
+  }
+
+  _combineBounds(boundsList) {
+    const valid = boundsList.filter(Boolean);
+    if (!valid.length) return null;
+    return {
+      minX: Math.min(...valid.map((bounds) => bounds.minX)),
+      maxX: Math.max(...valid.map((bounds) => bounds.maxX)),
+      minY: Math.min(...valid.map((bounds) => bounds.minY)),
+      maxY: Math.max(...valid.map((bounds) => bounds.maxY)),
+    };
+  }
+
+  _stableViewportBounds(bounds) {
+    if (!this._viewportBounds) {
+      this._viewportBounds = bounds;
+      return bounds;
+    }
+    this._viewportBounds = {
+      minX: Math.min(this._viewportBounds.minX, bounds.minX),
+      maxX: Math.max(this._viewportBounds.maxX, bounds.maxX),
+      minY: Math.min(this._viewportBounds.minY, bounds.minY),
+      maxY: Math.max(this._viewportBounds.maxY, bounds.maxY),
+    };
+    return this._viewportBounds;
+  }
+
+  _normalizeBounds(bounds) {
+    const minX = Number(bounds?.min_x);
+    const maxX = Number(bounds?.max_x);
+    const minY = Number(bounds?.min_y);
+    const maxY = Number(bounds?.max_y);
+    if (![minX, maxX, minY, maxY].every(Number.isFinite)) return null;
+    const padX = minX === maxX ? 100 : 0;
+    const padY = minY === maxY ? 100 : 0;
+    return {
+      minX: minX - padX,
+      maxX: maxX + padX,
+      minY: minY - padY,
+      maxY: maxY + padY,
+    };
+  }
+
+  _buildTransform(bounds, width, height) {
+    const padding = 22;
+    const spanX = Math.max(1, bounds.maxX - bounds.minX);
+    const spanY = Math.max(1, bounds.maxY - bounds.minY);
+    const usableW = Math.max(1, width - padding * 2);
+    const usableH = Math.max(1, height - padding * 2);
+    const scale = Math.min(usableW / spanX, usableH / spanY);
+    const offsetX = padding + (usableW - spanX * scale) / 2;
+    const offsetY = padding + (usableH - spanY * scale) / 2;
+    const invertY = this.config?.invert_y !== false;
+    return (x, y) => ({
+      x: offsetX + (x - bounds.minX) * scale,
+      y: offsetY + (invertY ? (bounds.maxY - y) : (y - bounds.minY)) * scale,
+    });
+  }
+}
+
+class F1TrackMapCardEditor extends LitElement {
+  static properties = {
+    hass: {},
+    _config: {},
+    _activeTab: { state: true },
+  };
+
+  static styles = css`
+    .card-config {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--divider-color);
+      margin-bottom: 16px;
+    }
+
+    .tabs button {
+      flex: 1;
+      padding: 12px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--primary-text-color);
+      font-size: 14px;
+      font-family: inherit;
+      transition: color 0.2s;
+    }
+
+    .tabs button:hover {
+      color: var(--primary-color);
+    }
+
+    .tabs button.active {
+      color: var(--primary-color);
+      border-bottom: 2px solid var(--primary-color);
+      margin-bottom: -1px;
+    }
+
+    .section {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .section-header {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--secondary-text-color);
+      text-transform: uppercase;
+      margin-top: 8px;
+    }
+
+    .helper {
+      font-size: 12px;
+      color: var(--secondary-text-color);
+      padding-left: 16px;
+      line-height: 1.4;
+    }
+
+    ha-form {
+      width: 100%;
+    }
+  `;
+
+  constructor() {
+    super();
+    this._activeTab = 'sources';
+  }
+
+  setConfig(config) {
+    this._config = {
+      theme_mode: DEFAULT_F1_THEME_MODE,
+      title: 'F1 Track Map',
+      entry_id: 'auto',
+      throttle_ms: 100,
+      interpolation_ms: 'auto',
+      invert_y: true,
+      show_header: true,
+      show_footer: true,
+      show_session_info: true,
+      show_driver_count: true,
+      driver_label_mode: config?.show_labels === false ? 'off' : 'tla',
+      show_lap_progress: true,
+      lap_count_entity: 'auto',
+      driver_positions_entity: 'auto',
+      show_track_status: true,
+      track_status_entity: 'auto',
+      track_status_line_mode: 'accent',
+      layout_mode: 'auto',
+      ...config,
+    };
+  }
+
+  render() {
+    if (!this.hass || !this._config) return html``;
+    return html`
+      <div class="card-config">
+        <div class="tabs">
+          <button
+            class=${this._activeTab === 'sources' ? 'active' : ''}
+            @click=${() => { this._activeTab = 'sources'; }}
+          >
+            Data Sources
+          </button>
+          <button
+            class=${this._activeTab === 'display' ? 'active' : ''}
+            @click=${() => { this._activeTab = 'display'; }}
+          >
+            Display
+          </button>
+        </div>
+        ${this._activeTab === 'sources' ? this._renderDataSourcesTab() : this._renderDisplayTab()}
+      </div>
+    `;
+  }
+
+  _renderDataSourcesTab() {
+    return html`
+      <div class="section">
+        <div class="section-header">TRACK MAP</div>
+        ${this._renderTextField(
+          'entry_id',
+          'Config entry id',
+          'Use auto for the first loaded F1 Sensor entry.',
+        )}
+      </div>
+      <div class="section">
+        <div class="section-header">OPTIONAL CONTEXT</div>
+        ${this._renderTextField(
+          'lap_count_entity',
+          'Lap count entity',
+          'Use auto, leave empty to disable, or enter a lap count sensor entity id.',
+        )}
+        ${this._renderTextField(
+          'track_status_entity',
+          'Track status entity',
+          'Use auto, leave empty to disable, or enter a track status sensor entity id.',
+        )}
+        ${this._renderTextField(
+          'driver_positions_entity',
+          'Driver positions entity',
+          'Use auto, leave empty to disable OUT filtering, or enter a driver positions sensor entity id.',
+        )}
+      </div>
+    `;
+  }
+
+  _renderDisplayTab() {
+    return html`
+      <div class="section">
+        ${renderThemeModeSelect(this)}
+        ${this._renderTextField('title', 'Title')}
+        ${renderEditorSelect(this, 'layout_mode', 'Layout mode', [
+          { value: 'auto', label: 'Auto compact on narrow cards' },
+          { value: 'compact', label: 'Compact' },
+          { value: 'full', label: 'Full' },
+        ])}
+        ${renderEditorSelect(this, 'driver_label_mode', 'Driver labels', [
+          { value: 'tla', label: 'Driver code' },
+          { value: 'number', label: 'Car number' },
+          { value: 'off', label: 'Off' },
+        ])}
+        ${renderEditorSelect(this, 'track_status_line_mode', 'Track status line', [
+          { value: 'accent', label: 'Accent glow' },
+          { value: 'full', label: 'Color full line' },
+          { value: 'off', label: 'Off' },
+        ])}
+        ${this._renderSwitch('show_header', 'Show header')}
+        ${this._renderSwitch('show_footer', 'Show footer')}
+        ${this._renderSwitch('show_session_info', 'Show session info')}
+        ${this._renderSwitch('show_driver_count', 'Show driver count')}
+        ${this._renderSwitch('show_lap_progress', 'Show lap progress')}
+        ${this._renderSwitch('show_track_status', 'Show track status')}
+        ${this._renderSwitch('invert_y', 'Invert Y axis')}
+        ${this._renderNumberField(
+          'throttle_ms',
+          'Websocket throttle (ms)',
+          'Limits how often live track map snapshots are redrawn. Use 0 to disable throttling.',
+        )}
+        ${this._renderTextField(
+          'interpolation_ms',
+          'Interpolation (ms)',
+          'Visual motion smoothing for car markers. Auto keeps live movement continuous without adding a render buffer and smooths replay playback. Use 0 to disable smoothing, or higher values for more visual delay.',
+        )}
+      </div>
+    `;
+  }
+
+  _renderTextField(name, label, helper = null) {
+    return this._renderFormField(name, label, { text: {} }, helper);
+  }
+
+  _renderNumberField(name, label, helper = null) {
+    return this._renderFormField(
+      name,
+      label,
+      { number: { min: 0, max: 5000, mode: 'box' } },
+      helper,
+    );
+  }
+
+  _renderSwitch(name, label, helper = null) {
+    return this._renderFormField(name, label, { boolean: {} }, helper);
+  }
+
+  _renderFormField(name, label, selector, helper = null) {
+    const schema = [{ name, label, selector }];
+    return html`
+      <ha-form
+        .hass=${this.hass}
+        .data=${this._config}
+        .schema=${schema}
+        .computeLabel=${() => label}
+        @value-changed=${this._formValueChanged}
+      ></ha-form>
+      ${helper ? html`<div class="helper">${helper}</div>` : ''}
+    `;
+  }
+
+  _formValueChanged(ev) {
+    if (!this._config) return;
+    const value = ev.detail?.value || {};
+    this._config = { ...this._config, ...value };
+    this.dispatchEvent(new CustomEvent('config-changed', { detail: { config: this._config } }));
+  }
+
+  _valueChanged(name, value) {
+    if (!this._config) return;
+    this._config = { ...this._config, [name]: value };
+    this.dispatchEvent(new CustomEvent('config-changed', { detail: { config: this._config } }));
+  }
+}
+
 installSectionsAutoHeight(F1TyreStatisticsCard, {
   columns: 12,
   min_columns: 4,
@@ -25867,6 +32128,13 @@ installSectionsAutoHeight(F1SeasonCalendarCard, {
   min_rows: 5,
 });
 
+installSectionsAutoHeight(F1LapPositionProgressionCard, {
+  columns: 12,
+  min_columns: 4,
+  max_columns: 12,
+  min_rows: 5,
+});
+
 installSectionsAutoHeight(F1LiveSessionCard, {
   columns: 12,
   min_columns: 4,
@@ -25916,6 +32184,60 @@ installSectionsAutoHeight(F1StartingGridCard, {
   min_rows: 8,
 });
 
+installSectionsAutoHeight(F1TrackMapCard, {
+  columns: 12,
+  min_columns: 4,
+  max_columns: 12,
+  min_rows: 3,
+});
+
+const F1_FONT_STYLE_CARD_CLASSES = [
+  F1TyreStatisticsCard,
+  F1PitStopOverviewCard,
+  F1DriverLapTimesCard,
+  F1ChampionshipPredictionDriversCard,
+  F1ChampionshipPredictionTeamsCard,
+  F1SeasonProgressionCard,
+  F1LastRaceResultsCard,
+  F1LapPositionProgressionCard,
+  F1InvestigationsCard,
+  F1TrackLimitsCard,
+  F1LiveSessionCard,
+  F1ReplayControlCard,
+  F1NextRaceCard,
+  F1SeasonCalendarCard,
+  F1RaceControlCard,
+  F1FiaDocumentsCard,
+  F1QualifyingTimingCard,
+  F1PracticeTimingCard,
+  F1RaceLapCard,
+  F1StartingGridCard,
+  ...(typeof F1TrackMapCard === 'undefined' ? [] : [F1TrackMapCard]),
+];
+
+F1_FONT_STYLE_CARD_CLASSES.forEach(installFontStyleSupport);
+
+const F1_NO_SPOILER_CARD_CLASSES = [
+  F1TyreStatisticsCard,
+  F1PitStopOverviewCard,
+  F1DriverLapTimesCard,
+  F1ChampionshipPredictionDriversCard,
+  F1ChampionshipPredictionTeamsCard,
+  F1LastRaceResultsCard,
+  F1LapPositionProgressionCard,
+  F1InvestigationsCard,
+  F1TrackLimitsCard,
+  F1LiveSessionCard,
+  F1RaceControlCard,
+  F1FiaDocumentsCard,
+  F1QualifyingTimingCard,
+  F1PracticeTimingCard,
+  F1RaceLapCard,
+  F1StartingGridCard,
+  ...(typeof F1TrackMapCard === 'undefined' ? [] : [F1TrackMapCard]),
+];
+
+F1_NO_SPOILER_CARD_CLASSES.forEach(installNoSpoilerOverlay);
 
 if (!customElements.get('f1-sensor-live-data-card')) {
   customElements.define('f1-sensor-live-data-card', F1TyreStatisticsCard);
@@ -25957,6 +32279,14 @@ if (!customElements.get('f1-championship-prediction-teams-card-editor')) {
   customElements.define('f1-championship-prediction-teams-card-editor', F1ChampionshipPredictionTeamsCardEditor);
 }
 
+if (!customElements.get('f1-season-progression-card')) {
+  customElements.define('f1-season-progression-card', F1SeasonProgressionCard);
+}
+
+if (!customElements.get('f1-season-progression-card-editor')) {
+  customElements.define('f1-season-progression-card-editor', F1SeasonProgressionCardEditor);
+}
+
 if (!customElements.get('f1-last-race-results-card')) {
   customElements.define('f1-last-race-results-card', F1LastRaceResultsCard);
 }
@@ -25965,12 +32295,28 @@ if (!customElements.get('f1-last-race-results-card-editor')) {
   customElements.define('f1-last-race-results-card-editor', F1LastRaceResultsCardEditor);
 }
 
+if (!customElements.get('f1-lap-position-progression-card')) {
+  customElements.define('f1-lap-position-progression-card', F1LapPositionProgressionCard);
+}
+
+if (!customElements.get('f1-lap-position-progression-card-editor')) {
+  customElements.define('f1-lap-position-progression-card-editor', F1LapPositionProgressionCardEditor);
+}
+
 if (!customElements.get('f1-replay-control-card')) {
   customElements.define('f1-replay-control-card', F1ReplayControlCard);
 }
 
 if (!customElements.get('f1-replay-control-card-editor')) {
   customElements.define('f1-replay-control-card-editor', F1ReplayControlCardEditor);
+}
+
+if (!customElements.get('f1-track-map-card')) {
+  customElements.define('f1-track-map-card', F1TrackMapCard);
+}
+
+if (!customElements.get('f1-track-map-card-editor')) {
+  customElements.define('f1-track-map-card-editor', F1TrackMapCardEditor);
 }
 
 if (!customElements.get('f1-investigations-card')) {
@@ -26103,6 +32449,14 @@ window.customCards.push({
 });
 
 window.customCards.push({
+  type: 'f1-season-progression-card',
+  name: 'F1 Season Progression',
+  description: 'Native season progression chart for driver or constructor championship points',
+  configurable: true,
+  preview: true,
+});
+
+window.customCards.push({
   type: 'f1-last-race-results-card',
   name: 'F1 Last Race Results',
   description: 'Last race results table with finishing position, grid, position delta, points, and status',
@@ -26111,9 +32465,25 @@ window.customCards.push({
 });
 
 window.customCards.push({
+  type: 'f1-lap-position-progression-card',
+  name: 'F1 Lap Position Progression',
+  description: 'Native post-race lap position chart for completed races with sprint sessions marked unavailable when lap data is not exposed',
+  configurable: true,
+  preview: true,
+});
+
+window.customCards.push({
   type: 'f1-replay-control-card',
   name: 'F1 Replay Control',
   description: 'Replay Mode control panel with session selectors, playback controls, and progress',
+  configurable: true,
+  preview: true,
+});
+
+window.customCards.push({
+  type: 'f1-track-map-card',
+  name: 'F1 Track Map',
+  description: 'Live and replay track map with car positions, lap progress, and track status context',
   configurable: true,
   preview: true,
 });
@@ -26185,7 +32555,7 @@ window.customCards.push({
 window.customCards.push({
   type: 'f1-practice-timing-card',
   name: 'F1 Free Practice Timing',
-  description: 'Practice-only timing table with tyre age, last lap, and fastest lap per driver',
+  description: 'Practice-only timing table with optional live sectors, tyre age, last lap, and fastest lap per driver',
   configurable: true,
   preview: true,
 });
@@ -26193,7 +32563,7 @@ window.customCards.push({
 window.customCards.push({
   type: 'f1-race-lap-card',
   name: 'F1 Race Lap',
-  description: 'Race-only timing table with lap count title, tyre age, fastest lap highlights, and pit stops for Replay Mode or live with F1TV access',
+  description: 'Race-only timing table with optional live sectors, lap count, tyre age, fastest lap highlights, and pit stops',
   configurable: true,
   preview: true,
 });

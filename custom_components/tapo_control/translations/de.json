@@ -1,0 +1,98 @@
+{
+  "title": "Tapo: Kamerasteuerung",
+  "config": {
+    "flow_title": "Tapo: Kamerasteuerung {name}",
+    "step": {
+      "ip": {
+        "data": {
+          "ip_address": "IP Adresse"
+        },
+        "description": "Gib die IP Adresse der Kamera ein.\n\n\n\nWenn du VLANs benutzt, stelle sicher, dass die Ports 443, 554 und 2020 geöffnet sind."
+      },
+      "auth": {
+        "data": {
+          "username": "Benutzername",
+          "password": "Passwort"
+        },
+        "description": "Gib die Anmeldedaten des Kamera Kontos ein.\n\nErstelle ein Kamera Konto in der Tapo App über:\nKameraeinstellungen > Erweiterte Einstellungen > Kamera Konto."
+      },
+      "auth_cloud_password": {
+        "data": {
+          "cloud_password": "Tapo Account Passwort"
+        },
+        "description": "Die Kamera benötigt dein Cloud-Passwort für Aufnahmen.\nDies ist das Passwort, das du zusammen mit deiner E-Mail-Adresse für die Anmeldung in der Tapo-App verwendet hast.\nStelle sicher, dass in der Tapo-App die Kompatibilität mit Drittanbietern aktiviert ist (Ich -> Tapo Labor -> Kompatiblität mit Drittanbietern - Aktiviert).\n\nEin kostenpflichtiges Tapo-Care-Abonnement ist nicht erforderlich.\nSolltest du nicht, du hast dasselbe Passwort für die Cloud und das Kamera-Konto verwendet, sind die Passwörter unterschiedlich.\nDie E-Mail-Adresse ist nicht erforderlich und alle Kommunikation bleibt vollständig lokal."
+      },
+      "other_options": {
+        "data": {
+          "enable_motion_sensor": "Bewegungssensor aktivieren",
+          "enable_time_sync": "Zeit automatisch synchronisieren",
+          "enable_stream": "Kamera Stream in Home Assistant nutzen (Neustart notwendig)",
+          "enable_sound_detection": "Geräuschsensor aktivieren (Neustart notwendig)",
+          "sound_detection_peak": "[Geräuschsensor] Schwellenwert in dB (0 ist laut, -100 ist leise).",
+          "sound_detection_duration": "[Geräuschsensor] Zeitintervall über dem Schwellenwert, nach dem der Sensor ausgelöst wird.",
+          "sound_detection_reset": "[Geräuschsensor] Zeitintervall unter dem Schwellenwert, nach dem der Sensor zurückgesetzt wird.",
+          "extra_arguments": "Extra FFmpeg Parameter (Neustart notwendig)",
+          "custom_stream_hd": "Benutzerdefinierter Stream-Link (HD)",
+          "custom_stream_sd": "Benutzerdefinierter Stream-Link (SD)",
+          "custom_stream6": "Benutzerdefinierter Stream-Link (Teleobjektiv HD)",
+          "custom_stream7": "Benutzerdefinierter Stream-Link (Teleobjektiv SD)",
+          "rtsp_transport": "RTSP-Transportmechanismus"
+        },
+        "description": "Fast geschafft!\nNur noch ein paar letzte Einstellungen..."
+      }
+    },
+    "error": {
+      "not_tapo_device": "Die IP Adresse gehört keinem unterstützten Tapo Gerät.",
+      "ports_closed": "er Port 443, 554 oder 2020 ist gesperrt.",
+      "invalid_auth": "Ungültige Anmeldedaten.\nStelle sicher, dass du dein Drittanbieter-Konto über die Tapo App erstellt hast.\nDu kannst testen, ob diese Anmeldedaten mit einem RTSP-Stream funktionieren, z.B. in VLC mit dem Link\nrtsp://Benutzername:Passwort@IP-Adresse:554/stream1",
+      "unknown": "Unbekannter Fehler",
+      "connection_failed": "Verbindung fehlgeschlagen",
+      "invalid_auth_cloud": "Ungültiges Cloud-Passwort.\nStelle sicher, dass du das Passwort für dein Cloud-Konto eingibst und NICHT das Passwort, das du in den Kameraeinstellungen erstellt hast (es sei denn, sie sind identisch).\nDu musst das Passwort eingeben, das du zusammen mit deiner E-Mail-Adresse bei der Anmeldung in der Tapo App verwendet hast.\n\nStelle sicher, dass die Kompatibilität mit Drittanbietern in der Tapo App aktiviert ist (Ich -> Tapo Labor -> Kompatiblität mit Drittanbietern - Aktiviert).",
+      "camera_requires_admin": "Deine Kamera erfordert das Cloud-Passwort für die Steuerung.",
+      "already_configured": "Die IP Adresse ist schon konfiguriert.",
+      "incorrect_peak_value": "Ungültiger Schwellenwert für den Geräuschsensor."
+    },
+    "abort": {
+      "already_configured": "Die IP Adresse ist schon konfiguriert.",
+      "not_tapo_device": "Das gefundene Gerät ist keine Tapo Kamera."
+    }
+  },
+  "options": {
+    "step": {
+      "time_sync_options": {
+        "data": {
+          "enable_time_sync": "Zeit automatisch synchronisieren"
+        }
+      },
+      "auth": {
+        "data": {
+          "ip_address": "IP Adresse",
+          "username": "Benutzername",
+          "password": "Passwort",
+          "enable_motion_sensor": "Bewegungssensor aktivieren",
+          "enable_stream": "Kamera Stream in Home Assistant nutzen (Neustart notwendig)",
+          "enable_sound_detection": "Geräuschsensor aktivieren (Neustart notwendig)",
+          "cloud_password": "Tapo Cloud Passwort (optional)",
+          "sound_detection_peak": "[Geräuschsensor] Schwellenwert in dB (0 ist laut, -100 ist leise).",
+          "sound_detection_duration": "[Geräuschsensor] Zeitintervall über dem Schwellenwert, nach dem der Sensor ausgelöst wird.",
+          "sound_detection_reset": "[Geräuschsensor] Zeitintervall unter dem Schwellenwert, nach dem der Sensor zurückgesetzt wird.",
+          "extra_arguments": "Extra FFmpeg Parameter (Neustart notwendig)",
+          "custom_stream_hd": "Benutzerdefinierter Stream-Link (HD)",
+          "custom_stream_sd": "Benutzerdefinierter Stream-Link (SD)",
+          "custom_stream6": "Benutzerdefinierter Stream-Link (Teleobjektiv HD)",
+          "custom_stream7": "Benutzerdefinierter Stream-Link (Teleobjektiv SD)",
+          "rtsp_transport": "RTSP-Transportmechanismus"
+        },
+        "description": "Passe die Einstellungen deiner Tapo-Kamera an.\n\nVerwende den Stream von Home Assistant:\nJa - Längere Wiedergabeverzögerung, geringere CPU-Auslastung, ermöglicht Wiedergabesteuerung.\nNein - Sehr kurze Wiedergabeverzögerung, höhere CPU-Auslastung, keine Wiedergabesteuerung."
+      }
+    },
+    "error": {
+      "invalid_auth": "Ungültige Anmeldedaten.",
+      "unknown": "Unbekannter Fehler.",
+      "connection_failed": "Verbindung fehlgeschlagen.",
+      "invalid_auth_cloud": "Ungültiges Cloud-Passwort.\nStelle sicher, dass du das Passwort für dein Cloud-Konto eingibst und NICHT das Passwort, das du in den Kameraeinstellungen erstellt hast (es sei denn, sie sind identisch).\nDu musst das Passwort eingeben, das du zusammen mit deiner E-Mail-Adresse bei der Anmeldung in der Tapo-App verwendet hast.\n\nStelle sicher, dass die Kompatibilität mit Drittanbietern in der Tapo-App aktiviert ist (Ich -> Tapo Labor -> Kompatibilität mit Drittanbietern - Aktiviert).",
+      "camera_requires_admin": "Die Kamera erfordert das Cloud-Passwort für die Steuerung.",
+      "incorrect_peak_value": "Ungültiger Schwellenwert für den Geräuschsensor."
+    }
+  }
+}

@@ -65,10 +65,10 @@ DEFAULT_REPLAY_START_REFERENCE = REPLAY_START_REFERENCE_FORMATION
 # released versions; flip to True locally when working with replay dumps.
 ENABLE_DEVELOPMENT_MODE_UI = False
 
-# Gate for the public experimental F1TV auth surface. This is intentionally
-# separate from development mode so F1TV access can be tested by users without
-# exposing replay/developer controls.
-ENABLE_EXPERIMENTAL_F1TV_AUTH = True
+# Gate for the public F1TV auth surface. This is intentionally separate from
+# development mode so F1TV access can be available without exposing
+# replay/developer controls.
+ENABLE_F1TV_AUTH = True
 
 LATEST_TRACK_STATUS = "f1_latest_track_status"
 
@@ -88,6 +88,7 @@ SUPPORTED_SENSOR_KEYS = frozenset(
         "last_race_results",
         "season_results",
         "sprint_results",
+        "lap_position_progression",
         "driver_points_progression",
         "constructor_points_progression",
         "race_week",
@@ -101,7 +102,10 @@ SUPPORTED_SENSOR_KEYS = frozenset(
         "formation_start",
         "fia_documents",
         "race_control",
+        "on_track_incident",
+        "possible_on_track_incident",
         "top_three",
+        "team_radio",
         "pitstops",
         "championship_prediction",
         "live_timing_diagnostics",
@@ -213,6 +217,40 @@ F1_CIRCUIT_IMAGE_SLUGS: dict[str, dict[str, str]] = {
         "losail": "lusail",
         "yas_marina": "yasmarinacircuit",
     }
+}
+
+F1_CIRCUIT_TIME_ZONES: dict[str, str] = {
+    "albert_park": "Australia/Melbourne",
+    "americas": "America/Chicago",
+    "bahrain": "Asia/Bahrain",
+    "baku": "Asia/Baku",
+    "catalunya": "Europe/Madrid",
+    "hungaroring": "Europe/Budapest",
+    "imola": "Europe/Rome",
+    "interlagos": "America/Sao_Paulo",
+    "istanbul": "Europe/Istanbul",
+    "jeddah": "Asia/Riyadh",
+    "losail": "Asia/Qatar",
+    "madring": "Europe/Madrid",
+    "marina_bay": "Asia/Singapore",
+    "miami": "America/New_York",
+    "monaco": "Europe/Monaco",
+    "monza": "Europe/Rome",
+    "mugello": "Europe/Rome",
+    "nurburgring": "Europe/Berlin",
+    "portimao": "Europe/Lisbon",
+    "red_bull_ring": "Europe/Vienna",
+    "ricard": "Europe/Paris",
+    "rodriguez": "America/Mexico_City",
+    "shanghai": "Asia/Shanghai",
+    "silverstone": "Europe/London",
+    "sochi": "Europe/Moscow",
+    "spa": "Europe/Brussels",
+    "suzuka": "Asia/Tokyo",
+    "vegas": "America/Los_Angeles",
+    "villeneuve": "America/Toronto",
+    "yas_marina": "Asia/Dubai",
+    "zandvoort": "Europe/Amsterdam",
 }
 
 # Legacy circuit map support (official F1 track maps with DRS zones)

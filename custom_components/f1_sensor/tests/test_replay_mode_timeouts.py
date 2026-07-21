@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
+import json
 
 import pytest
 
@@ -26,6 +27,58 @@ class _TimeoutHttp:
         raise TimeoutError
 
 
+class _TextResponse:
+    def __init__(self, payload: dict) -> None:
+        self.status = 200
+        self._text = json.dumps(payload)
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb) -> bool:
+        del exc_type, exc, tb
+        return False
+
+    async def text(self) -> str:
+        return self._text
+
+
+class _RawTextResponse:
+    def __init__(self, text: str) -> None:
+        self.status = 200
+        self._text = text
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb) -> bool:
+        del exc_type, exc, tb
+        return False
+
+    async def text(self) -> str:
+        return self._text
+
+
+class _IndexHttp:
+    def __init__(self, payload: dict) -> None:
+        self.payload = payload
+        self.get_calls: list[str] = []
+
+    def get(self, url: str):
+        self.get_calls.append(url)
+        return _TextResponse(self.payload)
+
+
+class _StreamHttp:
+    def __init__(self, text: str) -> None:
+        self.text = text
+        self.get_calls: list[str] = []
+
+    def get(self, url: str):
+        self.get_calls.append(url)
+        return _RawTextResponse(self.text)
+
+
 def _session() -> ReplaySession:
     start = datetime(2026, 3, 20, 5, 0, tzinfo=UTC)
     return ReplaySession(
@@ -39,6 +92,77 @@ def _session() -> ReplaySession:
         start_utc=start,
         end_utc=start + timedelta(hours=2),
     )
+
+
+def test_replay_session_rejects_non_numeric_identifiers() -> None:
+    start = datetime(2026, 3, 20, 5, 0, tzinfo=UTC)
+
+    with pytest.raises(ValueError):
+        ReplaySession(
+            year=2026,
+            meeting_key="../outside",
+            meeting_name="Australian Grand Prix",
+            session_key=11465,
+            session_name="Race",
+            session_type="Race",
+            path="2026/race",
+            start_utc=start,
+            end_utc=start + timedelta(hours=2),
+        )
+
+
+@pytest.mark.asyncio
+async def test_fetch_sessions_skips_invalid_replay_identifiers(hass) -> None:
+    start = datetime.now(UTC) - timedelta(days=2)
+    end = start + timedelta(hours=2)
+    session_payload = {
+        "Name": "Race",
+        "Type": "Race",
+        "Path": "2026/race",
+        "StartDate": start.isoformat().replace("+00:00", "Z"),
+        "EndDate": end.isoformat().replace("+00:00", "Z"),
+        "GmtOffset": "+00:00",
+    }
+    http = _IndexHttp(
+        {
+            "Meetings": [
+                {
+                    "Key": "../outside",
+                    "Name": "Bad Meeting",
+                    "Sessions": [{**session_payload, "Key": 1}],
+                },
+                {
+                    "Key": 1304,
+                    "Name": "Australian Grand Prix",
+                    "Sessions": [{**session_payload, "Key": "../../outside"}],
+                },
+                {
+                    "Key": "1304",
+                    "Name": "Australian Grand Prix",
+                    "Sessions": [{**session_payload, "Key": "11465"}],
+                },
+            ]
+        }
+    )
+    manager = ReplaySessionManager(hass, "entry-test", http)  # type: ignore[arg-type]
+
+    sessions = await manager.async_fetch_sessions(2026)
+
+    assert [session.unique_id for session in sessions] == ["2026_1304_11465"]
+
+
+@pytest.mark.asyncio
+async def test_delete_session_cache_rejects_traversal(hass, tmp_path) -> None:
+    timeout_http = _TimeoutHttp()
+    manager = ReplaySessionManager(hass, "entry-test", timeout_http)  # type: ignore[arg-type]
+    manager._cache_dir = tmp_path / "cache"
+    manager._cache_dir.mkdir()
+    outside = tmp_path / "outside"
+    outside.mkdir()
+
+    await manager._delete_session_cache("../outside")
+
+    assert outside.exists()
 
 
 @pytest.mark.asyncio
@@ -68,6 +192,33 @@ async def test_download_stream_timeout_returns_empty_list(hass) -> None:
 
     assert frames == []
     assert len(timeout_http.get_calls) == 1
+
+
+@pytest.mark.asyncio
+async def test_download_stream_annotates_team_radio_static_root(hass) -> None:
+    http = _StreamHttp(
+        "\n".join(
+            (
+                '00:00:01.000{"Captures":[{"Utc":"2026-07-05T14:01:01Z",'
+                '"RacingNumber":"3","Path":"TeamRadio/VER_3.mp3"}]}',
+                '00:00:02.000{"Captures":{"1":{"Utc":"2026-07-05T14:40:34Z",'
+                '"RacingNumber":"44","Path":"TeamRadio/HAM_44.mp3"}}}',
+            )
+        )
+    )
+    manager = ReplaySessionManager(hass, "entry-test", http)  # type: ignore[arg-type]
+
+    frames = await manager._download_stream(
+        "https://livetiming.formula1.com/static/2026/session/TeamRadio.jsonStream",
+        "TeamRadio",
+    )
+
+    assert len(frames) == 2
+    assert frames[0].stream == "TeamRadio"
+    assert frames[0].payload["_static_root"] == (
+        "https://livetiming.formula1.com/static/2026/session"
+    )
+    assert frames[1].payload["Captures"]["1"]["Path"] == "TeamRadio/HAM_44.mp3"
 
 
 @pytest.mark.asyncio

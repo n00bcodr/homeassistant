@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
+import aiohttp
 from dacite import from_dict
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
@@ -55,6 +56,25 @@ class MqttPayload:
     state: State | None = None
 
 
+def shadow_payload_to_data(payload: str) -> bytearray | None:
+    """Decode an AWS shadow payload into the raw device byte array.
+
+    Returns None when the payload carries no reported state, or when the
+    reported state is metadata-only (e.g. a connected/modifiedTime update)
+    and has no wfa array yet.
+    """
+    message = from_dict(MqttPayload, json.loads(payload))
+    if message.state and message.state.reported:
+        reported = message.state.reported
+        if reported.wfa is None:
+            return None
+        offset = int(reported.wfaStartOffset or 26)
+        wfa = reported.wfa
+        padding = [0 for _ in range(offset)]
+        return bytearray(padding + wfa)
+    return None
+
+
 class HomewhizCloudUpdateCoordinator(HomewhizCoordinator):
     def __init__(
         self,
@@ -86,9 +106,24 @@ class HomewhizCloudUpdateCoordinator(HomewhizCoordinator):
         )
 
         _LOGGER.info("Connecting to %s", self._appliance_id)
-        credentials = await login(
-            self._cloud_config.username, self._cloud_config.password
-        )
+        try:
+            credentials = await login(
+                self._cloud_config.username, self._cloud_config.password
+            )
+        except (TimeoutError, aiohttp.ClientError):
+            # Transient login failure (e.g. HA boots before DNS is ready after an
+            # outage): schedule a retry like the AwsCrtError path, don't die.
+            _LOGGER.exception(
+                "Login to the cloud failed (transient). Will retry in one minute."
+            )
+            self._entry.async_on_unload(
+                async_track_point_in_time(
+                    hass=self.hass,
+                    action=self.refresh_connection,  # type: ignore[arg-type]
+                    point_in_time=datetime.today() + timedelta(minutes=1),
+                )
+            )
+            return False
 
         expiration = datetime.fromtimestamp(credentials.expiration / 1000, tz=UTC)
         _LOGGER.debug("Credentials expire at: %s", expiration)
@@ -378,12 +413,8 @@ class HomewhizCloudUpdateCoordinator(HomewhizCoordinator):
     def handle_notify(self, payload: str) -> None:
         _LOGGER.debug("Handling notify")
         try:
-            message = from_dict(MqttPayload, json.loads(payload))
-            if message.state and message.state.reported:
-                offset = int(message.state.reported.wfaStartOffset or 26)
-                wfa = message.state.reported.wfa or []
-                padding = [0 for _ in range(offset)]
-                data = bytearray(padding + wfa)
+            data = shadow_payload_to_data(payload)
+            if data is not None:
                 _LOGGER.debug("Message received: %s", data)
                 self.hass.loop.call_soon_threadsafe(self.async_set_updated_data, data)
         except Exception as e:  # noqa: BLE001

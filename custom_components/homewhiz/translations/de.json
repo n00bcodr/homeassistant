@@ -11,11 +11,41 @@
         "description": "Möchtest du {name} einrichten?"
       },
       "user": {
+        "description": "Verbindungstyp auswählen",
+        "menu_options": {
+          "select_bluetooth_device": "Bluetooth",
+          "provide_cloud_credentials": "Cloud"
+        }
+      },
+      "select_bluetooth_device": {
+        "description": "Gerät auswählen",
         "data": {
           "address": "Gerät"
-        },
-        "description": "Wähle ein Gerät zum Einrichten aus"
+        }
+      },
+      "bluetooth_connect": {
+        "description": "HomeWhiz-Anmeldedaten eingeben",
+        "data": {
+          "username": "Benutzername",
+          "password": "Passwort"
+        }
+      },
+      "provide_cloud_credentials": {
+        "description": "HomeWhiz-Anmeldedaten eingeben",
+        "data": {
+          "username": "Benutzername",
+          "password": "Passwort"
+        }
+      },
+      "select_cloud_device": {
+        "description": "Gerät auswählen",
+        "data": {
+          "id": "Gerät"
+        }
       }
+    },
+    "error": {
+      "invalid_auth": "Ungültige Anmeldedaten"
     }
   },
   "entity": {
@@ -28,78 +58,10 @@
           "device_state_running": "Läuft",
           "device_state_paused": "Pausiert",
           "device_state_time_delay_active": "Zeitverzögerung aktiv",
+          "device_state_time_delay_paused": "Zeitverzögerung pausiert",
           "device_state_cancelling": "Wird abgebrochen",
           "device_state_door_open": "Tür offen!",
           "device_state_settings": "Einstellungen"
-        }
-      },
-      "dryer_program": {
-        "name": "Trockner: Programm",
-        "state": {
-          "program_cottons": "Baumwolle",
-          "program_cottons_eco": "Baumwolle Eco",
-          "program_synthetics": "Synthetik",
-          "program_mix": "Mix",
-          "program_woolprotect": "Wolle",
-          "program_night": "Nachtprogramm",
-          "program_drying_rack_timer_programmes": "Trockengestell/Zeitprogramm",
-          "program_jeans": "Jeans",
-          "program_outdoor_sports": "Outdoor/Sport",
-          "program_duvet_downwear": "Daunen/Bettdecke",
-          "program_gentlecare": "Sanftpflege",
-          "program_xpress_super_short": "Express Kurz",
-          "program_hygienic_drying": "Hygienisch Trocknen",
-          "program_hygienic_refresh": "Hygiene Auffrischen",
-          "program_bedding": "Bettwäsche",
-          "program_lingerie": "Feinwäsche",
-          "program_towel": "Handtücher",
-          "program_fashion": "Fashion"
-        }
-      },
-      "dryer_drying_level": {
-        "name": "Trockner: Trocknungsgrad",
-        "state": {
-          "drying_level_iron_dry": "Bügeltrocken",
-          "drying_level_cupboard_dry": "Schranktrocken",
-          "drying_level_plus": "Schranktrocken+",
-          "drying_level_extra_dry": "Extratrocken"
-        }
-      },
-      "dryer_anti_creasing": {
-        "name": "Trockner: Knitterschutz",
-        "state": {
-          "0": "Aus",
-          "30": "30 min",
-          "60": "60 min",
-          "120": "120 min"
-        }
-      },
-      "dryer_duration": {
-        "name": "Trockner: Zeitwahl",
-        "state": {
-          "10": "10 min",
-          "20": "20 min",
-          "30": "30 min",
-          "40": "40 min",
-          "50": "50 min",
-          "60": "60 min",
-          "70": "70 min",
-          "80": "80 min",
-          "90": "90 min",
-          "100": "100 min",
-          "110": "110 min",
-          "120": "120 min",
-          "130": "130 min",
-          "140": "140 min",
-          "150": "150 min",
-          "160": "160 min"
-        }
-      },
-      "setting_volume": {
-        "name": "Trockner: Lautstärke",
-        "state": {
-          "volume_close": "Aus",
-          "volume_on": "Ein"
         }
       },
       "washer_program": {
@@ -134,7 +96,7 @@
           "program_dark_wash": "Dunkel",
           "program_outdoor": "Outdoor",
           "program_drum_clean_plus": "Trommelreinigung+",
-          "program_steam_refresh": "Steam Refresh"
+          "program_steam_refresh": "Dampf-Auffrischung"
         }
       },
       "washer_temperature": {
@@ -144,30 +106,31 @@
           "temperature_20": "20 °C",
           "temperature_30": "30 °C",
           "temperature_40": "40 °C",
-          "60c": "60C",
-          "90c": "90C"
+          "60c": "60 °C",
+          "90c": "90 °C"
         }
       },
       "washer_spin": {
         "name": "Schleudern",
         "state": {
           "spin_no_spin": "Nicht schleudern",
-          "600rpm": "600RPM",
-          "800rpm": "800RPM",
-          "1000rpm": "1000RPM",
-          "1200rpm": "1200RPM",
+          "600rpm": "600 U/m",
+          "800rpm": "800 U/m",
+          "1000rpm": "1000 U/m",
+          "1200rpm": "1200 U/m",
           "spin_rinse_hold": "Spülstopp",
-          "spin_600": "600",
-          "spin_800": "800",
-          "spin_1200": "1200",
-          "spin_1400": "1400",
-          "1400rpm": "1400RPM"
+          "spin_600": "600 U/m",
+          "spin_800": "800 U/m",
+          "spin_1000": "1000 U/m",
+          "spin_1200": "1200 U/m",
+          "spin_1400": "1400 U/m",
+          "1400rpm": "1400 U/m"
         }
       },
       "washer_fast_plus": {
         "name": "Fast+",
         "state": {
-          "fast_plus_off": "Fast+ aus",
+          "fast_plus_off": "Aus",
           "fast_plus_on_fast": "Schnell",
           "fast_plus_on_fast_plus": "Schnell+"
         }
@@ -175,18 +138,18 @@
       "custom_duration_level": {
         "name": "Benutzerdefinierte Dauer",
         "state": {
-          "duration_level_0": "DURATION_LEVEL_0",
-          "1": "1",
-          "2": "2",
-          "3": "3",
-          "4": "4",
-          "5": "5",
-          "6": "6",
-          "7": "7",
-          "8": "8",
-          "9": "9",
-          "10": "10",
-          "11": "11"
+          "1": "Level 1",
+          "2": "Level 2",
+          "3": "Level 3",
+          "4": "Level 4",
+          "5": "Level 5",
+          "6": "Level 6",
+          "7": "Level 7",
+          "8": "Level 8",
+          "9": "Level 9",
+          "10": "Level 10",
+          "11": "Level 11",
+          "duration_level_0": "Level 0"
         }
       },
       "washer_extra_rinse_count": {
@@ -215,13 +178,13 @@
         "name": "Programm",
         "state": {
           "program_static": "Statisch",
-          "program_static_fan": "HeiBluft",
-          "program_fan_heating": "HeiBluft +",
+          "program_static_fan": "Heißluft",
+          "program_fan_heating": "Heißluft +",
           "program_multi_cooking": "3D - Kochen",
           "program_fan_heat_bottom": "Pizzastufe",
           "program_eco_grill": "Grill",
           "program_full_grill": "Flächengrill",
-          "program_full_grill_fan": "Umluftgrill groB",
+          "program_full_grill_fan": "Umluftgrill groß",
           "program_bottom_heating": "Unterhitze",
           "program_defrost": "Auftauen",
           "program_warm_keeping": "Warmhalten",
@@ -245,48 +208,6 @@
       },
       "oven_warning_error": {
         "name": "Beim Produkt ist ein unerwarteter Fehler aufgetreten. Bitte überprüfen Sie die Bedienungsanleitung."
-      },
-      "settings_hob2hood": {
-        "name": "HobToHood Einstellung"
-      },
-      "settings_keylocked": {
-        "name": "Tastensperre"
-      },
-      "zone_1_program": {
-        "name": "Zone 1 Programm"
-      },
-      "zone_1_hob_predefined_program": {
-        "name": "Zone 1 Vordefiniertes Programm"
-      },
-      "zone_1_hob_heater_level": {
-        "name": "Zone 1 Heizstufe"
-      },
-      "zone_2_program": {
-        "name": "Zone 2 Programm"
-      },
-      "zone_2_hob_predefined_program": {
-        "name": "Zone 2 Vordefiniertes Programm"
-      },
-      "zone_2_hob_heater_level": {
-        "name": "Zone 2 Heizstufe"
-      },
-      "zone_3_program": {
-        "name": "Zone 3 Programm"
-      },
-      "zone_3_hob_predefined_program": {
-        "name": "Zone 3 Vordefiniertes Programm"
-      },
-      "zone_3_hob_heater_level": {
-        "name": "Zone 3 Heizstufe"
-      },
-      "zone_4_program": {
-        "name": "Zone 4 Programm"
-      },
-      "zone_4_hob_predefined_program": {
-        "name": "Zone 4 Vordefiniertes Programm"
-      },
-      "zone_4_hob_heater_level": {
-        "name": "Zone 4 Heizstufe"
       },
       "program": {
         "name": "Programm",
@@ -340,18 +261,60 @@
       "dishwasher_liquid_detergent_low": {
         "name": "Wenig Flüssigwaschmittel"
       },
+      "settings_hob2hood": {
+        "name": "HobToHood Einstellung"
+      },
+      "settings_keylocked": {
+        "name": "Tastensperre"
+      },
+      "zone_1_program": {
+        "name": "Zone 1 Programm"
+      },
+      "zone_1_hob_predefined_program": {
+        "name": "Zone 1 Vordefiniertes Programm"
+      },
+      "zone_1_hob_heater_level": {
+        "name": "Zone 1 Heizstufe"
+      },
+      "zone_2_program": {
+        "name": "Zone 2 Programm"
+      },
+      "zone_2_hob_predefined_program": {
+        "name": "Zone 2 Vordefiniertes Programm"
+      },
+      "zone_2_hob_heater_level": {
+        "name": "Zone 2 Heizstufe"
+      },
+      "zone_3_program": {
+        "name": "Zone 3 Programm"
+      },
+      "zone_3_hob_predefined_program": {
+        "name": "Zone 3 Vordefiniertes Programm"
+      },
+      "zone_3_hob_heater_level": {
+        "name": "Zone 3 Heizstufe"
+      },
+      "zone_4_program": {
+        "name": "Zone 4 Programm"
+      },
+      "zone_4_hob_predefined_program": {
+        "name": "Zone 4 Vordefiniertes Programm"
+      },
+      "zone_4_hob_heater_level": {
+        "name": "Zone 4 Heizstufe"
+      },
       "dishwasher_program": {
         "name": "Programm",
         "state": {
           "program_auto": "Auto 40-65°C",
-          "program_aqua_flex": "PROGRAM_AQUA_FLEX",
+          "program_aqua_flex": "AquaFlex",
           "program_intensive_70": "Intensiv 70°C",
           "program_eco_50": "Eco 50°C",
           "program_delicate": "Feinwäsche",
-          "program_quick_and_shine": "PROGRAM_QUICK_AND_SHINE",
+          "program_quick_and_shine": "Quick&Shine",
           "program_mini": "Mini",
           "program_prewash": "Vorspülen",
-          "program_quiet": "PROGRAM_QUIET",
+          "program_quiet": "QuietWash",
           "program_clean_and_shine": "Clean&Shine",
           "program_innerclean": "Innenreinigung"
         }
@@ -364,7 +327,7 @@
         "state": {
           "dry_off": "Aus",
           "dry_extra": "Extra trocken",
-          "dry_cabinet": "Wardrobe Dry",
+          "dry_cabinet": "Schranktrocken",
           "dry_iron": "Bügeltrocken",
           "dry_10": "10 Min.",
           "dry_20": "20 Min.",
@@ -412,24 +375,9 @@
           "left_right_vane_control_right": "Rechts",
           "left_right_vane_control_auto": "Auto"
         }
-      }
-    },
-    "sensor": {
-      "state": {
-        "name": "Zustand",
-        "state": {
-          "device_state_on": "Ein",
-          "device_state_off": "Aus",
-          "device_state_running": "Läuft",
-          "device_state_paused": "Pausiert",
-          "device_state_time_delay_active": "Zeitverzögerung aktiv",
-          "device_state_cancelling": "Wird abgebrochen",
-          "device_state_door_open": "Tür offen!",
-          "device_state_settings": "Einstellungen"
-        }
       },
       "dryer_program": {
-        "name": "Trockner: Programm",
+        "name": "Programm",
         "state": {
           "program_cottons": "Baumwolle",
           "program_cottons_eco": "Baumwolle Eco",
@@ -452,7 +400,7 @@
         }
       },
       "dryer_drying_level": {
-        "name": "Trockner: Trocknungsgrad",
+        "name": "Trocknungsgrad",
         "state": {
           "drying_level_iron_dry": "Bügeltrocken",
           "drying_level_cupboard_dry": "Schranktrocken",
@@ -461,7 +409,7 @@
         }
       },
       "dryer_anti_creasing": {
-        "name": "Trockner: Knitterschutz",
+        "name": "Knitterschutz",
         "state": {
           "0": "Aus",
           "30": "30 min",
@@ -470,25 +418,91 @@
         }
       },
       "dryer_duration": {
-        "name": "Trockner: Zeitwahl"
-      },
-      "dryer_lowtemp_mode": {
-        "name": "Trockner: Niedrigtemperatur-Modus"
-      },
-      "variable_delay": {
-        "name": "Trockner: Startverzögerung"
-      },
-      "variable_duration": {
-        "name": "Trockner: Programmdauer"
-      },
-      "variable_remaining": {
-        "name": "Trockner: Restzeit"
+        "name": "Zeitwahl",
+        "state": {
+          "10": "10 min",
+          "20": "20 min",
+          "30": "30 min",
+          "40": "40 min",
+          "50": "50 min",
+          "60": "60 min",
+          "70": "70 min",
+          "80": "80 min",
+          "90": "90 min",
+          "100": "100 min",
+          "110": "110 min",
+          "120": "120 min",
+          "130": "130 min",
+          "140": "140 min",
+          "150": "150 min",
+          "160": "160 min"
+        }
       },
       "setting_volume": {
-        "name": "Trockner: Lautstärke",
+        "name": "Lautstärke",
         "state": {
           "volume_close": "Aus",
           "volume_on": "Ein"
+        }
+      },
+      "fridge_cooler_temperature": {
+        "name": "Kühlteil-Temperatur"
+      },
+      "fridge_freezer_temperature": {
+        "name": "Gefriertemperatur"
+      },
+      "fridge_degree_dimension": {
+        "name": "Temperatureinheit",
+        "state": {
+          "degree_dimension_celcius": "Celsius (°C)",
+          "degree_dimension_fahrenheit": "Fahrenheit (°F)"
+        }
+      },
+      "fridge_freezer_joker_mode": {
+        "name": "Joker-Fach",
+        "state": {
+          "freezer_joker_mode_freezer": "Gefrierschrank",
+          "freezer_joker_mode_cooler": "Kühlschrank"
+        }
+      },
+      "fridge_freezer_joker_temperature": {
+        "name": "Joker-Fach-Temperatur",
+        "state": {
+          "1c": "1 °C",
+          "2c": "2 °C",
+          "3c": "3 °C",
+          "4c": "4 °C",
+          "5c": "5 °C",
+          "6c": "6 °C",
+          "7c": "7 °C",
+          "8c": "8 °C"
+        }
+      },
+      "settings_door_alarm_time": {
+        "name": "Türalarm-Zeit",
+        "state": {
+          "one_min": "1 min",
+          "one_and_half_min": "1,5 min",
+          "two_min": "2 min",
+          "three_min": "3 min",
+          "four_min": "4 min",
+          "five_min": "5 min"
+        }
+      }
+    },
+    "sensor": {
+      "state": {
+        "name": "Zustand",
+        "state": {
+          "device_state_on": "Ein",
+          "device_state_off": "Aus",
+          "device_state_running": "Läuft",
+          "device_state_paused": "Pausiert",
+          "device_state_time_delay_active": "Zeitverzögerung aktiv",
+          "device_state_time_delay_paused": "Zeitverzögerung pausiert",
+          "device_state_cancelling": "Wird abgebrochen",
+          "device_state_door_open": "Tür offen!",
+          "device_state_settings": "Einstellungen"
         }
       },
       "washer_program": {
@@ -523,7 +537,7 @@
           "program_dark_wash": "Dunkel",
           "program_outdoor": "Outdoor",
           "program_drum_clean_plus": "Trommelreinigung+",
-          "program_steam_refresh": "Steam Refresh"
+          "program_steam_refresh": "Dampf-Auffrischung"
         }
       },
       "washer_temperature": {
@@ -533,30 +547,31 @@
           "temperature_20": "20 °C",
           "temperature_30": "30 °C",
           "temperature_40": "40 °C",
-          "60c": "60C",
-          "90c": "90C"
+          "60c": "60 °C",
+          "90c": "90 °C"
         }
       },
       "washer_spin": {
         "name": "Schleudern",
         "state": {
           "spin_no_spin": "Nicht schleudern",
-          "600rpm": "600RPM",
-          "800rpm": "800RPM",
-          "1000rpm": "1000RPM",
-          "1200rpm": "1200RPM",
+          "600rpm": "600 U/m",
+          "800rpm": "800 U/m",
+          "1000rpm": "1000 U/m",
+          "1200rpm": "1200 U/m",
           "spin_rinse_hold": "Spülstopp",
-          "spin_600": "600",
-          "spin_800": "800",
-          "spin_1200": "1200",
-          "spin_1400": "1400",
-          "1400rpm": "1400RPM"
+          "spin_600": "600 U/m",
+          "spin_800": "800 U/m",
+          "spin_1000": "1000 U/m",
+          "spin_1200": "1200 U/m",
+          "spin_1400": "1400 U/m",
+          "1400rpm": "1400 U/m"
         }
       },
       "washer_fast_plus": {
         "name": "Fast+",
         "state": {
-          "fast_plus_off": "Fast+ aus",
+          "fast_plus_off": "Aus",
           "fast_plus_on_fast": "Schnell",
           "fast_plus_on_fast_plus": "Schnell+"
         }
@@ -564,18 +579,18 @@
       "custom_duration_level": {
         "name": "Benutzerdefinierte Dauer",
         "state": {
-          "duration_level_0": "DURATION_LEVEL_0",
-          "1": "1",
-          "2": "2",
-          "3": "3",
-          "4": "4",
-          "5": "5",
-          "6": "6",
-          "7": "7",
-          "8": "8",
-          "9": "9",
-          "10": "10",
-          "11": "11"
+          "1": "Level 1",
+          "2": "Level 2",
+          "3": "Level 3",
+          "4": "Level 4",
+          "5": "Level 5",
+          "6": "Level 6",
+          "7": "Level 7",
+          "8": "Level 8",
+          "9": "Level 9",
+          "10": "Level 10",
+          "11": "Level 11",
+          "duration_level_0": "Level 0"
         }
       },
       "washer_extra_rinse_count": {
@@ -591,17 +606,6 @@
       "sub_state": {
         "name": "Sub-Zustand",
         "state": {
-          "dryer_message_program_finished": "Programm beendet",
-          "dryer_message_hello": "Willkommen",
-          "dryer_message_closing": "Wird ausgeschaltet",
-          "dryer_message_program_started": "Programm gestartet",
-          "dryer_message_drying": "Trocknen",
-          "dryer_message_time_delay_active": "Startverzögerung aktiv",
-          "dryer_message_paused": "Pausiert",
-          "dryer_message_cooling": "Abkühlen",
-          "dryer_message_refreshing": "Auffrischen",
-          "dryer_message_anti_creasing": "Knitterschutz aktiv",
-          "dryer_message_drum_empty": "Trommel leer",
           "washer_substate_washing": "Waschen",
           "washer_substate_spin": "Schleudern",
           "washer_water_intake": "Wasserzufuhr",
@@ -639,11 +643,31 @@
           "dishwasher_message_program_started": "Program Gestartet",
           "dishwasher_message_washing": "Waschen",
           "dishwasher_message_rinsing": "Spülen",
-          "dishwasher_message_drying": "Trocknen"
+          "dishwasher_message_drying": "Trocknen",
+          "dryer_message_program_finished": "Programm beendet",
+          "dryer_message_hello": "Willkommen",
+          "dryer_message_closing": "Wird ausgeschaltet",
+          "dryer_message_program_started": "Programm gestartet",
+          "dryer_message_drying": "Trocknen",
+          "dryer_message_time_delay_active": "Startverzögerung aktiv",
+          "dryer_message_paused": "Pausiert",
+          "dryer_message_cooling": "Abkühlen",
+          "dryer_message_refreshing": "Auffrischen",
+          "dryer_message_anti_creasing": "Knitterschutz aktiv",
+          "dryer_message_drum_empty": "Trommel leer"
         }
       },
       "washer_delay": {
         "name": "Endzeit des Programms"
+      },
+      "delay_start": {
+        "name": "Startverzögerung"
+      },
+      "delay_start_time": {
+        "name": "Verzögerter Startzeitpunkt"
+      },
+      "delay_end_time": {
+        "name": "Verzögerter Endzeitpunkt"
       },
       "washer_duration": {
         "name": "Dauer"
@@ -688,19 +712,76 @@
         "name": "Nachtmodus"
       },
       "washer_anticrease": {
-        "name": "AntiCrease"
+        "name": "Knitterschutz"
+      },
+      "dryer_program": {
+        "name": "Programm",
+        "state": {
+          "program_cottons": "Baumwolle",
+          "program_cottons_eco": "Baumwolle Eco",
+          "program_synthetics": "Synthetik",
+          "program_mix": "Mix",
+          "program_woolprotect": "Wolle",
+          "program_night": "Nachtprogramm",
+          "program_drying_rack_timer_programmes": "Trockengestell/Zeitprogramm",
+          "program_jeans": "Jeans",
+          "program_outdoor_sports": "Outdoor/Sport",
+          "program_duvet_downwear": "Daunen/Bettdecke",
+          "program_gentlecare": "Sanftpflege",
+          "program_xpress_super_short": "Express Kurz",
+          "program_hygienic_drying": "Hygienisch Trocknen",
+          "program_hygienic_refresh": "Hygiene Auffrischen",
+          "program_bedding": "Bettwäsche",
+          "program_lingerie": "Feinwäsche",
+          "program_towel": "Handtücher",
+          "program_fashion": "Fashion"
+        }
+      },
+      "dryer_drying_level": {
+        "name": "Trocknungsgrad",
+        "state": {
+          "drying_level_iron_dry": "Bügeltrocken",
+          "drying_level_cupboard_dry": "Schranktrocken",
+          "drying_level_plus": "Schranktrocken+",
+          "drying_level_extra_dry": "Extratrocken"
+        }
+      },
+      "dryer_anti_creasing": {
+        "name": "Knitterschutz",
+        "state": {
+          "0": "Aus",
+          "30": "30 min",
+          "60": "60 min",
+          "120": "120 min"
+        }
+      },
+      "dryer_duration": {
+        "name": "Zeitwahl"
+      },
+      "dryer_lowtemp_mode": {
+        "name": "Niedrigtemperatur-Modus"
+      },
+      "variable_duration": {
+        "name": "Programmdauer"
+      },
+      "setting_volume": {
+        "name": "Lautstärke",
+        "state": {
+          "volume_close": "Aus",
+          "volume_on": "Ein"
+        }
       },
       "oven_program": {
         "name": "Programm",
         "state": {
           "program_static": "Statisch",
-          "program_static_fan": "HeiBluft",
-          "program_fan_heating": "HeiBluft +",
+          "program_static_fan": "Heißluft",
+          "program_fan_heating": "Heißluft +",
           "program_multi_cooking": "3D - Kochen",
           "program_fan_heat_bottom": "Pizzastufe",
           "program_eco_grill": "Grill",
           "program_full_grill": "Flächengrill",
-          "program_full_grill_fan": "Umluftgrill groB",
+          "program_full_grill_fan": "Umluftgrill groß",
           "program_bottom_heating": "Unterhitze",
           "program_defrost": "Auftauen",
           "program_warm_keeping": "Warmhalten",
@@ -716,8 +797,14 @@
       "settings_brightness": {
         "name": "Helligkeit"
       },
+      "variable_delay": {
+        "name": "Endzeit des Programms"
+      },
       "variable_oven_duration": {
         "name": "Gardauer"
+      },
+      "variable_remaining": {
+        "name": "Restzeit"
       },
       "oven_warning_door_is_open": {
         "name": "Die Tür ist offen"
@@ -733,45 +820,6 @@
       },
       "oven_skip_preheating": {
         "name": "Überspringen >"
-      },
-      "monitoring_hob2hood": {
-        "name": "HobToHood Status"
-      },
-      "zone_1_zone_extended": {
-        "name": "Zone 1 Erweiterung"
-      },
-      "zone_1_cooking_state": {
-        "name": "Zone 1 Kochzustand"
-      },
-      "zone_1_duration": {
-        "name": "Zone 1 Dauer"
-      },
-      "zone_2_zone_extended": {
-        "name": "Zone 2 Erweiterung"
-      },
-      "zone_2_cooking_state": {
-        "name": "Zone 2 Kochzustand"
-      },
-      "zone_2_duration": {
-        "name": "Zone 2 Dauer"
-      },
-      "zone_3_zone_extended": {
-        "name": "Zone 3 Erweiterung"
-      },
-      "zone_3_cooking_state": {
-        "name": "Zone 3 Kochzustand"
-      },
-      "zone_3_duration": {
-        "name": "Zone 3 Dauer"
-      },
-      "zone_4_zone_extended": {
-        "name": "Zone 4 Erweiterung"
-      },
-      "zone_4_cooking_state": {
-        "name": "Zone 4 Kochzustand"
-      },
-      "zone_4_duration": {
-        "name": "Zone 4 Dauer"
       },
       "program": {
         "name": "Programm",
@@ -834,8 +882,47 @@
       "dishwasher_liquid_detergent_low": {
         "name": "Wenig Flüssigwaschmittel"
       },
+      "monitoring_hob2hood": {
+        "name": "HobToHood Status"
+      },
+      "zone_1_zone_extended": {
+        "name": "Zone 1 Erweiterung"
+      },
+      "zone_1_cooking_state": {
+        "name": "Zone 1 Kochzustand"
+      },
+      "zone_1_duration": {
+        "name": "Zone 1 Dauer"
+      },
+      "zone_2_zone_extended": {
+        "name": "Zone 2 Erweiterung"
+      },
+      "zone_2_cooking_state": {
+        "name": "Zone 2 Kochzustand"
+      },
+      "zone_2_duration": {
+        "name": "Zone 2 Dauer"
+      },
+      "zone_3_zone_extended": {
+        "name": "Zone 3 Erweiterung"
+      },
+      "zone_3_cooking_state": {
+        "name": "Zone 3 Kochzustand"
+      },
+      "zone_3_duration": {
+        "name": "Zone 3 Dauer"
+      },
+      "zone_4_zone_extended": {
+        "name": "Zone 4 Erweiterung"
+      },
+      "zone_4_cooking_state": {
+        "name": "Zone 4 Kochzustand"
+      },
+      "zone_4_duration": {
+        "name": "Zone 4 Dauer"
+      },
       "dishwasher_traywash": {
-        "name": "Tray Wash"
+        "name": "Tablettreinigung"
       },
       "dishwasher_fastplus": {
         "name": "Geschirrspüler fastplus"
@@ -859,14 +946,14 @@
         "name": "Programm",
         "state": {
           "program_auto": "Auto 40-65°C",
-          "program_aqua_flex": "PROGRAM_AQUA_FLEX",
+          "program_aqua_flex": "AquaFlex",
           "program_intensive_70": "Intensiv 70°C",
           "program_eco_50": "Eco 50°C",
           "program_delicate": "Feinwäsche",
-          "program_quick_and_shine": "PROGRAM_QUICK_AND_SHINE",
+          "program_quick_and_shine": "Quick&Shine",
           "program_mini": "Mini",
           "program_prewash": "Vorspülen",
-          "program_quiet": "PROGRAM_QUIET",
+          "program_quiet": "QuietWash",
           "program_clean_and_shine": "Clean&Shine",
           "program_innerclean": "Innenreinigung"
         }
@@ -878,14 +965,14 @@
         "name": "Spülmaschinenhygiene intensiv"
       },
       "dishwasher_deepwash": {
-        "name": "Deep Wash"
+        "name": "Tiefenreinigung"
       },
       "washer_dry": {
         "name": "Trocknung",
         "state": {
           "dry_off": "Aus",
           "dry_extra": "Extra trocken",
-          "dry_cabinet": "Wardrobe Dry",
+          "dry_cabinet": "Schranktrocken",
           "dry_iron": "Bügeltrocken",
           "dry_10": "10 Min.",
           "dry_20": "20 Min.",
@@ -945,6 +1032,55 @@
       },
       "air_conditioner_auto_switch_on": {
         "name": "Automatisch einschalten"
+      },
+      "fridge_cooler_temperature": {
+        "name": "Kühlteil-Temperatur"
+      },
+      "fridge_freezer_temperature": {
+        "name": "Gefriertemperatur"
+      },
+      "fridge_degree_dimension": {
+        "name": "Temperatureinheit",
+        "state": {
+          "degree_dimension_celcius": "Celsius (°C)",
+          "degree_dimension_fahrenheit": "Fahrenheit (°F)"
+        }
+      },
+      "fridge_freezer_joker_mode": {
+        "name": "Joker-Fach",
+        "state": {
+          "freezer_joker_mode_freezer": "Gefrierschrank",
+          "freezer_joker_mode_cooler": "Kühlschrank"
+        }
+      },
+      "fridge_freezer_joker_temperature": {
+        "name": "Joker-Fach-Temperatur",
+        "state": {
+          "1c": "1 °C",
+          "2c": "2 °C",
+          "3c": "3 °C",
+          "4c": "4 °C",
+          "5c": "5 °C",
+          "6c": "6 °C",
+          "7c": "7 °C",
+          "8c": "8 °C"
+        }
+      },
+      "settings_door_alarm_time": {
+        "name": "Türalarm-Zeit",
+        "state": {
+          "one_min": "1 min",
+          "one_and_half_min": "1,5 min",
+          "two_min": "2 min",
+          "three_min": "3 min",
+          "four_min": "4 min",
+          "five_min": "5 min"
+        }
+      }
+    },
+    "number": {
+      "delay_start_set": {
+        "name": "Startverzögerung (Eingabe)"
       }
     },
     "binary_sensor": {
@@ -952,31 +1088,31 @@
         "name": "Fernbedienung"
       },
       "dryer_warning_door_is_open": {
-        "name": "Trockner: Tür ist offen"
+        "name": "Tür ist offen"
       },
       "dryer_warning_tankfull": {
-        "name": "Trockner: Wassertank voll"
+        "name": "Wassertank voll"
       },
       "dryer_warning_check_the_filter": {
-        "name": "Trockner: Filter prüfen"
+        "name": "Filter prüfen"
       },
       "dryer_warning_check_the_condenser_filter": {
-        "name": "Trockner: Kondensatorfilter prüfen"
+        "name": "Kondensatorfilter prüfen"
       },
       "dryer_warning_drum_empty": {
-        "name": "Trockner: Trommel leer"
+        "name": "Trommel leer"
       },
       "dryer_message_child_lock": {
-        "name": "Trockner: Kindersicherung aktiv"
+        "name": "Kindersicherung aktiv"
       },
       "dryer_message_end_program": {
-        "name": "Trockner: Programmende"
+        "name": "Programmende"
       },
       "dryer_message_anti_creasing": {
-        "name": "Trockner: Knitterschutz aktiv"
+        "name": "Knitterschutz aktiv"
       },
       "dryer_message_anti_creasing_finished": {
-        "name": "Trockner: Knitterschutz beendet"
+        "name": "Knitterschutz beendet"
       },
       "washer_warning_door_is_open": {
         "name": "Die Tür ist offen"
@@ -995,6 +1131,27 @@
       },
       "oven_warning_error": {
         "name": "Beim Produkt ist ein unerwarteter Fehler aufgetreten. Bitte überprüfen Sie die Bedienungsanleitung."
+      },
+      "dishwasher_warning_no_rinse_aid": {
+        "name": "Kein Klarspüler"
+      },
+      "dishwasher_warning_no_salt": {
+        "name": "Kein Salz"
+      },
+      "dishwasher_warning_no_water": {
+        "name": "Kein Wasser"
+      },
+      "dishwasher_warning_check_the_filter": {
+        "name": "Filter überprüfen"
+      },
+      "dishwasher_warning_door_is_open": {
+        "name": "Die Tür ist offen"
+      },
+      "dishwasher_warning_call_service": {
+        "name": "Service anrufen"
+      },
+      "dishwasher_liquid_detergent_low": {
+        "name": "Wenig Flüssigwaschmittel"
       },
       "zone_1_hob_hot": {
         "name": "Zone 1 Heiße Oberfläche"
@@ -1020,36 +1177,32 @@
       "zone_4_hob_pan_info": {
         "name": "Zone 4 Topferkennung"
       },
-      "dishwasher_warning_no_rinse_aid": {
-        "name": "Kein Klarspüler"
+      "fridge_warning_door_is_open": {
+        "name": "Tür ist offen"
       },
-      "dishwasher_warning_no_salt": {
-        "name": "Kein Salz"
-      },
-      "dishwasher_warning_no_water": {
-        "name": "Kein Wasser"
-      },
-      "dishwasher_warning_check_the_filter": {
-        "name": "Filter überprüfen"
-      },
-      "dishwasher_warning_door_is_open": {
-        "name": "Die Tür ist offen"
-      },
-      "dishwasher_warning_call_service": {
-        "name": "Service anrufen"
-      },
-      "dishwasher_liquid_detergent_low": {
-        "name": "Wenig Flüssigwaschmittel"
+      "fridge_warning_high_temperature": {
+        "name": "Hohe Temperatur"
       }
     },
     "climate": {
       "ac": {
+        "state_attributes": {
+          "fan_mode": {
+            "name": "Lüftergeschwindigkeit",
+            "state": {
+              "wind_strength_auto": "Auto",
+              "wind_strength_low": "Niedrig",
+              "wind_strength_mid": "Mittel",
+              "wind_strength_high": "Hoch"
+            }
+          }
+        },
         "name": "Notfall"
       }
     },
     "switch": {
       "dryer_lowtemp_mode": {
-        "name": "Trockner: Niedrigtemperatur-Modus"
+        "name": "Niedrigtemperatur-Modus"
       },
       "washer_prewash": {
         "name": "Vorwäsche"
@@ -1076,7 +1229,7 @@
         "name": "Nachtmodus"
       },
       "washer_anticrease": {
-        "name": "AntiCrease"
+        "name": "Knitterschutz"
       },
       "oven_booster": {
         "name": "Booster"
@@ -1085,7 +1238,7 @@
         "name": "Überspringen >"
       },
       "dishwasher_traywash": {
-        "name": "Tray Wash"
+        "name": "Tablettreinigung"
       },
       "dishwasher_fastplus": {
         "name": "Geschirrspüler fastplus"
@@ -1121,7 +1274,24 @@
         "name": "Spülmaschinenhygiene intensiv"
       },
       "dishwasher_deepwash": {
-        "name": "Deep Wash"
+        "name": "Tiefenreinigung"
+      },
+      "fridge_quick_cool": {
+        "name": "Quick Cool"
+      },
+      "fridge_a_cool": {
+        "name": "A-Cool"
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Homewhiz Einstellungen",
+        "description": "Ermöglicht die erweiterte Konfiguration der Integration.",
+        "data": {
+          "bt_reconnect_interval": "Intervall für die Bluetooth-Wiederverbindung (in Stunden)"
+        }
       }
     }
   }

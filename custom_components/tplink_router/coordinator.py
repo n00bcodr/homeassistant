@@ -5,6 +5,7 @@ from logging import Logger
 from collections.abc import Callable
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from tplinkrouterc6u import (
+    VPN,
     TplinkRouterProvider,
     AbstractRouter,
     Firmware,
@@ -13,6 +14,7 @@ from tplinkrouterc6u import (
     LTEStatus,
     SMS,
     VpnClientStatus,
+    VPNStatus
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC, DeviceInfo
@@ -33,7 +35,8 @@ class TPLinkRouterCoordinator(DataUpdateCoordinator):
             lte_status: LTEStatus | None,
             logger: Logger,
             unique_id: str,
-            vpn_status: VpnClientStatus | None = None,
+            vpn_server_status: VPNStatus | None = None,
+            vpn_client_status: VpnClientStatus | None = None,
     ) -> None:
         self.router = router
         self.unique_id = unique_id
@@ -51,7 +54,8 @@ class TPLinkRouterCoordinator(DataUpdateCoordinator):
             hw_version=firmware.hardware_version,
         )
 
-        self.vpn_status: VpnClientStatus | None = vpn_status
+        self.vpn_server_status = vpn_server_status
+        self.vpn_client_status = vpn_client_status
 
         self.scan_stopped_at: datetime | None = None
         self._last_update_time: datetime | None = None
@@ -72,6 +76,10 @@ class TPLinkRouterCoordinator(DataUpdateCoordinator):
                                                  logger, verify_ssl)
 
     @staticmethod
+    def get_client_by_class(client_class: str) -> AbstractRouter:
+        return TplinkRouterProvider.get_clients()[client_class]
+
+    @staticmethod
     def request(router: AbstractRouter, callback: Callable):
         router.authorize()
         try:
@@ -90,6 +98,11 @@ class TPLinkRouterCoordinator(DataUpdateCoordinator):
         def callback():
             self.router.set_wifi(wifi, enable)
 
+        await self.hass.async_add_executor_job(TPLinkRouterCoordinator.request, self.router, callback)
+
+    async def set_vpn_server(self, kind: VPN, enable: bool) -> None:
+        def callback():
+            self.router.set_vpn(kind, enable)
         await self.hass.async_add_executor_job(TPLinkRouterCoordinator.request, self.router, callback)
 
     async def set_vpn_client(self, enable: bool) -> None:
@@ -121,13 +134,15 @@ class TPLinkRouterCoordinator(DataUpdateCoordinator):
                 self.router,
                 self.router.get_lte_status,
             )
-        if self.vpn_status is not None:
-            new_vpn_status = await self.hass.async_add_executor_job(
+        if self.vpn_server_status is not None:
+            self.vpn_server_status = await self.hass.async_add_executor_job(
+                TPLinkRouterCoordinator.request, self.router, self.router.get_vpn_status
+            )
+        if self.vpn_client_status is not None:
+            self.vpn_client_status = await self.hass.async_add_executor_job(
                 TPLinkRouterCoordinator.request, self.router, self.router.get_vpn_client_status
             )
-            self.vpn_status.enabled = new_vpn_status.enabled
-            self.vpn_status.servers = new_vpn_status.servers
-            self.vpn_status.devices = new_vpn_status.devices
+
         await self._update_new_sms()
         self._last_update_time = datetime.now()
 

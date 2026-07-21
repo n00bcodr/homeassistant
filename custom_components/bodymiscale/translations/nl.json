@@ -60,12 +60,14 @@
           "impedance_high": "Hoogfrequente impedantiesensor (250 kHz)",
           "impedance_low": "Laagfrequente impedantiesensor (50 kHz)",
           "profile_id_sensor": "Profiel-ID-sensor (weegschaal-ID)",
+          "stabilized": "Stabilisatiesensor",
           "weight": "Gewichtssensor"
         },
         "data_description": {
           "impedance": "Enkele impedantiewaarde geleverd door je weegschaal.",
           "impedance_high": "Impedantie gemeten op 250 kHz (S400).",
-          "impedance_low": "Impedantie gemeten op 50 kHz (S400)."
+          "impedance_low": "Impedantie gemeten op 50 kHz (S400).",
+          "stabilized": "Binaire sensor (binary_sensor) van de weegschaal die aangeeft dat een stabiele meting beschikbaar is."
         },
         "title": "Sensorselectie"
       },
@@ -114,6 +116,7 @@
       "state_attributes": {
         "age": { "name": "Leeftijd" },
         "basal_metabolism": { "name": "Basaal metabolisme" },
+        "bcm": { "name": "Lichaamscelmassa" },
         "bmi": { "name": "BMI" },
         "bmi_label": {
           "name": "BMI-label",
@@ -128,7 +131,6 @@
             "underweight": "Ondergewicht"
           }
         },
-        "body_cell_mass": { "name": "Lichaamscelmassa" },
         "body_fat": { "name": "Lichaamsvet" },
         "body_score": { "name": "Lichaamsscore" },
         "body_type": {
@@ -247,12 +249,14 @@
           "impedance_high": "Hoogfrequente impedantiesensor (250 kHz)",
           "impedance_low": "Laagfrequente impedantiesensor (50 kHz)",
           "profile_id_sensor": "Profiel-ID-sensor (weegschaal-ID)",
+          "stabilized": "Stabilisatiesensor",
           "weight": "Gewichtssensor"
         },
         "data_description": {
           "impedance": "Enkele impedantiewaarde geleverd door je weegschaal.",
           "impedance_high": "Impedantie gemeten op 250 kHz (S400).",
-          "impedance_low": "Impedantie gemeten op 50 kHz (S400)."
+          "impedance_low": "Impedantie gemeten op 50 kHz (S400).",
+          "stabilized": "Binaire sensor (binary_sensor) van de weegschaal die aangeeft dat een stabiele meting beschikbaar is."
         },
         "title": "Sensoren bewerken"
       }
