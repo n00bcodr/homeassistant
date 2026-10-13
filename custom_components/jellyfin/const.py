@@ -119,7 +119,6 @@ class ApiUrl(StrEnum):
     ALBUM_ARTISTS = "/AlbumArtists"
     ARTISTS = "/Artists"
     AUTH_KEYS = "/Auth/Keys"
-    AUTHENTICATE = "/Users/AuthenticateByName"
     CHANNELS = "/Channels"
     COMMAND = "/Command"
     GENRES = "/Genres"
@@ -490,6 +489,7 @@ class Session(StrEnum):
     SERVER_ID = "ServerId"
     SUPPORTS_REMOTE_CONTROL = "SupportsRemoteControl"
     SUPPORTED_COMMANDS = "SupportedCommands"
+    TRANSCODING_INFO = "TranscodingInfo"
     USER_NAME = "UserName"
 
 
@@ -499,9 +499,23 @@ class PlayState(StrEnum):
     CAN_SEEK = "CanSeek"
     IS_MUTED = "IsMuted"
     IS_PAUSED = "IsPaused"
+    PLAY_METHOD = "PlayMethod"
     POSITION_TICKS = "PositionTicks"
     REPEAT_MODE = "RepeatMode"
     VOLUME_LEVEL = "VolumeLevel"
+
+
+class TranscodingInfo(StrEnum):
+    """Transcoding info keys."""
+
+    AUDIO_CODEC = "AudioCodec"
+    BITRATE = "Bitrate"
+    COMPLETION_PERCENTAGE = "CompletionPercentage"
+    CONTAINER = "Container"
+    IS_AUDIO_DIRECT = "IsAudioDirect"
+    IS_VIDEO_DIRECT = "IsVideoDirect"
+    TRANSCODE_REASONS = "TranscodeReasons"
+    VIDEO_CODEC = "VideoCodec"
 
 
 class Auth(StrEnum):

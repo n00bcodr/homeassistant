@@ -58,7 +58,10 @@ list_files:
   fields:
     path:
       name: Path
-      description: Relative path from config directory (e.g., "www/", "themes/")
+      description: >-
+        Relative path from config directory. Allowed: www/, themes/,
+        custom_templates/, dashboards/, blueprints/, plus your configured
+        packages/ folder (e.g., "www/", "blueprints/automation").
       required: true
       example: "www/"
       selector:
@@ -80,8 +83,10 @@ read_file:
       description: >-
         Relative path from config directory. Allowed paths include
         configuration.yaml, automations.yaml, scripts.yaml, scenes.yaml,
-        secrets.yaml (values masked), home-assistant.log, www/**, themes/**,
-        custom_templates/**, packages/*.yaml, custom_components/**/*.py
+        secrets.yaml (values masked), home-assistant.log,
+        home-assistant.log.fault, www/**, themes/**,
+        custom_templates/**, dashboards/**, blueprints/**, packages/*.yaml,
+        custom_components/**/*.py
       required: true
       example: "configuration.yaml"
       selector:
@@ -119,13 +124,13 @@ read_file:
 
 write_file:
   name: Write File
-  description: Write a file to allowed directories (www/, themes/, custom_templates/).
+  description: Write a file to allowed directories (www/, themes/, custom_templates/, dashboards/).
   fields:
     path:
       name: Path
       description: >-
-        Relative path from config directory. Must be in www/, themes/, or
-        custom_templates/.
+        Relative path from config directory. Must be in www/, themes/,
+        custom_templates/, or dashboards/.
       required: true
       example: "www/custom.css"
       selector:
@@ -155,13 +160,13 @@ write_file:
 
 delete_file:
   name: Delete File
-  description: Delete a file from allowed directories (www/, themes/, custom_templates/).
+  description: Delete a file from allowed directories (www/, themes/, custom_templates/, dashboards/).
   fields:
     path:
       name: Path
       description: >-
-        Relative path from config directory. Must be in www/, themes/, or
-        custom_templates/.
+        Relative path from config directory. Must be in www/, themes/,
+        custom_templates/, or dashboards/.
       required: true
       example: "www/old-file.css"
       selector:
@@ -204,5 +209,35 @@ set_allowed_paths:
         write (e.g. "pyscript", "python_scripts"). Replaces the current list.
       required: false
       example: '["pyscript", "python_scripts"]'
+      selector:
+        object:
+
+get_extra_yaml_keys:
+  name: Get Extra YAML Write Keys (Internal)
+  description: >-
+    Internal service used by the ha-mcp server and the integration's own
+    options flow. Returns the component-configured extra top-level YAML write
+    keys and the non-overridable deny floor. Restricted to the ha-mcp server
+    (requires the `_ha_mcp_token`) and admin auth. Not intended for direct
+    invocation from automations or scripts.
+  fields: {}
+
+set_extra_yaml_keys:
+  name: Set Extra YAML Write Keys (Internal)
+  description: >-
+    Internal service used by the ha-mcp server settings UI and the
+    integration's own options flow. Replaces the component-configured extra
+    top-level keys that ha_config_set_yaml may write in addition to the
+    built-in ones. Blank entries and keys on the non-overridable deny floor
+    (e.g. homeassistant, http, frontend, lovelace) are dropped. Restricted to
+    the ha-mcp server (requires the `_ha_mcp_token`) and admin auth.
+  fields:
+    keys:
+      name: Keys
+      description: >-
+        Top-level YAML keys, each additionally writable by ha_config_set_yaml
+        on this install (e.g. "alert2"). Replaces the current list.
+      required: false
+      example: '["alert2"]'
       selector:
         object:

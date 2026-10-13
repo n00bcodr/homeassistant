@@ -1,0 +1,11 @@
+{
+  "domain": "govee_h713b",
+  "name": "Govee H713B Heater",
+  "codeowners": ["@n00bcodr"],
+  "config_flow": true,
+  "documentation": "https://github.com/n00bcodr/govee-ha-integration",
+  "iot_class": "cloud_push",
+  "issue_tracker": "https://github.com/n00bcodr/govee-ha-integration/issues",
+  "requirements": ["paho-mqtt>=1.6.0,<3"],
+  "version": "0.1.0"
+}

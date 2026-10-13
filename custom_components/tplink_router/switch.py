@@ -38,6 +38,14 @@ class TPLinkRouterVPNClientSwitchConfig(TPLinkRouterSwitchConfigBase):
     coordinator_key: str = 'vpn_client_status'
 
 
+@dataclass
+class TPLinkRouterLedSwitchConfig(TPLinkRouterSwitchConfigBase):
+    """LED is a scalar bool on the coordinator (like port_status), not a nested object."""
+
+    coordinator_key: str = 'led_status'
+    property: str = ''
+
+
 STATUS_SWITCH_TYPES = (
     TPLinkRouterStatusSwitchConfig(
         property='guest_2g_enable',
@@ -100,6 +108,16 @@ STATUS_SWITCH_TYPES = (
         ),
     ),
     TPLinkRouterStatusSwitchConfig(
+        property='wifi_mlo_2g_enable',
+        method=lambda coordinator, value: coordinator.set_wifi(Connection.HOST_MLO_2G, value),
+        description=SwitchEntityDescription(
+            key="wifi_mlo_24g",
+            name="WIFI MLO 2.4G",
+            icon="mdi:wifi",
+            entity_category=EntityCategory.CONFIG,
+        ),
+    ),
+    TPLinkRouterStatusSwitchConfig(
         property='iot_2g_enable',
         method=lambda coordinator, value: coordinator.set_wifi(Connection.IOT_2G, value),
         description=SwitchEntityDescription(
@@ -125,6 +143,30 @@ STATUS_SWITCH_TYPES = (
         description=SwitchEntityDescription(
             key="iot_6g",
             name="IoT WIFI 6G",
+            icon="mdi:wifi",
+            entity_category=EntityCategory.CONFIG,
+        ),
+    ),
+)
+
+# 5G/6G MLO — only created when get_status reported both fields (multi-band EX).
+MLO_SWITCH_TYPES = (
+    TPLinkRouterStatusSwitchConfig(
+        property='wifi_mlo_5g_enable',
+        method=lambda coordinator, value: coordinator.set_wifi(Connection.HOST_MLO_5G, value),
+        description=SwitchEntityDescription(
+            key="wifi_mlo_5g",
+            name="WIFI MLO 5G",
+            icon="mdi:wifi",
+            entity_category=EntityCategory.CONFIG,
+        ),
+    ),
+    TPLinkRouterStatusSwitchConfig(
+        property='wifi_mlo_6g_enable',
+        method=lambda coordinator, value: coordinator.set_wifi(Connection.HOST_MLO_6G, value),
+        description=SwitchEntityDescription(
+            key="wifi_mlo_6g",
+            name="WIFI MLO 6G",
             icon="mdi:wifi",
             entity_category=EntityCategory.CONFIG,
         ),
@@ -177,6 +219,62 @@ VPN_CLIENT_SWITCH_TYPES = (
     ),
 )
 
+DHCP_SERVER_SWITCH_TYPES = (
+    TPLinkRouterStatusSwitchConfig(
+        property='lan_ipv4_dhcp_enable',
+        method=lambda coordinator, value: coordinator.set_ipv4_dhcps(value),
+        description=SwitchEntityDescription(
+            key="lan_ipv4_dhcp_enable",
+            name="LAN IPv4 DHCP Server",
+            icon="mdi:server-network",
+            entity_category=EntityCategory.CONFIG,
+        ),
+    ),
+)
+
+WAN_SWITCH_TYPES = (
+    TPLinkRouterStatusSwitchConfig(
+        property='ewan_connected',
+        method=lambda coordinator, value: coordinator.set_ewan_connect(value),
+        description=SwitchEntityDescription(
+            key="ewan_connect",
+            name="E-WAN connect",
+            icon="mdi:ethernet",
+            entity_category=EntityCategory.CONFIG,
+        ),
+    ),
+)
+
+LED_SWITCH_TYPES = (
+    TPLinkRouterLedSwitchConfig(
+        method=lambda coordinator, value: coordinator.set_led(value),
+        description=SwitchEntityDescription(
+            key="led",
+            name="LED",
+            icon="mdi:led-on",
+            entity_category=EntityCategory.CONFIG,
+        ),
+    ),
+)
+
+
+def _status_switch_types(status) -> tuple[TPLinkRouterStatusSwitchConfig, ...]:
+    """Return Wi‑Fi/IoT switches whose status property is reported (not None)."""
+    return tuple(
+        switch
+        for switch in STATUS_SWITCH_TYPES
+        if getattr(status, switch.property, None) is not None
+    )
+
+
+def _mlo_switch_types(status) -> tuple[TPLinkRouterStatusSwitchConfig, ...]:
+    """Return MLO 5G/6G switches whose status property is reported (not None)."""
+    return tuple(
+        switch
+        for switch in MLO_SWITCH_TYPES
+        if getattr(status, switch.property, None) is not None
+    )
+
 
 async def async_setup_entry(
         hass: HomeAssistant,
@@ -187,7 +285,10 @@ async def async_setup_entry(
 
     switches = []
 
-    for switch in STATUS_SWITCH_TYPES:
+    for switch in _status_switch_types(coordinator.status):
+        switches.append(TPLinkRouterSwitch(coordinator, switch))
+
+    for switch in _mlo_switch_types(coordinator.status):
         switches.append(TPLinkRouterSwitch(coordinator, switch))
 
     # Scan entity has has different turn_on/off logic from the rest of the switches
@@ -203,12 +304,29 @@ async def async_setup_entry(
         # Dynamically register VPN Client devices & servers available on the router
         vpn_client.setup_vpn_entities(coordinator, entry, async_add_entities)
 
+    if hasattr(coordinator.router, "set_ipv4_dhcps"):
+        for switch in DHCP_SERVER_SWITCH_TYPES:
+            switches.append(TPLinkRouterSwitch(coordinator, switch))
+
+    if (
+        hasattr(coordinator.router, "set_ewan_connect")
+        and coordinator.status.ewan_connected is not None
+    ):
+        for switch in WAN_SWITCH_TYPES:
+            switches.append(TPLinkRouterSwitch(coordinator, switch))
+
+    if coordinator.led_status is not None:
+        for switch in LED_SWITCH_TYPES:
+            switches.append(TPLinkRouterSwitch(coordinator, switch))
+
     async_add_entities(switches, False)
 
 
 class TPLinkRouterSwitch(
     CoordinatorEntity[TPLinkRouterCoordinator], SwitchEntity
 ):
+    _attr_has_entity_name = True
+
     def __init__(
             self,
             coordinator: TPLinkRouterCoordinator,
@@ -220,34 +338,52 @@ class TPLinkRouterSwitch(
         self._attr_unique_id = f"{coordinator.unique_id}_{DOMAIN}_{switch.description.key}"
         self.entity_description = switch.description
         self.switch = switch
-        self.coordinator_attr = getattr(self.coordinator, switch.coordinator_key)
+
+    @property
+    def coordinator_attr(self):
+        """Получаем актуальный атрибут координатора."""
+        return getattr(self.coordinator, self.switch.coordinator_key)
+
+    @property
+    def _value(self):
+        """Nested field, or the coordinator_key value itself when property is empty (scalar)."""
+        if self.switch.property:
+            return getattr(self.coordinator_attr, self.switch.property)
+        return self.coordinator_attr
 
     @property
     def is_on(self) -> bool:
         """Return true if switch is on."""
-        return getattr(self.coordinator_attr, self.switch.property)
+        return self._value
 
     @property
     def available(self) -> bool:
         """Return True if entity is available."""
-        return getattr(self.coordinator_attr, self.switch.property) is not None
+        return self._value is not None
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the entity on."""
         await self.switch.method(self.coordinator, True)
-        setattr(self.coordinator_attr, self.switch.property, True)
+        if self.switch.property:
+            setattr(self.coordinator_attr, self.switch.property, True)
+        else:
+            setattr(self.coordinator, self.switch.coordinator_key, True)
         self.async_write_ha_state()
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn the entity off."""
         await self.switch.method(self.coordinator, False)
-        setattr(self.coordinator_attr, self.switch.property, False)
+        if self.switch.property:
+            setattr(self.coordinator_attr, self.switch.property, False)
+        else:
+            setattr(self.coordinator, self.switch.coordinator_key, False)
         self.async_write_ha_state()
 
 
 class TPLinkRouterScanEntity(
     CoordinatorEntity[TPLinkRouterCoordinator], SwitchEntity
 ):
+    _attr_has_entity_name = True
     entity_description: SwitchEntityDescription
 
     def __init__(self, coordinator: TPLinkRouterCoordinator) -> None:

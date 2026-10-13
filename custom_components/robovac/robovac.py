@@ -4,7 +4,7 @@ from homeassistant.components.vacuum import VacuumActivity
 
 from .case_insensitive_lookup import case_insensitive_lookup
 from .tuyalocalapi import TuyaDevice
-from .vacuums import ROBOVAC_MODELS
+from .vacuums import ROBOVAC_MODELS, resolve_model_code
 from .vacuums.base import RobovacCommand, RobovacModelDetails
 
 import logging
@@ -41,11 +41,12 @@ class RoboVac(TuyaDevice):
             ModelNotSupportedException: If the model_code is not supported
         """
         # Determine model_details first
-        if model_code not in ROBOVAC_MODELS:
+        resolved_model_code = resolve_model_code(model_code)
+        if resolved_model_code not in ROBOVAC_MODELS:
             raise ModelNotSupportedException(
                 f"Model {model_code} is not supported"
             )
-        current_model_details = ROBOVAC_MODELS[model_code]
+        current_model_details = ROBOVAC_MODELS[resolved_model_code]
 
         # Determine protocol version: prefer model-defined, else default to (3, 3)
         def _coerce_version(v: Any) -> tuple[int, int]:
@@ -79,7 +80,7 @@ class RoboVac(TuyaDevice):
 
         super().__init__(current_model_details, *args, **kwargs)
 
-        self.model_code = model_code
+        self.model_code = resolved_model_code
         self.model_details = current_model_details
         self._dps_codes_cache: dict[str, str] | None = None
 
@@ -152,14 +153,16 @@ class RoboVac(TuyaDevice):
         # Return the keys title-cased as display names for the UI
         # This ensures user-friendly names like "Pure" are shown even when
         # the device uses different internal values like "Quiet"
-        return [key.replace("_", " ").title() for key in values.keys()]
+        return [
+            key.replace("_", " ").title().replace(" Iq", " IQ")
+            for key in values.keys()
+        ]
 
-    def getSupportedCommands(self) -> list[str]:
+    def getSupportedCommands(self) -> list[RobovacCommand]:
         """Get the list of supported commands for this vacuum model.
 
         Returns:
-            list[str]: List of RobovacCommand enum names that are supported by this model
-                      (e.g., ["MODE", "FAN_SPEED", "AUTO_RETURN"])
+            list[RobovacCommand]: Commands supported by this model.
         """
         return list(self.model_details.commands.keys())
 
@@ -242,6 +245,29 @@ class RoboVac(TuyaDevice):
             pass
 
         return value
+
+    def supportsRoboVacCommandValue(
+        self, command_name: RobovacCommand, value: str
+    ) -> bool:
+        """Return whether a model explicitly supports a command value.
+
+        Commands without a model-specific values table keep their existing
+        passthrough behavior.
+        """
+        try:
+            cmd = (
+                command_name
+                if isinstance(command_name, RobovacCommand)
+                else RobovacCommand(command_name)
+            )
+            values = self._get_command_values(cmd)
+        except (ValueError, KeyError):
+            return True
+
+        if values is None:
+            return True
+
+        return value in values
 
     def getRoboVacHumanReadableValue(self, command_name: RobovacCommand, value: str) -> str:
         """Convert model-specific device value to human-readable command value.

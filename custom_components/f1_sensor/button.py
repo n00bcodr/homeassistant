@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 from inspect import isawaitable
 import logging
 import time
@@ -8,11 +7,14 @@ import time
 from homeassistant.components import persistent_notification
 from homeassistant.components.button import ButtonEntity
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 
 from . import const
 from .auth import (
+    F1TvRenewalResult,
+    async_renew_f1tv_token,
     async_set_runtime_f1tv_auth_status,
     async_update_f1tv_auth_repair_issue,
     evaluate_f1tv_auth_header,
@@ -28,7 +30,12 @@ from .const import (
     CONF_LIVE_TIMING_AUTH_HEADER,
     DOMAIN,
 )
-from .entity import F1AuxEntity, default_object_id, set_suggested_object_id
+from .entity import (
+    F1AuxEntity,
+    default_object_id,
+    entry_runtime_registry,
+    set_default_entity_id,
+)
 from .replay_entities import (
     F1ReplayBackButton,
     F1ReplayForwardButton,
@@ -38,14 +45,15 @@ from .replay_entities import (
     F1ReplayRefreshButton,
     F1ReplayStopButton,
 )
+from .runtime import F1ConfigEntry
 
 _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(
-    hass: HomeAssistant, entry: ConfigEntry, async_add_entities
+    hass: HomeAssistant, entry: F1ConfigEntry, async_add_entities
 ) -> None:
-    registry = hass.data.get(DOMAIN, {}).get(entry.entry_id)
+    registry = entry_runtime_registry(hass, entry.entry_id)
     if not registry:
         return
     name = entry.data.get("sensor_name", "F1")
@@ -59,7 +67,9 @@ async def async_setup_entry(
             entry.entry_id,
             name,
         )
-        set_suggested_object_id(entity, default_object_id("delay_calibration_match"))
+        set_default_entity_id(
+            entity, Platform.BUTTON, default_object_id("delay_calibration_match")
+        )
         entities.append(entity)
 
     # Public F1TV auth can be enabled without exposing developer-only Jolpica
@@ -71,7 +81,9 @@ async def async_setup_entry(
             device_name=name,
             unique_id=f"{entry.entry_id}_clear_f1tv_access",
         )
-        set_suggested_object_id(entity, default_object_id("clear_f1tv_access"))
+        set_default_entity_id(
+            entity, Platform.BUTTON, default_object_id("clear_f1tv_access")
+        )
         entities.append(entity)
 
     if is_auth_feature_enabled():
@@ -81,17 +93,21 @@ async def async_setup_entry(
             device_name=name,
             unique_id=f"{entry.entry_id}_refresh_f1tv_access",
         )
-        set_suggested_object_id(entity, default_object_id("refresh_f1tv_access"))
+        set_default_entity_id(
+            entity, Platform.BUTTON, default_object_id("refresh_f1tv_access")
+        )
         entities.append(entity)
 
-    if const.ENABLE_DEVELOPMENT_MODE_UI and registry.get("http_session") is not None:
+    if const.ENABLE_DEVELOPMENT_MODE_UI and registry.get("jolpica_client") is not None:
         entity = F1JolpicaUserAgentTestButton(
             hass=hass,
             entry_id=entry.entry_id,
             device_name=name,
             unique_id=f"{entry.entry_id}_jolpica_user_agent_test",
         )
-        set_suggested_object_id(entity, default_object_id("jolpica_ua_test"))
+        set_default_entity_id(
+            entity, Platform.BUTTON, default_object_id("jolpica_ua_test")
+        )
         entities.append(entity)
 
     # Replay mode buttons
@@ -113,7 +129,7 @@ async def async_setup_entry(
                 entry.entry_id,
                 name,
             )
-            set_suggested_object_id(entity, default_object_id(key))
+            set_default_entity_id(entity, Platform.BUTTON, default_object_id(key))
             entities.append(entity)
 
     if entities:
@@ -158,7 +174,7 @@ class F1ClearF1TvAccessButton(F1AuxEntity, ButtonEntity):
 
 
 class F1RefreshF1TvAccessButton(F1AuxEntity, ButtonEntity):
-    """Button that starts a manual F1TV Token Helper pairing session."""
+    """Renew F1TV access, opening browser pairing only when required."""
 
     _device_category = "system"
     _attr_entity_category = EntityCategory.DIAGNOSTIC
@@ -180,6 +196,16 @@ class F1RefreshF1TvAccessButton(F1AuxEntity, ButtonEntity):
 
     async def async_press(self) -> None:
         if not is_auth_feature_enabled():
+            return
+
+        result = await async_renew_f1tv_token(self.hass, self._entry)
+        if result == F1TvRenewalResult.RENEWED:
+            persistent_notification.async_dismiss(
+                self.hass,
+                f"{DOMAIN}_f1tv_token_refresh_{self._entry.entry_id}",
+            )
+            return
+        if result != F1TvRenewalResult.PAIRING_REQUIRED:
             return
 
         async_setup_f1tv_auth_http(self.hass)
@@ -265,7 +291,7 @@ class F1MatchDelayButton(F1AuxEntity, ButtonEntity):
 
 
 class F1JolpicaUserAgentTestButton(F1AuxEntity, ButtonEntity):
-    """Diagnostic button that performs a single Jolpica call and logs the UA used."""
+    """Diagnostic button that performs a limiter-controlled Jolpica call."""
 
     _device_category = "system"
     _attr_entity_category = EntityCategory.DIAGNOSTIC
@@ -286,21 +312,10 @@ class F1JolpicaUserAgentTestButton(F1AuxEntity, ButtonEntity):
         self._entry_id = entry_id
 
     async def async_press(self) -> None:
-        reg = self.hass.data.get(DOMAIN, {}).get(self._entry_id, {}) or {}
-        session = reg.get("http_session")
-        ua_configured = reg.get("user_agent")
-        ua_session = None
-        try:
-            ua_session = (
-                session.headers.get("User-Agent")
-                if session is not None and getattr(session, "headers", None) is not None
-                else None
-            )
-        except Exception:
-            ua_session = None
-
-        if session is None:
-            msg = "No dedicated Jolpica HTTP session found; reload the integration."
+        reg = entry_runtime_registry(self.hass, self._entry_id)
+        client = reg.get("jolpica_client")
+        if client is None:
+            msg = "No Jolpica API client found; reload the integration."
             _LOGGER.warning(msg)
             res = persistent_notification.async_create(
                 self.hass,
@@ -312,38 +327,29 @@ class F1JolpicaUserAgentTestButton(F1AuxEntity, ButtonEntity):
                 await res
             return
 
-        # Make an actual network request so the remote server sees the UA.
-        # Use a small valid query to keep payload tiny.
-        status = None
         err = None
-        started = time.time()
-        headers = {"User-Agent": str(ua_configured)} if ua_configured else None
+        started = time.monotonic()
         try:
-            async with asyncio.timeout(10):
-                async with session.get(
-                    API_URL, params={"limit": "1"}, headers=headers
-                ) as resp:
-                    status = resp.status
-                    # Drain response to keep session healthy; ignore content.
-                    await resp.text()
+            await client.async_get_json(
+                API_URL,
+                params={"limit": "1", "offset": "0"},
+                timeout=10,
+                retry_on_rate_limit=False,
+            )
         except Exception as e:  # noqa: BLE001
             err = str(e)
 
-        elapsed_ms = int(round((time.time() - started) * 1000))
+        elapsed_ms = int(round((time.monotonic() - started) * 1000))
         if err is not None:
-            log = (
-                f"Jolpica UA test FAILED (elapsed={elapsed_ms}ms) "
-                f"ua_configured={ua_configured!r} ua_session={ua_session!r} ua_sent={headers.get('User-Agent') if isinstance(headers, dict) else None!r} error={err}"
+            _LOGGER.warning(
+                "Jolpica API test failed after %sms: %s",
+                elapsed_ms,
+                err,
             )
-            _LOGGER.warning(log)
-            message = log
+            message = f"Jolpica API test FAILED (elapsed={elapsed_ms}ms) error={err}"
         else:
-            log = (
-                f"Jolpica UA test OK (status={status}, elapsed={elapsed_ms}ms) "
-                f"ua_configured={ua_configured!r} ua_session={ua_session!r} ua_sent={headers.get('User-Agent') if isinstance(headers, dict) else None!r} url={API_URL}"
-            )
-            _LOGGER.info(log)
-            message = log
+            _LOGGER.info("Jolpica API test succeeded in %sms", elapsed_ms)
+            message = f"Jolpica API test OK (elapsed={elapsed_ms}ms)"
 
         res = persistent_notification.async_create(
             self.hass,

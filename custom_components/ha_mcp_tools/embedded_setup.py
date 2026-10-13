@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import secrets
 from contextlib import suppress
 from typing import TYPE_CHECKING
 from urllib.parse import urlparse
@@ -32,6 +33,7 @@ from .const import (
     CHANNEL_DEV,
     COMPONENT_MANIFEST_AT_TAG_URL,
     DATA_BRINGUP_TASK,
+    DATA_DCR_SIGNING_KEY,
     DATA_MANAGER,
     DATA_OAUTH_CLIENT_ID,
     DATA_OAUTH_CLIENT_SECRET,
@@ -46,7 +48,6 @@ from .const import (
     DEFAULT_PIP_SPEC,
     DEFAULT_SERVER_PORT,
     DOMAIN,
-    HACS_COMPONENT_URL,
     ISSUE_COMPONENT_OUTDATED,
     ISSUE_LEGACY_OAUTH_RESTART,
     ISSUE_PACKAGE_FAILED,
@@ -62,11 +63,13 @@ from .const import (
     OPT_PIP_SPEC,
     OPT_SERVER_PORT,
     OPT_WEBHOOK_AUTH,
+    UPDATE_HOLD_DOCS_URL,
     WEBHOOK_AUTH_LEGACY,
     WEBHOOK_AUTH_NONE,
     channel_for_dist,
 )
 from .embedded_server import EmbeddedServerError, EmbeddedServerManager
+from .hacs_nudge import async_schedule_hacs_nudge
 from .llm_api import async_register_llm_api, async_unregister_llm_api
 from .mcp_webhook import async_register_webhook, async_unregister_webhook
 from .oauth_legacy import legacy_credentials_active
@@ -122,6 +125,16 @@ async def async_bring_up_server(hass: HomeAssistant, entry: ConfigEntry) -> None
         # Always set up the loopback forwarding config — the sidebar settings
         # panel proxies through it (#1803); the option gates only the public
         # webhook endpoint. oauth_* args are ignored unless auth_mode is legacy.
+        if not entry.data.get(DATA_DCR_SIGNING_KEY):
+            # Upgrade path: entries created before 2.0.0 have no DCR key.
+            # entry.data must stay JSON-serializable, so store hex.
+            hass.config_entries.async_update_entry(
+                entry,
+                data={
+                    **entry.data,
+                    DATA_DCR_SIGNING_KEY: secrets.token_bytes(32).hex(),
+                },
+            )
         oauth_restart_needed = await async_register_webhook(
             hass,
             entry,
@@ -132,6 +145,7 @@ async def async_bring_up_server(hass: HomeAssistant, entry: ConfigEntry) -> None
             oauth_client_id=oauth_client_id,
             oauth_client_secret=oauth_client_secret,
             oauth_signing_key=entry.data.get(DATA_OAUTH_SIGNING_KEY),
+            dcr_signing_key=entry.data.get(DATA_DCR_SIGNING_KEY),
         )
         _async_update_legacy_oauth_issue(hass, oauth_restart_needed)
         if not webhook_enabled:
@@ -493,7 +507,9 @@ def _surface_connect_urls(
         "(Settings - Devices & Services - HA-MCP Custom Component - "
         "HA-MCP Server - Configure) and in the Home Assistant log - both "
         "administrator-only, because the URL is the credential.\n\n"
-        f"{auth_note}\n"
+        f"{auth_note}\n\n"
+        "To disable this notification, uncheck the startup notification box "
+        "on that same configuration screen.\n"
     )
     persistent_notification.async_create(
         hass,
@@ -518,7 +534,7 @@ def _async_update_legacy_oauth_issue(hass: HomeAssistant, restart_needed: bool) 
             hass,
             DOMAIN,
             ISSUE_LEGACY_OAUTH_RESTART,
-            is_fixable=False,
+            is_fixable=True,
             severity=ir.IssueSeverity.WARNING,
             translation_key=ISSUE_LEGACY_OAUTH_RESTART,
         )
@@ -592,6 +608,10 @@ async def async_maybe_auto_update(
     logged at debug and skipped; the next refresh retries. Genuine bugs
     propagate per the repo's no-silent-failure convention.
     """
+    if hass.config.skip_pip:
+        # The system package manager owns ha-mcp; never reload to mutate it.
+        return
+
     if not bool(entry.options.get(OPT_AUTO_UPDATE, DEFAULT_AUTO_UPDATE)):
         # Auto-update turned off: stay on the currently-installed version.
         return
@@ -654,8 +674,13 @@ async def async_maybe_auto_update(
                 "shipped": shipped,
                 "running": running,
             },
-            learn_more_url=HACS_COMPONENT_URL,
+            learn_more_url=UPDATE_HOLD_DOCS_URL,
         )
+        # A newer component exists but HACS may not surface it for ~48h; ask
+        # HACS to refresh this repository now so the update becomes visible
+        # promptly. Fire-and-forget + throttled per shipped version; fully
+        # advisory (see hacs_nudge).
+        async_schedule_hacs_nudge(hass, shipped)
         return
     ir.async_delete_issue(hass, DOMAIN, ISSUE_UPDATE_HELD)
 
@@ -721,6 +746,10 @@ async def _async_update_held_by_component(
 
     try:
         integration = await async_get_integration(hass, DOMAIN)
+        if integration.version is None:
+            # None rather than an exception; "None" would then reach
+            # AwesomeVersion and compare as an ordinary string.
+            raise ValueError("the manifest carries no version")
         running = str(integration.version)
     except Exception:
         # Same wide loader surface as _async_check_component_compat: advisory
@@ -878,6 +907,10 @@ async def _async_check_component_compat(
 
     try:
         integration = await async_get_integration(hass, DOMAIN)
+        if integration.version is None:
+            # None rather than an exception; "None" would then reach
+            # AwesomeVersion and compare as an ordinary string.
+            raise ValueError("the manifest carries no version")
         own = str(integration.version)
     except Exception:
         # The loader legitimately raises a wide, varied surface
@@ -911,7 +944,12 @@ async def _async_check_component_compat(
             severity=ir.IssueSeverity.WARNING,
             translation_key=ISSUE_COMPONENT_OUTDATED,
             translation_placeholders={"required": required, "installed": own},
-            learn_more_url=HACS_COMPONENT_URL,
+            learn_more_url=UPDATE_HOLD_DOCS_URL,
         )
+        # The server needs a newer component than HACS has surfaced; ask HACS
+        # to refresh this repository now so the required update becomes visible
+        # promptly. Fire-and-forget + throttled per required version; fully
+        # advisory (see hacs_nudge).
+        async_schedule_hacs_nudge(hass, required)
     else:
         ir.async_delete_issue(hass, DOMAIN, ISSUE_COMPONENT_OUTDATED)

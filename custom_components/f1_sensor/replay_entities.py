@@ -13,11 +13,10 @@ from homeassistant.helpers.entity import EntityCategory
 
 from .calibration import LiveDelayCalibrationManager
 from .const import (
-    DOMAIN,
     REPLAY_START_REFERENCE_FORMATION,
     REPLAY_START_REFERENCE_SESSION,
 )
-from .entity import F1AuxEntity
+from .entity import F1AuxEntity, entry_runtime_registry
 from .replay_mode import ReplayController, ReplayState
 from .replay_start import ReplayStartReferenceController
 
@@ -288,7 +287,7 @@ class F1ReplayLoadButton(F1AuxEntity, ButtonEntity):
     async def _block_calibration_for_replay(self, action: str) -> None:
         if not self.hass:
             return
-        reg = self.hass.data.get(DOMAIN, {}).get(self._entry_id, {}) or {}
+        reg = entry_runtime_registry(self.hass, self._entry_id)
         manager: LiveDelayCalibrationManager | None = reg.get("calibration_manager")
         if manager is None:
             return
@@ -331,7 +330,7 @@ class F1ReplayPlayButton(F1AuxEntity, ButtonEntity):
     async def _block_calibration_for_replay(self, action: str) -> None:
         if not self.hass:
             return
-        reg = self.hass.data.get(DOMAIN, {}).get(self._entry_id, {}) or {}
+        reg = entry_runtime_registry(self.hass, self._entry_id)
         manager: LiveDelayCalibrationManager | None = reg.get("calibration_manager")
         if manager is None:
             return
@@ -519,6 +518,10 @@ class F1ReplayStatusSensor(F1AuxEntity, SensorEntity):
 
         self._attrs = {
             "selected_session": snapshot.get("selected_session"),
+            "selected_session_id": snapshot.get("selected_session_id"),
+            "selected_session_year": snapshot.get("selected_session_year"),
+            "selected_meeting_key": snapshot.get("selected_meeting_key"),
+            "selected_session_key": snapshot.get("selected_session_key"),
             "download_progress": round(snapshot.get("download_progress", 0) * 100, 1),
             "download_error": snapshot.get("download_error"),
             "playback_position_s": relative_position_s,

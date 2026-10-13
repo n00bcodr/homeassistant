@@ -5,22 +5,28 @@ from contextlib import suppress
 from typing import Any
 
 from homeassistant.components.switch import SwitchEntity
-from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 
 from .calibration import LiveDelayCalibrationManager
 from .const import DOMAIN
-from .entity import F1AuxEntity, default_object_id, set_suggested_object_id
+from .entity import (
+    F1AuxEntity,
+    default_object_id,
+    entry_runtime_registry,
+    set_default_entity_id,
+)
 from .no_spoiler import NoSpoilerModeManager
+from .runtime import F1ConfigEntry
 
 _NO_SPOILER_SWITCH_ENTRY_KEY = "no_spoiler_switch_entry_id"
 
 
 async def async_setup_entry(
-    hass: HomeAssistant, entry: ConfigEntry, async_add_entities
+    hass: HomeAssistant, entry: F1ConfigEntry, async_add_entities
 ) -> None:
-    registry = hass.data.get(DOMAIN, {}).get(entry.entry_id)
+    registry = entry_runtime_registry(hass, entry.entry_id)
     if not registry:
         return
 
@@ -36,7 +42,9 @@ async def async_setup_entry(
             entry.entry_id,
             name,
         )
-        set_suggested_object_id(entity, default_object_id("delay_calibration"))
+        set_default_entity_id(
+            entity, Platform.SWITCH, default_object_id("delay_calibration")
+        )
         entities.append(entity)
 
     # No Spoiler Mode switch — global, registered only by the first entry that loads.
@@ -57,7 +65,9 @@ async def async_setup_entry(
             entry.entry_id,
             name,
         )
-        set_suggested_object_id(entity, default_object_id("no_spoiler_mode"))
+        set_default_entity_id(
+            entity, Platform.SWITCH, default_object_id("no_spoiler_mode")
+        )
         entities.append(entity)
 
     if entities:
@@ -112,6 +122,8 @@ class F1DelayCalibrationSwitch(F1AuxEntity, SwitchEntity):
         next_state = mode in {"waiting", "running"}
         attrs = {
             "mode": mode,
+            "idle_reason": snapshot.get("idle_reason"),
+            "last_result": snapshot.get("last_result"),
             "reference": snapshot.get("reference"),
             "message": snapshot.get("message"),
             "waiting_since": snapshot.get("waiting_since"),

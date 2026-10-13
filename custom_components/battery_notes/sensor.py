@@ -57,6 +57,7 @@ from homeassistant.util import dt as dt_util
 
 from .common import validate_is_float
 from .const import (
+    ATTR_BATTERY_INCREASE_THRESHOLD,
     ATTR_BATTERY_LAST_REPLACED,
     ATTR_BATTERY_LAST_REPORTED,
     ATTR_BATTERY_LAST_REPORTED_LEVEL,
@@ -370,6 +371,7 @@ class BatteryNotesBatteryPlusBaseSensor(BatteryNotesEntity, RestoreSensor):
             ATTR_BATTERY_TYPE,
             ATTR_BATTERY_TYPE_AND_QUANTITY,
             ATTR_NOTE,
+            ATTR_BATTERY_INCREASE_THRESHOLD,
             ATTR_BATTERY_LOW,
             ATTR_BATTERY_LOW_THRESHOLD,
             ATTR_BATTERY_LAST_REPORTED,
@@ -464,6 +466,7 @@ class BatteryNotesBatteryPlusBaseSensor(BatteryNotesEntity, RestoreSensor):
             ATTR_BATTERY_TYPE: self.coordinator.battery_type,
             ATTR_BATTERY_TYPE_AND_QUANTITY: self.coordinator.battery_type_and_quantity,
             ATTR_NOTE: self.coordinator.battery_note,
+            ATTR_BATTERY_INCREASE_THRESHOLD: self.coordinator.battery_increased_threshold,
             ATTR_BATTERY_LOW: self.coordinator.battery_low,
             ATTR_BATTERY_LOW_THRESHOLD: self.coordinator.battery_low_threshold,
             ATTR_BATTERY_LAST_REPORTED: self.coordinator.last_reported,
@@ -551,6 +554,8 @@ class BatteryNotesBatteryPlusSensor(BatteryNotesBatteryPlusBaseSensor):
                     validate_is_float(wrapped_battery_state.state),
                 )
 
+            if self.coordinator.retain_state:
+                return
             self._attr_native_value = None
             self._attr_available = False
             self._write_tracked_ha_state()
@@ -590,6 +595,8 @@ class BatteryNotesBatteryPlusSensor(BatteryNotesBatteryPlusBaseSensor):
             ]
             or not validate_is_float(wrapped_battery_state.state)
         ):
+            if self.coordinator.retain_state:
+                return
             self._attr_native_value = None
             self._attr_available = False
             self._write_tracked_ha_state()
@@ -598,7 +605,7 @@ class BatteryNotesBatteryPlusSensor(BatteryNotesBatteryPlusBaseSensor):
         # Don't update if battery level same and it's been < 1 hour
         delta = dt_util.utcnow() - self.coordinator.last_wrapped_battery_state_write
         if (
-            self.coordinator.last_reported_level == wrapped_battery_state.state
+            self.coordinator.last_reported_level == float(wrapped_battery_state.state)
             and delta.total_seconds() < STATE_WRITE_INTERVAL_SECONDS
         ):
             self._attr_available = True

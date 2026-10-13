@@ -1,0 +1,1130 @@
+play_on_chromecast:
+  name: Play on Chromecast
+  description: Play a Jellyfin item on a Chromecast device
+  fields:
+    entity_id:
+      name: Media Player
+      description: The Chromecast media player entity
+      required: true
+      selector:
+        entity:
+          domain: media_player
+    item_id:
+      name: Item ID
+      description: Jellyfin item ID to play
+      required: true
+      selector:
+        text:
+    config_entry_id:
+      name: JellyHA Instance
+      description: The JellyHA instance to use (defaults to first available)
+      required: false
+      selector:
+        config_entry:
+          integration: jellyha
+    server_entity_id:
+      name: JellyHA Server Entity
+      description: The JellyHA entity providing the media (optional, alternative to config_entry_id)
+      required: false
+      selector:
+        entity:
+          integration: jellyha
+    use_series_image:
+      name: Use Series Poster
+      description: For TV episodes, send the official Series vertical poster to Chromecast instead of the episode screenshot
+      required: false
+      default: true
+      selector:
+        boolean:
+    subtitle_mode:
+      name: Subtitle Mode
+      description: Subtitle selection strategy (auto, none, forced_only, custom)
+      required: false
+      default: auto
+      selector:
+        select:
+          options:
+            - label: Auto (Jellyfin Profile)
+              value: auto
+            - label: None (Disabled)
+              value: none
+            - label: Forced Only
+              value: forced_only
+            - label: Custom Language List
+              value: custom
+    subtitle_language:
+      name: Subtitle Languages
+      description: Prioritized comma-separated list of subtitle language codes or names (e.g. "sl, en" or "slv, eng")
+      required: false
+      selector:
+        text:
+    subtitle_index:
+      name: Subtitle Stream Index
+      description: Direct subtitle stream index to force a specific subtitle track
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 100
+          mode: box
+
+
+refresh_library:
+  name: Refresh Library
+  description: Force refresh library data from Jellyfin
+  fields:
+    config_entry_id:
+      name: JellyHA Instance
+      description: The JellyHA instance to refresh (refreshes all if not specified)
+      required: false
+      selector:
+        config_entry:
+          integration: jellyha
+
+delete_item:
+  name: Delete Item
+  description: Delete an item from Jellyfin library
+  fields:
+    item_id:
+      name: Item ID
+      description: Jellyfin item ID to delete
+      required: true
+      selector:
+        text:
+    config_entry_id:
+      name: JellyHA Instance
+      description: The JellyHA instance to use (defaults to first available)
+      required: false
+      selector:
+        config_entry:
+          integration: jellyha
+    entity_id:
+      name: JellyHA Entity
+      description: The JellyHA entity to target (optional, alternative to config_entry_id)
+      required: false
+      selector:
+        entity:
+          integration: jellyha
+    server_entity_id:
+      name: JellyHA Server Entity
+      description: The JellyHA entity to target (optional, alternative to config_entry_id)
+      required: false
+      selector:
+        entity:
+          integration: jellyha
+
+mark_watched:
+  name: Mark Watched
+  description: Mark an item as watched or unwatched
+  fields:
+    item_id:
+      name: Item ID
+      description: Jellyfin item ID to mark
+      required: true
+      selector:
+        text:
+    is_played:
+      name: Is Played
+      description: True to mark as played/watched, False to mark as unplayed
+      required: true
+      selector:
+        boolean:
+    config_entry_id:
+      name: JellyHA Instance
+      description: The JellyHA instance to use (defaults to first available)
+      required: false
+      selector:
+        config_entry:
+          integration: jellyha
+    entity_id:
+      name: JellyHA Entity
+      description: The JellyHA entity to target (optional, alternative to config_entry_id)
+      required: false
+      selector:
+        entity:
+          integration: jellyha
+    server_entity_id:
+      name: JellyHA Server Entity
+      description: The JellyHA entity to target (optional, alternative to config_entry_id)
+      required: false
+      selector:
+        entity:
+          integration: jellyha
+
+update_favorite:
+  name: Update Favorite
+  description: Mark an item as favorite or remove from favorites
+  fields:
+    item_id:
+      name: Item ID
+      description: Jellyfin item ID to update
+      required: true
+      selector:
+        text:
+    is_favorite:
+      name: Is Favorite
+      description: True to add to favorites, False to remove
+      required: true
+      selector:
+        boolean:
+    config_entry_id:
+      name: JellyHA Instance
+      description: The JellyHA instance to use (defaults to first available)
+      required: false
+      selector:
+        config_entry:
+          integration: jellyha
+    entity_id:
+      name: JellyHA Entity
+      description: The JellyHA entity to target (optional, alternative to config_entry_id)
+      required: false
+      selector:
+        entity:
+          integration: jellyha
+    server_entity_id:
+      name: JellyHA Server Entity
+      description: The JellyHA entity to target (optional, alternative to config_entry_id)
+      required: false
+      selector:
+        entity:
+          integration: jellyha
+
+
+session_control:
+  name: Session Control
+  description: Send a control command to a Jellyfin playback session (Pause, Unpause, Stop).
+  fields:
+    session_id:
+      name: Session ID
+      description: The ID of the Jellyfin session to control.
+      required: true
+      selector:
+        text:
+    command:
+      name: Command
+      description: The control command to send.
+      required: true
+      selector:
+        select:
+          options:
+            - label: Pause
+              value: Pause
+            - label: Unpause
+              value: Unpause
+            - label: TogglePause
+              value: TogglePause
+            - label: Stop
+              value: Stop
+            - label: Next Track
+              value: NextTrack
+            - label: Previous Track
+              value: PreviousTrack
+            - label: Shuffle
+              value: Shuffle
+            - label: Set Repeat Mode
+              value: SetRepeatMode
+    config_entry_id:
+      name: JellyHA Instance
+      description: The JellyHA instance to use (defaults to first available)
+      required: false
+      selector:
+        config_entry:
+          integration: jellyha
+    entity_id:
+      name: JellyHA Entity
+      description: The JellyHA entity to target (optional, alternative to config_entry_id)
+      required: false
+      selector:
+        entity:
+          integration: jellyha
+    server_entity_id:
+      name: JellyHA Server Entity
+      description: The JellyHA entity to target (optional, alternative to config_entry_id)
+      required: false
+      selector:
+        entity:
+          integration: jellyha
+
+session_play:
+  name: Session Play
+  description: Instruct an active Jellyfin client session or device player to play a media item (Movie, Episode, Song, etc.).
+  fields:
+    item_id:
+      name: Item ID
+      description: The Jellyfin item ID to play.
+      required: true
+      selector:
+        text:
+    entity_id:
+      name: Player Entity
+      description: The JellyHA media player entity to target (e.g. media_player.jellyha_android_tv).
+      required: false
+      selector:
+        entity:
+          domain: media_player
+    device_name:
+      name: Device Name
+      description: The name of the client device (e.g. "Android TV").
+      required: false
+      selector:
+        text:
+    device_id:
+      name: Device ID
+      description: The unique device ID of the client session.
+      required: false
+      selector:
+        text:
+    client:
+      name: Client Name
+      description: The client application name (e.g. "Wholphin", "Jellyfin Web").
+      required: false
+      selector:
+        text:
+    session_id:
+      name: Session ID
+      description: The direct Jellyfin session ID (optional).
+      required: false
+      selector:
+        text:
+    play_command:
+      name: Play Command
+      description: How to play the item (PlayNow, PlayNext, PlayLast). Default is PlayNow.
+      required: false
+      selector:
+        select:
+          options:
+            - label: Play Now
+              value: PlayNow
+            - label: Play Next
+              value: PlayNext
+            - label: Play Last
+              value: PlayLast
+    start_position_ticks:
+      name: Start Position Ticks
+      description: Optional start position in ticks (1 second = 10,000,000 ticks).
+      required: false
+      selector:
+        number:
+          min: 0
+          mode: box
+    config_entry_id:
+      name: JellyHA Instance
+      description: The JellyHA instance to use (defaults to first available)
+      required: false
+      selector:
+        config_entry:
+          integration: jellyha
+    server_entity_id:
+      name: JellyHA Server Entity
+      description: The JellyHA entity to target (optional, alternative to config_entry_id)
+      required: false
+      selector:
+        entity:
+          integration: jellyha
+
+session_seek:
+  name: Session Seek
+  description: Seek to a specific position in a Jellyfin playback session.
+  fields:
+    session_id:
+      name: Session ID
+      description: The ID of the Jellyfin session to control.
+      required: true
+      selector:
+        text:
+    position_ticks:
+      name: Position Ticks
+      description: The position in ticks (1 second = 10,000,000 ticks). Either position_ticks or position_seconds is required.
+      required: false
+      selector:
+        number:
+          min: 0
+          mode: box
+    position_seconds:
+      name: Position Seconds
+      description: The position in seconds. Automatically converted to ticks.
+      required: false
+      selector:
+        number:
+          min: 0
+          mode: box
+    config_entry_id:
+      name: JellyHA Instance
+      description: The JellyHA instance to use (defaults to first available)
+      required: false
+      selector:
+        config_entry:
+          integration: jellyha
+    entity_id:
+      name: JellyHA Entity
+      description: The JellyHA entity to target (optional, alternative to config_entry_id)
+      required: false
+      selector:
+        entity:
+          integration: jellyha
+    server_entity_id:
+      name: JellyHA Server Entity
+      description: The JellyHA entity to target (optional, alternative to config_entry_id)
+      required: false
+      selector:
+        entity:
+          integration: jellyha
+
+session_general_command:
+  name: Session General Command
+  description: Send a general command to a Jellyfin playback session.
+  fields:
+    session_id:
+      name: Session ID
+      description: The ID of the Jellyfin session to control.
+      required: true
+      selector:
+        text:
+    command:
+      name: Command
+      description: The general command name to send.
+      required: true
+      selector:
+        text:
+    arguments:
+      name: Arguments
+      description: Optional arguments for the command (as key-value pairs).
+      required: false
+      selector:
+        object:
+    config_entry_id:
+      name: JellyHA Instance
+      description: The JellyHA instance to use (defaults to first available)
+      required: false
+      selector:
+        config_entry:
+          integration: jellyha
+    entity_id:
+      name: JellyHA Entity
+      description: The JellyHA entity to target (optional, alternative to config_entry_id)
+      required: false
+      selector:
+        entity:
+          integration: jellyha
+    server_entity_id:
+      name: JellyHA Server Entity
+      description: The JellyHA entity to target (optional, alternative to config_entry_id)
+      required: false
+      selector:
+        entity:
+          integration: jellyha
+
+
+search:
+  name: Search
+  description: Search for media in Jellyfin library and return Item IDs.
+  fields:
+    query:
+      name: Search Query
+      description: The text to search for (e.g. "Matrix", "Batman").
+      required: false
+      selector:
+        text:
+    media_type:
+      name: Media Type
+      description: Filter by media type.
+      required: false
+      selector:
+        select:
+          options:
+            - label: Movie
+              value: Movie
+            - label: Series
+              value: Series
+            - label: Episode
+              value: Episode
+            - label: Audio (Song)
+              value: Audio
+            - label: Music Album
+              value: MusicAlbum
+            - label: Music Artist
+              value: MusicArtist
+            - label: Music Video
+              value: MusicVideo
+            - label: Video (Home Video)
+              value: Video
+            - label: Playlist
+              value: Playlist
+            - label: Collection (BoxSet)
+              value: BoxSet
+    sort_by:
+      name: Sort By
+      description: Field to sort results by (default Date Added).
+      required: false
+      selector:
+        select:
+          options:
+            - label: Date Added (Default)
+              value: DateCreated
+            - label: Title / Name
+              value: SortName
+            - label: Release Date
+              value: PremiereDate
+            - label: Rating
+              value: CommunityRating
+            - label: Episode / Track Number
+              value: IndexNumber
+            - label: Recently Played
+              value: DatePlayed
+            - label: Play Count
+              value: PlayCount
+            - label: Random / Shuffle
+              value: Random
+    sort_order:
+      name: Sort Order
+      description: Order of sorted results (default Descending).
+      required: false
+      selector:
+        select:
+          options:
+            - label: Descending
+              value: Descending
+            - label: Ascending
+              value: Ascending
+    parent_id:
+      name: Parent / Series ID
+      description: Filter media within a specific TV Series, Season, or Album ID.
+      required: false
+      selector:
+        text:
+    is_played:
+      name: Is Watched
+      description: Filter by watched status.
+      required: false
+      selector:
+        boolean:
+    is_favorite:
+      name: Is Favorite
+      description: Filter by favorite status.
+      required: false
+      selector:
+        boolean:
+    genre:
+      name: Genre
+      description: Filter by genre (e.g. "Action", "Comedy").
+      required: false
+      selector:
+        text:
+    year:
+      name: Year
+      description: Filter by release year.
+      required: false
+      selector:
+        number:
+          min: 1900
+          max: 2030
+          mode: box
+    min_rating:
+      name: Min Rating
+      description: Filter by minimum community rating (0-10).
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 10
+          step: 0.1
+          mode: box
+    official_rating:
+      name: Parental / Content Rating
+      description: Filter by certification (e.g. "PG", "PG-13", "R", "TV-MA").
+      required: false
+      selector:
+        text:
+    studio:
+      name: Studio / Network
+      description: Filter by studio or network (e.g. "Pixar", "HBO", "Marvel Studios").
+      required: false
+      selector:
+        text:
+    person:
+      name: Person (Actor / Director)
+      description: Filter media featuring a specific actor or director (e.g. "Tom Hanks").
+      required: false
+      selector:
+        text:
+    season:
+      name: Season Number
+      description: Filter by season number (ParentIndexNumber).
+      required: false
+      selector:
+        number:
+          min: 0
+          mode: box
+    episode:
+      name: Episode Number
+      description: Filter by episode number (IndexNumber).
+      required: false
+      selector:
+        number:
+          min: 1
+          mode: box
+    offset:
+      name: Offset
+      description: Number of items to skip (for pagination).
+      required: false
+      selector:
+        number:
+          min: 0
+          mode: box
+    limit:
+      name: Limit
+      description: Maximum number of results to return (default 5).
+      required: false
+      selector:
+        number:
+          min: 1
+          max: 50
+          mode: box
+    config_entry_id:
+      name: JellyHA Instance
+      description: The JellyHA instance to search (defaults to first available)
+      required: false
+      selector:
+        config_entry:
+          integration: jellyha
+    entity_id:
+      name: JellyHA Entity
+      description: The JellyHA entity to target (optional, alternative to config_entry_id)
+      required: false
+      selector:
+        entity:
+          integration: jellyha
+    server_entity_id:
+      name: JellyHA Server Entity
+      description: The JellyHA entity to target (optional, alternative to config_entry_id)
+      required: false
+      selector:
+        entity:
+          integration: jellyha
+
+get_recommendations:
+  name: Get Recommendations
+  description: Get similar items for a specific media item.
+  fields:
+    item_id:
+      name: Item ID
+      description: The Jellyfin Item ID to get recommendations for.
+      required: true
+      selector:
+        text:
+    limit:
+      name: Limit
+      description: Maximum number of results to return (default 5).
+      required: false
+      selector:
+        number:
+          min: 1
+          max: 20
+          mode: box
+    config_entry_id:
+      name: JellyHA Instance
+      description: The JellyHA instance to use (defaults to first available)
+      required: false
+      selector:
+        config_entry:
+          integration: jellyha
+    entity_id:
+      name: JellyHA Entity
+      description: The JellyHA entity to target (optional, alternative to config_entry_id)
+      required: false
+      selector:
+        entity:
+          integration: jellyha
+    server_entity_id:
+      name: JellyHA Server Entity
+      description: The JellyHA entity to target (optional, alternative to config_entry_id)
+      required: false
+      selector:
+        entity:
+          integration: jellyha
+
+get_item:
+  name: Get Item Details
+  description: Get full details for a specific media item.
+  fields:
+    item_id:
+      name: Item ID
+      description: The Jellyfin Item ID to retrieve.
+      required: true
+      selector:
+        text:
+    config_entry_id:
+      name: JellyHA Instance
+      description: The JellyHA instance to use (defaults to first available)
+      required: false
+      selector:
+        config_entry:
+          integration: jellyha
+    entity_id:
+      name: JellyHA Entity
+      description: The JellyHA entity to target (optional, alternative to config_entry_id)
+      required: false
+      selector:
+        entity:
+          integration: jellyha
+    server_entity_id:
+      name: JellyHA Server Entity
+      description: The JellyHA entity to target (optional, alternative to config_entry_id)
+      required: false
+      selector:
+        entity:
+          integration: jellyha
+
+get_live_tv_channels:
+  name: Get Live TV Channels
+  description: Retrieve the available Jellyfin Live TV channels with optional search query filtering.
+  fields:
+    query:
+      name: Search Query
+      description: Filter channels by name or number (optional).
+      required: false
+      selector:
+        text:
+    limit:
+      name: Result Limit
+      description: Maximum number of channels to return (optional).
+      required: false
+      selector:
+        number:
+          min: 1
+          max: 1000
+          mode: box
+    config_entry_id:
+      name: JellyHA Instance
+      required: false
+      selector:
+        config_entry:
+          integration: jellyha
+    entity_id:
+      name: JellyHA Entity
+      required: false
+      selector:
+        entity:
+          integration: jellyha
+    server_entity_id:
+      name: JellyHA Server Entity
+      required: false
+      selector:
+        entity:
+          integration: jellyha
+
+play_live_tv_channel:
+  name: Play Live TV Channel
+  description: Resolve a Jellyfin Live TV channel by number or normalized name and play it.
+  fields:
+    channel_number:
+      name: Channel Number
+      description: Exact Jellyfin channel number. Takes priority if a name is also supplied.
+      required: false
+      selector:
+        text:
+    channel_name:
+      name: Channel Name
+      description: Jellyfin channel name. It is lowercased and stripped of non-alphanumeric characters before lookup.
+      required: false
+      selector:
+        text:
+    entity_id:
+      name: Media Player
+      description: JellyHA media player entity whose active session should play the channel.
+      required: false
+      selector:
+        entity:
+          domain: media_player
+    session_id:
+      name: Jellyfin Session ID
+      required: false
+      selector:
+        text:
+    device_name:
+      name: Device Name
+      required: false
+      selector:
+        text:
+    device_id:
+      name: Device ID
+      required: false
+      selector:
+        text:
+    client:
+      name: Client Name
+      required: false
+      selector:
+        text:
+    config_entry_id:
+      name: JellyHA Instance
+      required: false
+      selector:
+        config_entry:
+          integration: jellyha
+    server_entity_id:
+      name: JellyHA Server Entity
+      description: The JellyHA entity to target (optional, alternative to config_entry_id)
+      required: false
+      selector:
+        entity:
+          integration: jellyha
+
+
+music_search:
+  name: Music Search
+  description: Search Jellyfin music library for tracks, albums, or artists with FLAC and Hi-Res audio specifications.
+  fields:
+    query:
+      name: Search Query
+      description: Search text for track title, album, or artist.
+      required: false
+      selector:
+        text:
+    search_type:
+      name: Search Type
+      description: Type of music items to search for (all, track, album, artist).
+      required: false
+      default: all
+      selector:
+        select:
+          options:
+            - label: All (Tracks, Albums, Artists)
+              value: all
+            - label: Tracks (Songs)
+              value: track
+            - label: Albums
+              value: album
+            - label: Artists
+              value: artist
+    artist:
+      name: Artist
+      description: Filter by artist name.
+      required: false
+      selector:
+        text:
+    album:
+      name: Album
+      description: Filter by album title.
+      required: false
+      selector:
+        text:
+    genre:
+      name: Genre
+      description: Filter by music genre (e.g. Rock, Classical, Jazz).
+      required: false
+      selector:
+        text:
+    year:
+      name: Year
+      description: Filter by release year.
+      required: false
+      selector:
+        number:
+          min: 1900
+          max: 2035
+          mode: box
+    codec:
+      name: Audio Codec / Format
+      description: Filter specifically by audio codec (e.g. flac, alac, mp3, aac, opus, dsd, wav).
+      required: false
+      selector:
+        text:
+    is_hi_res:
+      name: Hi-Res Audio Only
+      description: Filter for high-resolution audio (24-bit+ or >48kHz or DSD).
+      required: false
+      selector:
+        boolean:
+    is_lossless:
+      name: Lossless Audio Only
+      description: Filter for lossless audio formats (FLAC, ALAC, WAV, DSD).
+      required: false
+      selector:
+        boolean:
+    is_favorite:
+      name: Is Favorite
+      description: Filter by favorite status.
+      required: false
+      selector:
+        boolean:
+    sort_by:
+      name: Sort By
+      description: Field to sort results by (default Title / Name for fast indexing).
+      required: false
+      default: SortName
+      selector:
+        select:
+          options:
+            - label: Title / Name (Default)
+              value: SortName
+            - label: Artist
+              value: AlbumArtist
+            - label: Album
+              value: Album
+            - label: Date Added
+              value: DateCreated
+            - label: Release Date
+              value: PremiereDate
+            - label: Play Count
+              value: PlayCount
+            - label: Random / Shuffle
+              value: Random
+    sort_order:
+      name: Sort Order
+      description: Order of sorted results (default Ascending).
+      required: false
+      default: Ascending
+      selector:
+        select:
+          options:
+            - label: Ascending
+              value: Ascending
+            - label: Descending
+              value: Descending
+    limit:
+      name: Limit
+      description: Maximum number of results to return (default 20).
+      required: false
+      default: 20
+      selector:
+        number:
+          min: 1
+          max: 100
+          mode: box
+    offset:
+      name: Offset
+      description: Number of initial results to skip for pagination.
+      required: false
+      default: 0
+      selector:
+        number:
+          min: 0
+          mode: box
+    config_entry_id:
+      name: JellyHA Instance
+      description: The JellyHA instance to use (defaults to Music instance or first available).
+      required: false
+      selector:
+        config_entry:
+          integration: jellyha
+    server_entity_id:
+      name: JellyHA Server Entity
+      description: The JellyHA entity to target (optional, alternative to config_entry_id).
+      required: false
+      selector:
+        entity:
+          integration: jellyha
+
+play_music:
+  name: Play Music
+  description: Search and play a music track or album from Jellyfin on any Home Assistant media player (e.g. Kitchen Speaker, Sonos, Cast).
+  fields:
+    entity_id:
+      name: Media Player
+      description: Target Home Assistant media player entity to play the music on (e.g. media_player.kitchen_speaker).
+      required: true
+      selector:
+        entity:
+          domain: media_player
+    query:
+      name: Search Query / Song Title
+      description: Song or track name to search for (e.g. "It's a Beautiful Day").
+      required: false
+      selector:
+        text:
+    artist:
+      name: Artist
+      description: Artist name to search for (e.g. "U2").
+      required: false
+      selector:
+        text:
+    album:
+      name: Album
+      description: Album title to search for.
+      required: false
+      selector:
+        text:
+    search_type:
+      name: Search Type
+      description: Whether to search for a track or an entire album.
+      required: false
+      default: track
+      selector:
+        select:
+          options:
+            - label: Track / Song
+              value: track
+            - label: Album
+              value: album
+    genre:
+      name: Genre
+      description: Filter by music genre.
+      required: false
+      selector:
+        text:
+    year:
+      name: Year
+      description: Filter by release year.
+      required: false
+      selector:
+        number:
+          min: 1900
+          max: 2035
+          mode: box
+    codec:
+      name: Audio Codec / Format
+      description: Filter by audio codec (e.g. flac, alac, mp3).
+      required: false
+      selector:
+        text:
+    is_hi_res:
+      name: Hi-Res Audio Only
+      description: Play only if high-resolution audio (24-bit+ or >48kHz).
+      required: false
+      selector:
+        boolean:
+    is_lossless:
+      name: Lossless Audio Only
+      description: Play only if lossless audio (FLAC, ALAC, WAV).
+      required: false
+      selector:
+        boolean:
+    item_id:
+      name: Direct Item ID
+      description: Direct Jellyfin track or album item ID (bypasses search).
+      required: false
+      selector:
+        text:
+    config_entry_id:
+      name: JellyHA Instance
+      description: The JellyHA instance to use (defaults to Music instance or first available).
+      required: false
+      selector:
+        config_entry:
+          integration: jellyha
+    server_entity_id:
+      name: JellyHA Server Entity
+      description: The JellyHA entity to target (optional, alternative to config_entry_id).
+      required: false
+      selector:
+        entity:
+          integration: jellyha
+
+play_playlist:
+  name: Play Playlist
+  description: Play a playlist from Jellyfin on any Home Assistant media player (e.g. Kitchen Speaker, Sonos, Google Cast) or directly on a Jellyfin client session, with optional shuffle.
+  fields:
+    entity_id:
+      name: Target Media Player
+      description: The media player entity to play the playlist on (e.g. media_player.kitchen_speaker or media_player.jellyha_living_room_tv).
+      required: true
+      selector:
+        entity:
+          domain: media_player
+    playlist:
+      name: Playlist Name or ID
+      description: The name or Jellyfin Item ID of the playlist (e.g. "Morning Coffee", "Workout").
+      required: true
+      example: "Morning Coffee"
+      selector:
+        text:
+    shuffle:
+      name: Shuffle Playlist
+      description: Randomize track order before starting playback.
+      required: false
+      default: false
+      selector:
+        boolean:
+    config_entry_id:
+      name: JellyHA Instance
+      description: The JellyHA instance to use (defaults to Music instance or first available).
+      required: false
+      selector:
+        config_entry:
+          integration: jellyha
+    server_entity_id:
+      name: JellyHA Server Entity
+      description: The JellyHA entity to target (optional, alternative to config_entry_id).
+      required: false
+      selector:
+        entity:
+          integration: jellyha
+
+get_playlists:
+  name: Get Playlists
+  description: Fetch all user playlists from Jellyfin with track count, duration, and thumbnail to response_variable.
+  fields:
+    query:
+      name: Filter Query
+      description: Optional search filter to match playlist names.
+      required: false
+      selector:
+        text:
+    limit:
+      name: Limit
+      description: Maximum number of playlists to return (default 50).
+      required: false
+      default: 50
+      selector:
+        number:
+          min: 1
+          max: 500
+          mode: box
+    config_entry_id:
+      name: JellyHA Instance
+      description: The JellyHA instance to query.
+      required: false
+      selector:
+        config_entry:
+          integration: jellyha
+    server_entity_id:
+      name: JellyHA Server Entity
+      description: The JellyHA entity to target (optional).
+      required: false
+      selector:
+        entity:
+          integration: jellyha
+
+get_collections:
+  name: Get Collections (BoxSets)
+  description: Fetch all BoxSets / Movie Collections from Jellyfin with item count and contained movies to response_variable.
+  fields:
+    query:
+      name: Filter Query
+      description: Optional search filter to match collection names.
+      required: false
+      selector:
+        text:
+    limit:
+      name: Limit
+      description: Maximum number of collections to return (default 50).
+      required: false
+      default: 50
+      selector:
+        number:
+          min: 1
+          max: 200
+          mode: box
+    include_items:
+      name: Include Collection Items
+      description: Include all movies and items inside each collection in the response.
+      required: false
+      default: true
+      selector:
+        boolean:
+    config_entry_id:
+      name: JellyHA Instance
+      description: The JellyHA instance to query.
+      required: false
+      selector:
+        config_entry:
+          integration: jellyha
+    server_entity_id:
+      name: JellyHA Server Entity
+      description: The JellyHA entity to target (optional).
+      required: false
+      selector:
+        entity:
+          integration: jellyha
+

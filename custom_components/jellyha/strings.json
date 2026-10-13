@@ -1,0 +1,550 @@
+{
+    "title": "JellyHA",
+    "config": {
+        "step": {
+            "user": {
+                "title": "Connect to Jellyfin",
+                "description": "Enter your Jellyfin server URL and choose authentication method",
+                "data": {
+                    "server_url": "Server URL",
+                    "auth_method": "Authentication Method"
+                },
+                "data_description": {
+                    "server_url": "Full URL to your Jellyfin server (e.g., http://192.168.1.100:8096)"
+                }
+            },
+            "auth_api_key": {
+                "title": "API Key Authentication",
+                "description": "Enter your Jellyfin API key",
+                "data": {
+                    "api_key": "API Key"
+                },
+                "data_description": {
+                    "api_key": "API key from Jellyfin Dashboard → API Keys"
+                }
+            },
+            "auth_login": {
+                "title": "Jellyfin Login",
+                "description": "Enter your Jellyfin credentials",
+                "data": {
+                    "username": "Username",
+                    "password": "Password"
+                }
+            },
+            "user_select": {
+                "title": "Select User",
+                "description": "Choose which Jellyfin user to use",
+                "data": {
+                    "user_id": "User"
+                }
+            },
+            "library_select": {
+                "title": "Select Libraries",
+                "description": "Choose which libraries to include (leave empty for all)",
+                "data": {
+                    "libraries": "Libraries",
+                    "refresh_interval": "Library Refresh Interval"
+                }
+            },
+            "device_select": {
+                "title": "Select Client Devices",
+                "description": "Choose which client devices to create dedicated media players for (e.g., Living Room TV, Phone, Shield). These media players can be controlled directly and used in the JellyHA Now Playing Card.\n\nLeave empty to skip (you can always configure them later in integration options).",
+                "data": {
+                    "device_players": "Client Devices"
+                }
+            },
+            "instance_label": {
+                "title": "Configure Instance",
+                "description": "Optionally add a label to distinguish this instance in Home Assistant (leave empty for default 'JellyHA').",
+                "data": {
+                    "instance_label": "Instance Label"
+                },
+                "data_description": {
+                    "instance_label": "This integration supports **Multi-Instance** configurations.\n\nAdd a label to distinguish this instance (e.g., *Movies*, *Music*, *Server01*, *Server02*). Your device will be named **'JellyHA Movies'**, **'JellyHA Music'**, **'JellyHA Server01'**, **'JellyHA Server02'**, etc., making it easier to identify entities across multiple servers or libraries.\n\nLeave empty for the default **'JellyHA'**."
+                }
+            },
+            "reauth_confirm": {
+                "title": "Re-authenticate Jellyfin",
+                "description": "Update your credentials for Jellyfin",
+                "data": {
+                    "server_url": "Server URL",
+                    "auth_method": "Authentication Method"
+                },
+                "data_description": {
+                    "server_url": "Full URL to your Jellyfin server (e.g., http://192.168.1.100:8096)"
+                }
+            }
+        },
+        "error": {
+            "cannot_connect": "Failed to connect to Jellyfin server",
+            "invalid_auth": "Invalid API key or credentials",
+            "unknown": "An unexpected error occurred"
+        },
+        "abort": {
+            "already_configured": "This Jellyfin server is already configured",
+            "reauth_successful": "Re-authentication successful",
+            "reauth_failed": "Re-authentication failed"
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "Server Settings",
+                "data": {
+                    "server_url": "Server URL",
+                    "external_url": "External URL (Optional, for UI links)",
+                    "libraries": "Libraries",
+                    "refresh_interval": "Library Refresh Interval",
+                    "device_players": "Client/Device Media Players (Optional)",
+                    "trigger_library_refresh": "Refresh fetched data immediately",
+                    "update_credentials": "Update Credentials / Switch User",
+                    "enable_live_tv": "Enable Live TV",
+                    "api_timeout": "API Request Timeout (seconds)"
+                },
+                "data_description": {
+                    "device_players": "Select client devices (e.g. Smart TVs, Android TV boxes) to create dedicated media player entities for. These maintain state and attributes per device regardless of which user is watching.",
+                    "enable_live_tv": "Enable Live TV channels, dedicated services, and Media Browser tuning.",
+                    "api_timeout": "Maximum timeout in seconds for requests to Jellyfin. Increase this (e.g. 45-60s) for very large libraries or slower server hardware."
+                }
+            },
+            "auth_method": {
+                "title": "Authentication Method",
+                "description": "Choose how to authenticate",
+                "data": {
+                    "auth_method": "Method"
+                }
+            },
+            "auth_api_key": {
+                "title": "API Key Authentication",
+                "description": "Enter your Jellyfin API key",
+                "data": {
+                    "api_key": "API Key"
+                }
+            },
+            "auth_login": {
+                "title": "Jellyfin Login",
+                "description": "Enter your Jellyfin credentials",
+                "data": {
+                    "username": "Username",
+                    "password": "Password"
+                }
+            },
+            "user_select": {
+                "title": "Select User",
+                "description": "Choose which Jellyfin user to switch to",
+                "data": {
+                    "user_id": "User"
+                }
+            },
+            "library_select": {
+                "title": "Select Libraries",
+                "description": "Choose which libraries to include (leave empty for all)",
+                "data": {
+                    "libraries": "Libraries"
+                }
+            }
+        },
+        "error": {
+            "invalid_auth": "Invalid API key or credentials",
+            "cannot_connect": "Failed to connect to Jellyfin server",
+            "unknown": "An unexpected error occurred"
+        },
+        "abort": {
+            "configuration_saved": "Configuration successfully saved."
+        }
+    },
+    "entity": {
+        "sensor": {
+            "library": {
+                "name": "Library"
+            },
+            "live_tv_channels": {
+                "name": "Live TV Channels"
+            },
+            "favorites_count": {
+                "name": "Favorites"
+            },
+            "unwatched_count": {
+                "name": "Unwatched"
+            },
+            "unwatched_movies": {
+                "name": "Unwatched Movies"
+            },
+            "unwatched_series": {
+                "name": "Unwatched Series"
+            },
+            "unwatched_episodes": {
+                "name": "Unwatched Episodes"
+            },
+            "last_refresh": {
+                "name": "Last Refresh"
+            },
+            "last_data_change": {
+                "name": "Last Library Update"
+            },
+            "websocket_status": {
+                "name": "WebSocket Status"
+            },
+            "version": {
+                "name": "Jellyfin Version"
+            },
+            "active_sessions": {
+                "name": "Active Sessions"
+            },
+            "watched_count": {
+                "name": "Watched"
+            },
+            "watched_episodes": {
+                "name": "Watched Episodes"
+            },
+            "watched_series": {
+                "name": "Watched Series"
+            },
+            "watched_movies": {
+                "name": "Watched Movies"
+            },
+            "refresh_duration": {
+                "name": "Refresh Duration"
+            },
+            "movies": {
+                "name": "Movies"
+            },
+            "series": {
+                "name": "Series"
+            },
+            "episodes": {
+                "name": "Episodes"
+            },
+            "latest_movie": {
+                "name": "Latest Movie"
+            },
+            "latest_episode": {
+                "name": "Latest Episode"
+            },
+            "transcoding_streams": {
+                "name": "Transcoding Streams"
+            },
+            "connected_clients": {
+                "name": "Connected Clients"
+            },
+            "storage_free": {
+                "name": "Media Storage Free"
+            },
+            "storage_free_percent": {
+                "name": "Media Storage Free Percentage"
+            },
+            "library_movies_watched_percentage": {
+                "name": "Library Movies Watched Percentage"
+            },
+            "library_series_watched_percentage": {
+                "name": "Library Series Watched Percentage"
+            },
+            "library_episodes_watched_percentage": {
+                "name": "Library Episodes Watched Percentage"
+            }
+        },
+        "media_player": {
+            "library_browser": {
+                "name": "Library Browser"
+            }
+        }
+    },
+    "services": {
+        "play_on_chromecast": {
+            "name": "Play on Chromecast",
+            "description": "Play a Jellyfin item on a Chromecast device",
+            "fields": {
+                "entity_id": {
+                    "name": "Media Player",
+                    "description": "The Chromecast media player entity"
+                },
+                "item_id": {
+                    "name": "Item ID",
+                    "description": "Jellyfin item ID to play"
+                },
+                "use_series_image": {
+                    "name": "Use Series Poster",
+                    "description": "For TV episodes, send the official Series vertical poster to Chromecast instead of the episode screenshot"
+                },
+                "subtitle_mode": {
+                    "name": "Subtitle Mode",
+                    "description": "Subtitle selection strategy: auto (Jellyfin user profile), none (disabled), forced_only, or custom"
+                },
+                "subtitle_language": {
+                    "name": "Subtitle Languages",
+                    "description": "Prioritized comma-separated list of subtitle language codes or names (e.g. 'sl, en' or 'slv, eng')"
+                }
+            }
+        },
+        "refresh_library": {
+            "name": "Refresh Library",
+            "description": "Force refresh library data from Jellyfin"
+        },
+        "delete_item": {
+            "name": "Delete Item",
+            "description": "Delete an item from Jellyfin library",
+            "fields": {
+                "item_id": {
+                    "name": "Item ID",
+                    "description": "Jellyfin item ID to delete"
+                }
+            }
+        },
+        "mark_watched": {
+            "name": "Mark Watched",
+            "description": "Mark an item as watched or unwatched.",
+            "fields": {
+                "item_id": {
+                    "name": "Item ID",
+                    "description": "The Jellyfin Item ID."
+                },
+                "is_played": {
+                    "name": "Is Watched",
+                    "description": "Set to true for watched, false for unwatched."
+                }
+            }
+        },
+        "update_favorite": {
+            "name": "Update Favorite",
+            "description": "Mark an item as favorite or remove it.",
+            "fields": {
+                "item_id": {
+                    "name": "Item ID",
+                    "description": "The Jellyfin Item ID."
+                },
+                "is_favorite": {
+                    "name": "Is Favorite",
+                    "description": "Set to true for favorite, false to remove."
+                }
+            }
+        },
+        "session_control": {
+            "name": "Session Control",
+            "description": "Send a control command to a playback session.",
+            "fields": {
+                "session_id": {
+                    "name": "Session ID",
+                    "description": "The active session ID."
+                },
+                "command": {
+                    "name": "Command",
+                    "description": "The command to send (Pause, Unpause, TogglePause, Stop)."
+                }
+            }
+        },
+        "session_seek": {
+            "name": "Session Seek",
+            "description": "Seek to a specific position in a playback session.",
+            "fields": {
+                "session_id": {
+                    "name": "Session ID",
+                    "description": "The active session ID."
+                },
+                "position_ticks": {
+                    "name": "Position (Ticks)",
+                    "description": "Position in ticks (1 sec = 10,000,000 ticks)."
+                }
+            }
+        },
+        "search": {
+            "name": "Search",
+            "description": "Search for media items in your library.",
+            "fields": {
+                "query": {
+                    "name": "Search Query",
+                    "description": "Text to search for."
+                },
+                "media_type": {
+                    "name": "Media Type",
+                    "description": "Filter by Movie, Series, or Episode."
+                },
+                "limit": {
+                    "name": "Limit",
+                    "description": "Maximum number of results."
+                },
+                "is_played": {
+                    "name": "Is Watched",
+                    "description": "Filter by watched status."
+                },
+                "min_rating": {
+                    "name": "Minimum Rating",
+                    "description": "Filter by minimum rating (0-10)."
+                },
+                "year": {
+                    "name": "Year",
+                    "description": "Filter by release year."
+                }
+            }
+        },
+        "get_recommendations": {
+            "name": "Get Recommendations",
+            "description": "Get similar items for a specific media item.",
+            "fields": {
+                "item_id": {
+                    "name": "Item ID",
+                    "description": "The Item ID to base recommendations on."
+                },
+                "limit": {
+                    "name": "Limit",
+                    "description": "Maximum number of results."
+                }
+            }
+        },
+        "get_item": {
+            "name": "Get Item Details",
+            "description": "Get full details including overview and metadata for an item.",
+            "fields": {
+                "item_id": {
+                    "name": "Item ID",
+                    "description": "The Jellyfin Item ID."
+                }
+            }
+        },
+        "get_live_tv_channels": {
+            "name": "Get Live TV Channels",
+            "description": "Retrieve available Jellyfin Live TV channels with optional search filtering.",
+            "fields": {
+                "query": {
+                    "name": "Search Query",
+                    "description": "Filter channels by name or number (optional)."
+                },
+                "limit": {
+                    "name": "Limit",
+                    "description": "Maximum number of channels to return (optional)."
+                }
+            }
+        },
+        "play_live_tv_channel": {
+            "name": "Play Live TV Channel",
+            "description": "Resolve a Live TV channel by number or normalized name and play it.",
+            "fields": {
+                "channel_number": {
+                    "name": "Channel Number",
+                    "description": "Exact Jellyfin channel number."
+                },
+                "channel_name": {
+                    "name": "Channel Name",
+                    "description": "Jellyfin channel name."
+                }
+            }
+        },
+        "music_search": {
+            "name": "Music Search",
+            "description": "Search Jellyfin music library for tracks, albums, or artists with FLAC and Hi-Res audio specifications.",
+            "fields": {
+                "query": {
+                    "name": "Search Query",
+                    "description": "Search text for track title, album, or artist."
+                },
+                "search_type": {
+                    "name": "Search Type",
+                    "description": "Type of music items to search for (all, track, album, artist)."
+                },
+                "artist": {
+                    "name": "Artist",
+                    "description": "Filter by artist name."
+                },
+                "album": {
+                    "name": "Album",
+                    "description": "Filter by album title."
+                },
+                "genre": {
+                    "name": "Genre",
+                    "description": "Filter by music genre."
+                },
+                "year": {
+                    "name": "Year",
+                    "description": "Filter by release year."
+                },
+                "codec": {
+                    "name": "Audio Codec / Format",
+                    "description": "Filter by audio codec (e.g. flac, alac, mp3, aac, opus, dsd, wav)."
+                },
+                "is_hi_res": {
+                    "name": "Hi-Res Audio Only",
+                    "description": "Filter for high-resolution audio (24-bit+ or >48kHz or DSD)."
+                },
+                "is_lossless": {
+                    "name": "Lossless Audio Only",
+                    "description": "Filter for lossless audio formats (FLAC, ALAC, WAV, DSD)."
+                },
+                "limit": {
+                    "name": "Limit",
+                    "description": "Maximum number of results to return."
+                }
+            }
+        },
+        "play_music": {
+            "name": "Play Music",
+            "description": "Search and play a music track or album from Jellyfin on any Home Assistant media player (e.g. Kitchen Speaker, Sonos, Cast).",
+            "fields": {
+                "entity_id": {
+                    "name": "Media Player",
+                    "description": "Target Home Assistant media player entity to play the music on."
+                },
+                "query": {
+                    "name": "Search Query / Song Title",
+                    "description": "Song or track name to search for."
+                },
+                "artist": {
+                    "name": "Artist",
+                    "description": "Artist name to search for."
+                },
+                "album": {
+                    "name": "Album",
+                    "description": "Album title to search for."
+                }
+            }
+        },
+        "play_playlist": {
+            "name": "Play Playlist",
+            "description": "Play a playlist from Jellyfin on any Home Assistant media player or directly on a Jellyfin client session, with optional shuffle.",
+            "fields": {
+                "entity_id": {
+                    "name": "Media Player",
+                    "description": "Target media player entity to play the playlist on."
+                },
+                "playlist": {
+                    "name": "Playlist Name or ID",
+                    "description": "Name or Jellyfin Item ID of the playlist."
+                },
+                "shuffle": {
+                    "name": "Shuffle",
+                    "description": "Randomize track order before playing."
+                }
+            }
+        },
+        "get_playlists": {
+            "name": "Get Playlists",
+            "description": "Fetch all user playlists from Jellyfin with track count, duration, and thumbnail to response_variable.",
+            "fields": {
+                "query": {
+                    "name": "Query",
+                    "description": "Optional search filter to match playlist names."
+                },
+                "limit": {
+                    "name": "Limit",
+                    "description": "Maximum number of playlists to return."
+                }
+            }
+        },
+        "get_collections": {
+            "name": "Get Collections",
+            "description": "Fetch all BoxSets / Movie Collections from Jellyfin with item count and contained movies to response_variable.",
+            "fields": {
+                "query": {
+                    "name": "Query",
+                    "description": "Optional search filter to match collection names."
+                },
+                "limit": {
+                    "name": "Limit",
+                    "description": "Maximum number of collections to return."
+                },
+                "include_items": {
+                    "name": "Include Items",
+                    "description": "Include contained movies in the response."
+                }
+            }
+        }
+    }
+}

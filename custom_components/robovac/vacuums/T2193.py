@@ -64,9 +64,10 @@ class T2193(RobovacModelDetails):
         },
         RobovacCommand.RETURN_HOME: {
             "code": 101,
+            "values": {"return": True},
         },
         RobovacCommand.FAN_SPEED: {
-            "code": 102,
+            "code": 130,
             "values": {
                 "quiet": "Quiet",
                 "standard": "Standard",

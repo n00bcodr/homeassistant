@@ -11,22 +11,26 @@
                     "battery_type": "Batterieart",
                     "battery_quantity": "Batteriemenge",
                     "note": "Notiz",
-                    "battery_low_threshold": "Schwelle für niedrigen Batteriestand"
+                    "battery_low_threshold": "Schwelle für niedrigen Batteriestand",
+                    "battery_increase_threshold": "Batterieanstieg-Schwellenwert"
                 },
                 "data_description": {
-                    "battery_low_threshold": "0 verwendet den globalen Standardschwellenwert für eine leere Batterie."
+                    "battery_low_threshold": "0 verwendet den globalen Standardschwellenwert für eine leere Batterie.",
+                    "battery_increase_threshold": "Der Schwellenwert ist die Differenz der Erhöhung zwischen dem vorherigen und dem aktuellen Batteriestand.\n0 verwendet den globalen Standardschwellenwert."
                 },
                 "sections": {
                     "advanced_settings": {
-                        "name": "Erweiterte Einstellungen",
+                        "name": "Zusätzliche Einstellungen",
                         "data": {
                             "battery_percentage_template": "Vorlage zur Ermittlung eines Prozentwertes für den Batterieladezustand.",
                             "battery_low_template": "Vorlage zur Ermittlung einer leeren Batterie.",
+                            "retain_state": "Status beibehalten",
                             "filter_outliers": "Ausreißer filtern"
                         },
                         "data_description": {
-                            "battery_percentage_template": "Vorlage zum Erstellen des Batterieladezustandes.\nNur erforderlich für Geräte, die keinen normalen Batterieladezustand haben",
+                            "battery_percentage_template": "Vorlage zum Erstellen des Batterieladezustandes.\nNur erforderlich für Geräte, die keinen normalen Batterieladezustand haben.",
                             "battery_low_template": "Vorlage zur Ermittlung einer leeren Batterie; muss \"wahr\" (true) zurückmelden, wenn die Batterie leer ist.\nWird nur benötigt, wenn der Schwellenwert für eine leere Batterie nicht dem Standardwert entspricht.",
+                            "retain_state": "Behalten Sie den letzten Batteriestatus bei, wenn die Quellentität nicht verfügbar ist.\nNützlich für Geräte, die in den Ruhemodus wechseln und nicht verfügbar werden.",
                             "filter_outliers": "Größere Sprünge des Ladezustandes der Batterie bei Geräten ausfiltern, die ihren Ladezustand nur sporadisch mitteilen, um fehlerhafte Auslösungen zu verhindern."
                         }
                     }
@@ -84,22 +88,26 @@
                         "battery_type": "Batterie-Typ",
                         "battery_quantity": "Anzahl Batterien",
                         "note": "Notiz",
-                        "battery_low_threshold": "Schwellenwert für eine leere Batterie"
+                        "battery_low_threshold": "Schwellenwert für eine leere Batterie",
+                        "battery_increase_threshold": "Batterieanstieg-Schwellenwert"
                     },
                     "data_description": {
-                        "battery_low_threshold": "0 verwendet den globalen Standardschwellenwert"
+                        "battery_low_threshold": "0 verwendet den globalen Standardschwellenwert.",
+                        "battery_increase_threshold": "Der Schwellenwert ist die Differenz der Erhöhung zwischen dem vorherigen und dem aktuellen Batteriestand.\n0 verwendet den globalen Standardschwellenwert."
                     },
                     "sections": {
                         "advanced_settings": {
-                            "name": "Erweiterte Einstellungen",
+                            "name": "Zusätzliche Einstellungen",
                             "data": {
                                 "battery_percentage_template": "Vorlage zur Ermittlung eines Prozentwertes für den Batterieladezustand.",
                                 "battery_low_template": "Vorlage zur Ermittlung einer leeren Batterie.",
+                                "retain_state": "Status beibehalten",
                                 "filter_outliers": "Ausreißer filtern"
                             },
                             "data_description": {
                                 "battery_percentage_template": "Vorlage zur Ermittlung eines Prozentwertes für den Batterieladezustand.\nNur für Geräte, die den Füllstand der Batterie nicht als Prozentwert anzeigen.",
                                 "battery_low_template": "Vorlage zur Ermittlung einer leeren Batterie; muss \"wahr\" (true) zurückmelden, wenn die Batterie leer ist.\nWird nur benötigt, wenn der Schwellenwert für eine leere Batterie nicht dem Standardwert entspricht.",
+                                "retain_state": "Behalten Sie den letzten Batteriestatus bei, wenn die Quellentität nicht verfügbar ist.\nNützlich für Geräte, die in den Ruhemodus wechseln und nicht verfügbar werden.",
                                 "filter_outliers": "Größere Sprünge des Ladezustandes der Batterie bei Geräten ausfiltern, die ihren Ladezustand nur sporadisch mitteilen, um fehlerhafte Auslösungen zu verhindern."
                             }
                         }
@@ -116,24 +124,28 @@
                         "battery_type": "Batterie-Typ",
                         "battery_quantity": "Anzahl Batterien",
                         "note": "Notiz",
-                        "battery_low_threshold": "Schwellenwert für eine leere Batterie"
+                        "battery_low_threshold": "Schwellenwert für eine leere Batterie",
+                        "battery_increase_threshold": "Batterieanstieg-Schwellenwert"
                     },
                     "data_description": {
                         "name": "Wenn du das Feld leer lässt, wird der Gerätename genommen.",
-                        "battery_low_threshold": "0 verwendet den globalen Standardschwellenwert."
+                        "battery_low_threshold": "0 verwendet den globalen Standardschwellenwert.",
+                        "battery_increase_threshold": "Der Schwellenwert ist die Differenz der Erhöhung zwischen dem vorherigen und dem aktuellen Batteriestand.\n0 verwendet den globalen Standardschwellenwert"
                     },
                     "sections": {
                         "advanced_settings": {
-                            "name": "Erweiterte Einstellungen",
+                            "name": "Zusätzliche Einstellungen",
                             "data": {
                                 "battery_percentage_template": "Vorlage zur Ermittlung eines Prozentwertes für den Batterieladezustand",
                                 "battery_low_template": "Vorlage zur Ermittlung, ob die Batterie leer ist.",
+                                "retain_state": "Status beibehalten",
                                 "filter_outliers": "Ausreißer filtern"
                             },
                             "data_description": {
                                 "battery_percentage_template": "Vorlage zur Ermittlung eines Prozentwertes für den Batterieladezustand.\nNur für Geräte, die den Batterieladezustand nicht als Prozentwert  anzeigen.",
                                 "battery_low_template": "Vorlage zur Ermittlung einer leeren Batterie; muss \"wahr\" (true) zurückmelden, wenn die Batterie leer ist.\nWird nur benötigt, wenn der Schwellenwert für eine leere Batterie nicht dem Standardwert entspricht.",
-                                "filter_outliers": "Filtere größere Sprünge des Ladezustandes der Batterie bei Geräten, die ihren Ladezustand nur sporadisch mitteilen, um fehlerhafte Auslösungen zu verhindern"
+                                "retain_state": "Behalten Sie den letzten Batteriestatus bei, wenn die Quellentität nicht verfügbar ist.\nNützlich für Geräte, die in den Ruhemodus wechseln und nicht verfügbar werden.",
+                                "filter_outliers": "Filtere größere Sprünge des Ladezustandes der Batterie bei Geräten, die ihren Ladezustand nur sporadisch mitteilen, um fehlerhafte Auslösungen zu verhindern."
                             }
                         }
                     }
@@ -158,7 +170,7 @@
                     "hide_battery": "Batterie verbergen",
                     "round_battery": "Batterieladezustand runden",
                     "default_battery_low_threshold": "Standard-Schwellenwert für leere Batterie",
-                    "battery_increase_threshold": "Batterieanstieg-Schwellenwert"
+                    "battery_increase_threshold": "Standard-Batterieanstieg-Schwellenwert"
                 },
                 "data_description": {
                     "show_all_devices": "Alle Geräte in der Geräte-Auswahlliste zeigen, ansonsten nur solche mit Batterien anzeigen.",
@@ -169,16 +181,18 @@
                 },
                 "sections": {
                     "advanced_settings": {
-                        "name": "Erweiterte Einstellungen",
+                        "name": "Zusätzliche Einstellungen",
                         "data": {
                             "enable_autodiscovery": "Automatische Erkennung",
                             "enable_replaced": "\"Batterie ersetzt\" aktivieren",
+                            "hide_battery_low": "Batterie gering verbergen",
                             "user_library": "Benutzer-Bibliothek"
                         },
                         "data_description": {
                             "enable_autodiscovery": "Automatische Erkennung von Geräten, die in der Bibliothek sind.",
                             "enable_replaced": "Die \"Batterie ersetzt\"-Schaltfläche bei jeder Batterie-Notiz aktivieren",
-                            "user_library": "Wenn angegeben, wird vor der Hauptbibliothek eine Benutzerbibliothek durchsucht. Die Benutzerbibliothek muss im selben Format sein, wie die Hauptbibliothek und in `config/. torage/battery_notes` platziert sein."
+                            "hide_battery_low": "Den Binärsensor für niedrigen Batteriestand verbergen, wenn ein Batterieladezustand verfügbar ist, um Duplizierungen auf generierten Dashboards zu vermeiden.",
+                            "user_library": "Wenn angegeben, wird vor der Hauptbibliothek eine Benutzerbibliothek durchsucht. Die Benutzerbibliothek muss im selben Format sein, wie die Hauptbibliothek und in `config/.storage/battery_notes` platziert sein."
                         }
                     }
                 }
@@ -193,6 +207,9 @@
             "battery_low": {
                 "name": "{device_name}Batterie fast leer",
                 "state_attributes": {
+                    "battery_increase_threshold": {
+                        "name": "Batterieanstieg-Schwellenwert"
+                    },
                     "battery_low_threshold": {
                         "name": "Schwelle für niedrigen Batteriestand"
                     }
@@ -222,6 +239,9 @@
                     },
                     "battery_last_replaced": {
                         "name": "Batterie zuletzt ersetzt"
+                    },
+                    "battery_increase_threshold": {
+                        "name": "Batterieanstieg-Schwellenwert"
                     },
                     "battery_low": {
                         "name": "Niedriger Batteriestand"
@@ -334,6 +354,29 @@
                     }
                 }
             }
+        },
+        "composite_device_id": {
+            "fix_flow": {
+                "abort": {
+                    "entry_removed": "Der Konfigurationseintrag der Batterie-Notiz wurde entfernt"
+                },
+                "error": {
+                    "invalid_device": "Wähle ein vorhandenes Gerät oder lass das Feld leer"
+                },
+                "step": {
+                    "select_device": {
+                        "data": {
+                            "device_id": "Gerät"
+                        },
+                        "data_description": {
+                            "device_id": "Das Gerät, mit dem diese Batterie-Notiz verknüpft werden soll."
+                        },
+                        "description": "Die Batterie-Notiz {name} war mit einem Gerät verknüpft, das in mehrere Geräte aufgeteilt wurde.\n\nWähle das Gerät, mit dem diese Batterie-Notiz verknüpft werden soll, oder lass es leer, um die Batterie-Notiz zu entfernen.",
+                        "title": "Gerät für {name} auswählen"
+                    }
+                }
+            },
+            "title": "Gerät für Batterie-Notiz {name} muss erneut ausgewählt werden"
         },
         "deprecated_yaml": {
             "title": "Die {integration_title} YAML-Konfiguration wurde entfernt",

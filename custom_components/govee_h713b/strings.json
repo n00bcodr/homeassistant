@@ -1,0 +1,54 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect your Govee account",
+        "description": "Uses the same email/password login as the Govee app.",
+        "data": {
+          "username": "Email",
+          "password": "Password"
+        }
+      },
+      "two_factor": {
+        "title": "Two-factor code",
+        "description": "Govee emailed a verification code to your account - enter it here.",
+        "data": {
+          "code": "Verification code"
+        }
+      },
+      "pick_device": {
+        "title": "Choose your heater",
+        "data": {
+          "device": "Device"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Incorrect email or password.",
+      "cannot_connect": "Could not reach Govee's servers."
+    },
+    "abort": {
+      "no_h713b_found": "No H713B heater was found on this Govee account.",
+      "already_configured": "This heater is already configured."
+    }
+  },
+  "entity": {
+    "light": {
+      "night_light": {
+        "name": "Night light"
+      }
+    }
+  },
+  "services": {
+    "send_raw_command": {
+      "name": "Send raw command",
+      "description": "Send a raw base64 multiSync command to the heater.",
+      "fields": {
+        "code": {
+          "name": "Code",
+          "description": "Base64-encoded 20-byte command."
+        }
+      }
+    }
+  }
+}

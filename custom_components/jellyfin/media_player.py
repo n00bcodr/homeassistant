@@ -45,6 +45,7 @@ from .const import (
     PlayState,
     Response,
     Session,
+    TranscodingInfo,
 )
 
 from .entity import MediaBrowserEntity
@@ -168,6 +169,7 @@ class MediaBrowserPlayer(MediaBrowserEntity, MediaPlayerEntity):
         self._device_name: str | None = session.get(Session.DEVICE_NAME)
         self._device_version = session.get(Session.APPLICATION_VERSION)
         self._device_model: str | None = session.get(Session.CLIENT)
+        self._user_name: str | None = session.get(Session.USER_NAME)
 
         self._session: dict[str, Any] | None = session
         self._last_update: datetime | None = None
@@ -175,13 +177,21 @@ class MediaBrowserPlayer(MediaBrowserEntity, MediaPlayerEntity):
         self._availability_unlistener: Callable[[], None] | None = None
         self._session_changed_unlistener: Callable[[], None] | None = None
 
-        self._attr_name = f"{self.hub.name} {self._session[Session.DEVICE_NAME]}"
+        # Without this, HA prefixes the friendly name with the device's own
+        # name (set to the device_name below), duplicating it.
+        self._attr_has_entity_name = False
+        self._attr_name = self._build_name()
         self._attr_unique_id = (
             f"{self.hub.server_id}-{self._session_key}-{EntityType.PLAYER}"
         )
         self._attr_media_image_remotely_accessible = False
         self._attr_available = hub.is_available
         self._update_from_data()
+
+    def _build_name(self) -> str:
+        if self._user_name and self._device_name:
+            return f"{self._user_name} on {self._device_name}"
+        return f"{self.hub.name} {self._device_name}"
 
     async def async_added_to_hass(self):
         self._availability_unlistener = self.hub.on_availability_changed(
@@ -216,6 +226,8 @@ class MediaBrowserPlayer(MediaBrowserEntity, MediaPlayerEntity):
                 self._device_name = new_session.get(Session.DEVICE_NAME)
                 self._device_version = new_session.get(Session.APPLICATION_VERSION)
                 self._device_model = new_session.get(Session.CLIENT)
+                self._user_name = new_session.get(Session.USER_NAME)
+                self._attr_name = self._build_name()
             self._update_from_data()
             self.async_write_ha_state()
 
@@ -254,6 +266,40 @@ class MediaBrowserPlayer(MediaBrowserEntity, MediaPlayerEntity):
         if level := as_float(play_state, PlayState.VOLUME_LEVEL):
             self._attr_volume_level = level / VOLUME_RATIO
 
+    def _update_from_transcoding_info(
+        self, play_method: str | None, transcoding_info: dict[str, Any] | None
+    ) -> None:
+        if play_method is None:
+            return
+        self._attr_extra_state_attributes["play_method"] = play_method
+        self._attr_extra_state_attributes["is_transcoding"] = play_method == "Transcode"
+        if not transcoding_info:
+            return
+        self._attr_extra_state_attributes.update(
+            {
+                "transcode_reasons": transcoding_info.get(
+                    TranscodingInfo.TRANSCODE_REASONS
+                ),
+                "transcode_video_codec": transcoding_info.get(
+                    TranscodingInfo.VIDEO_CODEC
+                ),
+                "transcode_audio_codec": transcoding_info.get(
+                    TranscodingInfo.AUDIO_CODEC
+                ),
+                "transcode_container": transcoding_info.get(TranscodingInfo.CONTAINER),
+                "transcode_bitrate": transcoding_info.get(TranscodingInfo.BITRATE),
+                "transcode_completion_percentage": transcoding_info.get(
+                    TranscodingInfo.COMPLETION_PERCENTAGE
+                ),
+                "transcode_is_video_direct": transcoding_info.get(
+                    TranscodingInfo.IS_VIDEO_DIRECT
+                ),
+                "transcode_is_audio_direct": transcoding_info.get(
+                    TranscodingInfo.IS_AUDIO_DIRECT
+                ),
+            }
+        )
+
     def _update_from_item(self, item: dict[str, Any]) -> None:
         self._attr_media_album_artist = item.get(Item.ALBUM_ARTIST)
         self._attr_media_album_name = item.get(Item.ALBUM)
@@ -267,15 +313,22 @@ class MediaBrowserPlayer(MediaBrowserEntity, MediaPlayerEntity):
             )
         if ticks := as_int(item, Item.RUNTIME_TICKS):
             self._attr_media_duration = ticks // TICKS_PER_SECOND
-        self._attr_media_episode = item.get(Item.EPISODE_TITLE)
+        if episode_number := as_int(item, Item.INDEX_NUMBER):
+            self._attr_media_episode = str(episode_number)
 
-        self._attr_media_season = item.get(Item.SEASON_NAME)
+        if season_number := as_int(item, Item.PARENT_INDEX_NUMBER):
+            self._attr_media_season = str(season_number)
+        else:
+            self._attr_media_season = item.get(Item.SEASON_NAME)
 
         self._attr_media_series_title = item.get(Item.SERIES_NAME)
         self._attr_media_title = item.get(Item.NAME)
+        # Prefer the item's own image (e.g. an episode's screenshot) over the
+        # series/season backdrop, which get_image_url would otherwise fall
+        # back to since episodes rarely have their own Backdrop image.
         self._attr_media_image_url = get_image_url(
-            item, self.hub.server_url, ImageType.BACKDROP, True
-        )
+            item, self.hub.server_url, ImageType.PRIMARY, False
+        ) or get_image_url(item, self.hub.server_url, ImageType.BACKDROP, True)
 
     def _update_from_session(self, session: dict[str, Any]) -> None:
         self._attr_state = MediaPlayerState.OFF
@@ -286,6 +339,8 @@ class MediaBrowserPlayer(MediaBrowserEntity, MediaPlayerEntity):
         self._attr_media_position_updated_at = self._last_update
         self._attr_app_id = session.get(Session.ID)
         self._attr_app_name = session.get(Session.CLIENT)
+        self._attr_extra_state_attributes["user_name"] = self._user_name
+        self._attr_extra_state_attributes["device_name"] = self._device_name
         if remote_control:
             self._attr_state = MediaPlayerState.IDLE
             self._attr_supported_features |= (
@@ -308,6 +363,10 @@ class MediaBrowserPlayer(MediaBrowserEntity, MediaPlayerEntity):
             self._attr_state = MediaPlayerState.PLAYING
         if play := session.get(Session.PLAY_STATE):
             self._update_from_state(play)
+            self._update_from_transcoding_info(
+                play.get(PlayState.PLAY_METHOD),
+                session.get(Session.TRANSCODING_INFO),
+            )
             if remote_control:
                 self._attr_supported_features |= MediaPlayerEntityFeature.PLAY
                 if PlayState.CAN_SEEK in play and play[PlayState.CAN_SEEK]:

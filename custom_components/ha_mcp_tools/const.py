@@ -20,11 +20,12 @@ DOMAIN = "ha_mcp_tools"
 
 # Component version, kept in lockstep with ``manifest.json``'s ``version``.
 # ``ha_mcp_tools/info`` reports this so the server can display/debug the running
-# component build; ``TestManifestVersionParity`` pins the two together so a
-# manifest bump that forgets this constant (or vice-versa) fails in CI. The
+# component build; ``TestInfo::test_manifest_version_parity`` pins the two
+# together so a manifest bump that forgets this constant (or vice-versa) fails
+# in CI. The
 # capability negotiation — not this version — gates each WS command (see
 # ``websocket_api.CAPABILITIES``).
-COMPONENT_VERSION = "1.2.1"
+COMPONENT_VERSION = "2.2.1"
 
 # Config-entry discriminator (``entry.data[CONF_ENTRY_TYPE]``). A missing value
 # means "tools" so the pre-existing services entry keeps working across the
@@ -38,10 +39,25 @@ ENTRY_TYPE_SERVER = "server"
 # carrying the legacy default (a user-customized title is left alone).
 TOOLS_ENTRY_TITLE = "HA-MCP File & YAML Tools"
 TOOLS_ENTRY_LEGACY_TITLE = "HA MCP Tools"
-MIN_EMBEDDED_HOME_ASSISTANT_VERSION = "2026.6.0"
+# Kept level with the HACS floor in hacs.json: from component 2.1.3 the manifest
+# declares voluptuous-openapi, which Core releases before 2026.7 pin to an older
+# version so the requirement cannot resolve there, and
+# that requirement gates the whole integration before any entry's config flow
+# runs, so a lower runtime floor here would promise what the load cannot keep.
+MIN_EMBEDDED_HOME_ASSISTANT_VERSION = "2026.8.0"
 
-# Allowed directories for file operations (relative to config dir)
-ALLOWED_READ_DIRS = ["www", "themes", "custom_templates", "dashboards"]
+# Allowed directories for file operations (relative to config dir).
+# "blueprints" is read-only BY DEFAULT — in ALLOWED_READ_DIRS but not
+# ALLOWED_WRITE_DIRS, so ha_write_file / ha_delete_file reject it (raw blueprint
+# reads are safe: community YAML, no secrets — issue #1965). This is the default
+# allowlist, not an absolute guarantee: an admin who adds "blueprints" as a
+# custom extra directory (issue #1567, see _current_extra_dirs) grants it
+# read+write, since extra_dirs are honored on the write path too. Blueprint
+# writes should instead go through ha_manage_blueprints(action="import") (which
+# invokes the blueprint/save WS command internally). Prefer
+# ha_manage_blueprints(action="get") for the parsed body; raw read is the escape
+# hatch for the exact on-disk text.
+ALLOWED_READ_DIRS = ["www", "themes", "custom_templates", "dashboards", "blueprints"]
 ALLOWED_WRITE_DIRS = ["www", "themes", "custom_templates", "dashboards"]
 
 # NON-OVERRIDABLE deny floor for the user-configurable extra read/write
@@ -58,11 +74,25 @@ ALLOWED_WRITE_DIRS = ["www", "themes", "custom_templates", "dashboards"]
 # leak secrets and hand out the key to this component's own auth gate.
 DENY_PATH_SEGMENTS = frozenset({".storage"})
 
+# Basenames the floor denies wherever they appear. Despite the historical
+# name, this set is enforced on every read, write and delete, and the file
+# lister drops an entry carrying one of these names from its results, so a
+# name here is neither openable nor enumerable through the component.
+#
 # secrets.yaml is reachable ONLY as the canonical config-root file, where the
 # read handler masks its values. Any OTHER secrets.yaml surfaced via a custom
 # dir would be returned UNMASKED (masking keys off the literal root path), so
 # the floor blocks the basename everywhere except that one canonical location.
-DENY_READ_BASENAMES = frozenset({"secrets.yaml"})
+#
+# approval_pin.json holds the digest of the PIN that authorises an approve or
+# deny arriving on the event bus (issue #2502). It lives in ha-mcp's own data
+# directory, which on an embedded install sits under the configuration
+# directory, and an extra file path covering that directory grants read AND
+# write: a tool could copy the digest to attack it offline, or simply replace
+# it with the digest of a PIN of its own and decide its own approvals. Denying
+# the basename leaves the rest of the data directory reachable, which is what
+# the rest of it is for.
+DENY_READ_BASENAMES = frozenset({"secrets.yaml", "approval_pin.json"})
 
 # HAOS sibling-volume mounts (issue #1586). These live OUTSIDE the config dir,
 # so the config-relative custom-directory allowlist (issue #1567) cannot reach
@@ -87,7 +117,11 @@ ALLOWED_YAML_CONFIG_FILES = ["configuration.yaml"]
 
 # Top-level YAML keys allowed for editing in any allowed file
 # (configuration.yaml or packages/*.yaml).
-# ONLY keys that have no UI/API alternative belong here.
+# The bar is "YAML is a legitimate way to manage this key", not "this key
+# has no UI alternative": template, utility_meter and group do have helper
+# equivalents and stay allowed for git-managed YAML configs (the caller
+# attaches a routing warning instead – see _HELPER_EQUIVALENT_KEYS in
+# src/ha_mcp/tools/tools_yaml_config.py).
 # Keys manageable via ha_config_set_helper (input_*, counter, timer, schedule)
 # are intentionally excluded. automation/script/scene live in
 # PACKAGES_ONLY_YAML_KEYS below — they have storage-mode equivalents
@@ -131,6 +165,51 @@ PACKAGES_ONLY_YAML_KEYS = frozenset(
         "automation",
         "script",
         "scene",
+    }
+)
+
+# Top-level YAML keys an operator can never unlock (#1887).
+# The operator-configurable extra-key list (ha-mcp's "extra YAML write
+# keys" setting) is additive on top of ALLOWED_YAML_KEYS, so this floor
+# is what keeps that setting from reaching HA's own trust boundary. It is
+# checked before every single-key allowlist branch and is deliberately NOT
+# operator-extendable – otherwise the same trust question just reopens
+# one level up. Scope note: it guards the per-key merge path only.
+# ``action="replace_file"`` returns before key validation runs at all, so a
+# whole-file rewrite of configuration.yaml can still contain these keys –
+# pre-existing behaviour, and the reason this is a floor under the extra-key
+# setting rather than a general "these keys are unwritable" guarantee.
+#
+# The bar is not "powerful": command_line, shell_command and rest are
+# already allowed above, so command execution and outbound HTTP are
+# accepted surface. The bar is "redefines authentication, escalates the
+# write surface itself, or can lock the user out" – unrecoverable in a
+# way a broken sensor is not. Verified against home-assistant/core:
+#   homeassistant: CORE_CONFIG_SCHEMA (homeassistant/core_config.py) takes
+#     auth_providers / auth_mfa_modules (how the instance authenticates)
+#     and packages (which folder is loaded as packages – a write here
+#     would redirect the very surface this feature is bounded by).
+#   http: takes trusted_proxies + use_x_forwarded_for (a spoofable
+#     X-Forwarded-For becomes an auth bypass), cors_allowed_origins, and
+#     ip_ban_enabled / login_attempts_threshold (brute-force protection).
+#   frontend: takes extra_module_url, JavaScript modules loaded into the
+#     authenticated dashboard – a stored-XSS foothold with access to the
+#     instance and its tokens.
+#   lovelace: takes resources (url + type: module), loaded whenever
+#     resource_mode resolves to yaml. That is the same JS-into-an-
+#     authenticated-dashboard primitive as frontend: extra_module_url, so
+#     denying one while allowing the other would be a floor contradicting
+#     its own rationale. Only the bare key is denied; the validated
+#     lovelace.dashboards.<url_path> shape is a different branch and stays
+#     available for YAML-mode dashboard management.
+# auth and api are absent on purpose: both have an empty CONFIG_SCHEMA in
+# core, so there is no sub-key to restrict.
+YAML_KEY_DENYLIST = frozenset(
+    {
+        "homeassistant",
+        "http",
+        "frontend",
+        "lovelace",
     }
 )
 
@@ -363,6 +442,10 @@ DATA_SECRET_PATH = "secret_path"
 DATA_OAUTH_CLIENT_ID = "oauth_client_id"
 DATA_OAUTH_CLIENT_SECRET = "oauth_client_secret"
 DATA_OAUTH_SIGNING_KEY = "oauth_signing_key"
+# Hex-encoded per-entry HMAC key signing stateless DCR client_ids (RFC 7591
+# compat endpoint). Generated at setup when absent, so entries created before
+# 2.0.0 gain one on their first reload after upgrade.
+DATA_DCR_SIGNING_KEY = "dcr_signing_key"
 DATA_SERVER_USER_ID = "server_user_id"
 DATA_REFRESH_TOKEN_ID = "refresh_token_id"
 DATA_ACCESS_TOKEN = "access_token"
@@ -408,10 +491,11 @@ DATA_LLM_API_UNSUB = "llm_api_unsub"
 WEBHOOK_AUTH_NONE = "none"  # secret webhook URL is the shared secret (default)
 WEBHOOK_AUTH_HA = "ha_auth"  # HA-native bearer (HA core is the OAuth AS)
 # Self-hosted OAuth 2.1 authorization server with a static client_id/secret,
-# ported from the webhook-proxy add-on's "legacy" mode. Needed because HA
-# core's /auth/authorize does not yet fetch Client ID Metadata Documents for
-# cross-origin redirect_uris (home-assistant/core#176282), which is what
-# Google Gemini Spark's custom connected apps require.
+# ported from the webhook-proxy add-on's "legacy" mode. Originally needed
+# because HA core's /auth/authorize did not fetch Client ID Metadata Documents
+# for cross-origin redirect_uris before 2026.9 (home-assistant/core#176282,
+# fixed by #176286), which Google Gemini Spark's custom connected apps require;
+# kept as the pasted-credential fallback for clients that want one.
 WEBHOOK_AUTH_LEGACY = "legacy"
 
 # Default bind host + port. 9584 (not the add-on's 9583) so this in-process
@@ -445,12 +529,32 @@ SERVER_USER_NAME = "HA-MCP Server"
 # namespace (mirrors the webhook-proxy add-on's /api/mcp_proxy/oauth base).
 OAUTH_BASE = "/api/ha_mcp_tools/oauth"
 
-# HACS "add repository" deep link for the custom component. Shared learn_more_url
-# for every repair issue that ends with "install/reinstall the component via
-# HACS" (the component-outdated issue and the legacy-HACS-source issue below).
+# HACS repository full_names (``owner/repo``, the key HACS's repository registry
+# uses) this component may be tracked under: the dedicated integration mirror is
+# the current install path; the main ha-mcp server repo is the legacy pre-mirror
+# path (see install_source_check). Shared by the legacy-source check and the
+# HACS refresh nudge (hacs_nudge) so a repository rename lands in one place.
+HACS_MIRROR_REPO_FULL_NAME = "homeassistant-ai/ha-mcp-integration"
+HACS_LEGACY_REPO_FULL_NAME = "homeassistant-ai/ha-mcp"
+
+# HACS "add repository" deep link for the custom component. learn_more_url for
+# the legacy-HACS-source repair (install_source_check) only, whose fix really is
+# re-adding the repository. The update-held and component-outdated issues point
+# at UPDATE_HOLD_DOCS_URL instead — for an already-installed component this deep
+# link just opens a blank "add repository" dialog.
 HACS_COMPONENT_URL = (
     "https://my.home-assistant.io/redirect/hacs_repository/"
     "?owner=homeassistant-ai&repository=ha-mcp-integration&category=integration"
+)
+
+# Docs section explaining the automatic-update hold, linked as learn_more_url
+# from the update-held and component-outdated repair issues (both resolve by
+# updating an already-installed component, not by re-adding a repository). The
+# anchor is the GitHub slug of the "Held server updates" heading in
+# docs/in-process-server.md; hassfest forbids literal URLs inside strings.json.
+UPDATE_HOLD_DOCS_URL = (
+    "https://github.com/homeassistant-ai/ha-mcp/blob/master/docs/"
+    "in-process-server.md#held-server-updates"
 )
 
 # Usage guide for the conversation-agent LLM API option (#1745). Injected into

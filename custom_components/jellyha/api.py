@@ -1,0 +1,1022 @@
+"""Jellyfin API client for JellyHA integration."""
+from __future__ import annotations
+
+import asyncio
+import logging
+import re
+from typing import Any
+from urllib.parse import urljoin
+
+import aiohttp
+
+from .const import (
+    API_TIMEOUT,
+    DEFAULT_API_TIMEOUT,
+    MAX_RETRIES,
+    RETRY_BACKOFF_FACTOR,
+    ITEM_TYPE_MOVIE,
+    ITEM_TYPE_SERIES,
+    ITEM_TYPE_VIDEO,
+    ITEM_TYPE_MUSIC_VIDEO,
+)
+
+_LOGGER = logging.getLogger(__name__)
+
+
+class JellyfinApiError(Exception):
+    """Base exception for Jellyfin API errors."""
+
+
+class JellyfinAuthError(JellyfinApiError):
+    """Authentication error."""
+
+
+class JellyfinConnectionError(JellyfinApiError):
+    """Connection error."""
+
+
+
+BROWSER_DEVICE_PROFILE: dict[str, Any] = {
+    "Name": "JellyHA Browser Player",
+    "Id": "jellyha-browser-player",
+    "DirectPlayProfiles": [
+        {
+            "Container": "mp4,m4v,webm",
+            "Type": "Video",
+            "VideoCodec": "h264,vp8,vp9,av1",
+            "AudioCodec": "aac,mp3,opus,flac,vorbis",
+        },
+        {
+            "Container": "mp3,m4a,aac,flac,ogg,wav",
+            "Type": "Audio",
+            "AudioCodec": "mp3,aac,flac,opus,vorbis",
+        },
+    ],
+    "TranscodingProfiles": [
+        {
+            "Container": "ts",
+            "Type": "Video",
+            "VideoCodec": "h264",
+            "AudioCodec": "aac",
+            "Protocol": "hls",
+            "Context": "Streaming",
+            "BreakOnNonKeyFrames": False,
+            "MinSegments": 2,
+        },
+        {
+            "Container": "mp3",
+            "Type": "Audio",
+            "AudioCodec": "mp3",
+            "Protocol": "http",
+            "Context": "Streaming",
+        },
+    ],
+    "SubtitleProfiles": [
+        {"Format": "vtt", "Method": "External"},
+    ],
+}
+
+
+class JellyfinApiClient:
+    """Async client for Jellyfin API."""
+
+    def __init__(
+        self,
+        server_url: str,
+        session: aiohttp.ClientSession,
+        api_key: str | None = None,
+        timeout: int | float = DEFAULT_API_TIMEOUT,
+    ) -> None:
+        """Initialize the API client."""
+        self._server_url = server_url.rstrip("/")
+        self._api_key = api_key
+        self._session = session
+        self._user_id: str | None = None
+        self._timeout = timeout
+
+    @property
+    def timeout(self) -> int | float:
+        """Get the API request timeout in seconds."""
+        return self._timeout
+
+    def set_timeout(self, timeout: int | float) -> None:
+        """Set the API request timeout in seconds."""
+        self._timeout = timeout
+
+    @property
+    def server_url(self) -> str:
+        """Get the server URL."""
+        return self._server_url
+
+    @property
+    def api_key(self) -> str | None:
+        """Get the Jellyfin API key."""
+        return self._api_key
+
+    @property
+    def session(self) -> aiohttp.ClientSession:
+        """Get the client session."""
+        return self._session
+
+    @property
+    def _headers(self) -> dict[str, str]:
+        """Get authentication headers."""
+        auth_val = (
+            'MediaBrowser Client="Home Assistant", '
+            'Device="HACS Integration", '
+            'DeviceId="jellyha", '
+            'Version="1.0.0"'
+        )
+        if self._api_key:
+            auth_val += f', Token="{self._api_key}"'
+
+        headers = {
+            "Authorization": auth_val,
+            "X-Emby-Authorization": auth_val,
+            "Content-Type": "application/json",
+        }
+
+        if self._api_key:
+            headers["X-MediaBrowser-Token"] = self._api_key
+            headers["X-Emby-Token"] = self._api_key
+
+        return headers
+
+
+
+    async def _request(
+        self,
+        method: str,
+        endpoint: str,
+        timeout: int | float | None = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Make an API request with retry logic."""
+        url = urljoin(self._server_url + "/", endpoint.lstrip("/"))
+        _LOGGER.debug("API request: %s %s", method, url)
+        
+        request_headers = self._headers.copy()
+        if "headers" in kwargs:
+            request_headers.update(kwargs.pop("headers"))
+
+        req_timeout = timeout if timeout is not None else kwargs.pop("timeout", self._timeout)
+
+        for attempt in range(MAX_RETRIES):
+            try:
+                async with self._session.request(
+                    method,
+                    url,
+                    headers=request_headers,
+                    timeout=aiohttp.ClientTimeout(total=req_timeout),
+                    **kwargs,
+                ) as response:
+                    if response.status == 401:
+                        raise JellyfinAuthError("Invalid API key or unauthorized")
+                    if response.status == 403:
+                        raise JellyfinAuthError("Access forbidden")
+
+                    # On non-2xx responses, capture the body before raising
+                    if response.status >= 400:
+                        try:
+                            body = await response.text()
+                        except Exception:  # pylint: disable=broad-except
+                            body = "<unreadable>"
+
+                        if response.status == 503 and ("loading" in body.lower() or "not available" in body.lower()):
+                            _LOGGER.debug(
+                                "Jellyfin server is loading / temporarily unavailable (503) for %s %s — will retry",
+                                method,
+                                url,
+                            )
+                        else:
+                            _LOGGER.warning(
+                                "Jellyfin API error %d for %s %s — response: %s",
+                                response.status,
+                                method,
+                                url,
+                                body[:500],
+                            )
+                        # 4xx = client error (bad request, not found, etc.)
+                        # Do NOT retry these — the request itself is wrong.
+                        # Exception: 408 (timeout) and 429 (rate limit) are transient.
+                        if 400 <= response.status < 500 and response.status not in (408, 429):
+                            raise JellyfinApiError(
+                                f"Jellyfin rejected request ({response.status}): "
+                                f"{body[:200]}"
+                            )
+                        # 5xx or 408/429 — let raise_for_status throw so retry logic handles it
+                        response.raise_for_status()
+
+                    # Handle 204 No Content responses (no body to parse)
+                    if response.status == 204:
+                        return None
+                    
+                    return await response.json()
+
+            except (JellyfinAuthError, JellyfinApiError):
+                # Auth errors and client errors should not be retried
+                raise
+            except RuntimeError as err:
+                 if "Session is closed" in str(err):
+                     raise JellyfinConnectionError("Session is closed") from err
+                 raise err
+            except aiohttp.ClientError as err:
+                if attempt == MAX_RETRIES - 1:
+                    raise JellyfinConnectionError(
+                        f"Failed to connect after {MAX_RETRIES} attempts: {err}"
+                    ) from err
+                wait_time = RETRY_BACKOFF_FACTOR ** attempt
+                _LOGGER.debug(
+                    "Request failed (attempt %d/%d), retrying in %ds: %s",
+                    attempt + 1,
+                    MAX_RETRIES,
+                    wait_time,
+                    err,
+                )
+                await asyncio.sleep(wait_time)
+
+    async def validate_connection(self) -> dict[str, Any]:
+        """Validate the connection and return server info."""
+        return await self._request("GET", "/System/Info/Public")
+
+    async def authenticate(self, username: str, password: str) -> dict[str, Any]:
+        """Authenticate with username and password."""
+        auth_header = (
+            'MediaBrowser Client="Home Assistant", '
+            'Device="HACS Integration", '
+            'DeviceId="jellyha", '
+            'Version="1.0.0"'
+        )
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": auth_header,
+            "X-Emby-Authorization": auth_header,
+        }
+        
+        url = urljoin(self._server_url + "/", "Users/AuthenticateByName")
+        
+        try:
+            async with self._session.post(
+                url,
+                json={"Username": username, "Pw": password},
+                headers=headers,
+                timeout=aiohttp.ClientTimeout(total=self._timeout),
+            ) as response:
+                if response.status == 401:
+                    raise JellyfinAuthError("Invalid username or password")
+                if response.status == 403:
+                    raise JellyfinAuthError("Access forbidden or account disabled")
+                response.raise_for_status()
+                data = await response.json()
+                
+                self._api_key = data.get("AccessToken")
+                self._user_id = data.get("User", {}).get("Id")
+                return data
+                
+        except (JellyfinAuthError, JellyfinApiError):
+            raise
+        except aiohttp.ClientError as err:
+            raise JellyfinConnectionError(f"Connection failed: {err}") from err
+
+    async def get_users(self) -> list[dict[str, Any]]:
+        """Get list of users."""
+        return await self._request("GET", "/Users")
+
+    async def get_devices(self) -> list[dict[str, Any]]:
+        """Get list of registered devices from Jellyfin."""
+        result = await self._request("GET", "/Devices")
+        if isinstance(result, dict):
+            return result.get("Items", [])
+        return result or []
+
+    async def get_user(self, user_id: str) -> dict[str, Any]:
+        """Get user by ID."""
+        return await self._request("GET", f"/Users/{user_id}")
+
+    async def get_libraries(self, user_id: str) -> list[dict[str, Any]]:
+        """Get user's media libraries."""
+        result = await self._request("GET", "/UserViews", params={"UserId": user_id})
+        return result.get("Items", [])
+
+    async def _fetch_items_paginated(
+        self,
+        endpoint: str,
+        params: dict[str, Any],
+        page_size: int = 500,
+    ) -> list[dict[str, Any]]:
+        """Fetch all items from an endpoint using chunked pagination."""
+        all_items: list[dict[str, Any]] = []
+        start_index = int(params.get("StartIndex", 0))
+        req_params = dict(params)
+
+        while True:
+            req_params["StartIndex"] = start_index
+            req_params["Limit"] = page_size
+            result = await self._request("GET", endpoint, params=req_params)
+            page_items = result.get("Items", [])
+            if not page_items:
+                break
+            all_items.extend(page_items)
+            total_records = result.get("TotalRecordCount")
+            if total_records is not None and len(all_items) >= total_records:
+                break
+            if len(page_items) < page_size:
+                break
+            start_index += len(page_items)
+
+        return all_items
+
+    async def get_library_items(
+        self,
+        user_id: str,
+        limit: int = 0,  # 0 = no limit, fetch all items
+        item_types: list[str] | None = None,
+        library_ids: list[str] | None = None,
+        search_term: str | None = None,
+        is_played: bool | None = None,
+        is_favorite: bool | None = None,
+        genre: str | None = None,
+        year: int | None = None,
+        min_rating: float | None = None,
+        season: int | None = None,
+        episode: int | None = None,
+        sort_by: str | None = None,
+        sort_order: str | None = None,
+        parent_id: str | None = None,
+        official_rating: str | None = None,
+        studio: str | None = None,
+        person: str | None = None,
+        offset: int | None = None,
+    ) -> list[dict[str, Any]]:
+        """Get library items."""
+        if item_types is None:
+            item_types = [ITEM_TYPE_MOVIE, ITEM_TYPE_SERIES, ITEM_TYPE_VIDEO, ITEM_TYPE_MUSIC_VIDEO]
+
+        if not sort_by:
+            if item_types and any(t in ("Audio", "MusicAlbum", "MusicArtist") for t in item_types):
+                effective_sort_by = "SortName"
+                effective_sort_order = sort_order or "Ascending"
+            else:
+                effective_sort_by = "DateCreated"
+                effective_sort_order = sort_order or "Descending"
+        else:
+            effective_sort_by = sort_by
+            effective_sort_order = sort_order or "Descending"
+
+        params = {
+            "UserId": user_id,
+            "SortBy": effective_sort_by,
+            "SortOrder": effective_sort_order,
+            "Recursive": "true",
+            "IncludeItemTypes": ",".join(item_types),
+            "Fields": "Genres,RunTimeTicks,DateCreated,CommunityRating,Overview,UserData,RemoteTrailers,AlbumArtist,Artists,ParentId,ParentIndexNumber,IndexNumber,SeriesName,SeriesId,SeasonName,SeasonId,SeriesPrimaryImageTag,BackdropImageTags,ParentBackdropImageTags,ParentBackdropItemId,MediaStreams,MediaSources,Path,RecursiveItemCount,ChildCount",
+            "CollapseBoxSetItems": "false",
+        }
+
+        if limit > 0:
+            params["Limit"] = limit
+
+        if offset and offset > 0:
+            params["StartIndex"] = offset
+
+        if search_term:
+            params["SearchTerm"] = search_term
+            
+        if is_played is not None:
+             params["IsPlayed"] = str(is_played).lower()
+        
+        if is_favorite is not None:
+             params["IsFavorite"] = str(is_favorite).lower()
+
+        if genre:
+             params["Genres"] = genre
+
+        if year:
+             params["Years"] = str(year)
+
+        if min_rating is not None:
+             params["MinCommunityRating"] = str(min_rating)
+
+        if season is not None:
+             params["ParentIndexNumber"] = str(season)
+             
+        if episode is not None:
+             params["IndexNumber"] = str(episode)
+
+        if official_rating:
+             params["OfficialRatings"] = official_rating
+
+        if studio:
+             params["Studios"] = studio
+
+        if person:
+             params["Person"] = person
+
+        if parent_id:
+             params["ParentId"] = parent_id
+        elif library_ids:
+            # ParentId only accepts a single GUID, so fetch each library
+            # separately and merge deduplicated results.
+            if len(library_ids) == 1:
+                params["ParentId"] = library_ids[0]
+            else:
+                all_items: list[dict[str, Any]] = []
+                seen_ids: set[str] = set()
+                for lib_id in library_ids:
+                    lib_params = {**params, "ParentId": lib_id}
+                    if limit > 0:
+                        result = await self._request(
+                            "GET", "/Items", params=lib_params
+                        )
+                        items_for_lib = result.get("Items", [])
+                    else:
+                        items_for_lib = await self._fetch_items_paginated(
+                            "/Items", lib_params
+                        )
+
+                    for item in items_for_lib:
+                        item_id = item.get("Id")
+                        if item_id and item_id not in seen_ids:
+                            seen_ids.add(item_id)
+                            all_items.append(item)
+
+                if params.get("SortBy") == "DateCreated":
+                    reverse = params.get("SortOrder", "Descending").lower() == "descending"
+                    all_items.sort(key=lambda x: x.get("DateCreated") or "", reverse=reverse)
+                elif params.get("SortBy") == "SortName":
+                    reverse = params.get("SortOrder", "Descending").lower() == "descending"
+                    all_items.sort(key=lambda x: (x.get("SortName") or x.get("Name") or "").lower(), reverse=reverse)
+                if limit > 0:
+                    all_items = all_items[:limit]
+                return all_items
+
+        if limit > 0:
+            result = await self._request("GET", "/Items", params=params)
+            return result.get("Items", [])
+
+        return await self._fetch_items_paginated("/Items", params)
+
+
+    async def get_item(self, user_id: str, item_id: str) -> dict[str, Any]:
+        """Get details for a single item."""
+        params = {
+            "UserId": user_id,
+            "Fields": "Chapters,DateCreated,Genres,MediaSources,MediaStreams,Overview,ParentId,Path,People,ProviderIds,PrimaryImageAspectRatio,RemoteTrailers,SortName,Studios,Taglines,TrailerUrls,UserData,SeasonUserData,OfficialRating,CommunityRating,CumulativeRunTimeTicks,RunTimeTicks,ProductionYear,PremiereDate,ExternalUrls,Artists,AlbumArtist,ArtistItems,Container"
+        }
+        return await self._request("GET", f"/Items/{item_id}", params=params)
+
+    async def get_sessions(self) -> list[dict[str, Any]]:
+        """Get all active sessions."""
+        return await self._request("GET", "/Sessions")
+
+    @staticmethod
+    def normalize_live_tv_channel_name(name: Any) -> str:
+        """Normalize a Live TV channel name for lookup."""
+        return re.sub(r"[^a-z0-9]", "", str(name).lower())
+
+    async def get_live_tv_channels(self) -> list[dict[str, Any]]:
+        """Return all Live TV channels from Jellyfin."""
+        result = await self._request(
+            "GET",
+            "/LiveTv/Channels",
+            params={"StartIndex": 0, "Limit": 1000},
+        )
+        if isinstance(result, list):
+            return result
+        return result.get("Items", []) if isinstance(result, dict) else []
+
+    @classmethod
+    def resolve_live_tv_channel(
+        cls, channels: list[dict[str, Any]], requested: Any
+    ) -> dict[str, Any]:
+        """Resolve a channel by exact number first, then normalized name."""
+        requested_text = str(requested).strip()
+        normalized_requested = cls.normalize_live_tv_channel_name(requested_text)
+
+        for channel in channels:
+            number = channel.get("ChannelNumber")
+            if number is not None and str(number).strip() == requested_text:
+                return channel
+
+        for channel in channels:
+            name = channel.get("Name")
+            if name and cls.normalize_live_tv_channel_name(name) == normalized_requested:
+                return channel
+
+        raise JellyfinApiError(f"Unknown Jellyfin Live TV channel: {requested_text}")
+
+    async def play_live_tv_channel(
+        self, session_id: str, requested: Any
+    ) -> dict[str, Any]:
+        """Resolve and play a Live TV channel on a Jellyfin session."""
+        channels = await self.get_live_tv_channels()
+        channel = self.resolve_live_tv_channel(channels, requested)
+        channel_id = channel.get("Id")
+        if not channel_id:
+            raise JellyfinApiError("Resolved Live TV channel has no Jellyfin item ID")
+
+        if not await self.session_play(session_id, str(channel_id)):
+            raise JellyfinApiError("Jellyfin rejected the Live TV play request")
+        return channel
+
+    async def get_next_up_episode(self, user_id: str, series_id: str) -> dict[str, Any] | None:
+        """Get the next unplayed episode for a series."""
+        params = {
+            "UserId": user_id,
+            "SeriesId": series_id,
+            "Limit": 1,
+            "Fields": "MediaSources,MediaStreams,Overview,RunTimeTicks,OfficialRating,CommunityRating,BackdropImageTags,ParentBackdropImageTags,ParentBackdropItemId,SeriesPrimaryImageTag"
+        }
+        result = await self._request("GET", "/Shows/NextUp", params=params)
+        items = result.get("Items", [])
+        return items[0] if items else None
+
+    async def get_next_up_items(self, user_id: str, limit: int | None = None) -> list[dict[str, Any]]:
+        """Get the user's Next Up list (shows in progress)."""
+        params = {
+            "UserId": user_id,
+            "SortBy": "DatePlayed",
+            "SortOrder": "Descending",
+            "Dependencies": "true",
+            "Fields": "Genres,RunTimeTicks,DateCreated,CommunityRating,Overview,UserData,RemoteTrailers,SeriesInfo,ParentId,BackdropImageTags,ParentBackdropImageTags,ParentBackdropItemId,MediaStreams,SeriesPrimaryImageTag",
+        }
+        if limit:
+            params["Limit"] = limit
+            
+        result = await self._request("GET", "/Shows/NextUp", params=params)
+        return result.get("Items", [])
+
+    async def get_episodes_by_season(
+        self, user_id: str, series_id: str, season: int | None = None
+    ) -> list[dict[str, Any]]:
+        """Get all episodes for a specific season (or all if None)."""
+        params = {
+            "UserId": user_id,
+            "ParentId": series_id,
+            "IncludeItemTypes": "Episode",
+            "SortBy": "SortName", # Sort by episode number typically via SortName or index
+            "SortOrder": "Ascending",
+            "Fields": "PrimaryImageAspectRatio,Overview,MediaStreams,RunTimeTicks,OfficialRating,CommunityRating,UserData,BackdropImageTags,ParentBackdropImageTags,ParentBackdropItemId,SeriesPrimaryImageTag,DateCreated",
+        }
+        
+        if season is not None:
+            params["ParentIndexNumber"] = str(season)
+            
+        # Recursive true is needed to find episodes inside seasons inside series
+        params["Recursive"] = "true"
+
+        result = await self._request("GET", "/Items", params=params)
+        return result.get("Items", [])
+
+    async def get_favorite_series_ids(self, user_id: str) -> set[str]:
+        """Get set of favorite series IDs for a user."""
+        try:
+            params = {
+                "userId": user_id,
+                "IncludeItemTypes": "Series",
+                "Filters": "IsFavorite",
+                "Recursive": "true",
+            }
+            res = await self._request("GET", f"/Users/{user_id}/Items", params=params)
+            return {item["Id"] for item in res.get("Items", []) if item.get("Id")}
+        except Exception as err:
+            _LOGGER.debug("Could not fetch favorite series IDs: %s", err)
+            return set()
+
+    async def get_favorite_items(
+        self,
+        user_id: str,
+        parent_id: str | None = None,
+        limit: int = 100,
+    ) -> list[dict[str, Any]]:
+        """Get favorite items for a user, optionally scoped to a library parent_id."""
+        try:
+            params = {
+                "UserId": user_id,
+                "Filters": "IsFavorite",
+                "Recursive": "true",
+                "SortBy": "SortName",
+                "SortOrder": "Ascending",
+                "Fields": "PrimaryImageTag,MediaStreams,Container,Overview,Artists,AlbumArtist,SeriesName,SeasonName,ParentIndexNumber,IndexNumber,RunTimeTicks,ProductionYear,UserData",
+                "Limit": limit,
+            }
+            if parent_id:
+                params["ParentId"] = parent_id
+            res = await self._request("GET", f"/Users/{user_id}/Items", params=params)
+            return res.get("Items", []) if isinstance(res, dict) else []
+        except Exception as err:
+            _LOGGER.error("Failed to fetch favorite items for user %s: %s", user_id, err)
+            return []
+
+    async def get_similar_items(self, user_id: str, item_id: str, limit: int = 5) -> list[dict[str, Any]]:
+        """Get similar items (recommendations) for a specific item."""
+        # Reduced fields for optimization
+        # Removed: MediaStreams, ProviderIds, BackdropImageTags (Used for details/playback only)
+        # Kept: Overview, RemoteTrailers, DateCreated
+        params = {
+            "IncludeItemTypes": "Movie,Series,Episode",
+            "Recursive": "true",
+            "Fields": "Overview,RemoteTrailers,DateCreated,BackdropImageTags,ParentBackdropImageTags,ParentBackdropItemId",
+            "ImageTypeLimit": 1,
+            "EnableImageTypes": "Primary,Banner,Thumb,Backdrop",
+            "Limit": limit,
+        }
+        result = await self._request("GET", f"/Items/{item_id}/Similar", params=params)
+        
+        # Normalize result to list
+        items = []
+        if isinstance(result, list):
+            items = result
+        else:
+            items = result.get("Items", [])
+
+        # Enforce limit client-side
+        safe_limit = int(limit) if limit else 5
+        final_result = items[:safe_limit]
+        
+        return final_result
+
+    async def get_playback_info(
+        self, user_id: str, item_id: str, profile: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
+        """Get playback info for an item."""
+        params = {"UserId": user_id}
+        if profile:
+            return await self._request("POST", f"/Items/{item_id}/PlaybackInfo", params=params, json=profile)
+        return await self._request("GET", f"/Items/{item_id}/PlaybackInfo", params=params)
+
+    async def stop_active_encoding(self, play_session_id: str) -> bool:
+        """Stop active transcode encoding in Jellyfin to kill ffmpeg process."""
+        try:
+            await self._request("DELETE", "/Videos/ActiveEncodings", params={"PlaySessionId": play_session_id})
+            return True
+        except Exception as err:
+            _LOGGER.debug("Failed to stop active encoding for %s: %s", play_session_id, err)
+            return False
+
+    async def stop_playback_session(self, play_session_id: str, item_id: str) -> bool:
+        """Report playback stopped to Jellyfin."""
+        try:
+            await self._request("POST", "/Sessions/Playing/Stopped", json={"PlaySessionId": play_session_id, "ItemId": item_id})
+            return True
+        except Exception as err:
+            _LOGGER.debug("Failed to report playback stopped: %s", err)
+            return False
+
+    def get_image_url(
+        self,
+        item_id: str,
+        image_type: str = "Primary",
+        max_height: int = 300,
+        quality: int = 90,
+    ) -> str:
+        """Build image URL for an item."""
+        return (
+            f"{self._server_url}/Items/{item_id}/Images/{image_type}"
+            f"?maxHeight={max_height}&quality={quality}&api_key={self._api_key}"
+        )
+
+    def get_jellyfin_url(self, item_id: str) -> str:
+        """Build deep link URL to open item in Jellyfin web UI."""
+        return f"{self._server_url}/web/index.html#!/details?id={item_id}"
+
+    def get_content_url(self, item_id: str, item_type: str = "Video") -> str:
+        """Get direct stream URL for an item.
+
+        Audio items use the /Audio/ endpoint; everything else uses /Videos/.
+        The URL includes the API key for direct access by external players.
+        For proxied access (signed URLs), use get_stream_path() instead.
+        """
+        prefix = "Audio" if item_type == "Audio" else "Videos"
+        return f"{self._server_url}/{prefix}/{item_id}/stream?static=true&api_key={self._api_key}&ApiKey={self._api_key}"
+
+    def get_stream_path(
+        self,
+        entry_id: str,
+        item_id: str,
+        item_type: str = "Video",
+        filename: str | None = None,
+    ) -> str:
+        """Get the internal HA proxy path for streaming (no API key exposed).
+
+        This path is meant to be signed via async_sign_path() before use.
+        """
+        prefix = "Audio" if item_type == "Audio" else "Videos"
+        if filename:
+            import urllib.parse
+            safe_filename = urllib.parse.quote(filename)
+            return f"/api/jellyha/stream/{entry_id}/{prefix}/{item_id}/{safe_filename}"
+        return f"/api/jellyha/stream/{entry_id}/{item_id}?media_type={prefix}"
+
+    async def update_favorite(self, user_id: str, item_id: str, is_favorite: bool) -> bool:
+        """Update favorite status for an item."""
+        method = "POST" if is_favorite else "DELETE"
+        endpoint = f"/UserFavoriteItems/{item_id}"
+        params = {"userId": user_id}
+        
+        try:
+            await self._request(method, endpoint, params=params)
+            return True
+        except JellyfinApiError as err:
+            _LOGGER.error("Failed to update favorite status: %s", err)
+            return False
+
+    async def update_played_status(self, user_id: str, item_id: str, is_played: bool) -> bool:
+        """Update played status for an item."""
+        method = "POST" if is_played else "DELETE"
+        endpoint = f"/UserPlayedItems/{item_id}"
+        params = {"userId": user_id}
+        
+        try:
+            await self._request(method, endpoint, params=params)
+            return True
+        except JellyfinApiError as err:
+            _LOGGER.error("Failed to update played status: %s", err)
+            return False
+
+    async def session_play(
+        self,
+        session_id: str,
+        item_id: str,
+        play_command: str = "PlayNow",
+        start_position_ticks: int | None = None,
+    ) -> bool:
+        """Instruct a session to play an item.
+
+        API: POST /Sessions/{sessionId}/Playing?playCommand={playCommand}&itemIds={itemIds}
+        """
+        endpoint = f"/Sessions/{session_id}/Playing"
+        params: dict[str, Any] = {
+            "playCommand": play_command,
+            "itemIds": item_id,
+        }
+        if start_position_ticks is not None:
+            params["startPositionTicks"] = start_position_ticks
+        try:
+            await self._request("POST", endpoint, params=params)
+            return True
+        except JellyfinApiError as err:
+            _LOGGER.error("Failed to play on session %s: %s", session_id, err)
+            return False
+
+    async def session_control(self, session_id: str, command: str) -> bool:
+        """Send a control command to a playback session."""
+        # Command: Pause, Unpause, TogglePause, Stop, NextTrack, PreviousTrack
+        endpoint = f"/Sessions/{session_id}/Playing/{command}"
+        try:
+            await self._request("POST", endpoint)
+            return True
+        except JellyfinApiError as err:
+            _LOGGER.error("Failed to send session command %s: %s", command, err)
+            return False
+
+    async def session_seek(self, session_id: str, position_ticks: int) -> bool:
+        """Seek to a position in a playback session."""
+        endpoint = f"/Sessions/{session_id}/Playing/Seek"
+        params = {"SeekPositionTicks": position_ticks}
+        try:
+            await self._request("POST", endpoint, params=params)
+            return True
+        except JellyfinApiError as err:
+            _LOGGER.error("Failed to seek session: %s", err)
+            return False
+
+    async def session_general_command(
+        self, session_id: str, command: str, arguments: dict[str, str] | None = None
+    ) -> bool:
+        """Send a general command to a session.
+
+        Supported commands: SetVolume, Mute, Unmute, ToggleMute, etc.
+        For SetVolume, arguments should be {"Volume": "<0-100>"}.
+        API: POST /Sessions/{sessionId}/Command
+        """
+        endpoint = f"/Sessions/{session_id}/Command"
+        body: dict[str, Any] = {"Name": command}
+        if arguments:
+            body["Arguments"] = arguments
+        try:
+            await self._request("POST", endpoint, json=body)
+            return True
+        except JellyfinApiError as err:
+            _LOGGER.error("Failed to send general command %s: %s", command, err)
+            return False
+
+    async def logout(self) -> None:
+        """Logout from Jellyfin server."""
+        try:
+            headers = self._headers
+            headers["X-Emby-Authorization"] = (
+                f'MediaBrowser Client="Home Assistant", '
+                f'Device="HACS Integration", '
+                f'DeviceId="jellyha", '
+                f'Version="1.0.0", '
+                f'Token="{self._api_key}"'
+            )
+            await self._request("POST", "/Sessions/Logout", headers=headers)
+        except Exception as err:
+            _LOGGER.warning("Logout failed: %s", err)
+
+    async def close(self) -> None:
+        """Close the session."""
+        # Do not close the shared session provided by Home Assistant
+        pass
+
+    async def get_media_segments(self, item_id: str) -> list[dict]:
+        """
+        Fetch typed media segments for an item via the Jellyfin MediaSegments API.
+        Available on Jellyfin 10.10+ with a segment provider plugin installed.
+
+        Returns a list of segment dicts, or [] if unavailable.
+        """
+        try:
+            data = await self._request("GET", f"/MediaSegments/{item_id}")
+            # The API returns {"Items": [...], "TotalRecordCount": N}
+            return data.get("Items", []) if data else []
+        except JellyfinApiError as err:
+            _LOGGER.debug(
+                "MediaSegments fetch failed for item %s — falling back to chapters: %s",
+                item_id,
+                err,
+            )
+            return []
+
+    async def get_latest_items(
+        self,
+        user_id: str,
+        item_types: list[str] | None = None,
+        limit: int = 1,
+        parent_id: str | None = None,
+        library_ids: list[str] | None = None,
+    ) -> list[dict[str, Any]]:
+        """Fetch latest added items for a user."""
+        params: dict[str, Any] = {
+            "Limit": str(limit),
+            "Fields": "Overview,Genres,OfficialRating,CommunityRating,CriticRating,DateCreated,MediaSources,MediaStreams,PremiereDate,RemoteTrailers,SeriesPrimaryImageTag,ProductionYear,RunTimeTicks,Container,Artists,AlbumArtist,SeriesName,SeasonName,ParentIndexNumber,IndexNumber",
+            "GroupItems": "false",
+        }
+        if item_types:
+            params["IncludeItemTypes"] = ",".join(item_types)
+
+        target_parents: list[str] = []
+        if parent_id:
+            target_parents = [parent_id]
+        elif library_ids:
+            target_parents = library_ids
+
+        if len(target_parents) > 1:
+            all_items: list[dict[str, Any]] = []
+            seen_ids: set[str] = set()
+            for pid in target_parents:
+                p_params = {**params, "ParentId": pid}
+                try:
+                    res = await self._request("GET", f"/Users/{user_id}/Items/Latest", params=p_params)
+                    items = res if isinstance(res, list) else (res.get("Items", []) if isinstance(res, dict) else [])
+                    for it in items:
+                        iid = it.get("Id")
+                        if iid and iid not in seen_ids:
+                            seen_ids.add(iid)
+                            all_items.append(it)
+                except JellyfinApiError as err:
+                    _LOGGER.debug("Failed to fetch latest items for parent %s: %s", pid, err)
+            all_items.sort(key=lambda x: x.get("DateCreated") or "", reverse=True)
+            return all_items[:limit]
+
+        if len(target_parents) == 1:
+            params["ParentId"] = target_parents[0]
+
+        try:
+            endpoint = f"/Users/{user_id}/Items/Latest"
+            result = await self._request("GET", endpoint, params=params)
+            return result if isinstance(result, list) else (result.get("Items", []) if isinstance(result, dict) else [])
+        except JellyfinApiError as err:
+            _LOGGER.debug("Failed to fetch latest items for user %s: %s", user_id, err)
+            return []
+
+    async def get_storage_info(self) -> dict[str, Any] | None:
+        """Fetch server storage information."""
+        try:
+            return await self._request("GET", "/System/Info/Storage")
+        except JellyfinApiError as err:
+            _LOGGER.debug("Failed to fetch storage info: %s", err)
+            return None
+
+    async def get_item_counts(self, user_id: str) -> dict[str, int]:
+        """Fetch item counts for a user from Jellyfin API."""
+        try:
+            counts = await self._request("GET", "/Items/Counts", params={"userId": user_id})
+            if not isinstance(counts, dict):
+                return {}
+            return {
+                "movies": counts.get("MovieCount", 0),
+                "series": counts.get("SeriesCount", 0),
+                "episodes": counts.get("EpisodeCount", 0),
+                "songs": counts.get("SongCount", 0),
+                "albums": counts.get("AlbumCount", 0),
+                "artists": counts.get("ArtistCount", 0),
+                "music_videos": counts.get("MusicVideoCount", 0),
+                "total": counts.get("ItemCount", 0),
+            }
+        except Exception as err:
+            _LOGGER.debug("Failed to fetch item counts: %s", err)
+            return {}
+
+    async def search_music(
+        self,
+        user_id: str,
+        query: str | None = None,
+        search_type: str | None = "all",
+        artist: str | None = None,
+        album: str | None = None,
+        genre: str | None = None,
+        year: int | None = None,
+        is_favorite: bool | None = None,
+        limit: int = 20,
+        offset: int = 0,
+        sort_by: str | None = None,
+        sort_order: str | None = None,
+        library_ids: list[str] | None = None,
+    ) -> list[dict[str, Any]]:
+        """High-performance music search querying Jellyfin indexed tables."""
+        effective_sort_by = sort_by or "SortName"
+        effective_sort_order = sort_order or "Ascending"
+        effective_type = (search_type or "all").lower()
+
+        # Route to dedicated artist endpoint if artist search is requested
+        if effective_type in ("artist", "musicartist"):
+            params: dict[str, Any] = {
+                "SortBy": effective_sort_by,
+                "SortOrder": effective_sort_order,
+                "Recursive": "true",
+                "Fields": "PrimaryImageAspectRatio,Genres,Overview",
+                "Limit": str(limit),
+            }
+            if offset > 0:
+                params["StartIndex"] = str(offset)
+            search_query = query or artist
+            if search_query:
+                params["searchTerm"] = search_query
+            if library_ids and len(library_ids) == 1:
+                params["ParentId"] = library_ids[0]
+            if is_favorite is not None:
+                params["IsFavorite"] = str(is_favorite).lower()
+
+            result = await self._request("GET", "/Artists/AlbumArtists", params=params)
+            return result.get("Items", []) if isinstance(result, dict) else []
+
+        # Determine item types for /Items endpoint
+        if effective_type in ("album", "musicalbum"):
+            item_types = ["MusicAlbum"]
+        elif effective_type in ("track", "song", "audio"):
+            item_types = ["Audio"]
+        else:
+            item_types = ["Audio", "MusicAlbum", "MusicArtist"]
+
+        params = {
+            "UserId": user_id,
+            "SortBy": effective_sort_by,
+            "SortOrder": effective_sort_order,
+            "Recursive": "true",
+            "IncludeItemTypes": ",".join(item_types),
+            "Fields": "Genres,RunTimeTicks,DateCreated,CommunityRating,Overview,UserData,AlbumArtist,Artists,Album,ParentId,ParentIndexNumber,IndexNumber,MediaStreams,MediaSources,Path",
+            "CollapseBoxSetItems": "false",
+            "Limit": str(limit),
+        }
+
+        if offset > 0:
+            params["StartIndex"] = str(offset)
+        if query:
+            params["SearchTerm"] = query
+        if artist:
+            params["Artists"] = artist
+        if album:
+            params["Album"] = album
+        if genre:
+            params["Genres"] = genre
+        if year:
+            params["Years"] = str(year)
+        if is_favorite is not None:
+            params["IsFavorite"] = str(is_favorite).lower()
+
+        if library_ids:
+            if len(library_ids) == 1:
+                params["ParentId"] = library_ids[0]
+                res = await self._request("GET", "/Items", params=params)
+                return res.get("Items", []) if isinstance(res, dict) else []
+            else:
+                all_items: list[dict[str, Any]] = []
+                seen_ids: set[str] = set()
+                for lib_id in library_ids:
+                    lib_params = {**params, "ParentId": lib_id}
+                    res = await self._request("GET", "/Items", params=lib_params)
+                    items_for_lib = res.get("Items", []) if isinstance(res, dict) else []
+                    for item in items_for_lib:
+                        iid = item.get("Id")
+                        if iid and iid not in seen_ids:
+                            seen_ids.add(iid)
+                            all_items.append(item)
+                    if len(all_items) >= limit:
+                        break
+                return all_items[:limit]
+
+        result = await self._request("GET", "/Items", params=params)
+        return result.get("Items", []) if isinstance(result, dict) else []

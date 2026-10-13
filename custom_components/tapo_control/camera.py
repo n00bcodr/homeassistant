@@ -1,5 +1,6 @@
 import asyncio
 import os
+from functools import partial
 
 from haffmpeg.camera import CameraMjpeg
 from haffmpeg.tools import IMAGE_JPEG, ImageFrame
@@ -29,6 +30,8 @@ from .const import (
     SCHEMA_SERVICE_SAVE_PRESET,
     SERVICE_DELETE_PRESET,
     SCHEMA_SERVICE_DELETE_PRESET,
+    SERVICE_SET_RECORD_PLAN,
+    SCHEMA_SERVICE_SET_RECORD_PLAN,
     DOMAIN,
     LOGGER,
     NAME,
@@ -37,6 +40,8 @@ from .const import (
     HAS_STREAM_7,
     CONF_CUSTOM_STREAM_6,
     CONF_CUSTOM_STREAM_7,
+    CONF_DIRECT_STREAM_ARGUMENTS,
+    CONF_SHOW_ON_MAP,
 )
 from .utils import (
     async_force_entry_refresh,
@@ -67,8 +72,8 @@ def _normalize_tapo_coordinate(value, max_abs: int):
     return None
 
 
-def _update_location_attributes(attributes: dict) -> None:
-    if attributes.get("has_set_location_info") != 1:
+def _update_location_attributes(attributes: dict, show_on_map: bool = True) -> None:
+    if not show_on_map or attributes.get("has_set_location_info") != 1:
         _clear_location_coordinates(attributes)
         return
 
@@ -98,6 +103,11 @@ async def async_setup_entry(
         SERVICE_DELETE_PRESET,
         SCHEMA_SERVICE_DELETE_PRESET,
         "delete_preset",
+    )
+    platform.async_register_entity_service(
+        SERVICE_SET_RECORD_PLAN,
+        SCHEMA_SERVICE_SET_RECORD_PLAN,
+        "set_record_plan",
     )
 
     async def setupEntities(entry):
@@ -284,7 +294,7 @@ class TapoCamEntity(Camera):
         self._stream_unique_id = stream_unique_id or fallback_uid
         self._extra_arguments = config_entry.data.get(CONF_EXTRA_ARGUMENTS)
         self._enable_stream = config_entry.data.get(ENABLE_STREAM)
-        self._attr_extra_state_attributes = entry["camData"]["basic_info"]
+        self._attr_extra_state_attributes = dict(entry["camData"]["basic_info"])
         self._attr_icon = "mdi:cctv"
         self._attr_should_poll = True
         self._is_cam_entity = True
@@ -354,6 +364,7 @@ class TapoCamEntity(Camera):
                 motion_enabled = motion_enabled.get(self.read_chn_id)
             self._motion_detection_enabled = motion_enabled
 
+            _clear_location_coordinates(self._attr_extra_state_attributes)
             for attr, value in camData["basic_info"].items():
                 self._attr_extra_state_attributes[attr] = value
             if "alarm_config" in self._attr_extra_state_attributes:
@@ -362,7 +373,10 @@ class TapoCamEntity(Camera):
                 ]
             if "user" in camData:
                 self._attr_extra_state_attributes["user"] = camData["user"]
-            _update_location_attributes(self._attr_extra_state_attributes)
+            _update_location_attributes(
+                self._attr_extra_state_attributes,
+                self._config_entry.data.get(CONF_SHOW_ON_MAP, True),
+            )
             # lists below
             self._attr_extra_state_attributes["presets"] = camData["presets"]
             if camData["recordPlan"]:
@@ -439,6 +453,21 @@ class TapoCamEntity(Camera):
             True,
         )
         await async_force_entry_refresh(self._hass, self._entry)
+
+    async def set_record_plan(self, enabled, **days):
+        # pytapo checks for exact list types; HA YAML lists can be subclasses.
+        days = {day: list(periods) for day, periods in days.items()}
+        LOGGER.debug(
+            "set_record_plan for %s: enabled=%s, days=%s",
+            self.entity_id,
+            enabled,
+            days,
+        )
+        result = await self.hass.async_add_executor_job(
+            partial(self._controller.setRecordPlan, enabled, **days)
+        )
+        LOGGER.debug("set_record_plan for %s: response=%s", self.entity_id, result)
+        await self._coordinator.async_request_refresh()
 
     async def save_preset(self, name):
         LOGGER.debug("save_preset - camera")
@@ -539,6 +568,17 @@ class TapoRTSPCamEntity(TapoCamEntity):
 
 
 class TapoDirectCamEntity(TapoCamEntity):
+    def _direct_stream_arguments(self, defaults=None):
+        arguments = dict(defaults or {})
+        for key, value in self._config_entry.data.get(
+            CONF_DIRECT_STREAM_ARGUMENTS, {}
+        ).items():
+            if value is None:
+                arguments.pop(key, None)
+            else:
+                arguments[key] = value
+        return arguments
+
     def __init__(
         self,
         hass: HomeAssistant,
@@ -586,13 +626,15 @@ class TapoDirectCamEntity(TapoCamEntity):
             includeAudio=False,
             quality=self._directQuality,
             logFunction=self.logFunction,
-            ff_args={
-                "-frames:v": "1",
-                "-f": "image2pipe",
-                "-c:v": "mjpeg",
-                "-vsync": "0",
-                "-map-video": f"0:v:{self.videoStream}",
-            },
+            ff_args=self._direct_stream_arguments(
+                {
+                    "-frames:v": "1",
+                    "-f": "image2pipe",
+                    "-c:v": "mjpeg",
+                    "-vsync": "0",
+                    "-map-video": f"0:v:{self.videoStream}",
+                }
+            ),
         )
         LOGGER.debug("async_camera_image - Starting streamer")
         info = await streamer.start()
@@ -608,11 +650,7 @@ class TapoDirectCamEntity(TapoCamEntity):
             return jpeg
         finally:
             LOGGER.debug("async_camera_image - Stopping streamer")
-            if proc.returncode is None:
-                proc.kill()
-                await proc.wait()
-            await streamer.stop()
-            info["streamProcess"].cancel()
+            await self._stop_direct_stream(streamer, info)
 
     async def handle_async_mjpeg_stream(self, request):
         LOGGER.debug("Direct MJPEG: request")
@@ -621,12 +659,14 @@ class TapoDirectCamEntity(TapoCamEntity):
             includeAudio=False,
             quality=self._directQuality,
             logFunction=self.logFunction,
-            ff_args={
-                "-c:v": "mjpeg",
-                "-f": "mpjpeg",
-                "-vsync": "0",
-                "-map-video": f"0:v:{self.videoStream}",
-            },
+            ff_args=self._direct_stream_arguments(
+                {
+                    "-c:v": "mjpeg",
+                    "-f": "mpjpeg",
+                    "-vsync": "0",
+                    "-map-video": f"0:v:{self.videoStream}",
+                }
+            ),
         )
         info = await streamer.start()
         proc = info["ffmpegProcess"]
@@ -642,11 +682,29 @@ class TapoDirectCamEntity(TapoCamEntity):
             )
         finally:
             LOGGER.debug("Direct MJPEG: shutting ffmpeg / streamer")
+            await self._stop_direct_stream(streamer, info)
+
+    async def _stop_direct_stream(self, streamer, info):
+        # Stop and await the producer before closing its FFmpeg input pipe.
+        task = info["streamProcess"]
+        task.cancel()
+        try:
+            await task
+        except asyncio.CancelledError:
+            pass
+        except Exception as err:
+            LOGGER.debug("Direct stream ended with an error: %s", err)
+        finally:
+            proc = info["ffmpegProcess"]
             if proc.returncode is None:
                 proc.kill()
                 await proc.wait()
-            await streamer.stop()
-            info["streamProcess"].cancel()
+            # pytapo.stop() awaits the same task; a failed task must not prevent
+            # the process cleanup above.
+            try:
+                await streamer.stop()
+            except Exception as err:
+                LOGGER.debug("Direct stream cleanup: %s", err)
 
     async def _log_stream(self, stream: asyncio.StreamReader, *, prefix=""):
         async for line in stream:
@@ -678,6 +736,7 @@ class TapoDirectCamEntity(TapoCamEntity):
             includeAudio=False,
             quality=self._directQuality,
             logFunction=self.logFunction,
+            ff_args=self._direct_stream_arguments(),
         )
         info = await self._streamer.start()
 

@@ -5,20 +5,25 @@ from contextlib import suppress
 from typing import Any
 
 from homeassistant.components.number import NumberEntity, NumberMode
-from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 
 from .calibration import LiveDelayCalibrationManager
-from .const import DOMAIN
-from .entity import F1AuxEntity, default_object_id, set_suggested_object_id
+from .entity import (
+    F1AuxEntity,
+    default_object_id,
+    entry_runtime_registry,
+    set_default_entity_id,
+)
 from .live_delay import LiveDelayController
+from .runtime import F1ConfigEntry
 
 
 async def async_setup_entry(
-    hass: HomeAssistant, entry: ConfigEntry, async_add_entities
+    hass: HomeAssistant, entry: F1ConfigEntry, async_add_entities
 ) -> None:
-    registry = hass.data.get(DOMAIN, {}).get(entry.entry_id)
+    registry = entry_runtime_registry(hass, entry.entry_id)
     if not registry:
         return
     controller: LiveDelayController | None = registry.get("live_delay_controller")
@@ -34,7 +39,7 @@ async def async_setup_entry(
         entry_id=entry.entry_id,
         device_name=entry.data.get("sensor_name", "F1"),
     )
-    set_suggested_object_id(entity, default_object_id("live_delay"))
+    set_default_entity_id(entity, Platform.NUMBER, default_object_id("live_delay"))
     async_add_entities([entity])
 
 
@@ -96,6 +101,7 @@ class F1LiveDelayNumber(F1AuxEntity, NumberEntity):
     def _handle_calibration_update(self, snapshot: dict[str, Any]) -> None:
         self._attr_extra_state_attributes = {
             "calibration_mode": snapshot.get("mode"),
+            "calibration_idle_reason": snapshot.get("idle_reason"),
             "calibration_reference": snapshot.get("reference"),
             "calibration_waiting_since": snapshot.get("waiting_since"),
             "calibration_started_at": snapshot.get("started_at"),

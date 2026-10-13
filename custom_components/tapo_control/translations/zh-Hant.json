@@ -63,6 +63,7 @@
       }
     },
     "error": {
+      "cold_storage_path_in_use": "此冷儲存路徑已被另一台攝影機使用。每台攝影機都必須使用獨立的路徑。",
       "invalid_stream_auth": "無效的 RTSP 串流驗證資料",
       "account_suspended": "帳戶暫時被停用，請稍後再試。\n請查看日誌了解更多詳細資訊。",
       "not_tapo_device": "IP 位址不是受支援的 Tapo 裝置",
@@ -104,9 +105,15 @@
           "media_view_days_order": "媒體瀏覽器中的日期排序。",
           "media_view_recordings_order": "媒體瀏覽器中的錄音排序。",
           "media_sync_hours": "保持同步的時間長度（以小時為單位）",
-          "media_sync_cold_storage_path": "[需要重新啟動]  冷儲存路徑"
+          "media_sync_cold_storage_path": "冷儲存路徑",
+          "media_thumbnail_cache": "快取縮圖",
+          "media_thumbnail_preload": "預先載入縮圖"
         },
-        "description": "修改錄影媒體同步設定"
+        "description": "修改錄影媒體同步設定\n\n變更路徑會移動現有影片及縮圖，並重新載入攝影機項目。",
+        "data_description": {
+          "media_thumbnail_cache": "保留尚未下載影片的縮圖。關閉後，這些縮圖會在約 5 分鐘後刪除。",
+          "media_thumbnail_preload": "僅在同時啟用快取時，才於啟動掃描時取得縮圖。關閉快取後，僅在瀏覽錄影時取得縮圖。關閉預先載入後，僅在啟用快取且瀏覽錄影時取得縮圖。關閉兩個選項後，只會顯示已下載影片的縮圖。"
+        }
       },
       "update_interval": {
         "data": {
@@ -129,18 +136,24 @@
           "enable_motion_sensor": "啟用動態感測器",
           "enable_webhooks": "啟用 webhooks",
           "enable_stream": "使用 Home Assistant 的串流功能（需要重新啟動）",
+          "show_on_map": "在地圖上顯示攝影機",
           "cloud_password": "雲端密碼（可選）",
           "extra_arguments": "FFmpeg 額外參數（需重新啟動）",
           "custom_stream_hd": "自定義串流連結（HD）",
           "custom_stream_sd": "自定義串流連結（SD）",
           "custom_stream6": "自定義串流連結（長焦 HD）",
           "custom_stream7": "自定義串流連結（長焦 SD）",
-          "rtsp_transport": "RTSP 傳輸機制"
+          "rtsp_transport": "RTSP 傳輸機制",
+          "direct_stream_arguments": "直接串流 FFmpeg 參數"
         },
-        "description": "修改您的 Tapo 攝影機設定\n\n使用 Home Assistant 的串流:\nYes - 播放延遲較長，CPU 使用率較低，允許播放控制。\nNo - 播放延遲非常短，CPU 使用率較高，不允許播放控制。"
+        "description": "修改您的 Tapo 攝影機設定\n\n使用 Home Assistant 的串流:\nYes - 播放延遲較長，CPU 使用率較低，允許播放控制。\nNo - 播放延遲非常短，CPU 使用率較高，不允許播放控制。",
+        "data_description": {
+          "direct_stream_arguments": "直接串流與快照的進階設定。使用空白對應表還原預設值。將 -vsync 設為 null 可省略此參數。支援：-loglevel、-probesize、-analyzeduration、-frames:v、-map-video、-vsync、-c:v、-f。新串流啟動時生效；重新載入整合可停止現有串流。"
+        }
       }
     },
     "error": {
+      "cold_storage_path_in_use": "此冷儲存路徑已被另一台攝影機使用。每台攝影機都必須使用獨立的路徑。",
       "invalid_stream_auth": "RTSP 串流驗證資料無效",
       "account_suspended": "帳戶暫時被停用，請稍後再試。\n請查看日誌了解更多詳細資訊。",
       "invalid_auth": "無效的身份驗證數據",
@@ -150,7 +163,10 @@
       "cold_storage_path_does_not_exist": "冷儲存路徑不存在",
       "camera_requires_admin": "您的攝影機需要雲端密碼才能進行控制",
       "incorrect_peak_value": "錯誤的聲音檢測峰值。",
-      "incorrect_options_action": "選擇了錯誤的動作"
+      "incorrect_options_action": "選擇了錯誤的動作",
+      "invalid_direct_stream_arguments": "請輸入支援的 FFmpeg 參數與非空文字或數值的對應表。只有 -vsync 可以設為 null。",
+      "cold_storage_path_overlap": "新舊儲存路徑不可互相包含。",
+      "cold_storage_move_pending": "儲存資料移動尚未完成。請先解決整合日誌中的錯誤並重新載入，再次變更路徑。"
     }
   }
 }

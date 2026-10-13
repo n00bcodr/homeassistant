@@ -11,6 +11,7 @@ import logging
 import re
 import time
 from typing import TYPE_CHECKING, Any, Protocol
+from urllib.parse import urlsplit
 
 from aiohttp import ClientSession
 from homeassistant.util import dt as dt_util
@@ -45,6 +46,9 @@ DEFAULT_PRE_WINDOW = timedelta(minutes=60)
 DEFAULT_POST_WINDOW = timedelta(minutes=15)
 POST_WINDOW_EXTENSION_CAP = timedelta(minutes=30)
 POST_WINDOW_EXTENSION_STEP = timedelta(minutes=5)
+PATHLESS_RACE_PROBE_HORIZON = timedelta(hours=2)
+RACE_MAX_DURATION = timedelta(hours=3)
+SESSION_END_DRAIN = timedelta(seconds=60)
 SCHEDULE_RECONCILIATION_HORIZON = timedelta(hours=48)
 SCHEDULE_TIME_MISMATCH_THRESHOLD = timedelta(minutes=5)
 IDLE_REFRESH = timedelta(minutes=15)
@@ -95,6 +99,7 @@ class LiveAvailabilityTracker:
         self._state = False
         self._reason: str | None = "init"
         self._replay_locked = False  # When True, only replay can change state
+        self._replay_generation = 0
 
     @property
     def is_live(self) -> bool:
@@ -108,6 +113,11 @@ class LiveAvailabilityTracker:
     def replay_locked(self) -> bool:
         """True when replay controls the state and the supervisor should stay idle."""
         return self._replay_locked
+
+    @property
+    def replay_generation(self) -> int:
+        """Identify replay takeovers, including those already stopped."""
+        return self._replay_generation
 
     def set_state(self, is_live: bool, reason: str | None = None) -> None:
         is_replay_reason = reason in self._REPLAY_REASONS
@@ -123,6 +133,8 @@ class LiveAvailabilityTracker:
 
         # Update replay lock based on reason
         if reason in ("replay", "replay-preparing"):
+            if not self._replay_locked:
+                self._replay_generation += 1
             self._replay_locked = True
         elif reason in ("replay-completed", "replay-stopped"):
             self._replay_locked = False
@@ -510,7 +522,12 @@ class EventTrackerScheduleSource:
     ) -> None:
         self._http = http_session
         self._enabled = bool(fallback_enabled)
-        self._base_url = str(base_url).rstrip("/")
+        candidate_base_url = str(base_url).rstrip("/")
+        self._base_url = (
+            candidate_base_url
+            if self._is_allowed_base_url(candidate_base_url)
+            else EVENT_TRACKER_API_BASE_URL.rstrip("/")
+        )
         self._endpoint = self._normalize_endpoint(endpoint)
         self._meeting_endpoint_prefix = self._normalize_endpoint(
             meeting_endpoint_prefix
@@ -541,6 +558,20 @@ class EventTrackerScheduleSource:
         if not text.startswith("/"):
             text = f"/{text}"
         return text
+
+    @staticmethod
+    def _is_allowed_base_url(value: str) -> bool:
+        """Allow API keys only on HTTPS Formula 1 hosts."""
+        parsed = urlsplit(value)
+        hostname = (parsed.hostname or "").rstrip(".").lower()
+        return (
+            parsed.scheme == "https"
+            and parsed.username is None
+            and parsed.password is None
+            and not parsed.query
+            and not parsed.fragment
+            and (hostname == "formula1.com" or hostname.endswith(".formula1.com"))
+        )
 
     @staticmethod
     def _extract_env_value(raw_text: str, key: str) -> str | None:
@@ -581,7 +612,11 @@ class EventTrackerScheduleSource:
         )
         api_key = self._extract_env_value(text, "PUBLIC_GLOBAL_EVENTTRACKER_APIKEY")
         if base_url:
-            self._base_url = base_url.rstrip("/")
+            candidate_base_url = base_url.rstrip("/")
+            if not self._is_allowed_base_url(candidate_base_url):
+                _LOGGER.warning("Ignored unsafe event-tracker API base URL")
+                return
+            self._base_url = candidate_base_url
             updated = True
         if endpoint:
             self._endpoint = self._normalize_endpoint(endpoint)
@@ -843,6 +878,101 @@ def _session_status_running(status_payload: dict | None) -> bool:
     return status in SESSION_RUNNING_STATES or started in SESSION_RUNNING_STATES
 
 
+def _session_status_finished(status_payload: dict | None) -> bool:
+    if not isinstance(status_payload, dict):
+        return False
+    values = (
+        status_payload.get("Status"),
+        status_payload.get("Started"),
+        status_payload.get("Message"),
+    )
+    return any(str(value or "").strip() in SESSION_END_STATES for value in values)
+
+
+def _session_data_race_start(session_data: dict | None) -> datetime | None:
+    if not isinstance(session_data, dict):
+        return None
+    series = session_data.get("StatusSeries")
+    if isinstance(series, dict):
+        items = series.values()
+    elif isinstance(series, list):
+        items = series
+    else:
+        return None
+    starts: list[datetime] = []
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        if str(item.get("SessionStatus") or "").strip() != "Started":
+            continue
+        started_at = _to_utc(str(item.get("Utc") or ""), None)
+        if started_at is not None:
+            starts.append(started_at)
+    return min(starts) if starts else None
+
+
+def _window_identity(window: SessionWindow) -> tuple[Any, ...]:
+    if window.meeting_key is not None and window.session_key is not None:
+        return (window.meeting_key, window.session_key)
+    return (
+        window.meeting_name.casefold(),
+        window.session_name.casefold(),
+        window.start_utc,
+    )
+
+
+@dataclass
+class _LiveSessionStatus:
+    """Keep session identity with status across incremental stream updates."""
+
+    session_key: int | None = None
+    multi_part: bool = False
+    payload: dict[str, Any] | None = None
+
+    def update_info(self, payload: Any) -> None:
+        if not isinstance(payload, dict):
+            return
+        if "Key" in payload:
+            session_key = _as_int(payload["Key"])
+            if session_key != self.session_key:
+                self.session_key = session_key
+                self.multi_part = False
+                self.payload = None
+        if str(payload.get("Type") or "").strip().casefold() == "qualifying":
+            self.multi_part = True
+        meeting = payload.get("Meeting")
+        if (
+            isinstance(meeting, dict)
+            and "testing" in str(meeting.get("Name") or "").casefold()
+        ):
+            self.multi_part = True
+        if "SessionStatus" in payload:
+            self.payload = {"Status": payload["SessionStatus"]}
+
+    def update_status(self, payload: Any) -> None:
+        self.payload = payload if isinstance(payload, dict) else None
+
+    def finished(self, window: SessionWindow) -> bool:
+        session_key = _as_int(window.session_key)
+        if session_key is None or self.session_key != session_key:
+            return False
+        session_name = window.session_name.casefold()
+        is_multi_part = (
+            self.multi_part
+            or "qualifying" in session_name
+            or "shootout" in session_name
+            or "testing" in window.meeting_name.casefold()
+        )
+        if is_multi_part:
+            # Finished also marks qualifying segments and testing breaks.
+            # Only the final feed states end the whole scheduled window.
+            return isinstance(self.payload, dict) and any(
+                str(self.payload.get(field) or "").strip() in {"Finalised", "Ends"}
+                for field in ("Status", "Message", "Started")
+            )
+        return _session_status_finished(self.payload)
+
+
 class LiveSessionSupervisor:
     """Coordinates when the SignalR connection should run."""
 
@@ -877,6 +1007,7 @@ class LiveSessionSupervisor:
         self._fallback_active = False
         self._last_schedule_error: str | None = None
         self._last_primary_recovery_check = 0.0
+        self._terminal_sessions: set[tuple[Any, ...]] = set()
         # Throttle noisy logs (e.g. missing index at season rollover)
         self._log_throttle: dict[str, float] = {}
         # Event used to interrupt sleep cycles (e.g. after replay ends)
@@ -1035,21 +1166,40 @@ class LiveSessionSupervisor:
         if not windows:
             return None
         now = dt_util.utcnow()
-        upcoming = [w for w in windows if now <= w.disconnect_at]
+        upcoming = [
+            window
+            for window in windows
+            if now <= window.disconnect_at
+            and _window_identity(window) not in self._terminal_sessions
+        ]
         if not upcoming:
             last = windows[-1]
-            if source == "index" and last.path and await self._session_active(last):
-                extended = replace(
-                    last,
-                    connect_at=min(last.connect_at, now - timedelta(minutes=5)),
-                    disconnect_at=now + FALLBACK_WINDOW_DURATION,
-                )
-                _LOGGER.info(
-                    "Extending session window for %s until %s (SessionStatus still active)",
-                    extended.label,
-                    extended.disconnect_at.isoformat(),
-                )
-                return extended
+            if (
+                source == "index"
+                and _window_identity(last) not in self._terminal_sessions
+            ):
+                extension_reason: str | None = None
+                if last.path and await self._session_active(last):
+                    extension_reason = "SessionStatus still active"
+                elif (
+                    not last.path
+                    and "race" in last.session_name.casefold()
+                    and now <= last.end_utc + PATHLESS_RACE_PROBE_HORIZON
+                ):
+                    extension_reason = "recent Race has no archive path"
+                if extension_reason is not None:
+                    extended = replace(
+                        last,
+                        connect_at=min(last.connect_at, now - timedelta(minutes=5)),
+                        disconnect_at=now + FALLBACK_WINDOW_DURATION,
+                    )
+                    _LOGGER.info(
+                        "Extending session window for %s until %s (%s)",
+                        extended.label,
+                        extended.disconnect_at.isoformat(),
+                        extension_reason,
+                    )
+                    return extended
             if self._should_log(
                 f"all_sessions_finished_{source}", interval_seconds=1800
             ):
@@ -1313,6 +1463,7 @@ class LiveSessionSupervisor:
         return True
 
     async def _activate_window(self, window: SessionWindow, *, source: str) -> None:
+        replay_generation = self._availability.replay_generation
         self._current_window = window
         self._current_window_source = source
         label = window.label
@@ -1323,40 +1474,106 @@ class LiveSessionSupervisor:
             window.connect_at.isoformat(),
             window.disconnect_at.isoformat(),
         )
-        await self._bus.start()
-        self._bus.set_heartbeat_expectation(True)
-        self._availability.set_state(True, f"live-{window.session_name}")
+        reason = "interrupted"
         try:
-            reason = await self._monitor_window(window, source=source)
+            await self._bus.start()
+            if (
+                self._availability.replay_locked
+                or self._availability.replay_generation != replay_generation
+            ):
+                reason = "replay-takeover"
+            else:
+                self._bus.set_heartbeat_expectation(True)
+                self._availability.set_state(True, f"live-{window.session_name}")
+                reason = await self._monitor_window(window, source=source)
         finally:
-            self._bus.set_heartbeat_expectation(False)
-            await self._bus.async_close()
-            availability_reason = (
-                "no-spoiler"
-                if reason == "no-spoiler-activated"
-                else f"finished-{window.session_name}"
+            # Replay can replace the transport during sleep or a schedule fetch.
+            # A completed replay must not restore this old window's ownership.
+            owns_bus = (
+                not self._availability.replay_locked
+                and self._availability.replay_generation == replay_generation
             )
-            self._availability.set_state(False, availability_reason)
-            _LOGGER.info(
-                "Live timing closed for %s (%s)",
-                label,
-                reason if "reason" in locals() else "no-reason",
-            )
-            self._current_window = None
             try:
-                await self._session_coord.async_request_refresh()
-            except Exception:  # noqa: BLE001
-                _LOGGER.debug(
-                    "Session index refresh failed after %s", label, exc_info=True
+                if owns_bus:
+                    self._bus.set_heartbeat_expectation(False)
+                    await self._bus.async_close()
+            finally:
+                self._current_window = None
+                self._current_window_source = "none"
+                owns_bus = (
+                    owns_bus
+                    and not self._availability.replay_locked
+                    and self._availability.replay_generation == replay_generation
                 )
-            self._current_window_source = "none"
+                if owns_bus:
+                    availability_reason = (
+                        "no-spoiler"
+                        if reason == "no-spoiler-activated"
+                        else f"finished-{window.session_name}"
+                    )
+                    self._availability.set_state(False, availability_reason)
+                    _LOGGER.info("Live timing closed for %s (%s)", label, reason)
+                else:
+                    _LOGGER.debug(
+                        "Live window released after replay takeover: %s", label
+                    )
+            if owns_bus and reason != "interrupted":
+                try:
+                    await self._session_coord.async_request_refresh()
+                except Exception:  # noqa: BLE001
+                    _LOGGER.debug(
+                        "Session index refresh failed after %s", label, exc_info=True
+                    )
+
+    def _cached_bus_payload(self, stream: str) -> dict[str, Any] | None:
+        getter = getattr(self._bus, "get_last_payload", None)
+        if not callable(getter):
+            return None
+        try:
+            payload = getter(stream)
+        except Exception:  # noqa: BLE001
+            return None
+        return payload if isinstance(payload, dict) else None
+
+    def _race_extension_cap(self, window: SessionWindow) -> datetime:
+        session_data = self._cached_bus_payload("SessionData")
+        actual_start = _session_data_race_start(session_data)
+        if actual_start is not None:
+            return actual_start + RACE_MAX_DURATION + self._post_window
+        return window.end_utc + PATHLESS_RACE_PROBE_HORIZON
 
     async def _monitor_window(self, window: SessionWindow, *, source: str) -> str:
+        status = _LiveSessionStatus()
+        with contextlib.ExitStack() as subscriptions:
+            subscriptions.callback(
+                self._bus.subscribe("SessionStatus", status.update_status)
+            )
+            subscriptions.callback(
+                self._bus.subscribe("SessionInfo", status.update_info)
+            )
+            # Cached streams can belong to different sessions. Seed only from
+            # SessionInfo, where the identity and status share one payload.
+            status.payload = None
+            status.update_info(self._cached_bus_payload("SessionInfo"))
+            return await self._monitor_session_window(
+                window, source=source, status=status
+            )
+
+    async def _monitor_session_window(
+        self, window: SessionWindow, *, source: str, status: _LiveSessionStatus
+    ) -> str:
+        replay_generation = self._availability.replay_generation
         label = window.label
         reason = "disconnect-window-expired"
         max_disconnect_at = window.disconnect_at + POST_WINDOW_EXTENSION_CAP
+        terminal_seen_at: datetime | None = None
         while not self._stopped:
             await self._interruptible_sleep(ACTIVE_REFRESH.total_seconds())
+            if (
+                self._availability.replay_locked
+                or self._availability.replay_generation != replay_generation
+            ):
+                return "replay-takeover"
             # If No Spoiler Mode was activated mid-session, close the connection immediately.
             if self._is_no_spoiler_active:
                 _LOGGER.info(
@@ -1368,23 +1585,43 @@ class LiveSessionSupervisor:
             now = dt_util.utcnow()
             hb_age = self._bus.last_heartbeat_age()
             activity_age = self._bus.last_stream_activity_age(LIVE_ACTIVITY_STREAMS)
+            session_status = self._cached_bus_payload("SessionStatus")
+            if status.finished(window):
+                if terminal_seen_at is None:
+                    terminal_seen_at = now
+                    _LOGGER.info(
+                        "Terminal SessionStatus received for %s; draining live updates",
+                        label,
+                    )
+                if now >= terminal_seen_at + SESSION_END_DRAIN:
+                    self._terminal_sessions.add(_window_identity(window))
+                    reason = "session-finished"
+                    break
+                continue
+            terminal_seen_at = None
+
+            fresh_activity = (
+                hb_age is not None and hb_age <= HEARTBEAT_DRAIN_SECONDS
+            ) or (activity_age is not None and activity_age <= HEARTBEAT_DRAIN_SECONDS)
+            extension_cap = max_disconnect_at
+            if "race" in window.session_name.casefold() and _session_status_running(
+                session_status
+            ):
+                extension_cap = max(
+                    extension_cap,
+                    self._race_extension_cap(window),
+                )
             session_name_l = window.session_name.lower()
             allow_post_finish_inactivity = (
                 window.end_utc <= now < window.disconnect_at
                 and ("qualifying" in session_name_l or "shootout" in session_name_l)
             )
             if now >= window.disconnect_at:
-                should_extend = window.disconnect_at < max_disconnect_at and (
-                    (hb_age is not None and hb_age <= HEARTBEAT_DRAIN_SECONDS)
-                    or (
-                        activity_age is not None
-                        and activity_age <= HEARTBEAT_DRAIN_SECONDS
-                    )
-                )
+                should_extend = window.disconnect_at < extension_cap and fresh_activity
                 if should_extend:
                     extension = min(
                         POST_WINDOW_EXTENSION_STEP,
-                        max_disconnect_at - window.disconnect_at,
+                        extension_cap - window.disconnect_at,
                     )
                     window.disconnect_at += extension
                     _LOGGER.info(

@@ -1,21 +1,27 @@
 import asyncio
 import datetime
+import filecmp
 import hashlib
 import pathlib
 import onvif
 import os
 import shutil
 import socket
+import time
 import urllib.parse
 import uuid
 import requests
 import base64
+from typing import Callable, Optional
 
 from functools import partial
+from contextlib import aclosing
+from bisect import bisect_left
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
 from pytapo.media_stream.downloader import Downloader
+from pytapo.media_stream.snapshot import getRecordingSnapshots
 from homeassistant.components.media_source.error import Unresolvable
 
 from haffmpeg.tools import IMAGE_JPEG, ImageFrame
@@ -59,13 +65,26 @@ from .const import (
     CONF_CUSTOM_STREAM_7,
     MEDIA_SYNC_COLD_STORAGE_PATH,
     MEDIA_SYNC_HOURS,
+    MEDIA_THUMBNAIL_CACHE,
+    MEDIA_THUMBNAIL_PRELOAD,
+    THUMBNAIL_CACHE_SECONDS,
     TIME_SYNC_DST,
     TIME_SYNC_NDST,
     TPLINK_DOMAIN,
+    UPDATE_INTERVAL_BATTERY,
+    UPDATE_INTERVAL_BATTERY_DEFAULT,
 )
 
 UUID = uuid.uuid4().hex
 ALARM_CONFIG_TYPES = ("getAlarm", "getAlarmConfig", "getAlertConfig")
+
+
+def isBatteryPowered(camData):
+    basicInfo = camData.get("basic_info", {})
+    return any(
+        basicInfo.get(field) in ("BATTERY", "SOLAR")
+        for field in ("power", "power_mode")
+    )
 
 
 def _is_used_by_tplink(hass: HomeAssistant, host: str) -> bool:
@@ -202,6 +221,64 @@ def getDataPath():
     )
 
 
+def getConfiguredColdDirPath(entry):
+    return entry.data.get(MEDIA_SYNC_COLD_STORAGE_PATH) or os.path.join(
+        getDataPath(), ".storage", DOMAIN, entry.entry_id
+    )
+
+
+def moveMediaStorage(source, destination):
+    """Move media on the executor, keeping the source until all copies succeed.
+
+    Identical destination files allow a failed/interrupted move to be retried.
+    Conflicting files are never overwritten.
+    """
+    source = pathlib.Path(source).resolve()
+    destination = pathlib.Path(destination).resolve()
+    if source == destination:
+        return
+    if source in destination.parents or destination in source.parents:
+        raise ValueError("Cold storage paths must not overlap")
+
+    def raiseWalkError(error):
+        raise error
+
+    files = []
+    for folder in ("videos", "thumbs"):
+        directory = source / folder
+        try:
+            directory.stat()
+        except FileNotFoundError:
+            continue
+        for root, _, names in os.walk(directory, onerror=raiseWalkError):
+            for name in names:
+                path = pathlib.Path(root) / name
+                target = destination / path.relative_to(source)
+                if target.exists() and not filecmp.cmp(path, target, shallow=False):
+                    raise FileExistsError(f"Different media file already exists: {target}")
+                files.append((path, target))
+    for path, target in files:
+        if not target.exists():
+            target.parent.mkdir(parents=True, exist_ok=True)
+            temporary = target.with_name(target.name + ".moving")
+            try:
+                shutil.copy2(path, temporary)
+                temporary.replace(target)
+            finally:
+                temporary.unlink(missing_ok=True)
+    for path, _ in files:
+        path.unlink()
+    for folder in ("videos", "thumbs"):
+        directory = source / folder
+        if directory.exists():
+            for path in sorted(directory.rglob("*"), reverse=True):
+                if path.is_dir():
+                    path.rmdir()
+            directory.rmdir()
+    if source.exists() and not any(source.iterdir()):
+        source.rmdir()
+
+
 def getColdDirPathForEntry(hass: HomeAssistant, entry_id: str):
     # Fast retrieval of path without file IO
     if (
@@ -210,16 +287,12 @@ def getColdDirPathForEntry(hass: HomeAssistant, entry_id: str):
     ):
         return hass.data[DOMAIN][entry_id]["mediaSyncColdDir"].rstrip("/")
 
-    coldDirPath = os.path.join(getDataPath(), f".storage/{DOMAIN}/{entry_id}/")
     if entry_id in hass.data[DOMAIN]:
         entry: ConfigEntry = hass.data[DOMAIN][entry_id]["entry"]
     else:  # if device is disabled, get entry from HA storage
         entry: ConfigEntry = hass.config_entries.async_get_entry(entry_id)
 
-    media_sync_cold_storage_path = entry.data.get(MEDIA_SYNC_COLD_STORAGE_PATH)
-
-    if not media_sync_cold_storage_path == "":
-        coldDirPath = f"{media_sync_cold_storage_path}/"
+    coldDirPath = getConfiguredColdDirPath(entry)
 
     if entry_id in hass.data[DOMAIN]:
         pathlib.Path(coldDirPath + "/videos").mkdir(parents=True, exist_ok=True)
@@ -274,60 +347,345 @@ async def getRecordings(hass, entryData, tapoController, date):
     return recordingsForDay
 
 
-def getEntryStorageFile(config_entry, child_id):
+def getEntryStorageFile(config_entry, child_id=""):
     return f"tapo_control_{config_entry.entry_id}{child_id}"
 
 
-# todo: findMedia needs to run periodically
-async def findMedia(hass, entryData, entry):
+async def getRecordingEventStartTimes(hass, tapoController, startTime, endTime):
+    """Get detection timestamps without getEvents()'s computer-time conversion."""
+    startIndex = 0
+    eventStarts = set()
+    while True:
+        response = await hass.async_add_executor_job(
+            tapoController.executeFunction,
+            "searchDetectionList",
+            {
+                "playback": {
+                    "search_detection_list": {
+                        "start_index": startIndex,
+                        "end_index": startIndex + 999,
+                        "channel": 0,
+                        "start_time": startTime,
+                        "end_time": endTime,
+                    }
+                }
+            },
+        )
+        events = response["playback"]["search_detection_list"]
+        pageStarts = {int(event["start_time"]) for event in events}
+        if events and startIndex and not pageStarts.difference(eventStarts):
+            raise RuntimeError("Detection event pagination did not advance")
+        eventStarts.update(pageStarts)
+        if len(events) < 1000:
+            return sorted(eventStarts)
+        startIndex += len(events)
+
+
+async def preloadRecordingThumbnails(
+    hass, entryData, entry_id, recordingsByDate, *, browsing=False
+):
+    """Preload only unchecked recordings, using raw detection-event timestamps."""
+    lock = entryData.setdefault("thumbnailPreloadLock", asyncio.Lock())
+    async with lock:
+        options = entryData["entry"].data
+        cache = options.get(MEDIA_THUMBNAIL_CACHE, False)
+        preload = options.get(MEDIA_THUMBNAIL_PRELOAD, True)
+        if not (cache or preload):
+            return
+        if not browsing and not (cache and preload):
+            return
+        tasks = (entryData.get("manualDownloadTask"), entryData.get("mediaSyncTask"))
+        if (
+            entryData.get("thumbnailPreloadStopped")
+            or entryData.get("isDownloadingStream")
+            or entryData.get("runningMediaSync")
+            or any(task and not task.done() for task in tasks)
+        ):
+            return
+        entryData["thumbnailPreloadRunning"] = True
+        try:
+            await _preloadRecordingThumbnails(hass, entryData, entry_id, recordingsByDate)
+        except Exception as err:
+            LOGGER.warning(
+                "Unable to preload thumbnails for %s: %s", entryData["name"], err
+            )
+            LOGGER.debug("Thumbnail preload exception", exc_info=True)
+        finally:
+            entryData["thumbnailPreloadRunning"] = False
+
+
+async def _preloadRecordingThumbnails(hass, entryData, entry_id, recordingsByDate):
+    tapoController = entryData["controller"]
+    childID = (
+        entryData["camData"]["basic_info"]["dev_id"] if entryData["isChild"] else ""
+    )
+    processed = entryData.setdefault("thumbnailProcessed", {})
+    cache = entryData["entry"].data.get(MEDIA_THUMBNAIL_CACHE, False)
+    thumbnails = {}
+    thumbnailDates = {}
+    thumbnailRecordings = {}
+    for date, recordings in recordingsByDate.items():
+        checked = processed.setdefault(date, set())
+        current = {
+            (int(recording["startTime"]), int(recording["endTime"]))
+            for result in recordings
+            for recording in result.values()
+        }
+        # Drop expired intervals, including the previous end of a growing recording.
+        checked.intersection_update(current)
+        missing = []
+        for startTime, endTime in sorted(current - checked):
+            if endTime <= startTime:
+                continue
+            filePathThumb = getColdFile(
+                hass, entry_id, startTime, endTime, "thumbs", childID=childID
+            )
+            if await hass.async_add_executor_job(os.path.exists, filePathThumb):
+                if cache:
+                    checked.add((startTime, endTime))
+                continue
+            missing.append((startTime, endTime, filePathThumb))
+        if not missing:
+            continue
+
+        # Merge overlapping/adjacent intervals without querying already-checked gaps.
+        periods = []
+        for startTime, endTime, _ in missing:
+            if periods and startTime <= periods[-1][1] + 1:
+                periods[-1][1] = max(periods[-1][1], endTime)
+            else:
+                periods.append([startTime, endTime])
+        try:
+            eventStarts = set()
+            for startTime, endTime in periods:
+                LOGGER.debug(
+                    "Thumbnail event lookup for %s on %s: start_time=%s, end_time=%s",
+                    entryData["name"],
+                    date,
+                    startTime,
+                    endTime,
+                )
+                eventStarts.update(
+                    await getRecordingEventStartTimes(
+                        hass, tapoController, startTime, endTime
+                    )
+                )
+            eventStarts = sorted(eventStarts)
+            LOGGER.debug(
+                "Thumbnail preload for %s on %s: unchecked=%s, event_times=%s",
+                entryData["name"],
+                date,
+                len(missing),
+                len(eventStarts),
+            )
+            for startTime, endTime, filePathThumb in missing:
+                index = bisect_left(eventStarts, startTime)
+                if index == len(eventStarts) or eventStarts[index] >= endTime:
+                    checked.add((startTime, endTime))
+                    continue
+                eventStart = eventStarts[index]
+                thumbnails.setdefault(eventStart, []).append(filePathThumb)
+                thumbnailDates[eventStart] = date
+                thumbnailRecordings[filePathThumb] = (date, (startTime, endTime))
+        except Exception as err:
+            LOGGER.warning(
+                "Unable to find thumbnail events for %s on %s: %s",
+                entryData["name"],
+                date,
+                err,
+            )
+
+    if thumbnails:
+        snapshotTimeout = 8
+        loop = asyncio.get_running_loop()
+        batchStarted = loop.time()
+        savedCount = 0
+        missingCount = 0
+        selectedDate = None
+        LOGGER.debug(
+            "Downloading %s recording thumbnails for %s in one media session "
+            "(sequential requests, no-data timeout=%ss per request)...",
+            len(thumbnails),
+            entryData["name"],
+            snapshotTimeout,
+        )
+        try:
+            async with aclosing(
+                getRecordingSnapshots(
+                    tapoController, list(thumbnails), timeout=snapshotTimeout
+                )
+            ) as snapshots:
+                for index, (startTime, filePaths) in enumerate(
+                    thumbnails.items(), start=1
+                ):
+                    date = thumbnailDates[startTime]
+                    if date != selectedDate:
+                        # Video downloads also select the day before requesting media.
+                        LOGGER.debug(
+                            "Selecting recording day %s before thumbnail requests for %s",
+                            date,
+                            entryData["name"],
+                        )
+                        await hass.async_add_executor_job(
+                            tapoController.getRecordings, date
+                        )
+                        selectedDate = date
+                    LOGGER.debug(
+                        "Thumbnail %s/%s for %s: requesting start_time=%s "
+                        "(unmodified detection-event timestamp), date=%s, paths=%s",
+                        index,
+                        len(thumbnails),
+                        entryData["name"],
+                        startTime,
+                        date,
+                        filePaths,
+                    )
+                    requestStarted = loop.time()
+                    image = await anext(snapshots)
+                    requestElapsed = loop.time() - requestStarted
+                    if image:
+                        writeStarted = loop.time()
+                        for filePathThumb in filePaths:
+                            await hass.async_add_executor_job(
+                                saveThumbnail, filePathThumb, image
+                            )
+                            date, recordingKey = thumbnailRecordings[filePathThumb]
+                            if cache:
+                                processed[date].add(recordingKey)
+                        savedCount += 1
+                        LOGGER.debug(
+                            "Thumbnail %s/%s for %s: saved %s bytes, "
+                            "snapshot=%.3fs, disk=%.3fs",
+                            index,
+                            len(thumbnails),
+                            entryData["name"],
+                            len(image),
+                            requestElapsed,
+                            loop.time() - writeStarted,
+                        )
+                    else:
+                        missingCount += 1
+                        entryData["thumbnailPreloadStopped"] = True
+                        LOGGER.debug(
+                            "Thumbnail %s/%s for %s: no JPEG returned after %.3fs "
+                            "for start_time=%s (no-data timeout=%ss). "
+                            "See pytapo.media_stream.session logs for response/timeout details.",
+                            index,
+                            len(thumbnails),
+                            entryData["name"],
+                            requestElapsed,
+                            startTime,
+                            snapshotTimeout,
+                        )
+                        LOGGER.info(
+                            "Stopping thumbnail preload for %s after no JPEG was "
+                            "returned; skipping %s remaining requests until reload. "
+                            "Thumbnails will still be generated from downloaded videos.",
+                            entryData["name"],
+                            len(thumbnails) - index,
+                        )
+                        break
+        except Exception as err:
+            LOGGER.warning(
+                "Unable to cache recording thumbnails for %s: %s",
+                entryData["name"],
+                err,
+            )
+            LOGGER.debug("Thumbnail batch exception", exc_info=True)
+        finally:
+            LOGGER.debug(
+                "Thumbnail batch ended for %s: saved=%s, no_image=%s, "
+                "remaining=%s, elapsed=%.3fs",
+                entryData["name"],
+                savedCount,
+                missingCount,
+                len(thumbnails) - savedCount - missingCount,
+                loop.time() - batchStarted,
+            )
+
+
+async def findMedia(hass, entryData, entry, recordingsList=None):
     entry_id = entry.entry_id
     LOGGER.debug("Finding media for " + entryData["name"] + "...")
     entryData["initialMediaScanDone"] = False
+    entryData["thumbnailProcessed"] = {}
+    entryData["thumbnailPreloadStopped"] = False
     childID = ""
     if entryData["isChild"]:
         childID = entryData["camData"]["basic_info"]["dev_id"]
     tapoController: Tapo = entryData["controller"]
 
-    recordingsList = await hass.async_add_executor_job(tapoController.getRecordingsList)
-    mediaScanResult = {}
-    for searchResult in recordingsList:
-        for key in searchResult:
-            LOGGER.debug(f"Getting media for day {searchResult[key]['date']}...")
-            recordingsForDay = await getRecordings(
-                hass, entryData, tapoController, searchResult[key]["date"]
+    try:
+        if recordingsList is None:
+            recordingsList = await hass.async_add_executor_job(
+                tapoController.getRecordingsList
             )
-            LOGGER.debug(
-                f"Looping through recordings for day {searchResult[key]['date']}..."
-            )
-            for recording in recordingsForDay:
-                for recordingKey in recording:
-                    filePathVideo = getColdFile(
-                        hass,
-                        entry_id,
-                        recording[recordingKey]["startTime"],
-                        recording[recordingKey]["endTime"],
-                        "videos",
-                        childID=childID,
-                    )
-                    mediaScanResult[
-                        ((childID + "-") if childID != "" else "")
-                        + str(recording[recordingKey]["startTime"])
-                        + "-"
-                        + str(recording[recordingKey]["endTime"])
-                    ] = True
-                    if os.path.exists(filePathVideo):
-                        await processDownload(
+        mediaScanResult = {}
+        recordingsByDate = {}
+        recordingsWithVideo = []
+        for searchResult in recordingsList:
+            for key in searchResult:
+                LOGGER.debug(f"Getting media for day {searchResult[key]['date']}...")
+                recordingsForDay = await getRecordings(
+                    hass, entryData, tapoController, searchResult[key]["date"]
+                )
+                LOGGER.debug(
+                    f"Looping through recordings for day {searchResult[key]['date']}..."
+                )
+                recordingsByDate[searchResult[key]["date"]] = recordingsForDay
+                for recording in recordingsForDay:
+                    for recordingKey in recording:
+                        filePathVideo = getColdFile(
                             hass,
                             entry_id,
-                            entryData,
                             recording[recordingKey]["startTime"],
                             recording[recordingKey]["endTime"],
+                            "videos",
+                            childID=childID,
                         )
-    LOGGER.debug("Found media for " + entryData["name"] + ".")
-    entryData["mediaScanResult"] = mediaScanResult
-    entryData["initialMediaScanDone"] = True
+                        mediaScanResult[
+                            ((childID + "-") if childID != "" else "")
+                            + str(recording[recordingKey]["startTime"])
+                            + "-"
+                            + str(recording[recordingKey]["endTime"])
+                        ] = True
+                        if os.path.exists(filePathVideo):
+                            recordingsWithVideo.append(recording[recordingKey])
 
-    await mediaCleanup(hass, entry, entryData)
+        # Bulk thumbnail downloads can keep a sleeping camera awake for minutes.
+        # Battery cameras still preload the selected day when the user browses it.
+        if not entryData.get("isRunningOnBattery"):
+            await preloadRecordingThumbnails(hass, entryData, entry_id, recordingsByDate)
+
+        # Keep the ffmpeg fallback for downloaded videos without a camera thumbnail.
+        for recording in recordingsWithVideo:
+            await processDownload(
+                hass, entry_id, entryData, recording["startTime"], recording["endTime"]
+            )
+        LOGGER.debug("Found media for " + entryData["name"] + ".")
+        entryData["mediaScanResult"] = mediaScanResult
+        entryData["initialMediaScanDone"] = True
+
+        await mediaCleanup(hass, entry, entryData)
+    except Exception as err:
+        LOGGER.warning(
+            "Media scan failed for %s; will retry at the media polling interval: %s",
+            entryData["name"],
+            err,
+        )
+    finally:
+        entryData["initialMediaScanRunning"] = False
+
+
+def saveThumbnail(filePath, image):
+    """Publish a complete thumbnail in cold storage from the executor."""
+    path = pathlib.Path(filePath)
+    temporaryPath = path.with_suffix(".tmp")
+    try:
+        temporaryPath.write_bytes(image)
+        temporaryPath.replace(path)
+    finally:
+        temporaryPath.unlink(missing_ok=True)
 
 
 async def processDownload(
@@ -346,9 +704,10 @@ async def processDownload(
         raise Unresolvable("Failed to get file from cold storage: " + coldFilePath)
 
     if filePath not in entryData["downloadedStreams"]:
+        # Store download metadata in a consistent format for media browsing.
         entryData["downloadedStreams"][filePath] = {
-            startDate: startDate,
-            endDate: endDate,
+            "startDate": startDate,
+            "endDate": endDate,
         }
     mediaScanName = (
         ((childID + "-") if childID != "" else "") + str(startDate) + "-" + str(endDate)
@@ -398,6 +757,9 @@ async def deleteFilesNoLongerPresentInCamera(
                 os.listdir, coldDirPath + "/" + folder + "/"
             )
             for f in listDirFiles:
+                if not f.endswith(extension):
+                    #Files sometimes get deleted during download. Never delete a file a download is still using
+                    continue
                 fileName = f.replace(extension, "")
                 filePath = os.path.join(coldDirPath + "/" + folder + "/", f)
                 if (
@@ -444,6 +806,9 @@ async def deleteColdFilesOlderThanMaxSyncTime(
                 os.listdir, coldDirPath + "/" + folder + "/"
             )
             for f in listDirFiles:
+                if not f.endswith(extension):
+                    #Same as above. Files sometimes get deleted during download. Never delete a file a download is still using
+                    continue
                 fileName = f.replace(extension, "")
                 filePath = os.path.join(coldDirPath + "/" + folder + "/", f)
                 splitFileName = fileName.split("-")
@@ -478,6 +843,53 @@ async def deleteColdFilesOlderThanMaxSyncTime(
                         + fileName
                         + ") because of incorrect file name format..."
                     )
+
+
+def cleanupTemporaryThumbnails(coldDirPath, hotDirPath, preload):
+    """Expire thumbnails without downloaded videos, including their web copies."""
+    cold = pathlib.Path(coldDirPath)
+    hot = pathlib.Path(hotDirPath) / "thumbs"
+    now = time.time()
+    expired = []
+    expiredHashes = set()
+    for thumbnail in (cold / "thumbs").glob("*.jpg"):
+        if (cold / "videos" / (thumbnail.stem + ".mp4")).exists():
+            continue
+        try:
+            if preload and now - thumbnail.stat().st_mtime < THUMBNAIL_CACHE_SECONDS:
+                continue
+            parts = thumbnail.stem.rsplit("-", 2)
+            if len(parts) == 2:
+                childID = ""
+                start, end = parts
+            elif len(parts) == 3:
+                childID, start, end = parts
+            else:
+                continue
+            expiredHashes.add(getFileName(start, end, True, childID=childID))
+            expired.append(thumbnail)
+        except FileNotFoundError:
+            # Another media cleanup may have removed the file already.
+            continue
+    if expired:
+        for cached in hot.glob("*.jpg"):
+            if cached.name[:32] in expiredHashes:
+                cached.unlink(missing_ok=True)
+        for thumbnail in expired:
+            thumbnail.unlink(missing_ok=True)
+
+
+async def cleanupThumbnailCache(hass, entry, now=None):
+    if entry.data.get(MEDIA_THUMBNAIL_CACHE, False):
+        return
+    cold = await hass.async_add_executor_job(getColdDirPathForEntry, hass, entry.entry_id)
+    hot = await hass.async_add_executor_job(getHotDirPathForEntry, hass, entry.entry_id)
+    await hass.async_add_executor_job(
+        cleanupTemporaryThumbnails,
+        cold,
+        hot,
+        entry.data.get(MEDIA_THUMBNAIL_PRELOAD, True),
+    )
 
 
 async def mediaCleanup(hass, entry, deviceData):
@@ -519,7 +931,7 @@ async def mediaCleanup(hass, entry, deviceData):
     )
 
     await deleteColdFilesOlderThanMaxSyncTime(hass, entry, deviceData, ".mp4", "videos")
-    await deleteColdFilesOlderThanMaxSyncTime(hass, entry, deviceData, ".jpg", "thumbs")
+    # Keep thumbnails until their recording disappears from the camera.
 
     # Delete everything other than HOT_DIR_DELETE_TIME seconds from hot storage
     LOGGER.debug(
@@ -569,18 +981,40 @@ async def deleteFilesNotIncluding(hass: HomeAssistant, dirPath, includingString)
                 os.remove(filePath)
 
 
+async def async_update_sync_sensors(hass: HomeAssistant, entry_id: str, device: dict):
+    """Force an immediate update of media sync sensors for the given device."""
+    if DOMAIN not in hass.data or entry_id not in hass.data[DOMAIN]:
+        return
+    for entity in hass.data[DOMAIN][entry_id]["entities"]:
+        if (
+            entity["entry"] is device
+            and entity["entity"].__class__.__name__ == "TapoSyncSensor"
+        ):
+            entity["entity"].updateTapo(None)
+            # async_write_ha_state is sync for non-entity_component updates; do not await.
+            entity["entity"].async_write_ha_state()
+
+
 def processDownloadStatus(
+    hass: HomeAssistant,
+    entry_id: str,
     entryData,
     date: str,
     allRecordingsCount: int,
     recordingCount: int = False,
+    progress_callback: Optional[
+        Callable[[str, Optional[float], Optional[float]], None]
+    ] = None,
 ):
     def processUpdate(status):
         LOGGER.debug(status)
+        message = ""
+        current = None
+        total = None
         if isinstance(status, str):
-            entryData["downloadProgress"] = status
+            message = status
         else:
-            entryData["downloadProgress"] = (
+            message = (
                 status["currentAction"]
                 + " "
                 + date
@@ -595,6 +1029,14 @@ def processDownloadStatus(
                     else ""
                 )
             )
+            current = status.get("progress")
+            total = status.get("total")
+
+        entryData["downloadProgress"] = message
+        entryData["lastMediaSyncActivity"] = datetime.datetime.utcnow().timestamp()
+        if progress_callback is not None:
+            progress_callback(message, current, total)
+        hass.async_create_task(async_update_sync_sensors(hass, entry_id, entryData))
 
     return processUpdate
 
@@ -682,6 +1124,9 @@ async def getRecording(
     endDate: int,
     recordingCount: int = False,
     totalRecordingCount: int = False,
+    progress_callback: Optional[
+        Callable[[str, Optional[float], Optional[float]], None]
+    ] = None,
 ) -> str:
     timeCorrection = await hass.async_add_executor_job(tapo.getTimeCorrection)
     startDate = int(startDate)
@@ -694,12 +1139,21 @@ async def getRecording(
     coldDirPath = getColdDirPathForEntry(hass, entry_id)
     downloadUID = getFileName(startDate, endDate, False, childID=childID)
 
+    #If the cold path is on an smb share or something similar, the videos folder gets cached but can break if something on the nas changes (folder removal or network hiccups)
+    #Therefore simply create the folder unconditionally and fail fast if it already exists. This also helps in recaching the files in the folder.
+    await hass.async_add_executor_job(
+        pathlib.Path(coldDirPath + "/videos").mkdir, 0o777, True, True
+    )
+
     coldFilePath = getColdFile(
         hass, entry_id, startDate, endDate, "videos", childID=childID
     )
     if not os.path.exists(coldFilePath):
         # this NEEDS to happen otherwise camera does not send data!
         allRecordings = await hass.async_add_executor_job(tapo.getRecordings, date)
+        all_recordings_count = (
+            len(allRecordings) if totalRecordingCount is False else totalRecordingCount
+        )
         downloader = Downloader(
             tapo,
             startDate,
@@ -713,21 +1167,28 @@ async def getRecording(
         )
 
         entryData["isDownloadingStream"] = True
-        downloadedFile = await downloader.downloadFile(
-            processDownloadStatus(
-                entryData,
-                date,
-                (
-                    len(allRecordings)
-                    if totalRecordingCount is False
-                    else totalRecordingCount
-                ),
-                recordingCount if recordingCount is not False else False,
+        try:
+            downloadedFile = await downloader.downloadFile(
+                processDownloadStatus(
+                    hass,
+                    entry_id,
+                    entryData,
+                    date,
+                    all_recordings_count,
+                    recordingCount if recordingCount is not False else False,
+                    progress_callback=progress_callback,
+                )
             )
-        )
-        entryData["isDownloadingStream"] = False
+        finally:
+            entryData["isDownloadingStream"] = False
+
         if downloadedFile["currentAction"] == "Recording in progress":
             raise Unresolvable("Recording is currently in progress.")
+
+        completion_message = "Finished download"
+        entryData["downloadProgress"] = completion_message
+        if progress_callback is not None:
+            progress_callback(completion_message, None, None)
 
         hass.bus.fire(
             "tapo_control_media_downloaded",
@@ -817,21 +1278,38 @@ async def initOnvifEvents(hass, host, username, password):
         f"{os.path.dirname(onvif.__file__)}/wsdl/",
         no_cache=True,
     )
+    started = time.monotonic()
+    stage = "discovering ONVIF services"
     try:
-        LOGGER.debug("[initOnvifEvents] Creating onvif connection...")
+        LOGGER.debug("[initOnvifEvents] Creating ONVIF connection to %s:2020...", host)
         await device.update_xaddrs()
-        LOGGER.debug("[initOnvifEvents] Connection estabilished.")
+        LOGGER.debug("[initOnvifEvents] Connection established to %s:2020.", host)
+        stage = "creating device management service"
         device_mgmt = await device.create_devicemgmt_service()
-        LOGGER.debug("[initOnvifEvents] Getting device information...")
+        stage = "getting device information"
+        LOGGER.debug("[initOnvifEvents] Getting device information from %s...", host)
         device_info = await device_mgmt.GetDeviceInformation()
-        LOGGER.debug("[initOnvifEvents] Got device information.")
+        LOGGER.debug("[initOnvifEvents] Got device information from %s.", host)
+        stage = "validating device information"
         if "Manufacturer" not in device_info:
-            raise Exception("Onvif connection has failed.")
+            raise Exception("ONVIF device information is missing Manufacturer.")
 
         return {"device": device, "device_mgmt": device_mgmt}
     except Exception as e:
-        LOGGER.error("[initOnvifEvents] Initiating onvif connection failed.")
-        LOGGER.error(e)
+        LOGGER.error(
+            "[initOnvifEvents] Initiating ONVIF connection to %s:2020 failed: %s",
+            host,
+            e,
+        )
+        LOGGER.debug(
+            "[initOnvifEvents] %s:2020 failed while %s after %.3fs (%s): %r",
+            host,
+            stage,
+            time.monotonic() - started,
+            type(e).__name__,
+            e,
+            exc_info=True,
+        )
 
     return False
 
@@ -1935,6 +2413,17 @@ def convert_to_timestamp(date_string):
 
 async def update_listener(hass, entry):
     """Handle options update."""
+    entryData = hass.data.get(DOMAIN, {}).get(entry.entry_id)
+    if entryData is None:
+        return
+    mediaOptions = {
+        MEDIA_SYNC_COLD_STORAGE_PATH: entry.data.get(MEDIA_SYNC_COLD_STORAGE_PATH, ""),
+        MEDIA_THUMBNAIL_CACHE: entry.data.get(MEDIA_THUMBNAIL_CACHE, False),
+        MEDIA_THUMBNAIL_PRELOAD: entry.data.get(MEDIA_THUMBNAIL_PRELOAD, True),
+    }
+    if entryData["mediaOptions"] != mediaOptions:
+        await hass.config_entries.async_reload(entry.entry_id)
+        return
     host = entry.data.get(CONF_IP_ADDRESS)
     controlPort = entry.data.get(CONTROL_PORT)
     username = entry.data.get(CONF_USERNAME)
@@ -2013,6 +2502,22 @@ async def update_listener(hass, entry):
         ]
         if motionSensor:
             await setupOnvif(hass, entry)
+
+    # Ensure media sync settings (hours/enable) propagate immediately.
+    if DOMAIN in hass.data and entry.entry_id in hass.data[DOMAIN]:
+        now_ts = datetime.datetime.utcnow().timestamp()
+        entry_data = hass.data[DOMAIN][entry.entry_id]
+        devices = [entry_data]
+        if entry_data.get("isParent"):
+            devices.extend(entry_data.get("childDevices", []))
+        for device in devices:
+            device["lastMediaSyncActivity"] = now_ts
+            if not device.get(ENABLE_MEDIA_SYNC):
+                device["downloadProgress"] = "Disabled"
+            hass.async_create_task(
+                async_update_sync_sensors(hass, entry.entry_id, device)
+            )
+        await hass.data[DOMAIN][entry.entry_id]["coordinator"].async_request_refresh()
 
 
 async def getLatestFirmwareVersion(hass, config_entry, entry, controller):
@@ -2124,16 +2629,40 @@ async def setupEvents(hass, config_entry):
     ):
         LOGGER.debug("Setting up events...")
         events = hass.data[DOMAIN][config_entry.entry_id]["events"]
-        onvif_capabilities = await hass.data[DOMAIN][config_entry.entry_id][
-            "eventsDevice"
-        ].get_capabilities()
-        onvif_capabilities = onvif_capabilities or {}
-        pull_point_support = onvif_capabilities.get("Events", {}).get(
-            "WSPullPointSupport"
-        )
-        LOGGER.debug("WSPullPointSupport: %s", pull_point_support)
-        if await events.async_start(pull_point_support is not False, shouldUseWebhooks):
-            LOGGER.debug("Events started.")
+        stage = "getting event capabilities"
+        try:
+            onvif_capabilities = await hass.data[DOMAIN][config_entry.entry_id][
+                "eventsDevice"
+            ].get_capabilities()
+            onvif_capabilities = onvif_capabilities or {}
+            pull_point_support = onvif_capabilities.get("Events", {}).get(
+                "WSPullPointSupport"
+            )
+            LOGGER.debug("WSPullPointSupport: %s", pull_point_support)
+            LOGGER.debug(
+                "Starting ONVIF events for %s: pullpoint=%s, webhooks=%s.",
+                config_entry.data.get(CONF_IP_ADDRESS),
+                pull_point_support is not False,
+                shouldUseWebhooks,
+            )
+            stage = "starting event subscriptions"
+            events_started = await events.async_start(
+                pull_point_support is not False, shouldUseWebhooks
+            )
+        except Exception as e:
+            LOGGER.debug(
+                "ONVIF events for %s failed while %s (%s): %r",
+                config_entry.data.get(CONF_IP_ADDRESS),
+                stage,
+                type(e).__name__,
+                e,
+                exc_info=True,
+            )
+            raise
+        if events_started:
+            LOGGER.debug(
+                "ONVIF events started for %s.", config_entry.data.get(CONF_IP_ADDRESS)
+            )
             if not hass.data[DOMAIN][config_entry.entry_id]["motionSensorCreated"]:
                 hass.data[DOMAIN][config_entry.entry_id]["motionSensorCreated"] = True
                 if hass.data[DOMAIN][config_entry.entry_id]["eventsListener"]:
@@ -2150,6 +2679,12 @@ async def setupEvents(hass, config_entry):
                 )
             return True
         else:
+            LOGGER.debug(
+                "ONVIF events did not start for %s; subscription will be retried "
+                "during camera updates. Enable homeassistant.components.onvif "
+                "debug logging for subscription failure details.",
+                config_entry.data.get(CONF_IP_ADDRESS),
+            )
             return False
 
 
@@ -2268,11 +2803,14 @@ def isCacheSupported(check_function, rawData):
 
 async def scheduleAll(hass, device, entry, mediaSync):
     LOGGER.debug("scheduleAll for " + device["name"] + " called.")
-    if device["mediaSyncAvailable"]:
-        if (
-            device["initialMediaScanDone"] is True
-            and device["mediaSyncScheduled"] is False
-        ):
+    mediaSyncInterval = 60
+    if device.get("isRunningOnBattery"):
+        mediaSyncInterval = entry.data.get(
+            UPDATE_INTERVAL_BATTERY, UPDATE_INTERVAL_BATTERY_DEFAULT
+        )
+
+    if device["initialMediaScanDone"] is True:
+        if device["mediaSyncScheduled"] is False:
             device["mediaSyncScheduled"] = True
             LOGGER.debug("Scheduling media sync")
             callback = partial(mediaSync, entry=entry, device=device)
@@ -2281,31 +2819,40 @@ async def scheduleAll(hass, device, entry, mediaSync):
                 async_track_time_interval(
                     hass,
                     callback,
-                    datetime.timedelta(seconds=60),
+                    datetime.timedelta(seconds=mediaSyncInterval),
                 )
             )
-        elif device["initialMediaScanRunning"] is False:
-            LOGGER.debug("Media scan running")
-            device["initialMediaScanRunning"] = True
-            try:
-                await hass.async_add_executor_job(
-                    device["controller"].getRecordingsList
-                )
-                hass.async_create_background_task(
-                    findMedia(hass, device, entry),
-                    "findMedia",
-                )
-            except Exception as err:
-                device["initialMediaScanDone"] = True
-                device["mediaSyncAvailable"] = False
-                enableMediaSync = device[ENABLE_MEDIA_SYNC]
-                errMsg = "Disabling media sync as there was error returned from getRecordingsList. Do you have SD card inserted?"
-                if enableMediaSync:
-                    LOGGER.warning(errMsg)
-                    LOGGER.warning(device["name"] + ": " + str(err))
-                else:
-                    LOGGER.info(errMsg)
-                    LOGGER.info(device["name"] + ": " + str(err))
+    elif device["initialMediaScanRunning"] is False:
+        # Failed scans must not wake the camera on every coordinator update,
+        # including when there is no SD card and media sync is disabled.
+        now = asyncio.get_running_loop().time()
+        lastAttempt = device.get("lastMediaScanAttempt")
+        if lastAttempt is not None and now - lastAttempt < mediaSyncInterval:
+            return
+        device["lastMediaScanAttempt"] = now
+        LOGGER.debug("Media scan running")
+        device["initialMediaScanRunning"] = True
+        try:
+            recordingsList = await hass.async_add_executor_job(
+                device["controller"].getRecordingsList
+            )
+            device["mediaSyncAvailable"] = True
+            entry.async_create_background_task(
+                hass,
+                findMedia(hass, device, entry, recordingsList),
+                "findMedia",
+            )
+        except Exception as err:
+            device["initialMediaScanRunning"] = False
+            device["mediaSyncAvailable"] = False
+            enableMediaSync = device[ENABLE_MEDIA_SYNC]
+            errMsg = "Unable to retrieve recordings list, will retry at the media polling interval. Do you have an SD card inserted, and is the camera reachable?"
+            if enableMediaSync:
+                LOGGER.warning(errMsg)
+                LOGGER.warning(device["name"] + ": " + str(err))
+            else:
+                LOGGER.info(errMsg)
+                LOGGER.info(device["name"] + ": " + str(err))
 
 
 async def check_functionality(entry, hass, cls, check_function):

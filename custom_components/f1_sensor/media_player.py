@@ -11,14 +11,19 @@ from homeassistant.components.media_player.const import (
     MediaPlayerEntityFeature,
     MediaPlayerState,
 )
-from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.util import dt as dt_util
 
-from .const import DOMAIN
-from .entity import F1AuxEntity, default_object_id, set_suggested_object_id
+from .entity import (
+    F1AuxEntity,
+    default_object_id,
+    entry_runtime_registry,
+    set_default_entity_id,
+)
 from .replay_mode import ReplayController, ReplayState
+from .runtime import F1ConfigEntry
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -26,10 +31,10 @@ _REPLAY_TICK_INTERVAL = datetime.timedelta(seconds=1)
 
 
 async def async_setup_entry(
-    hass: HomeAssistant, entry: ConfigEntry, async_add_entities
+    hass: HomeAssistant, entry: F1ConfigEntry, async_add_entities
 ) -> None:
     """Set up replay media player entity."""
-    registry = hass.data.get(DOMAIN, {}).get(entry.entry_id)
+    registry = entry_runtime_registry(hass, entry.entry_id)
     if not registry:
         return
 
@@ -44,7 +49,9 @@ async def async_setup_entry(
         entry.entry_id,
         name,
     )
-    set_suggested_object_id(entity, default_object_id("replay_player"))
+    set_default_entity_id(
+        entity, Platform.MEDIA_PLAYER, default_object_id("replay_player")
+    )
     async_add_entities([entity])
 
 
@@ -175,6 +182,9 @@ class F1ReplayMediaPlayer(F1AuxEntity, MediaPlayerEntity):
             "replay_state": state.value,
             "selected_session": selected.label if selected else None,
             "selected_session_id": selected.unique_id if selected else None,
+            "selected_session_year": getattr(selected, "year", None),
+            "selected_meeting_key": getattr(selected, "meeting_key", None),
+            "selected_session_key": getattr(selected, "session_key", None),
             "playback_position_s": position_s,
             "playback_remaining_s": remaining_s,
             "playback_total_s": total_s,

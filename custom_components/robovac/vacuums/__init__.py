@@ -2,6 +2,7 @@ from typing import Dict, Type
 
 from .T1250 import T1250
 from .T2080 import T2080
+from .T2080A import T2080A
 from .T2103 import T2103
 from .T2117 import T2117
 from .T2118 import T2118
@@ -25,9 +26,13 @@ from .T2252 import T2252
 from .T2253 import T2253
 from .T2254 import T2254
 from .T2255 import T2255
+from .T2256 import T2256
+from .T2257 import T2257
+from .T2258 import T2258
 from .T2259 import T2259
 from .T2261 import T2261
 from .T2262 import T2262
+from .T2266 import T2266
 from .T2267 import T2267
 from .T2268 import T2268
 from .T2270 import T2270
@@ -45,6 +50,7 @@ from .base import RobovacModelDetails
 ROBOVAC_MODELS: Dict[str, Type[RobovacModelDetails]] = {
     "T1250": T1250,
     "T2080": T2080,
+    "T2080A": T2080A,
     "T2103": T2103,
     "T2117": T2117,
     "T2118": T2118,
@@ -63,6 +69,9 @@ ROBOVAC_MODELS: Dict[str, Type[RobovacModelDetails]] = {
     "T2210": T2210,
     "T2212": T2212,
     "T2255": T2255,
+    "T2256": T2256,
+    "T2257": T2257,
+    "T2258": T2258,
     "T2259": T2259,
     "T2270": T2270,
     "T2272": T2272,
@@ -76,6 +85,7 @@ ROBOVAC_MODELS: Dict[str, Type[RobovacModelDetails]] = {
     "T2278": T2278,
     "T2261": T2261,
     "T2262": T2262,
+    "T2266": T2266,
     "T2267": T2267,
     "T2268": T2268,
     "T2320": T2320,
@@ -84,3 +94,23 @@ ROBOVAC_MODELS: Dict[str, Type[RobovacModelDetails]] = {
     "T2351": T2351,
     "T2280": T2280,
 }
+
+
+def resolve_model_code(model_code: str) -> str:
+    """Resolve exact and extended codes before the legacy five-character prefix."""
+    if model_code in ROBOVAC_MODELS:
+        return model_code
+
+    extended_prefixes = [
+        registered_code
+        for registered_code in ROBOVAC_MODELS
+        if len(registered_code) > 5 and model_code.startswith(registered_code)
+    ]
+    if extended_prefixes:
+        return max(extended_prefixes, key=lambda code: (len(code), code.casefold()))
+
+    model_prefix = model_code[:5]
+    if model_prefix in ROBOVAC_MODELS:
+        return model_prefix
+
+    return model_code

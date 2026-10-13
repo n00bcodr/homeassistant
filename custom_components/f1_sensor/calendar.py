@@ -6,12 +6,17 @@ import datetime
 import logging
 
 from homeassistant.components.calendar import CalendarEntity, CalendarEvent
-from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN
-from .entity import F1BaseEntity, default_object_id, set_suggested_object_id
+from .entity import (
+    F1BaseEntity,
+    default_object_id,
+    entry_runtime_registry,
+    set_default_entity_id,
+)
+from .runtime import F1ConfigEntry, entry_value
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -65,15 +70,15 @@ def _parse_session_datetime(
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    entry: ConfigEntry,
+    entry: F1ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the F1 Season Calendar from a config entry."""
-    disabled = set(entry.data.get("disabled_sensors") or [])
+    disabled = set(entry_value(entry, "disabled_sensors", []) or [])
     if "calendar" in disabled:
         return
 
-    data = hass.data[DOMAIN][entry.entry_id]
+    data = entry_runtime_registry(hass, entry.entry_id)
     race_coordinator = data.get("race_coordinator")
     if race_coordinator is None:
         return
@@ -85,7 +90,9 @@ async def async_setup_entry(
         entry_id=entry.entry_id,
         device_name=base,
     )
-    set_suggested_object_id(entity, default_object_id("season_calendar"))
+    set_default_entity_id(
+        entity, Platform.CALENDAR, default_object_id("season_calendar")
+    )
     async_add_entities([entity])
 
 

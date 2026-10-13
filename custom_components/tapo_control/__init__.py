@@ -18,6 +18,8 @@ from homeassistant.exceptions import (
     DependencyError,
 )
 from homeassistant.helpers.storage import Store
+from homeassistant.helpers.event import async_track_time_interval
+from functools import partial
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import dt
 from homeassistant.components.media_source.error import Unresolvable
@@ -45,8 +47,12 @@ from .const import (
     MEDIA_CLEANUP_PERIOD,
     MEDIA_SYNC_COLD_STORAGE_PATH,
     MEDIA_SYNC_HOURS,
+    MEDIA_SYNC_PREVIOUS_STORAGE_PATH,
+    MEDIA_THUMBNAIL_CACHE,
+    MEDIA_THUMBNAIL_PRELOAD,
     MEDIA_VIEW_DAYS_ORDER,
     MEDIA_VIEW_RECORDINGS_ORDER,
+    MEDIA_SYNC_WATCHDOG_SECONDS,
     REPORTED_IP_ADDRESS,
     DOORBELL_UDP_DISCOVERED,
     RTSP_TRANS_PROTOCOLS,
@@ -72,11 +78,15 @@ from .utils import (
     convert_to_timestamp,
     deleteDir,
     getColdDirPathForEntry,
+    getConfiguredColdDirPath,
+    moveMediaStorage,
+    cleanupThumbnailCache,
     getDataForController,
     getEntryStorageFile,
     getHotDirPathForEntry,
     getIP,
     isUsingHTTPS,
+    isBatteryPowered,
     mediaCleanup,
     registerController,
     getCamData,
@@ -90,6 +100,7 @@ from .utils import (
     findMedia,
     getRecordings,
     scheduleAll,
+    async_update_sync_sensors,
 )
 from pytapo import Tapo
 from pytapo.version import PYTAPO_VERSION
@@ -485,7 +496,18 @@ async def async_migrate_entry(hass, config_entry: ConfigEntry):
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     LOGGER.debug("Unloading tapo_control...")
-    await hass.config_entries.async_unload_platforms(
+    device = hass.data[DOMAIN][entry.entry_id]
+    tasks = {
+        task
+        for item in [device, *device.get("childDevices", [])]
+        for key in ("mediaSyncTask", "manualDownloadTask")
+        if (task := item.get(key)) is not None and not task.done()
+    }
+    for task in tasks:
+        task.cancel()
+    if tasks:
+        await asyncio.gather(*tasks, return_exceptions=True)
+    unloaded = await hass.config_entries.async_unload_platforms(
         entry,
         [
             "binary_sensor",
@@ -500,6 +522,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             "update",
         ],
     )
+    if not unloaded:
+        return False
 
     if "udp_monitor" in hass.data[DOMAIN][entry.entry_id]:
         await hass.data[DOMAIN][entry.entry_id]["udp_monitor"].async_stop()
@@ -588,6 +612,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     """Set up the Tapo: Cameras Control component from a config entry."""
     hass.data.setdefault(DOMAIN, {})
+
+    previousStorage = entry.data.get(MEDIA_SYNC_PREVIOUS_STORAGE_PATH)
+    if previousStorage is not None:
+        try:
+            await hass.async_add_executor_job(
+                moveMediaStorage, previousStorage, getConfiguredColdDirPath(entry)
+            )
+        except (OSError, ValueError) as err:
+            raise ConfigEntryNotReady(f"Unable to move recording storage: {err}") from err
+        data = dict(entry.data)
+        del data[MEDIA_SYNC_PREVIOUS_STORAGE_PATH]
+        hass.config_entries.async_update_entry(entry, data=data)
 
     host = entry.data.get(CONF_IP_ADDRESS)
     controlPort = entry.data.get(CONTROL_PORT)
@@ -702,6 +738,29 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
                 enableTimeSync = False
             ts = datetime.datetime.utcnow().timestamp()
 
+            async def _check_media_sync_watchdog(device):
+                last_activity = device.get("lastMediaSyncActivity", 0)
+                if (
+                    device.get("runningMediaSync")
+                    and device.get(ENABLE_MEDIA_SYNC)
+                    and last_activity
+                    and ts - last_activity > MEDIA_SYNC_WATCHDOG_SECONDS
+                ):
+                    task = device.get("mediaSyncTask")
+                    if task is None or task.done() or task.cancelling():
+                        return
+                    # Leave the running flag set until the task's finally block
+                    # finishes. Clearing it here would permit overlapping syncs.
+                    task.cancel()
+                    device["mediaSyncStallCount"] = (
+                        device.get("mediaSyncStallCount", 0) + 1
+                    )
+                    device["downloadProgress"] = "Recovered after stall"
+                    device["lastMediaSyncActivity"] = ts
+                    hass.async_create_task(
+                        async_update_sync_sensors(hass, entry.entry_id, device)
+                    )
+
             # motion detection retries
             if motionSensor or enableTimeSync:
                 LOGGER.debug("Motion sensor or time sync is enabled.")
@@ -714,12 +773,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
                         or not hass.data[DOMAIN][entry.entry_id]["onvifManagement"]
                     ):
                         # retry if connection to onvif failed
-                        LOGGER.debug("Setting up subscription to motion sensor...")
+                        LOGGER.debug("Retrying ONVIF connection to %s:2020.", host)
                         onvifDevice = await initOnvifEvents(
                             hass, host, username, password
                         )
                         if onvifDevice:
-                            LOGGER.debug(onvifDevice)
+                            LOGGER.debug("ONVIF retry connected to %s:2020.", host)
                             hass.data[DOMAIN][entry.entry_id]["eventsDevice"] = (
                                 onvifDevice["device"]
                             )
@@ -832,55 +891,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
                             updateDataForAllControllers[controller] = await getCamData(
                                 hass, controller, controllerData["chInfo"]
                             )
-                            controllerData["isRunningOnBattery"] = (
-                                True
-                                if (
-                                    "basic_info"
-                                    in updateDataForAllControllers[controller]
-                                    and (
-                                        (
-                                            "power"
-                                            in updateDataForAllControllers[controller][
-                                                "basic_info"
-                                            ]
-                                            and (
-                                                (
-                                                    updateDataForAllControllers[
-                                                        controller
-                                                    ]["basic_info"]["power"]
-                                                    == "BATTERY"
-                                                )
-                                                or (
-                                                    updateDataForAllControllers[
-                                                        controller
-                                                    ]["basic_info"]["power"]
-                                                    == "SOLAR"
-                                                )
-                                            )
-                                        )
-                                        or (
-                                            "power_mode"
-                                            in updateDataForAllControllers[controller][
-                                                "basic_info"
-                                            ]
-                                            and (
-                                                (
-                                                    updateDataForAllControllers[
-                                                        controller
-                                                    ]["basic_info"]["power_mode"]
-                                                    == "BATTERY"
-                                                )
-                                                or (
-                                                    updateDataForAllControllers[
-                                                        controller
-                                                    ]["basic_info"]["power_mode"]
-                                                    == "SOLAR"
-                                                )
-                                            )
-                                        )
-                                    )
-                                )
-                                else False
+                            controllerData["isRunningOnBattery"] = isBatteryPowered(
+                                updateDataForAllControllers[controller]
                             )
                             controllerData["lastUpdate"] = (
                                 datetime.datetime.utcnow().timestamp()
@@ -943,6 +955,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
                     hass.data[DOMAIN][entry.entry_id][
                         "updateEntity"
                     ].async_schedule_update_ha_state(True)
+
+            # media sync watchdog for main and child devices
+            await _check_media_sync_watchdog(hass.data[DOMAIN][entry.entry_id])
+            if hass.data[DOMAIN][entry.entry_id]["isParent"]:
+                for child in hass.data[DOMAIN][entry.entry_id]["childDevices"]:
+                    await _check_media_sync_watchdog(child)
 
             if (
                 ts - hass.data[DOMAIN][entry.entry_id]["lastMediaCleanup"]
@@ -1024,6 +1042,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
             "latestFirmwareVersion": False,
             "mediaSyncColdDir": False,
             "mediaSyncHotDir": False,
+            "mediaOptions": {
+                MEDIA_SYNC_COLD_STORAGE_PATH: entry.data.get(
+                    MEDIA_SYNC_COLD_STORAGE_PATH, ""
+                ),
+                MEDIA_THUMBNAIL_CACHE: entry.data.get(MEDIA_THUMBNAIL_CACHE, False),
+                MEDIA_THUMBNAIL_PRELOAD: entry.data.get(MEDIA_THUMBNAIL_PRELOAD, True),
+            },
             "motionSensorCreated": False,
             "eventsDevice": False,
             "onvifManagement": False,
@@ -1034,15 +1059,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
             "noiseSensorStarted": False,
             "name": camData["basic_info"]["device_alias"],
             "childDevices": [],
-            "isRunningOnBattery": (
-                True
-                if (
-                    "basic_info" in camData
-                    and "power" in camData["basic_info"]
-                    and camData["basic_info"]["power"] == "BATTERY"
-                )
-                else False
-            ),
+            "isRunningOnBattery": isBatteryPowered(camData),
             "isChild": False,
             "uuid": hashlib.md5(
                 (
@@ -1053,6 +1070,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
             "isDownloadingStream": False,
             "downloadedStreams": {},  # keeps track of all videos downloaded
             "downloadProgress": False,
+            "lastMediaSyncStart": 0,
+            "lastMediaSyncActivity": 0,
+            "lastMediaSyncSuccess": 0,
+            "mediaSyncStallCount": 0,
             "initialMediaScanDone": False,
             ENABLE_MEDIA_SYNC: None,
             "mediaSyncScheduled": False,
@@ -1129,6 +1150,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
                                 "isDownloadingStream": False,
                                 "downloadedStreams": {},  # keeps track of all videos downloaded
                                 "downloadProgress": False,
+                                "lastMediaSyncStart": 0,
+                                "lastMediaSyncActivity": 0,
+                                "lastMediaSyncSuccess": 0,
+                                "mediaSyncStallCount": 0,
                                 "initialMediaScanDone": False,
                                 ENABLE_MEDIA_SYNC: None,
                                 "mediaSyncScheduled": False,
@@ -1141,16 +1166,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
                                 "name": childCamData["basic_info"]["device_alias"],
                                 "childDevices": [],
                                 "isChild": True,
-                                "isRunningOnBattery": (
-                                    True
-                                    if (
-                                        "basic_info" in childCamData
-                                        and "power" in childCamData["basic_info"]
-                                        and childCamData["basic_info"]["power"]
-                                        == "BATTERY"
-                                    )
-                                    else False
-                                ),
+                                "isRunningOnBattery": isBatteryPowered(childCamData),
                                 "isParent": False,
                             }
                         )
@@ -1181,29 +1197,44 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         LOGGER.debug("Entities set up.")
 
         # Needs to execute AFTER binary_sensor creation!
+        LOGGER.debug(
+            "ONVIF startup for %s: KLAP=%s, standalone=%s, motion=%s, time_sync=%s.",
+            host,
+            tapoController.isKLAP,
+            camData["childDevices"] in (None, False),
+            motionSensor,
+            enableTimeSync,
+        )
         if (
             tapoController.isKLAP is False
-            and camData["childDevices"] is None
+            and camData["childDevices"] in (None, False)
             and (motionSensor or enableTimeSync)
         ):
             onvifDevice = await initOnvifEvents(hass, host, username, password)
-            hass.data[DOMAIN][entry.entry_id]["eventsDevice"] = onvifDevice["device"]
-            hass.data[DOMAIN][entry.entry_id]["onvifManagement"] = onvifDevice[
-                "device_mgmt"
-            ]
-            if motionSensor:
-                LOGGER.debug("Setting up motion sensor for the first time.")
-                await setupOnvif(hass, entry)
+            if onvifDevice:
+                hass.data[DOMAIN][entry.entry_id]["eventsDevice"] = onvifDevice["device"]
+                hass.data[DOMAIN][entry.entry_id]["onvifManagement"] = onvifDevice[
+                    "device_mgmt"
+                ]
+                if motionSensor:
+                    LOGGER.debug("Setting up motion sensor for the first time.")
+                    await setupOnvif(hass, entry)
+                else:
+                    debugMsg = "Motion sensor is disabled."
+                    if len(username) == 0 or len(password) == 0:
+                        debugMsg += " This is because RTSP username or password is empty."
+                    LOGGER.debug(debugMsg)
+                if enableTimeSync:
+                    try:
+                        await syncTime(hass, entry.entry_id)
+                    except Exception as e:
+                        handleTimeSyncError(e)
             else:
-                debugMsg = "Motion sensor is disabled."
-                if len(username) == 0 or len(password) == 0:
-                    debugMsg += " This is because RTSP username or password is empty."
-                LOGGER.debug(debugMsg)
-            if enableTimeSync:
-                try:
-                    await syncTime(hass, entry.entry_id)
-                except Exception as e:
-                    handleTimeSyncError(e)
+                LOGGER.debug(
+                    "ONVIF initialization failed for %s:2020. Continuing setup; "
+                    "ONVIF will be retried during camera updates.",
+                    host,
+                )
 
         # Media sync
         timeCorrection = await hass.async_add_executor_job(
@@ -1223,17 +1254,27 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
             else:
                 mediaSyncTime = (int(mediaSyncHours) * 60 * 60) + timeCorrection
             LOGGER.debug("mediaSync - 3")
+            syncTask = device.get("mediaSyncTask")
+            manualTask = device.get("manualDownloadTask")
             if (
                 enableMediaSync
                 and entry.entry_id in hass.data[DOMAIN]
                 and "controller" in device
                 and device["runningMediaSync"] is False
+                and (syncTask is None or syncTask.done())
+                and (manualTask is None or manualTask.done())
+                and not device.get("thumbnailPreloadRunning")
                 and device["isDownloadingStream"]
                 is False  # prevent breaking user manual upload
             ):
                 LOGGER.debug("Running media sync for " + device["name"] + "...")
                 device["runningMediaSync"] = True
+                device["mediaSyncTask"] = asyncio.current_task()
+                device["lastMediaSyncStart"] = datetime.datetime.utcnow().timestamp()
+                device["lastMediaSyncActivity"] = device["lastMediaSyncStart"]
+                device["downloadProgress"] = "Starting"
                 try:
+                    await async_update_sync_sensors(hass, entry.entry_id, device)
                     tapoController: Tapo = device["controller"]
                     LOGGER.debug("getRecordingsList -1")
                     recordingsList = await hass.async_add_executor_job(
@@ -1305,6 +1346,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
                                                         totalRecordingsToDownload,
                                                     )
                                                     LOGGER.debug("getRecording -2")
+                                                    device["lastMediaSyncActivity"] = (
+                                                        datetime.datetime.utcnow().timestamp()
+                                                    )
                                                 else:
                                                     LOGGER.debug(
                                                         f"Media sync disabled (inside getRecording): {enableMediaSync}"
@@ -1324,10 +1368,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
                                 LOGGER.debug(
                                     f"Media sync ignoring {searchResult[key]["date"]}. Media sync: {enableMediaSync}."
                                 )
+                    device["lastMediaSyncSuccess"] = (
+                        datetime.datetime.utcnow().timestamp()
+                    )
                 except Exception as err:
                     LOGGER.error(err)
-                LOGGER.debug("runningMediaSync -false")
-                device["runningMediaSync"] = False
+                finally:
+                    LOGGER.debug("runningMediaSync -false")
+                    device["runningMediaSync"] = False
+                    device["downloadProgress"] = False
+                    await async_update_sync_sensors(hass, entry.entry_id, device)
             else:
                 LOGGER.debug(
                     f"Media sync for {device["name"]} disabled (inside mediaSync): {enableMediaSync}"
@@ -1343,7 +1393,30 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
             lambda event: hass.add_job(_close_controllers, hass, entry.entry_id),
         )
 
+        # Start scanning without waiting for HA startup and the next polling update.
+        device = hass.data[DOMAIN][entry.entry_id]
+        entry.async_on_unload(device["update_listener"])
+        await cleanupThumbnailCache(hass, entry)
+        entry.async_on_unload(
+            async_track_time_interval(
+                hass, partial(cleanupThumbnailCache, hass, entry), timedelta(seconds=60)
+            )
+        )
+        for scanDevice in [device, *device["childDevices"]]:
+            entry.async_create_background_task(
+                hass,
+                scheduleAll(hass, scanDevice, entry, mediaSync),
+                "initial_media_scan",
+            )
+
     except Exception as e:
+        LOGGER.debug(
+            "Tapo integration setup failed for %s (%s): %r",
+            host,
+            type(e).__name__,
+            e,
+            exc_info=True,
+        )
         if "Invalid authentication data" in str(e):
             if hass.data[DOMAIN][entry.entry_id]["setup_retries"] < 3:
                 hass.data[DOMAIN][entry.entry_id]["setup_retries"] += 1
@@ -1361,4 +1434,5 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
             )
             raise ConfigEntryNotReady(e)
 
+    LOGGER.debug("Tapo integration setup completed for %s.", host)
     return True

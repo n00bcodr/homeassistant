@@ -1,0 +1,423 @@
+{
+    "title": "JellyHA",
+    "config": {
+        "step": {
+            "user": {
+                "title": "Подключение к Jellyfin",
+                "description": "Введите URL вашего сервера Jellyfin и выберите метод аутентификации",
+                "data": {
+                    "server_url": "URL сервера",
+                    "external_url": "Внешний URL (Необязательно, для ссылок UI)",
+                    "auth_method": "Метод аутентификации"
+                },
+                "data_description": {
+                    "server_url": "Полный URL вашего сервера Jellyfin (например, http://192.168.1.100:8096)"
+                }
+            },
+            "auth_api_key": {
+                "title": "Аутентификация по API-ключу",
+                "description": "Введите ваш API-ключ Jellyfin",
+                "data": {
+                    "api_key": "API-ключ"
+                },
+                "data_description": {
+                    "api_key": "API-ключ из панели управления Jellyfin → API-ключи"
+                }
+            },
+            "auth_login": {
+                "title": "Вход в Jellyfin",
+                "description": "Введите ваши учетные данные Jellyfin",
+                "data": {
+                    "username": "Имя пользователя",
+                    "password": "Пароль"
+                }
+            },
+            "user_select": {
+                "title": "Выбор пользователя",
+                "description": "Выберите, какого пользователя Jellyfin использовать",
+                "data": {
+                    "user_id": "Пользователь"
+                }
+            },
+            "library_select": {
+                "title": "Выбор библиотек",
+                "description": "Выберите, какие библиотеки включить (оставьте пустым для всех)",
+                "data": {
+                    "libraries": "Библиотеки",
+                    "refresh_interval": "Интервал обновления библиотеки",
+                    "instance_label": "Метка экземпляра"
+                },
+                "data_description": {
+                    "instance_label": "Добавьте метку, чтобы различать этот экземпляр (например, Фильмы, Музыка, Домашнее видео). Ваше устройство будет называться «JellyHA Фильмы», «JellyHA Музыка» и т. д. Оставьте пустым для значения по умолчанию «JellyHA»."
+                }
+            },
+            "reauth_confirm": {
+                "title": "Повторная аутентификация Jellyfin",
+                "description": "Обновите ваши учетные данные для Jellyfin",
+                "data": {
+                    "server_url": "URL сервера",
+                    "auth_method": "Метод аутентификации"
+                },
+                "data_description": {
+                    "server_url": "Полный URL вашего сервера Jellyfin (например, http://192.168.1.100:8096)"
+                }
+            }
+        },
+        "error": {
+            "cannot_connect": "Не удалось подключиться к серверу Jellyfin",
+            "invalid_auth": "Неверный API-ключ или учетные данные",
+            "unknown": "Произошла непредвиденная ошибка"
+        },
+        "abort": {
+            "already_configured": "Этот сервер Jellyfin уже настроен",
+            "reauth_successful": "Повторная аутентификация выполнена успешно",
+            "reauth_failed": "Ошибка повторной аутентификации"
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "Настройки сервера",
+                "data": {
+                    "server_url": "URL сервера",
+                    "external_url": "Внешний URL (необязательно, для ссылок UI)",
+                    "refresh_interval": "Интервал обновления библиотеки",
+                    "update_credentials": "Обновить учетные данные / Сменить пользователя",
+                    "libraries": "Библиотеки",
+                    "enable_live_tv": "Включить Live TV"
+                },
+                "data_description": {
+                    "enable_live_tv": "Включить каналы Live TV, специальные службы и медиабраузер."
+                }
+            },
+            "auth_method": {
+                "title": "Метод аутентификации",
+                "description": "Выберите способ аутентификации",
+                "data": {
+                    "auth_method": "Метод"
+                }
+            },
+            "auth_api_key": {
+                "title": "Аутентификация по API-ключу",
+                "description": "Введите ваш API-ключ Jellyfin",
+                "data": {
+                    "api_key": "API-ключ"
+                }
+            },
+            "auth_login": {
+                "title": "Вход в Jellyfin",
+                "description": "Введите ваши учетные данные Jellyfin",
+                "data": {
+                    "username": "Имя пользователя",
+                    "password": "Пароль"
+                }
+            },
+            "user_select": {
+                "title": "Выбрать пользователя",
+                "description": "Выберите пользователя Jellyfin для переключения",
+                "data": {
+                    "user_id": "Пользователь"
+                }
+            },
+            "library_select": {
+                "title": "Выбрать библиотеки",
+                "description": "Выберите, какие библиотеки включить (оставьте пустым для всех)",
+                "data": {
+                    "libraries": "Библиотеки"
+                }
+            }
+        },
+        "error": {
+            "invalid_auth": "Неверный API-ключ или учетные данные",
+            "cannot_connect": "Не удалось подключиться к серверу Jellyfin",
+            "unknown": "Произошла непредвиденная ошибка"
+        },
+        "abort": {
+            "configuration_saved": "Конфигурация успешно сохранена."
+        }
+    },
+    "entity": {
+        "sensor": {
+            "library": {
+                "name": "Библиотека"
+            },
+            "favorites_count": {
+                "name": "Избранное"
+            },
+            "unwatched_count": {
+                "name": "Не просмотрено"
+            },
+            "unwatched_movies": {
+                "name": "Непросмотренные фильмы"
+            },
+            "unwatched_series": {
+                "name": "Непросмотренные сериалы"
+            },
+            "unwatched_episodes": {
+                "name": "Непросмотренные эпизоды"
+            },
+            "last_refresh": {
+                "name": "Последнее обновление"
+            },
+            "last_data_change": {
+                "name": "Последнее обновление библиотеки"
+            },
+            "websocket_status": {
+                "name": "Статус WebSocket"
+            },
+            "version": {
+                "name": "Версия Jellyfin"
+            },
+            "active_sessions": {
+                "name": "Активные сессии"
+            },
+            "watched_count": {
+                "name": "Просмотрено"
+            },
+            "watched_episodes": {
+                "name": "Просмотренные эпизоды"
+            },
+            "watched_series": {
+                "name": "Просмотренные сериалы"
+            },
+            "watched_movies": {
+                "name": "Просмотренные фильмы"
+            },
+            "refresh_duration": {
+                "name": "Длительность обновления"
+            },
+            "movies": {
+                "name": "Фильмы"
+            },
+            "series": {
+                "name": "Сериалы"
+            },
+            "episodes": {
+                "name": "Эпизоды"
+            },
+            "latest_movie": {
+                "name": "Последний фильм"
+            },
+            "latest_episode": {
+                "name": "Последний эпизод"
+            },
+            "transcoding_streams": {
+                "name": "Потоки транскодирования"
+            },
+            "connected_clients": {
+                "name": "Подключённые клиенты"
+            },
+            "storage_free": {
+                "name": "Свободно на медиа-хранилище"
+            },
+            "storage_free_percent": {
+                "name": "Процент свободного медиа-хранилища"
+            },
+            "library_movies_watched_percentage": {
+                "name": "Процент просмотренных фильмов в медиатеке"
+            },
+            "library_series_watched_percentage": {
+                "name": "Процент просмотренных сериалов в медиатеке"
+            },
+            "library_episodes_watched_percentage": {
+                "name": "Процент просмотренных серий в медиатеке"
+            },
+            "live_tv_channels": {
+                "name": "Каналы Live TV"
+            }
+        },
+        "media_player": {
+            "library_browser": {
+                "name": "Обозреватель библиотеки"
+            }
+        }
+    },
+    "services": {
+        "play_on_chromecast": {
+            "name": "Воспроизвести на Chromecast",
+            "description": "Воспроизвести элемент Jellyfin на устройстве Chromecast",
+            "fields": {
+                "entity_id": {
+                    "name": "Медиа-плеер",
+                    "description": "Сущность медиа-плеера Chromecast"
+                },
+                "item_id": {
+                    "name": "ID элемента",
+                    "description": "ID элемента Jellyfin для воспроизведения"
+                },
+                "use_series_image": {
+                    "name": "Использовать постер сериала",
+                    "description": "Для эпизодов ТВ-сериалов отправлять официальный вертикальный постер сериала на Chromecast вместо скриншота эпизода"
+                },
+                "subtitle_mode": {
+                    "name": "Режим субтитров",
+                    "description": "Стратегия выбора субтитров: auto (профиль пользователя Jellyfin), none (отключено), forced_only или custom"
+                },
+                "subtitle_language": {
+                    "name": "Языки субтитров",
+                    "description": "Приоритетный список языковых кодов или названий через запятую (напр. 'sl, en' или 'slv, eng')"
+                }
+            }
+        },
+        "refresh_library": {
+            "name": "Обновить библиотеку",
+            "description": "Принудительное обновление данных библиотеки из Jellyfin"
+        },
+        "delete_item": {
+            "name": "Удалить элемент",
+            "description": "Удалить элемент из библиотеки Jellyfin",
+            "fields": {
+                "item_id": {
+                    "name": "ID элемента",
+                    "description": "ID элемента Jellyfin для удаления"
+                }
+            }
+        },
+        "get_live_tv_channels": {
+            "name": "Получить каналы Live TV",
+            "description": "Получить доступные каналы Live TV Jellyfin с возможностью фильтрации поиска.",
+            "fields": {
+                "query": {
+                    "name": "Поисковый запрос",
+                    "description": "Фильтровать каналы по имени или номеру (необязательно)."
+                },
+                "limit": {
+                    "name": "Лимит",
+                    "description": "Максимальное количество каналов для возврата (необязательно)."
+                }
+            }
+        },
+        "play_live_tv_channel": {
+            "name": "Воспроизвести канал Live TV",
+            "description": "Найти канал Live TV по номеру или названию и воспроизвести его.",
+            "fields": {
+                "channel_number": {
+                    "name": "Номер канала",
+                    "description": "Точный номер канала Jellyfin."
+                },
+                "channel_name": {
+                    "name": "Название канала",
+                    "description": "Название канала Jellyfin."
+                }
+            }
+        },
+        "music_search": {
+            "name": "Поиск музыки",
+            "description": "Поиск треков, альбомов или исполнителей в медиатеке Jellyfin с параметрами FLAC и Hi-Res.",
+            "fields": {
+                "query": {
+                    "name": "Поисковый запрос",
+                    "description": "Текст поиска названия трека, альбома или исполнителя."
+                },
+                "search_type": {
+                    "name": "Тип поиска",
+                    "description": "Тип элементов (все, трек, альбом, исполнитель)."
+                },
+                "artist": {
+                    "name": "Исполнитель",
+                    "description": "Фильтр по имени исполнителя."
+                },
+                "album": {
+                    "name": "Альбом",
+                    "description": "Фильтр по названию альбома."
+                },
+                "genre": {
+                    "name": "Жанр",
+                    "description": "Фильтр по музыкальному жанру."
+                },
+                "year": {
+                    "name": "Год",
+                    "description": "Фильтр по году выпуска."
+                },
+                "codec": {
+                    "name": "Аудиокодек / формат",
+                    "description": "Фильтр по аудиокодеку (например, flac, alac, mp3, aac, opus, dsd, wav)."
+                },
+                "is_hi_res": {
+                    "name": "Только Hi-Res аудио",
+                    "description": "Фильтр аудио высокого разрешения (24-bit+ или >48kHz или DSD)."
+                },
+                "is_lossless": {
+                    "name": "Только Lossless аудио",
+                    "description": "Фильтр форматов без потерь (FLAC, ALAC, WAV, DSD)."
+                },
+                "limit": {
+                    "name": "Лимит",
+                    "description": "Максимальное количество результатов."
+                }
+            }
+        },
+        "play_music": {
+            "name": "Воспроизвести музыку",
+            "description": "Найти и воспроизвести трек или альбом из Jellyfin на любом медиаплеере Home Assistant.",
+            "fields": {
+                "entity_id": {
+                    "name": "Медиаплеер",
+                    "description": "Целевой медиаплеер Home Assistant для воспроизведения музыки."
+                },
+                "query": {
+                    "name": "Поисковый запрос / название трека",
+                    "description": "Название трека или поисковый текст."
+                },
+                "artist": {
+                    "name": "Исполнитель",
+                    "description": "Имя исполнителя."
+                },
+                "album": {
+                    "name": "Альбом",
+                    "description": "Название альбома."
+                }
+            }
+        },
+        "play_playlist": {
+            "name": "Воспроизвести плейлист",
+            "description": "Воспроизвести плейлист из Jellyfin на любом медиаплеере Home Assistant или напрямую в клиентской сессии Jellyfin, с возможностью случайного воспроизведения.",
+            "fields": {
+                "entity_id": {
+                    "name": "Медиаплеер",
+                    "description": "Целевой медиаплеер для воспроизведения плейлиста."
+                },
+                "playlist": {
+                    "name": "Имя или ID плейлиста",
+                    "description": "Имя или ID элемента плейлиста в Jellyfin."
+                },
+                "shuffle": {
+                    "name": "Случайный порядок",
+                    "description": "Перемешать треки перед воспроизведением."
+                }
+            }
+        },
+        "get_playlists": {
+            "name": "Получить плейлисты",
+            "description": "Получить все пользовательские плейлисты из Jellyfin с количеством треков, продолжительностью и обложкой в response_variable.",
+            "fields": {
+                "query": {
+                    "name": "Запрос",
+                    "description": "Необязательный поисковый фильтр для названий плейлистов."
+                },
+                "limit": {
+                    "name": "Лимит",
+                    "description": "Максимальное количество возвращаемых плейлистов."
+                }
+            }
+        },
+        "get_collections": {
+            "name": "Получить коллекции",
+            "description": "Получить все коллекции фильмов (BoxSet) из Jellyfin с количеством элементов и входящими фильмами в response_variable.",
+            "fields": {
+                "query": {
+                    "name": "Запрос",
+                    "description": "Необязательный поисковый фильтр для названий коллекций."
+                },
+                "limit": {
+                    "name": "Лимит",
+                    "description": "Максимальное количество возвращаемых коллекций."
+                },
+                "include_items": {
+                    "name": "Включить элементы",
+                    "description": "Включить фильмы коллекции в ответ."
+                }
+            }
+        }
+    }
+}

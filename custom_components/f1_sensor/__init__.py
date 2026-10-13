@@ -9,6 +9,7 @@ from functools import partial
 import hashlib
 import json
 import logging
+import math
 from pathlib import Path
 import re
 import time
@@ -17,11 +18,11 @@ from urllib.parse import urljoin
 
 from homeassistant.components import websocket_api
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import EVENT_COMPONENT_LOADED
 from homeassistant.core import HomeAssistant, ServiceCall, callback as ha_callback
 from homeassistant.exceptions import ConfigEntryNotReady, ServiceValidationError
 from homeassistant.helpers import config_validation as cv, entity_registry as er
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.entity_platform import async_get_platforms
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.storage import Store
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
@@ -29,6 +30,11 @@ from homeassistant.util import dt as dt_util
 import voluptuous as vol
 
 from . import const
+from .analysis import Phase4AnalysisStore
+from .analysis_websocket import (
+    ANALYSIS_WS_MARKER,
+    async_register_analysis_websocket,
+)
 from .auth import (
     AUTH_REPAIR_STATUSES,
     AUTH_RUNTIME_STATUS,
@@ -42,10 +48,15 @@ from .auth import (
     is_auth_transport_enabled,
     rejected_f1tv_auth_status,
 )
-from .auth_http import async_setup_f1tv_auth_http
+from .auth_http import (
+    AUTH_HTTP_VIEW_REGISTERED,
+    AUTH_PAIRING_SESSIONS,
+    async_setup_f1tv_auth_http,
+)
 from .calibration import LiveDelayCalibrationManager
 from .const import (
     API_URL,
+    CONF_LEGACY_RACE_CONTROL_EVENTS,
     CONF_LIVE_DELAY_REFERENCE,
     CONF_LIVE_TIMING_AUTH_HEADER,
     CONF_OPERATION_MODE,
@@ -60,13 +71,13 @@ from .const import (
     FIA_DOCS_FETCH_TIMEOUT,
     FIA_DOCS_POLL_INTERVAL,
     FIA_DOCUMENTS_BASE_URL,
-    FIA_SEASON_FALLBACK_URL,
     FIA_SEASON_LIST_URL,
     LAST_RACE_RESULTS_URL,
     LATEST_TRACK_STATUS,
     LIVETIMING_INDEX_URL,
     OPERATION_MODE_DEVELOPMENT,
     OPERATION_MODE_LIVE,
+    OPT_IN_SENSOR_KEYS,
     PLATFORMS,
     RACE_SWITCH_GRACE,
     RCM_OVERTAKE_DISABLED,
@@ -86,8 +97,14 @@ from .entity import (
     register_entry_name_settings,
     unregister_entry_name_settings,
 )
+from .entity_map_websocket import (
+    ENTITY_MAP_WS_MARKER,
+    async_register_entity_map_websocket,
+)
+from .favorite_driver import FavoriteDriverController
+from .feature_plan import FeaturePlan, build_feature_plan
 from .formation_start import FormationStartTracker
-from .frontend import async_ensure_live_data_card_frontend
+from .frontend import async_reconcile_live_data_card_frontend
 from .helpers import (
     PersistentCache,
     build_user_agent,
@@ -96,6 +113,8 @@ from .helpers import (
     get_next_race,
     parse_fia_documents,
 )
+from .history import LAP_ANALYSIS_STREAMS, HistoryService, LapAnalysisStore
+from .history_websocket import HISTORY_WS_MARKER, async_register_history_websocket
 from .incident_detection import (
     CONFIDENCE_ORDER,
     DATA_QUALITY_BOOTSTRAP,
@@ -107,7 +126,25 @@ from .incident_detection import (
     SessionMetadata,
     normalize_stream,
 )
-from .lap_position_websocket import async_register_lap_position_websocket
+from .jolpica import (
+    JOLPICA_CLIENT_KEY,
+    JolpicaClient,
+    JolpicaRouteNotFoundError,
+)
+from .jolpica_pagination import (
+    JolpicaPaginationError,
+    async_paginate_jolpica,
+    lap_leaf_keys,
+    merge_result_pages,
+    race_leaf_keys,
+    result_leaf_keys,
+    standings_leaf_keys,
+    validate_single_page_jolpica,
+)
+from .lap_position_websocket import (
+    LAP_POSITION_WS_MARKER,
+    async_register_lap_position_websocket,
+)
 from .live_delay import LiveDelayController, LiveDelayReferenceController
 from .live_window import (
     EventTrackerScheduleSource,
@@ -115,9 +152,27 @@ from .live_window import (
     LiveSessionSupervisor,
 )
 from .no_spoiler import NoSpoilerModeManager
+from .providers import ProviderRegistry
+from .race_weather import F1RaceWeatherCoordinator
 from .replay import ReplaySignalRClient
 from .replay_mode import ReplayController, ReplayState
 from .replay_start import ReplayStartReferenceController
+from .replay_telemetry import ReplayTelemetryService
+from .runtime import (
+    OPTION_KEYS,
+    AnalysisRuntime,
+    CacheRuntime,
+    CapabilityState,
+    F1ConfigEntry,
+    F1RuntimeData,
+    HistoryRuntime,
+    LiveRuntime,
+    ProviderRuntime,
+    ReplayRuntime,
+    StaticRuntime,
+    effective_entry_settings,
+    entry_value,
+)
 from .signalr import (
     AUTH_GATED_LIVE_STREAMS,
     PUBLIC_LIVE_STREAMS,
@@ -126,6 +181,7 @@ from .signalr import (
     build_live_subscribe_streams,
 )
 from .starting_grid import StartingGridCoordinator
+from .storage import async_remove_entry_storage
 from .track_map import (
     TRACK_MAP_SOURCE_LIVE,
     TRACK_MAP_SOURCE_REPLAY,
@@ -149,15 +205,10 @@ def _format_update_error(err: Exception) -> str:
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 _JOLPICA_STATS_KEY = "__jolpica_stats__"
+_JOLPICA_CLIENT_INIT_TASK_KEY = "__jolpica_client_init_task__"
+_JOLPICA_SETUP_OWNERS_KEY = "__jolpica_setup_owners__"
 _REPLAY_DELAY_REASONS = frozenset({"replay", "replay-mode", "replay-preparing"})
 _REPLAY_ONLY_ACTIVE_REASONS = frozenset({"replay", "replay-mode"})
-_ACTIVITY_LOG_EXCLUDED_SENSOR_SUFFIXES = (
-    "_track_time",
-    "_session_time_remaining",
-    "_session_time_elapsed",
-    "_race_time_to_three_hour_limit",
-)
-_ACTIVITY_FILTER_MARKER = "__f1_sensor_activity_filter__"
 RACE_CONTROL_LOG_MAX_ITEMS = 500
 RACE_CONTROL_LOG_MAX_FIELD_CHARS = 512
 RACE_CONTROL_LOG_EVENT_ID_CHARS = 40
@@ -171,9 +222,6 @@ PITSTOP_MAX_CARS_PER_PAYLOAD = 60
 PITSTOP_MAX_ENTRIES_PER_PAYLOAD = 200
 PITSTOP_MAX_RACING_NUMBER_CHARS = 3
 PITSTOP_MAX_TEXT_CHARS = 80
-_ACTIVITY_FILTER_REBIND_MARKER = "__f1_sensor_activity_filter_rebound__"
-_ACTIVITY_LOGBOOK_SUBSCRIBE_MARKER = "__f1_sensor_activity_logbook_subscribe__"
-_ACTIVITY_FILTER_COMPONENTS = frozenset({"recorder", "logbook"})
 _RC_LOG_SERVICE_MARKER = "__race_control_log_service_registered__"
 _RC_LOG_WS_MARKER = "__race_control_log_ws_registered__"
 _RC_LOG_SERVICE = "clear_race_control_log"
@@ -196,9 +244,18 @@ _INCIDENT_BOOTSTRAP_SKIP_STREAMS = frozenset({"RaceControlMessages", "TrackStatu
 _DOMAIN_ROOT_INTERNAL_KEYS = frozenset(
     {
         _JOLPICA_STATS_KEY,
+        JOLPICA_CLIENT_KEY,
+        _JOLPICA_CLIENT_INIT_TASK_KEY,
+        _JOLPICA_SETUP_OWNERS_KEY,
         _RC_LOG_SERVICE_MARKER,
         _RC_LOG_WS_MARKER,
+        AUTH_HTTP_VIEW_REGISTERED,
+        AUTH_PAIRING_SESSIONS,
+        LAP_POSITION_WS_MARKER,
+        HISTORY_WS_MARKER,
+        ANALYSIS_WS_MARKER,
         TRACK_MAP_WS_MARKER,
+        ENTITY_MAP_WS_MARKER,
     }
 )
 _FINISHING_PLUS_LAPS_RE = re.compile(r"^\+\d+\s+Laps?$", re.IGNORECASE)
@@ -210,144 +267,6 @@ def _is_replay_delay_reason(reason: str | None) -> bool:
 
 def _is_replay_only_active_reason(reason: str | None) -> bool:
     return reason in _REPLAY_ONLY_ACTIVE_REASONS
-
-
-def _is_activity_log_excluded_entity(entity_id: str | None) -> bool:
-    """Return True for high-frequency timer entities we do not want in activity log."""
-    if not entity_id or not isinstance(entity_id, str):
-        return False
-    entity_id_l = entity_id.lower()
-    if not entity_id_l.startswith("sensor."):
-        return False
-    return entity_id_l.endswith(_ACTIVITY_LOG_EXCLUDED_SENSOR_SUFFIXES)
-
-
-def _wrap_activity_filter(
-    existing_filter: Callable[[str], bool] | None,
-) -> Callable[[str], bool]:
-    """Wrap a recorder/logbook entity filter with f1 high-frequency excludes."""
-    if existing_filter is not None and getattr(
-        existing_filter, _ACTIVITY_FILTER_MARKER, False
-    ):
-        return existing_filter
-
-    def _wrapped(entity_id: str) -> bool:
-        if _is_activity_log_excluded_entity(entity_id):
-            return False
-        if existing_filter is None:
-            return True
-        return bool(existing_filter(entity_id))
-
-    setattr(_wrapped, _ACTIVITY_FILTER_MARKER, True)
-    return _wrapped
-
-
-def _refresh_recorder_entity_filter(instance: Any) -> None:
-    """Apply wrapped entity filter and rebind event listener when needed."""
-    current = getattr(instance, "entity_filter", None)
-    wrapped = _wrap_activity_filter(current)
-    changed = wrapped is not current
-    instance.entity_filter = wrapped
-    rebound = bool(getattr(instance, _ACTIVITY_FILTER_REBIND_MARKER, False))
-    needs_rebind = changed or not rebound
-    if not bool(getattr(instance, "recording", False)):
-        return
-    if not needs_rebind:
-        return
-    stop_listener = getattr(
-        instance, "_async_stop_queue_watcher_and_event_listener", None
-    )
-    init_listener = getattr(instance, "async_initialize", None)
-    if callable(stop_listener) and callable(init_listener):
-        stop_listener()
-        init_listener()
-        setattr(instance, _ACTIVITY_FILTER_REBIND_MARKER, True)
-
-
-def _wrap_logbook_subscribe_events(
-    existing_subscribe: Callable[..., Any] | None,
-) -> Callable[..., Any] | None:
-    """Wrap logbook live subscription so excluded entities never emit activity rows."""
-    if not callable(existing_subscribe):
-        return existing_subscribe
-    if getattr(existing_subscribe, _ACTIVITY_LOGBOOK_SUBSCRIBE_MARKER, False):
-        return existing_subscribe
-
-    def _wrapped_subscribe(
-        hass: HomeAssistant,
-        subscriptions: list[Callable[[], None]],
-        target: Callable[[Any], None],
-        event_types: Any,
-        entities_filter: Callable[[str], bool] | None,
-        entity_ids: list[str] | None,
-        device_ids: list[str] | None,
-    ) -> None:
-        @ha_callback
-        def _filtered_target(event: Any) -> None:
-            data = getattr(event, "data", None)
-            if isinstance(data, dict):
-                raw_entity = data.get("entity_id")
-                if isinstance(raw_entity, str) and _is_activity_log_excluded_entity(
-                    raw_entity
-                ):
-                    return
-                if isinstance(raw_entity, list):
-                    if any(
-                        _is_activity_log_excluded_entity(entity_id)
-                        for entity_id in raw_entity
-                    ):
-                        return
-                new_state = data.get("new_state")
-                if _is_activity_log_excluded_entity(
-                    getattr(new_state, "entity_id", None)
-                ):
-                    return
-            target(event)
-
-        existing_subscribe(
-            hass,
-            subscriptions,
-            _filtered_target,
-            event_types,
-            entities_filter,
-            entity_ids,
-            device_ids,
-        )
-
-    setattr(_wrapped_subscribe, _ACTIVITY_LOGBOOK_SUBSCRIBE_MARKER, True)
-    return _wrapped_subscribe
-
-
-def _apply_activity_log_filter_excludes(hass: HomeAssistant) -> None:
-    """Exclude noisy timer entities from recorder/logbook filters."""
-    with suppress(Exception):
-        from homeassistant.components import (
-            recorder as recorder_component,  # noqa: PLC0415
-        )
-
-        instance = recorder_component.get_instance(hass)
-        if instance is not None:
-            _refresh_recorder_entity_filter(instance)
-
-    with suppress(Exception):
-        from homeassistant.components.logbook import (  # noqa: PLC0415  # noqa: PLC0415
-            DOMAIN as LOGBOOK_DOMAIN,  # noqa: PLC0415
-            helpers as logbook_helpers,
-            websocket_api as logbook_websocket_api,
-        )
-
-        logbook_data = hass.data.get(LOGBOOK_DOMAIN)
-        if logbook_data is not None and hasattr(logbook_data, "entity_filter"):
-            logbook_data.entity_filter = _wrap_activity_filter(
-                getattr(logbook_data, "entity_filter", None)
-            )
-
-        wrapped_subscribe = _wrap_logbook_subscribe_events(
-            getattr(logbook_helpers, "async_subscribe_events", None)
-        )
-        if callable(wrapped_subscribe):
-            logbook_helpers.async_subscribe_events = wrapped_subscribe
-            logbook_websocket_api.async_subscribe_events = wrapped_subscribe
 
 
 def _rc_cleanup_string(
@@ -977,7 +896,9 @@ def _arm_delayed_ingest_queue(instance: Any) -> None:
 
 
 def _drain_delayed_ingest_queue(instance: Any) -> None:
-    instance._delay_queue_handle = None
+    instance._delay_queue_handle = _cancel_handle(
+        getattr(instance, "_delay_queue_handle", None)
+    )
     queue = getattr(instance, "_delay_queue", None)
     if not isinstance(queue, deque):
         return
@@ -1072,6 +993,90 @@ def _wrap_delayed_handler(
         )
 
     return _wrapped
+
+
+class _DelayedAnalysisBus:
+    """Deliver one ordered, delayed input to the dependent analysis stores."""
+
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        bus: LiveBus,
+        delay_seconds: int,
+        delay_controller: LiveDelayController | None,
+        live_state: LiveAvailabilityTracker | None,
+    ) -> None:
+        self.hass = hass
+        self._handlers: dict[str, list[Callable[[Any], None]]] = {}
+        self._last_payload: dict[str, Any] = {}
+        self._stream_unsubs: dict[str, Callable[[], None]] = {}
+        self._closed = False
+        _init_stream_delay_state(
+            self,
+            delay_seconds,
+            bus=bus,
+            delay_controller=delay_controller,
+            live_state=live_state,
+        )
+
+    def subscribe(
+        self, stream: str, handler: Callable[[Any], None]
+    ) -> Callable[[], None]:
+        """Preserve registration order with one raw subscription per stream."""
+        handlers = self._handlers.setdefault(stream, [])
+        handlers.append(handler)
+        if stream not in self._stream_unsubs:
+            self._stream_unsubs[stream] = self._bus.subscribe(
+                stream,
+                _wrap_delayed_handler(
+                    self, lambda payload: self._dispatch(stream, payload)
+                ),
+            )
+        elif stream in self._last_payload:
+            handler(self._last_payload[stream])
+
+        def _unsubscribe() -> None:
+            with suppress(ValueError):
+                handlers.remove(handler)
+
+        return _unsubscribe
+
+    def _dispatch(self, stream: str, payload: Any) -> None:
+        if self._closed or _is_no_spoiler_blocked(self):
+            return
+        self._last_payload[stream] = payload
+        for handler in tuple(self._handlers.get(stream, ())):
+            handler(payload)
+
+    def set_delay(self, seconds: int) -> None:
+        _apply_delay_with_queue(self, seconds)
+
+    def _handle_live_state(self, is_live: bool, reason: str | None) -> None:
+        if reason == "init":
+            return
+        replay_mode = _is_replay_delay_reason(reason)
+        if (
+            replay_mode != self._replay_mode
+            or not is_live
+            or _is_no_spoiler_live_state(reason)
+        ):
+            self.reset_for_replay()
+        self._replay_mode = replay_mode
+
+    def reset_for_replay(self) -> None:
+        """Discard raw frames from the previous playback generation."""
+        _clear_delayed_ingest_state(self)
+        self._last_payload.clear()
+
+    async def async_close(self) -> None:
+        """Cancel delayed work before releasing the raw stream subscriptions."""
+        self._closed = True
+        _close_stream_delay_state(self)
+        for unsubscribe in self._stream_unsubs.values():
+            unsubscribe()
+        self._stream_unsubs.clear()
+        self._handlers.clear()
+        self._last_payload.clear()
 
 
 def _apply_delay_simple(instance: Any, seconds: int) -> None:
@@ -1393,21 +1398,348 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
         await manager.async_load()
         domain_root[_NO_SPOILER_MANAGER_KEY] = manager
     async_setup_f1tv_auth_http(hass)
+    _async_register_race_control_log_interfaces(hass)
     return True
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+class _SetupTransaction:
+    """Track resources until config-entry runtime ownership is published."""
+
+    def __init__(self) -> None:
+        self._resources: list[Any] = []
+        self._committed = False
+
+    def track(self, *resources: Any) -> None:
+        """Track closeable resources in creation order."""
+        self._resources.extend(
+            resource for resource in resources if resource is not None
+        )
+
+    def commit(self) -> None:
+        """Transfer cleanup ownership to the published runtime."""
+        self._committed = True
+        self._resources.clear()
+
+    async def async_rollback(self) -> None:
+        """Close tracked resources in reverse creation order."""
+        if self._committed:
+            return
+        seen: set[int] = set()
+        for resource in reversed(self._resources):
+            resource_id = id(resource)
+            if resource_id in seen:
+                continue
+            seen.add(resource_id)
+            close = getattr(resource, "async_close", None)
+            if not callable(close):
+                continue
+            with suppress(Exception):
+                result = close()
+                if asyncio.iscoroutine(result):
+                    await result
+        self._resources.clear()
+
+
+async def _async_close_runtime_mapping(data: dict[str, Any]) -> None:
+    """Close every entry-owned runtime object exactly once."""
+    seen: set[int] = set()
+    for name, obj in reversed(list(data.items())):
+        if obj is None or name == "jolpica_client":
+            continue
+        obj_id = id(obj)
+        if obj_id in seen:
+            continue
+        seen.add(obj_id)
+        if name.endswith("_unsub") and callable(obj):
+            with suppress(Exception):
+                obj()
+            continue
+        close = getattr(obj, "async_close", None)
+        if callable(close):
+            with suppress(Exception):
+                result = close()
+                if asyncio.iscoroutine(result):
+                    await result
+
+
+async def _async_close_shared_client_if_unused(hass: HomeAssistant) -> None:
+    """Close the domain client only when no setup or loaded entry owns it."""
+    root = hass.data.get(DOMAIN)
+    if not isinstance(root, dict):
+        return
+    if root.get(_JOLPICA_SETUP_OWNERS_KEY):
+        return
+    initialization = root.get(_JOLPICA_CLIENT_INIT_TASK_KEY)
+    if isinstance(initialization, _JolpicaClientInitialization):
+        if initialization.waiters:
+            return
+        root.pop(_JOLPICA_CLIENT_INIT_TASK_KEY, None)
+        await initialization.async_close()
+    if any(
+        isinstance(value, dict)
+        for key, value in root.items()
+        if key not in _DOMAIN_ROOT_INTERNAL_KEYS and key != _NO_SPOILER_MANAGER_KEY
+    ):
+        return
+    client = root.pop(JOLPICA_CLIENT_KEY, None)
+    close = getattr(client, "async_close", None)
+    if callable(close):
+        with suppress(Exception):
+            await close()
+
+
+async def async_migrate_entry(hass: HomeAssistant, entry: F1ConfigEntry) -> bool:
+    """Migrate legacy sensor allowlists and establish single-instance identity."""
+    if entry.version > 4:
+        _LOGGER.error("Cannot migrate config entry from version %s", entry.version)
+        return False
+
+    data = dict(entry.data)
+    options = dict(entry.options)
+    changed = False
+    if entry.version < 2 and "disabled_sensors" not in data:
+        raw_enabled = data.get("enabled_sensors")
+        if isinstance(raw_enabled, (list, tuple, set, frozenset)):
+            normalized = {
+                "next_race" if str(key) == "next_session" else str(key)
+                for key in raw_enabled
+            }
+            enabled = normalized & SUPPORTED_SENSOR_KEYS
+            data["disabled_sensors"] = sorted(SUPPORTED_SENSOR_KEYS - enabled)
+        else:
+            data["disabled_sensors"] = []
+        changed = True
+
+    if entry.version < 3:
+        for key in OPTION_KEYS:
+            if key in data and key not in options:
+                options[key] = data[key]
+            if key in data:
+                data.pop(key)
+                changed = True
+
+    if entry.version < 4:
+        disabled = set(options.get("disabled_sensors") or [])
+        disabled.update(OPT_IN_SENSOR_KEYS)
+        options["disabled_sensors"] = sorted(disabled)
+        changed = True
+
+    if entry.version < 4 or entry.minor_version < 2:
+        # Before feature-based demand, enabling live timing also enabled Race
+        # Control events regardless of the selected sensors. Preserve that
+        # contract for existing event automations without creating extra sensors.
+        data[CONF_LEGACY_RACE_CONTROL_EVENTS] = bool(
+            options.get("enable_race_control", data.get("enable_race_control", False))
+        )
+        changed = True
+
+    unique_id = entry.unique_id
+    if unique_id is None:
+        conflicting = any(
+            candidate.entry_id != entry.entry_id and candidate.unique_id == DOMAIN
+            for candidate in hass.config_entries.async_entries(DOMAIN)
+        )
+        if not conflicting:
+            unique_id = DOMAIN
+            changed = True
+
+    if changed or entry.version != 4:
+        hass.config_entries.async_update_entry(
+            entry,
+            data=data,
+            options=options,
+            unique_id=unique_id,
+            version=4,
+            minor_version=max(entry.minor_version, 2) if entry.version == 4 else 2,
+        )
+    return True
+
+
+class _JolpicaClientInitialization:
+    """Own one initialization until a waiting setup claims its client."""
+
+    def __init__(self, hass: HomeAssistant, session: Any, user_agent: str) -> None:
+        self.waiters = 0
+        self.task = hass.loop.create_task(
+            self._async_initialize(hass, session, user_agent)
+        )
+
+    async def _async_initialize(
+        self, hass: HomeAssistant, session: Any, user_agent: str
+    ) -> JolpicaClient:
+        client = JolpicaClient(hass, session, user_agent)
+        try:
+            await client.async_initialize()
+        except BaseException:
+            with suppress(Exception):
+                await client.async_close()
+            raise
+        return client
+
+    async def async_close(self) -> None:
+        """Cancel unfinished initialization or close an unclaimed result."""
+        if not self.task.done():
+            self.task.cancel()
+        result = (await asyncio.gather(self.task, return_exceptions=True))[0]
+        if not isinstance(result, BaseException):
+            with suppress(Exception):
+                await result.async_close()
+
+
+async def _async_get_shared_jolpica_client(
+    hass: HomeAssistant,
+    session: Any,
+    user_agent: str,
+) -> JolpicaClient:
+    """Return the one domain-wide initialized Jolpica client."""
+    domain_root = hass.data.setdefault(DOMAIN, {})
+    client = domain_root.get(JOLPICA_CLIENT_KEY)
+    if isinstance(client, JolpicaClient):
+        return client
+
+    initialization = domain_root.get(_JOLPICA_CLIENT_INIT_TASK_KEY)
+    if not isinstance(initialization, _JolpicaClientInitialization):
+        initialization = _JolpicaClientInitialization(hass, session, user_agent)
+        domain_root[_JOLPICA_CLIENT_INIT_TASK_KEY] = initialization
+
+    initialization.waiters += 1
+    try:
+        client = await asyncio.shield(initialization.task)
+        # Only a live waiter may publish; the background task never publishes.
+        domain_root[JOLPICA_CLIENT_KEY] = client
+        return client
+    finally:
+        initialization.waiters -= 1
+        if not initialization.waiters:
+            if domain_root.get(_JOLPICA_CLIENT_INIT_TASK_KEY) is initialization:
+                domain_root.pop(_JOLPICA_CLIENT_INIT_TASK_KEY, None)
+            task = initialization.task
+            claimed = (
+                task.done()
+                and not task.cancelled()
+                and task.exception() is None
+                and domain_root.get(JOLPICA_CLIENT_KEY) is task.result()
+            )
+            if not claimed:
+                await initialization.async_close()
+
+
+async def _async_refresh_static_runtime(
+    *,
+    race_coordinator: Any,
+    next_race_history_coordinator: Any,
+    race_weather_coordinator: Any,
+    driver_coordinator: Any,
+    constructor_coordinator: Any,
+    last_race_coordinator: Any,
+    season_results_coordinator: Any,
+    sprint_results_coordinator: Any,
+    lap_position_progression_coordinator: Any,
+    fia_documents_coordinator: Any,
+) -> None:
+    """Perform the transactional first refresh for static providers."""
+    if race_coordinator:
+        await race_coordinator.async_config_entry_first_refresh()
+    if next_race_history_coordinator:
+        await next_race_history_coordinator.async_refresh()
+    if race_weather_coordinator:
+        await race_weather_coordinator.async_refresh()
+    if driver_coordinator:
+        await driver_coordinator.async_config_entry_first_refresh()
+    if constructor_coordinator:
+        await constructor_coordinator.async_config_entry_first_refresh()
+    if last_race_coordinator:
+        await last_race_coordinator.async_config_entry_first_refresh()
+    if season_results_coordinator:
+        await season_results_coordinator.async_config_entry_first_refresh()
+    if sprint_results_coordinator:
+        await sprint_results_coordinator.async_config_entry_first_refresh()
+    if lap_position_progression_coordinator:
+        await lap_position_progression_coordinator.async_config_entry_first_refresh()
+    if fia_documents_coordinator:
+        try:
+            await fia_documents_coordinator.async_config_entry_first_refresh()
+        except ConfigEntryNotReady as err:
+            fia_documents_coordinator.async_set_updated_data(
+                fia_documents_coordinator.build_empty_result()
+            )
+            _LOGGER.warning(
+                "FIA documents unavailable during setup; continuing without documents: %s",
+                err.__cause__ or err,
+            )
+
+
+async def async_setup_entry(hass: HomeAssistant, entry: F1ConfigEntry) -> bool:
+    """Set up one config entry transactionally."""
+    transaction = _SetupTransaction()
+    existing_platforms = {
+        id(platform) for platform in async_get_platforms(hass, DOMAIN)
+    }
+    root = hass.data.setdefault(DOMAIN, {})
+    owners = root.setdefault(_JOLPICA_SETUP_OWNERS_KEY, set())
+    owner = object()
+    owners.add(owner)
+    try:
+        return await _async_setup_entry(hass, entry, transaction)
+    except BaseException:
+        # Only unload platforms created for this attempt. HA may retain platform
+        # objects from earlier unloads in its entity-platform registry.
+        started_platforms = [
+            platform.domain
+            for platform in async_get_platforms(hass, DOMAIN)
+            if platform.config_entry is entry and id(platform) not in existing_platforms
+        ]
+        if started_platforms:
+            with suppress(Exception):
+                await hass.config_entries.async_unload_platforms(
+                    entry, started_platforms
+                )
+        data_root = hass.data.get(DOMAIN)
+        data = (
+            data_root.pop(entry.entry_id, None) if isinstance(data_root, dict) else None
+        )
+        if isinstance(data, dict):
+            await _async_close_runtime_mapping(data)
+        else:
+            await transaction.async_rollback()
+        async_cancel_f1tv_auth_status_refresh(hass, entry.entry_id)
+        unregister_entry_name_settings(entry.entry_id)
+        entry.runtime_data = None
+        raise
+    finally:
+        owners.discard(owner)
+        if not owners and root.get(_JOLPICA_SETUP_OWNERS_KEY) is owners:
+            root.pop(_JOLPICA_SETUP_OWNERS_KEY, None)
+        await _async_close_shared_client_if_unused(hass)
+
+
+async def _async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Reload an entry after its user-editable options change."""
+    await hass.config_entries.async_reload(entry.entry_id)
+
+
+async def _async_setup_entry(
+    hass: HomeAssistant,
+    entry: F1ConfigEntry,
+    transaction: _SetupTransaction,
+) -> bool:
     """Set up integration via config flow."""
     # Dev-only: periodically report how many Jolpica requests actually hit the network.
     _ensure_jolpica_stats_reporting(hass)
-    register_entry_name_settings(entry.entry_id, entry.data)
+    settings = effective_entry_settings(entry)
+    register_entry_name_settings(entry.entry_id, settings)
     await async_prepare_translation_names(hass, entry.entry_id)
     # Build the effective set of enabled sensors.
     # ``disabled_sensors`` stores the keys the user explicitly unchecked.
-    # Everything else (including new keys added in future versions) is enabled.
-    raw_disabled = entry.data.get("disabled_sensors") or []
+    # Everything else is enabled; migrations add explicitly opt-in keys to the
+    # disabled set until the user chooses them in integration options.
+    raw_disabled = settings.get("disabled_sensors") or []
     disabled: set[str] = {k for k in raw_disabled if k in SUPPORTED_SENSOR_KEYS}
     enabled = SUPPORTED_SENSOR_KEYS - disabled
+    enable_rc = bool(settings.get("enable_race_control", False))
+    configured_operation_mode = settings.get(
+        CONF_OPERATION_MODE, DEFAULT_OPERATION_MODE
+    )
 
     # Determine which Jolpica/Ergast coordinators are actually required.
     need_race = any(
@@ -1476,6 +1808,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # this UA per request in the coordinators instead.
     ua_string = await build_user_agent(hass)
     http_session = async_get_clientsession(hass)
+    jolpica_client = await _async_get_shared_jolpica_client(
+        hass,
+        http_session,
+        ua_string,
+    )
     _LOGGER.debug(
         "Configured User-Agent for Jolpica/Ergast (per-request): %s", ua_string
     )
@@ -1485,7 +1822,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     http_inflight: dict = {}
     # Persistent cache (across restarts) for rarely-changing endpoints
     persisted = PersistentCache(hass, entry.entry_id)
+    transaction.track(persisted)
     persisted_map = await persisted.load()
+    provider_registry = ProviderRegistry()
+    history_service = HistoryService(
+        hass,
+        http_session,
+        cache=http_cache,
+        inflight=http_inflight,
+        persisted=persisted_map,
+        persist_save=persisted.schedule_save,
+        registry=provider_registry,
+    )
 
     # Seed in-memory cache from persisted content with conservative startup TTLs
     with suppress(Exception):
@@ -1545,7 +1893,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             data = v.get("data") if isinstance(v, dict) else None
             if data is None:
                 continue
-            ttl = int(_startup_ttl_for_key(str(k)) or 0)
+            stored_ttl = v.get("ttl_seconds") if isinstance(v, dict) else None
+            try:
+                ttl = max(1, int(stored_ttl))
+            except (TypeError, ValueError):
+                ttl = int(_startup_ttl_for_key(str(k)) or 0)
             saved_at = None
             try:
                 saved_at = float(v.get("saved_at")) if isinstance(v, dict) else None
@@ -1576,6 +1928,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             ttl_seconds=TTL_CURRENT,
             persist_map=persisted_map,
             persist_save=persisted.schedule_save,
+            provider_registry=provider_registry,
             config_entry=entry,
         )
         if need_race
@@ -1603,6 +1956,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
     if next_race_history_coordinator is not None:
         next_race_history_coordinator._no_spoiler_sensitive = False
+    race_weather_coordinator = (
+        F1RaceWeatherCoordinator(
+            hass,
+            race_coordinator,
+            session=http_session,
+            config_entry=entry,
+        )
+        if race_coordinator is not None and "weather" in enabled
+        else None
+    )
     driver_coordinator = (
         F1DataCoordinator(
             hass,
@@ -1615,6 +1978,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             ttl_seconds=TTL_STANDINGS,
             persist_map=persisted_map,
             persist_save=persisted.schedule_save,
+            provider_registry=provider_registry,
             config_entry=entry,
         )
         if need_driver
@@ -1632,6 +1996,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             ttl_seconds=TTL_STANDINGS,
             persist_map=persisted_map,
             persist_save=persisted.schedule_save,
+            provider_registry=provider_registry,
             config_entry=entry,
         )
         if need_constructor
@@ -1649,6 +2014,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             ttl_seconds=TTL_LAST_RESULTS,
             persist_map=persisted_map,
             persist_save=persisted.schedule_save,
+            provider_registry=provider_registry,
             config_entry=entry,
         )
         if need_last_race
@@ -1729,24 +2095,20 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         if (need_fia_docs and race_coordinator is not None)
         else None
     )
-    year = dt_util.utcnow().year
-    session_coordinator = LiveSessionCoordinator(hass, year, config_entry=entry)
-    enable_rc = entry.data.get("enable_race_control", False)
-    configured_delay = int(entry.data.get("live_delay_seconds", 0) or 0)
-    delay_controller = LiveDelayController(hass, entry.entry_id)
-    live_delay = await delay_controller.async_initialize(configured_delay)
-    reference_controller = LiveDelayReferenceController(hass, entry.entry_id)
-    await reference_controller.async_initialize(
-        entry.data.get(CONF_LIVE_DELAY_REFERENCE, DEFAULT_LIVE_DELAY_REFERENCE)
+    transaction.track(
+        race_coordinator,
+        next_race_history_coordinator,
+        race_weather_coordinator,
+        driver_coordinator,
+        constructor_coordinator,
+        last_race_coordinator,
+        season_results_coordinator,
+        sprint_results_coordinator,
+        lap_position_progression_coordinator,
+        fia_documents_coordinator,
     )
-    replay_start_reference_controller = ReplayStartReferenceController(
-        hass, entry.entry_id
-    )
-    await replay_start_reference_controller.async_initialize(
-        entry.data.get(CONF_REPLAY_START_REFERENCE, DEFAULT_REPLAY_START_REFERENCE)
-    )
-    operation_mode = entry.data.get(CONF_OPERATION_MODE, DEFAULT_OPERATION_MODE)
-    replay_source = str(entry.data.get(CONF_REPLAY_FILE, "") or "").strip()
+    operation_mode = configured_operation_mode
+    replay_source = str(settings.get(CONF_REPLAY_FILE, "") or "").strip()
     transport_factory = None
     if operation_mode == OPERATION_MODE_DEVELOPMENT:
         if not replay_source:
@@ -1756,7 +2118,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             operation_mode = OPERATION_MODE_LIVE
         else:
             replay_path = Path(replay_source).expanduser()
-            if not replay_path.exists():
+            if not await hass.async_add_executor_job(replay_path.is_file):
                 _LOGGER.warning(
                     "Replay file %s not found; falling back to live SignalR",
                     replay_path,
@@ -1772,6 +2134,206 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     return ReplaySignalRClient(hass, replay_path)
 
                 transport_factory = _transport_factory
+
+    feature_plan: FeaturePlan = build_feature_plan(
+        enabled,
+        live_enabled=enable_rc,
+        development_mode=operation_mode == OPERATION_MODE_DEVELOPMENT,
+        legacy_race_control_events=bool(
+            entry.data.get(CONF_LEGACY_RACE_CONTROL_EVENTS, False)
+        ),
+    )
+    await _async_refresh_static_runtime(
+        race_coordinator=race_coordinator,
+        next_race_history_coordinator=next_race_history_coordinator,
+        race_weather_coordinator=race_weather_coordinator,
+        driver_coordinator=driver_coordinator,
+        constructor_coordinator=constructor_coordinator,
+        last_race_coordinator=last_race_coordinator,
+        season_results_coordinator=season_results_coordinator,
+        sprint_results_coordinator=sprint_results_coordinator,
+        lap_position_progression_coordinator=lap_position_progression_coordinator,
+        fia_documents_coordinator=fia_documents_coordinator,
+    )
+
+    if not feature_plan.live_required:
+        track_map_store = TrackMapStore(entry.entry_id)
+        transaction.track(track_map_store)
+        dormant_live_bus = None
+        dormant_live_state = None
+        track_map_replay_adapter = None
+        static_auth_status = evaluate_f1tv_auth_header(
+            entry.data.get(CONF_LIVE_TIMING_AUTH_HEADER, "")
+            if is_auth_feature_enabled()
+            else ""
+        )
+        if enable_rc:
+            dormant_live_state = LiveAvailabilityTracker()
+            if operation_mode == OPERATION_MODE_DEVELOPMENT:
+                dormant_live_state.set_state(True, "replay-mode")
+            dormant_live_bus = LiveBus(
+                hass,
+                async_get_clientsession(hass),
+                transport_factory=transport_factory,
+                auth_header=(
+                    static_auth_status.header
+                    if operation_mode == OPERATION_MODE_LIVE
+                    and is_auth_transport_enabled()
+                    and static_auth_status.status not in AUTH_REPAIR_STATUSES
+                    else ""
+                ),
+                requested_streams=(),
+                provider_registry=provider_registry,
+            )
+            track_map_replay_adapter = TrackMapReplayAdapter(
+                track_map_store,
+                dormant_live_bus,
+                hass=hass,
+                position_source_resolver=lambda: (
+                    TRACK_MAP_SOURCE_REPLAY
+                    if operation_mode == OPERATION_MODE_DEVELOPMENT
+                    else TRACK_MAP_SOURCE_LIVE
+                ),
+            )
+            transaction.track(dormant_live_bus, track_map_replay_adapter)
+        static_entry_data: dict[str, Any] = {
+            "http_session": http_session,
+            "user_agent": ua_string,
+            "jolpica_client": jolpica_client,
+            "http_persistent_cache": persisted,
+            "http_cache": http_cache,
+            "http_inflight": http_inflight,
+            "http_persist": persisted_map,
+            "history_service": history_service,
+            "race_coordinator": race_coordinator,
+            "next_race_history_coordinator": next_race_history_coordinator,
+            "race_weather_coordinator": race_weather_coordinator,
+            "driver_coordinator": driver_coordinator,
+            "constructor_coordinator": constructor_coordinator,
+            "last_race_coordinator": last_race_coordinator,
+            "season_results_coordinator": season_results_coordinator,
+            "sprint_results_coordinator": sprint_results_coordinator,
+            "lap_position_progression_coordinator": (
+                lap_position_progression_coordinator
+            ),
+            "fia_documents_coordinator": fia_documents_coordinator,
+            "track_map_store": track_map_store,
+            "track_map_replay_adapter": track_map_replay_adapter,
+            "live_bus": dormant_live_bus,
+            "live_state": dormant_live_state,
+            "signalr_stream_capabilities": {
+                "public_live_streams": frozenset(PUBLIC_LIVE_STREAMS),
+                "auth_gated_live_streams": frozenset(AUTH_GATED_LIVE_STREAMS),
+                "replay_only_streams": frozenset(REPLAY_ONLY_STREAMS),
+                "auth_enabled": bool(
+                    dormant_live_bus is not None and dormant_live_bus.auth_enabled
+                ),
+                "requested_streams": frozenset(),
+                "active_live_streams": frozenset(),
+                "stream_reasons": {},
+            },
+            AUTH_RUNTIME_STATUS: static_auth_status,
+            "operation_mode": operation_mode,
+            "replay_file": replay_source,
+            "activity_filter_unsub": None,
+            "no_spoiler_unsub": None,
+        }
+        hass.data.setdefault(DOMAIN, {})[entry.entry_id] = static_entry_data
+        entry.runtime_data = F1RuntimeData(
+            static=StaticRuntime(
+                coordinators={
+                    key: value
+                    for key, value in static_entry_data.items()
+                    if key.endswith("_coordinator") and value is not None
+                }
+            ),
+            live=(
+                LiveRuntime(
+                    bus=dormant_live_bus,
+                    availability=dormant_live_state,
+                )
+                if dormant_live_bus is not None
+                else None
+            ),
+            replay=None,
+            track_map=TrackMapRuntimeData(track_map_store=track_map_store),
+            cache=CacheRuntime(
+                persistent=persisted,
+                memory=http_cache,
+                inflight=http_inflight,
+                persisted=persisted_map,
+            ),
+            providers=ProviderRuntime(registry=provider_registry),
+            history=HistoryRuntime(service=history_service),
+            capabilities=CapabilityState(
+                requested_features=feature_plan.requested_features,
+                requested_streams=frozenset(),
+                active_streams=frozenset(),
+                stream_reasons={},
+            ),
+            legacy=static_entry_data,
+        )
+        if lap_position_progression_coordinator is not None:
+            async_register_lap_position_websocket(hass)
+        async_register_history_websocket(hass)
+        async_register_analysis_websocket(hass)
+        async_register_track_map_websocket(hass)
+        async_register_entity_map_websocket(hass)
+        no_spoiler_mgr: NoSpoilerModeManager | None = hass.data.get(DOMAIN, {}).get(
+            _NO_SPOILER_MANAGER_KEY
+        )
+        if no_spoiler_mgr is not None:
+            blocked_refresh = tuple(
+                coordinator
+                for coordinator in (
+                    driver_coordinator,
+                    constructor_coordinator,
+                    last_race_coordinator,
+                    season_results_coordinator,
+                    sprint_results_coordinator,
+                    lap_position_progression_coordinator,
+                    fia_documents_coordinator,
+                )
+                if coordinator is not None
+            )
+
+            def _on_static_no_spoiler_changed(active: bool) -> None:
+                if active:
+                    return
+                for coordinator in blocked_refresh:
+                    hass.async_create_task(coordinator.async_request_refresh())
+
+            static_entry_data["no_spoiler_unsub"] = no_spoiler_mgr.add_listener(
+                _on_static_no_spoiler_changed
+            )
+        await async_reconcile_live_data_card_frontend(hass)
+        await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+        if track_map_replay_adapter is not None:
+            track_map_replay_adapter.start()
+        if race_weather_coordinator is not None:
+            race_weather_coordinator.async_start()
+        transaction.commit()
+        return True
+
+    year = dt_util.utcnow().year
+    session_coordinator = LiveSessionCoordinator(hass, year, config_entry=entry)
+    transaction.track(session_coordinator)
+    configured_delay = int(settings.get("live_delay_seconds", 0) or 0)
+    delay_controller = LiveDelayController(hass, entry.entry_id)
+    transaction.track(delay_controller)
+    live_delay = await delay_controller.async_initialize(configured_delay)
+    reference_controller = LiveDelayReferenceController(hass, entry.entry_id)
+    transaction.track(reference_controller)
+    await reference_controller.async_initialize(
+        settings.get(CONF_LIVE_DELAY_REFERENCE, DEFAULT_LIVE_DELAY_REFERENCE)
+    )
+    replay_start_reference_controller = ReplayStartReferenceController(
+        hass, entry.entry_id
+    )
+    transaction.track(replay_start_reference_controller)
+    await replay_start_reference_controller.async_initialize(
+        settings.get(CONF_REPLAY_START_REFERENCE, DEFAULT_REPLAY_START_REFERENCE)
+    )
     track_status_coordinator = None
     session_status_coordinator = None
     session_info_coordinator = None
@@ -1785,6 +2347,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     top_three_coordinator = None
     starting_grid_coordinator = None
     track_map_store = TrackMapStore(entry.entry_id)
+    transaction.track(track_map_store)
     hass.data[LATEST_TRACK_STATUS] = None
     # Create shared LiveBus (single SignalR connection). Live mode defers start to supervisor.
     session = async_get_clientsession(hass)
@@ -1797,6 +2360,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     auth_can_be_used = (
         operation_mode == OPERATION_MODE_LIVE
         and auth_transport_enabled
+        and bool(feature_plan.auth_streams)
         and live_timing_auth_status.status not in AUTH_REPAIR_STATUSES
     )
     if not auth_can_be_used:
@@ -1820,7 +2384,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             if isinstance(capabilities, dict):
                 capabilities["auth_enabled"] = False
                 capabilities["active_live_streams"] = frozenset(
-                    build_live_subscribe_streams(include_auth_gated=False)
+                    build_live_subscribe_streams(
+                        include_auth_gated=False,
+                        requested_streams=feature_plan.requested_streams,
+                    )
                 )
             formation_tracker = entry_data.get("formation_start_tracker")
             if formation_tracker is not None and hasattr(formation_tracker, "reset"):
@@ -1851,7 +2418,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         auth_failed_callback=(
             _handle_live_timing_auth_failed if live_timing_auth_header else None
         ),
+        requested_streams=feature_plan.requested_streams,
+        provider_registry=provider_registry,
     )
+    transaction.track(live_bus)
     live_supervisor: LiveSessionSupervisor | None = None
     event_tracker_source: EventTrackerScheduleSource | None = None
     live_state: LiveAvailabilityTracker
@@ -1864,10 +2434,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             http_session=session,
             fallback_source=event_tracker_source,
         )
-        await live_supervisor.async_start()
+        transaction.track(live_supervisor)
         live_state = live_supervisor.availability
     else:
-        await live_bus.start()
         live_state = LiveAvailabilityTracker()
         live_state.set_state(True, "replay-mode")
 
@@ -1899,6 +2468,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         http_session=session,
         availability_guard=_formation_start_stream_active,
     )
+    transaction.track(formation_tracker)
 
     def _reload_entry():
         hass.async_create_task(hass.config_entries.async_reload(entry.entry_id))
@@ -1913,8 +2483,48 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         start_reference_controller=replay_start_reference_controller,
         formation_tracker=formation_tracker,
         on_replay_ended=live_supervisor.wake if live_supervisor else None,
+        requested_streams=(
+            feature_plan.requested_streams | LAP_ANALYSIS_STREAMS | {"Position.z"}
+        ),
     )
+    transaction.track(replay_controller)
     await replay_controller.async_initialize()
+
+    def _lap_analysis_provider() -> str:
+        replay_active = bool(getattr(replay_controller, "_replay_active", False))
+        return "replay" if replay_active else "f1_live"
+
+    def _lap_analysis_session_type() -> str | None:
+        data = getattr(session_coordinator, "data", None)
+        if not isinstance(data, dict):
+            return None
+        for key in ("session_type", "type", "session_name", "name"):
+            value = data.get(key)
+            if value:
+                return str(value)
+        return None
+
+    analysis_bus = _DelayedAnalysisBus(
+        hass, live_bus, live_delay, delay_controller, live_state
+    )
+    transaction.track(analysis_bus)
+    lap_analysis_store = LapAnalysisStore(
+        analysis_bus,
+        source_provider=_lap_analysis_provider,
+        session_type=_lap_analysis_session_type,
+    )
+    transaction.track(lap_analysis_store)
+    phase4_analysis_store = Phase4AnalysisStore(
+        analysis_bus,
+        lap_analysis_store,
+        source_provider=_lap_analysis_provider,
+    )
+    replay_telemetry_service = ReplayTelemetryService(
+        hass,
+        http_session,
+        getattr(replay_controller, "session_manager", None),
+    )
+    transaction.track(phase4_analysis_store, replay_telemetry_service)
 
     calibration_manager = LiveDelayCalibrationManager(
         hass,
@@ -1926,8 +2536,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         formation_tracker=formation_tracker,
         replay_controller=replay_controller,
     )
+    transaction.track(calibration_manager)
 
-    if "starting_grid" in enabled:
+    if feature_plan.needs("starting_grid"):
         starting_grid_coordinator = StartingGridCoordinator(
             hass,
             session_coordinator,
@@ -1942,7 +2553,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             live_state=live_state,
         )
 
-    if enable_rc:
+    if feature_plan.needs("track_status"):
         track_status_coordinator = TrackStatusCoordinator(
             hass,
             session_coordinator,
@@ -1952,6 +2563,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             delay_controller=delay_controller,
             live_state=live_state,
         )
+    if feature_plan.needs("session_status"):
         session_status_coordinator = SessionStatusCoordinator(
             hass,
             session_coordinator,
@@ -1960,7 +2572,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             config_entry=entry,
             delay_controller=delay_controller,
             live_state=live_state,
+            live_supervisor=live_supervisor,
         )
+    if feature_plan.needs("session_info"):
         session_info_coordinator = SessionInfoCoordinator(
             hass,
             session_coordinator,
@@ -1970,12 +2584,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             delay_controller=delay_controller,
             live_state=live_state,
         )
+    if feature_plan.needs("race_control"):
+        if session_info_coordinator is None or session_status_coordinator is None:
+            raise RuntimeError("Race control dependencies are incomplete")
         race_control_log_store = RaceControlLogStore(
             hass,
             entry.entry_id,
             session_info_coordinator=session_info_coordinator,
             session_status_coordinator=session_status_coordinator,
         )
+        transaction.track(race_control_log_store)
         await race_control_log_store.async_initialize()
         race_control_coordinator = RaceControlCoordinator(
             hass,
@@ -1987,6 +2605,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             live_state=live_state,
             log_store=race_control_log_store,
         )
+    if feature_plan.needs("weather_data"):
         weather_data_coordinator = WeatherDataCoordinator(
             hass,
             session_coordinator,
@@ -1996,6 +2615,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             delay_controller=delay_controller,
             live_state=live_state,
         )
+    if feature_plan.needs("lap_count"):
         lap_count_coordinator = LapCountCoordinator(
             hass,
             session_coordinator,
@@ -2005,6 +2625,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             delay_controller=delay_controller,
             live_state=live_state,
         )
+    if feature_plan.needs("incident"):
         incident_coordinator = IncidentCoordinator(
             hass,
             session_coordinator,
@@ -2015,6 +2636,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             live_state=live_state,
             track_map_store=track_map_store,
         )
+    if feature_plan.needs("live_mode"):
+        if race_control_coordinator is None or session_status_coordinator is None:
+            raise RuntimeError("Live mode dependencies are incomplete")
         live_mode_coordinator = LiveModeCoordinator(
             hass,
             race_control_coordinator,
@@ -2023,33 +2647,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             live_state=live_state,
         )
 
-    if race_coordinator:
-        await race_coordinator.async_config_entry_first_refresh()
-    if next_race_history_coordinator:
-        await next_race_history_coordinator.async_refresh()
-    if driver_coordinator:
-        await driver_coordinator.async_config_entry_first_refresh()
-    if constructor_coordinator:
-        await constructor_coordinator.async_config_entry_first_refresh()
-    if last_race_coordinator:
-        await last_race_coordinator.async_config_entry_first_refresh()
-    if season_results_coordinator:
-        await season_results_coordinator.async_config_entry_first_refresh()
-    if sprint_results_coordinator:
-        await sprint_results_coordinator.async_config_entry_first_refresh()
-    if lap_position_progression_coordinator:
-        await lap_position_progression_coordinator.async_config_entry_first_refresh()
-    if fia_documents_coordinator:
-        try:
-            await fia_documents_coordinator.async_config_entry_first_refresh()
-        except ConfigEntryNotReady as err:
-            fia_documents_coordinator.async_set_updated_data(
-                fia_documents_coordinator.build_empty_result()
-            )
-            _LOGGER.warning(
-                "FIA documents unavailable during setup; continuing without documents: %s",
-                err.__cause__ or err,
-            )
+    transaction.track(
+        starting_grid_coordinator,
+        track_status_coordinator,
+        session_status_coordinator,
+        session_info_coordinator,
+        race_control_coordinator,
+        weather_data_coordinator,
+        lap_count_coordinator,
+        incident_coordinator,
+        race_control_log_store,
+        live_mode_coordinator,
+    )
+
     await session_coordinator.async_config_entry_first_refresh()
     if starting_grid_coordinator:
         await starting_grid_coordinator.async_config_entry_first_refresh()
@@ -2070,25 +2680,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if incident_coordinator:
         await incident_coordinator.async_config_entry_first_refresh()
 
-    # Conditionally create live-stream coordinators (require enable_rc + sensor enabled).
-    # Replay/auth-gated coordinators stay registered in live mode and expose
-    # unavailable state until their backing stream capability becomes available.
-    need_drivers = any(k in enabled for k in ("driver_list",))
-    need_top_three = any(k in enabled for k in ("top_three",))
-    need_team_radio = any(k in enabled for k in ("team_radio",))
-    need_pitstops = any(k in enabled for k in ("pitstops",))
-    need_championship_prediction = any(
-        k in enabled for k in ("championship_prediction",)
-    )
-    need_session_clock = any(
-        k in enabled
-        for k in (
-            "session_time_remaining",
-            "session_time_elapsed",
-            "race_time_to_three_hour_limit",
-        )
-    )
-    if enable_rc and need_session_clock:
+    # Create only the coordinators required by the declarative feature plan.
+    if feature_plan.needs("session_clock"):
         session_clock_coordinator = SessionClockCoordinator(
             hass,
             session_coordinator,
@@ -2100,10 +2693,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             live_supervisor=live_supervisor,
             replay_controller=replay_controller,
         )
+        transaction.track(session_clock_coordinator)
         await session_clock_coordinator.async_config_entry_first_refresh()
 
     drivers_coordinator = None
-    if enable_rc and need_drivers:
+    if feature_plan.needs("drivers"):
         drivers_coordinator = LiveDriversCoordinator(
             hass,
             session_coordinator,
@@ -2113,9 +2707,24 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             delay_controller=delay_controller,
             live_state=live_state,
         )
+        transaction.track(drivers_coordinator)
         await drivers_coordinator.async_config_entry_first_refresh()
 
-    if enable_rc and need_top_three:
+    favorite_driver_controller = None
+    if (
+        drivers_coordinator is not None
+        and "favorite_driver" in feature_plan.active_live_features
+    ):
+        favorite_driver_controller = FavoriteDriverController(
+            hass,
+            entry.entry_id,
+            drivers_coordinator,
+        )
+        await favorite_driver_controller.async_load()
+        favorite_driver_controller.start()
+        transaction.track(favorite_driver_controller)
+
+    if feature_plan.needs("top_three"):
         top_three_coordinator = TopThreeCoordinator(
             hass,
             session_coordinator,
@@ -2125,10 +2734,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             delay_controller=delay_controller,
             live_state=live_state,
         )
+        transaction.track(top_three_coordinator)
         await top_three_coordinator.async_config_entry_first_refresh()
 
     team_radio_coordinator = None
-    if enable_rc and need_team_radio:
+    if feature_plan.needs("team_radio"):
         team_radio_coordinator = TeamRadioCoordinator(
             hass,
             session_coordinator,
@@ -2138,10 +2748,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             delay_controller=delay_controller,
             live_state=live_state,
         )
+        transaction.track(team_radio_coordinator)
         await team_radio_coordinator.async_config_entry_first_refresh()
 
     pitstop_coordinator = None
-    if enable_rc and need_pitstops:
+    if feature_plan.needs("pitstops"):
         pitstop_coordinator = PitStopCoordinator(
             hass,
             session_coordinator,
@@ -2153,10 +2764,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             history_limit=10,
             drivers_coordinator=drivers_coordinator,
         )
+        transaction.track(pitstop_coordinator)
         await pitstop_coordinator.async_config_entry_first_refresh()
 
     championship_prediction_coordinator = None
-    if enable_rc and need_championship_prediction:
+    if feature_plan.needs("championship_prediction"):
         championship_prediction_coordinator = ChampionshipPredictionCoordinator(
             hass,
             session_coordinator,
@@ -2166,6 +2778,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             delay_controller=delay_controller,
             live_state=live_state,
         )
+        transaction.track(championship_prediction_coordinator)
         await championship_prediction_coordinator.async_config_entry_first_refresh()
 
     def _track_map_position_source() -> str:
@@ -2184,17 +2797,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         position_source_resolver=_track_map_position_source,
         delay_controller=delay_controller,
     )
-    track_map_replay_adapter.start()
-    entry.runtime_data = TrackMapRuntimeData(track_map_store=track_map_store)
+    transaction.track(track_map_replay_adapter)
 
-    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = {
+    entry_data: dict[str, Any] = {
         "http_session": http_session,
         "user_agent": ua_string,
+        "jolpica_client": jolpica_client,
+        "http_persistent_cache": persisted,
         "http_cache": http_cache,
         "http_inflight": http_inflight,
         "http_persist": persisted_map,
         "race_coordinator": race_coordinator,
         "next_race_history_coordinator": next_race_history_coordinator,
+        "race_weather_coordinator": race_weather_coordinator,
         "driver_coordinator": driver_coordinator,
         "constructor_coordinator": constructor_coordinator,
         "last_race_coordinator": last_race_coordinator,
@@ -2206,18 +2821,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         "session_status_coordinator": session_status_coordinator,
         "session_info_coordinator": session_info_coordinator,
         "session_clock_coordinator": session_clock_coordinator,
-        "race_control_coordinator": race_control_coordinator if enable_rc else None,
-        "incident_coordinator": incident_coordinator if enable_rc else None,
-        _RC_LOG_STORE_KEY: race_control_log_store if enable_rc else None,
-        "live_mode_coordinator": live_mode_coordinator if enable_rc else None,
+        "race_control_coordinator": race_control_coordinator,
+        "incident_coordinator": incident_coordinator,
+        _RC_LOG_STORE_KEY: race_control_log_store,
+        "live_mode_coordinator": live_mode_coordinator,
         "starting_grid_coordinator": starting_grid_coordinator,
-        "weather_data_coordinator": weather_data_coordinator if enable_rc else None,
-        "lap_count_coordinator": lap_count_coordinator if enable_rc else None,
+        "weather_data_coordinator": weather_data_coordinator,
+        "lap_count_coordinator": lap_count_coordinator,
         "top_three_coordinator": top_three_coordinator,
         "team_radio_coordinator": team_radio_coordinator,
         "pitstop_coordinator": pitstop_coordinator,
         "championship_prediction_coordinator": championship_prediction_coordinator,
         "drivers_coordinator": drivers_coordinator,
+        "favorite_driver_controller": favorite_driver_controller,
         "fia_documents_coordinator": fia_documents_coordinator,
         "track_map_store": track_map_store,
         "track_map_replay_adapter": track_map_replay_adapter,
@@ -2230,9 +2846,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             "auth_gated_live_streams": frozenset(AUTH_GATED_LIVE_STREAMS),
             "replay_only_streams": frozenset(REPLAY_ONLY_STREAMS),
             "auth_enabled": live_bus.auth_enabled,
-            "active_live_streams": frozenset(
-                build_live_subscribe_streams(include_auth_gated=live_bus.auth_enabled)
-            ),
+            "requested_streams": feature_plan.requested_streams,
+            "active_live_streams": live_bus.active_streams,
+            "stream_reasons": feature_plan.stream_reasons,
         },
         AUTH_RUNTIME_STATUS: live_timing_auth_status,
         AUTH_RUNTIME_STATUS_REFRESH_UNSUB: None,
@@ -2244,48 +2860,123 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         "calibration_manager": calibration_manager,
         "formation_start_tracker": formation_tracker,
         "replay_controller": replay_controller,
+        "history_service": history_service,
+        "analysis_bus": analysis_bus,
+        "lap_analysis_store": lap_analysis_store,
+        "phase4_analysis_store": phase4_analysis_store,
+        "replay_telemetry_service": replay_telemetry_service,
         "replay_reset_callbacks": _build_replay_reset_callbacks(
+            live_bus,
             track_status_coordinator,
             session_status_coordinator,
             session_info_coordinator,
             session_clock_coordinator,
-            race_control_coordinator if enable_rc else None,
-            live_mode_coordinator if enable_rc else None,
-            weather_data_coordinator if enable_rc else None,
-            lap_count_coordinator if enable_rc else None,
-            incident_coordinator if enable_rc else None,
+            race_control_coordinator,
+            live_mode_coordinator,
+            weather_data_coordinator,
+            lap_count_coordinator,
+            incident_coordinator,
             top_three_coordinator,
             team_radio_coordinator,
             pitstop_coordinator,
             championship_prediction_coordinator,
             drivers_coordinator,
             track_map_replay_adapter,
+            analysis_bus,
+            lap_analysis_store,
+            phase4_analysis_store,
         ),
         "activity_filter_unsub": None,
         "no_spoiler_unsub": None,
     }
+    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = entry_data
 
-    if race_control_log_store is not None:
-        _async_register_race_control_log_interfaces(hass)
+    stream_capabilities = entry_data["signalr_stream_capabilities"]
+    active_streams = frozenset(stream_capabilities["active_live_streams"])
+    entry.runtime_data = F1RuntimeData(
+        static=StaticRuntime(
+            coordinators={
+                key: value
+                for key, value in entry_data.items()
+                if key.endswith("_coordinator")
+                and key
+                in {
+                    "race_coordinator",
+                    "next_race_history_coordinator",
+                    "race_weather_coordinator",
+                    "driver_coordinator",
+                    "constructor_coordinator",
+                    "last_race_coordinator",
+                    "season_results_coordinator",
+                    "sprint_results_coordinator",
+                    "lap_position_progression_coordinator",
+                    "fia_documents_coordinator",
+                }
+            }
+        ),
+        live=LiveRuntime(
+            bus=live_bus,
+            availability=live_state,
+            supervisor=live_supervisor,
+            coordinators={
+                key: value
+                for key, value in entry_data.items()
+                if key.endswith("_coordinator")
+                and key
+                not in {
+                    "race_coordinator",
+                    "next_race_history_coordinator",
+                    "race_weather_coordinator",
+                    "driver_coordinator",
+                    "constructor_coordinator",
+                    "last_race_coordinator",
+                    "season_results_coordinator",
+                    "sprint_results_coordinator",
+                    "lap_position_progression_coordinator",
+                    "fia_documents_coordinator",
+                }
+            },
+        ),
+        replay=ReplayRuntime(
+            controller=replay_controller,
+            track_map_adapter=track_map_replay_adapter,
+        ),
+        track_map=TrackMapRuntimeData(track_map_store=track_map_store),
+        cache=CacheRuntime(
+            persistent=persisted,
+            memory=http_cache,
+            inflight=http_inflight,
+            persisted=persisted_map,
+        ),
+        providers=ProviderRuntime(registry=provider_registry),
+        history=HistoryRuntime(
+            service=history_service,
+            lap_analysis=lap_analysis_store,
+        ),
+        capabilities=CapabilityState(
+            requested_features=feature_plan.requested_features,
+            requested_streams=feature_plan.requested_streams,
+            active_streams=active_streams,
+            stream_reasons=feature_plan.stream_reasons,
+        ),
+        legacy=entry_data,
+        analysis=AnalysisRuntime(
+            store=phase4_analysis_store,
+            telemetry=replay_telemetry_service,
+        ),
+    )
+
     if lap_position_progression_coordinator is not None:
         async_register_lap_position_websocket(hass)
+    async_register_history_websocket(hass)
+    async_register_analysis_websocket(hass)
     async_register_track_map_websocket(hass)
+    async_register_entity_map_websocket(hass)
 
-    _apply_activity_log_filter_excludes(hass)
     hass_data = hass.data.setdefault(DOMAIN, {}).get(entry.entry_id)
     if isinstance(hass_data, dict):
         async_update_f1tv_auth_repair_issue(hass, entry, live_timing_auth_status)
         async_schedule_f1tv_auth_status_refresh(hass, entry)
-
-        def _on_component_loaded(event):
-            component = str((getattr(event, "data", {}) or {}).get("component") or "")
-            if component in _ACTIVITY_FILTER_COMPONENTS:
-                _apply_activity_log_filter_excludes(hass)
-
-        hass_data["activity_filter_unsub"] = hass.bus.async_listen(
-            EVENT_COMPONENT_LOADED,
-            _on_component_loaded,
-        )
 
         # Register no-spoiler listener for catch-up on deactivation.
         no_spoiler_mgr: NoSpoilerModeManager | None = hass.data.get(DOMAIN, {}).get(
@@ -2333,8 +3024,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 _on_no_spoiler_changed
             )
 
-    await async_ensure_live_data_card_frontend(hass)
+    await async_reconcile_live_data_card_frontend(hass)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    track_map_replay_adapter.start()
+    if race_weather_coordinator is not None:
+        race_weather_coordinator.async_start()
+    if operation_mode == OPERATION_MODE_LIVE and live_supervisor is not None:
+        await live_supervisor.async_start()
+    else:
+        await live_bus.start()
+    entry.async_on_unload(entry.add_update_listener(_async_reload_entry))
+    transaction.commit()
     return True
 
 
@@ -2533,7 +3233,11 @@ class RaceControlCoordinator(DataUpdateCoordinator):
         self._startup_cutoff: datetime | None = None
         self._dev_mode = (
             bool(config_entry)
-            and config_entry.data.get(CONF_OPERATION_MODE, DEFAULT_OPERATION_MODE)
+            and entry_value(
+                config_entry,
+                CONF_OPERATION_MODE,
+                DEFAULT_OPERATION_MODE,
+            )
             == OPERATION_MODE_DEVELOPMENT
         )
         self._log_store = log_store
@@ -2585,35 +3289,42 @@ class RaceControlCoordinator(DataUpdateCoordinator):
     def _extract_items(msg) -> list[dict]:
         # RaceControl feed can be a list of entries or a dict with list under key
         if isinstance(msg, list):
-            return [m for m in msg if isinstance(m, dict)]
+            return [m for m in msg if isinstance(m, dict) and m]
         if isinstance(msg, dict):
             # Some payloads contain { "Messages": [ ... ] }
             messages = msg.get("Messages")
             if isinstance(messages, list):
-                return [m for m in messages if isinstance(m, dict)]
+                return [m for m in messages if isinstance(m, dict) and m]
             # Some payloads contain { "Messages": { "1": {...}, "2": {...}, ... } }
-            if isinstance(messages, dict) and messages:
+            if isinstance(messages, dict):
                 try:
-                    numeric_keys = [k for k in messages.keys() if str(k).isdigit()]
-                    # Sort by numeric key to preserve order if automations iterate
-                    numeric_keys.sort(key=lambda x: int(x))
+                    keys = [
+                        key
+                        for key, value in messages.items()
+                        if isinstance(value, dict) and value
+                    ]
+                    # Replay checkpoints also use timestamps or source IDs. Keep
+                    # their insertion order, including mixed timestamp/index maps.
+                    if all(str(key).isdigit() for key in keys):
+                        keys.sort(key=lambda key: int(key))
                     result: list[dict] = []
-                    for key in numeric_keys:
-                        val = messages.get(key)
-                        if isinstance(val, dict):
-                            item = dict(val)
-                            # Provide stable id if not present
+                    for key in keys:
+                        item = dict(messages[key])
+                        # Provide the existing numeric source ID when available.
+                        if str(key).isdigit():
                             item.setdefault("id", int(key))
-                            result.append(item)
-                    if result:
-                        return result
+                        result.append(item)
+                    return result
                 except Exception:  # noqa: BLE001
                     _LOGGER.debug(
                         "RaceControlMessages: failed to normalize Messages dict",
                         exc_info=True,
                     )
+                    return []
+            if "Messages" in msg:
+                return []
             # Or a single message
-            return [msg]
+            return [msg] if msg else []
         return []
 
     @staticmethod
@@ -3134,7 +3845,18 @@ class LiveModeCoordinator(DataUpdateCoordinator):
         if not isinstance(payload, dict):
             return False
         status = str(payload.get("Status") or payload.get("Message") or "").strip()
-        return status in {"Finished", "Finalised", "Ends"}
+        if status == "Finished":
+            context = self._session_status_coordinator
+            if bool(getattr(context, "is_testing_session", False)):
+                return False
+            if bool(getattr(context, "is_qualifying_like_session", False)):
+                try:
+                    part = int(getattr(context, "qualifying_part", None))
+                except (TypeError, ValueError):
+                    return False
+                return part not in (1, 2)
+            return True
+        return status in {"Finalised", "Ends"}
 
     def _clear_mode_state(self) -> None:
         self._state = {"overtake_enabled": None, "straight_mode": None}
@@ -4781,6 +5503,49 @@ class LiveDriversCoordinator(DataUpdateCoordinator):
 
         return changed
 
+    def _merge_official_best_lap(self, timing: dict, payload: Any) -> bool:
+        """Keep source corrections separate from incomplete observed lap history."""
+        previous = timing.get("official_best_lap")
+        best = (
+            dict(previous)
+            if isinstance(previous, dict)
+            else {
+                "time": None,
+                "time_secs": None,
+                "lap": None,
+            }
+        )
+        if payload is None or (
+            isinstance(payload, dict) and payload.get("Deleted") is True
+        ):
+            best = {"time": None, "time_secs": None, "lap": None}
+        elif isinstance(payload, dict):
+            if "Value" in payload:
+                value = payload["Value"]
+                value = value.strip() if isinstance(value, str) else None
+                seconds = self._parse_laptime_secs(value)
+                if seconds is None or not math.isfinite(seconds) or seconds <= 0:
+                    value, seconds = None, None
+                if best["time"] != value:
+                    best["lap"] = None
+                best["time"], best["time_secs"] = value, seconds
+            elif previous is None:
+                # Empty and lap-only deltas do not supply an authoritative time.
+                return False
+            if "Lap" in payload:
+                lap = payload["Lap"]
+                if isinstance(lap, str) and lap.strip().isdigit():
+                    lap = int(lap)
+                best["lap"] = lap if type(lap) is int and lap > 0 else None
+            if best["time"] is None:
+                best["lap"] = None
+        else:
+            return False
+        if previous == best:
+            return False
+        timing["official_best_lap"] = best
+        return True
+
     def _merge_timingdata(self, payload: dict) -> bool:
         # payload: {"Lines": { rn: {...timing...} } }
         lines = (payload or {}).get("Lines", {})
@@ -4859,6 +5624,10 @@ class LiveDriversCoordinator(DataUpdateCoordinator):
                     lap_num = completed if isinstance(completed, int) else None
                 if self._ingest_completed_lap(rn, last_lap, lap_num):
                     changed = True
+            if "BestLapTime" in td and self._merge_official_best_lap(
+                timing, td["BestLapTime"]
+            ):
+                changed = True
             best_lap = self._get_value(td, "BestLapTime", "Value")
             best_lap_num_raw = self._get_value(td, "BestLapTime", "Lap")
             best_lap_num: int | None = None
@@ -4991,6 +5760,7 @@ class LiveDriversCoordinator(DataUpdateCoordinator):
                 idx: cls._empty_personal_best_sector() for idx in (0, 1, 2)
             },
             "current_lap": None,
+            "pending_completed_lap": None,
             "last_completed_sector": None,
             "state": "awaiting_s1",
         }
@@ -5084,9 +5854,21 @@ class LiveDriversCoordinator(DataUpdateCoordinator):
                 personal_best.get(idx), best.get(idx)
             )
             if best.get(idx) is None and personal_best[idx].get("time") is not None:
-                best[idx] = personal_best[idx]["time"]
+                restored_time = personal_best[idx]["time"]
+                parsed_time = cls._parse_laptime_secs(str(restored_time))
+                best[idx] = parsed_time if parsed_time is not None else restored_time
 
         sectors.setdefault("current_lap", None)
+        pending_completed_lap = sectors.setdefault("pending_completed_lap", None)
+        try:
+            pending_completed_lap = int(pending_completed_lap)
+        except (TypeError, ValueError):
+            pending_completed_lap = None
+        sectors["pending_completed_lap"] = (
+            pending_completed_lap
+            if pending_completed_lap is not None and pending_completed_lap > 0
+            else None
+        )
         sectors.setdefault("last_completed_sector", None)
         sectors["state"] = cls._derive_sector_progress_state(sectors)
         return sectors
@@ -5113,6 +5895,7 @@ class LiveDriversCoordinator(DataUpdateCoordinator):
         else:
             cls._ensure_sector_state({"sectors": sectors})
         sectors["current_lap"] = None
+        sectors["pending_completed_lap"] = None
         sectors["last_completed_sector"] = None
         sectors["state"] = "awaiting_s1"
 
@@ -5134,6 +5917,14 @@ class LiveDriversCoordinator(DataUpdateCoordinator):
     def _current_sector_lap(
         self, entry: dict[str, Any], sectors: dict[str, Any], idx: int
     ) -> int | None:
+        if idx == 2:
+            pending_completed_lap = sectors.get("pending_completed_lap")
+            try:
+                parsed_pending = int(pending_completed_lap)
+            except (TypeError, ValueError):
+                parsed_pending = None
+            if parsed_pending is not None and parsed_pending > 0:
+                return parsed_pending
         if idx in (1, 2):
             current_lap = sectors.get("current_lap")
             try:
@@ -5206,6 +5997,18 @@ class LiveDriversCoordinator(DataUpdateCoordinator):
 
         changed = False
         full_lap_update = set(updates) == {0, 1, 2}
+        pending_completed_lap = sectors.get("pending_completed_lap")
+        if (
+            isinstance(pending_completed_lap, int)
+            and 1 in updates
+            and isinstance(updates[1].get("lap"), int)
+            and updates[1]["lap"] > pending_completed_lap
+        ):
+            sectors["pending_completed_lap"] = None
+            if 2 in updates and updates[2].get("lap") == pending_completed_lap:
+                updates[2]["lap"] = updates[1]["lap"]
+            pending_completed_lap = None
+            changed = True
 
         # New S1 starts a lap: clear S2 and S3 from the previous lap unless
         # they are also being updated in this message (rare but possible in replay)
@@ -5221,6 +6024,10 @@ class LiveDriversCoordinator(DataUpdateCoordinator):
         for idx, data in updates.items():
             if current.get(idx) != data:
                 current[idx] = data
+                changed = True
+            if idx == 2 and data.get("lap") == pending_completed_lap:
+                sectors["pending_completed_lap"] = None
+                pending_completed_lap = None
                 changed = True
             if data["personal_fastest"] and (
                 best[idx] is None or data["time"] < best[idx]
@@ -5384,6 +6191,8 @@ class LiveDriversCoordinator(DataUpdateCoordinator):
                 self._tyre_first_compound_logged = True
             return
 
+        if self._tyre_first_compound_logged:
+            return
         if self._tyre_missing_warning_logged:
             return
         if elapsed < self._TYRE_DATA_WARNING_THRESHOLD_S:
@@ -5701,6 +6510,9 @@ class LiveDriversCoordinator(DataUpdateCoordinator):
             if sectors.get("current_lap") != lap_num:
                 sectors["current_lap"] = lap_num
                 changed = True
+            if sectors.get("pending_completed_lap") is not None:
+                sectors["pending_completed_lap"] = None
+                changed = True
             if sectors.get("state") != "lap_complete":
                 sectors["state"] = "lap_complete"
                 changed = True
@@ -5710,6 +6522,9 @@ class LiveDriversCoordinator(DataUpdateCoordinator):
             changed = self._clear_current_sector(sectors, idx) or changed
         if sectors.get("current_lap") is not None:
             sectors["current_lap"] = None
+            changed = True
+        if sectors.get("pending_completed_lap") != lap_num:
+            sectors["pending_completed_lap"] = lap_num
             changed = True
         state = self._derive_sector_progress_state(sectors)
         if sectors.get("state") != state:
@@ -6280,24 +7095,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         if isinstance(data_root, dict):
             data = data_root.pop(entry.entry_id, None)
         if isinstance(data, dict):
-            auth_status_unsub = data.pop(AUTH_RUNTIME_STATUS_REFRESH_UNSUB, None)
-            if callable(auth_status_unsub):
-                with suppress(Exception):
-                    auth_status_unsub()
-            activity_filter_unsub = data.pop("activity_filter_unsub", None)
-            if callable(activity_filter_unsub):
-                with suppress(Exception):
-                    activity_filter_unsub()
             async_cancel_f1tv_auth_status_refresh(hass, entry.entry_id)
-            for name, obj in list(data.items()):
-                if obj is None:
-                    continue
-                close = getattr(obj, "async_close", None)
-                if callable(close):
-                    try:
-                        await close()
-                    except Exception as err:  # noqa: BLE001
-                        _LOGGER.debug("Error during %s async_close: %s", name, err)
+            await _async_close_runtime_mapping(data)
         unregister_entry_name_settings(entry.entry_id)
         entry.runtime_data = None
         # If this was the last entry, remove dev-only stats reporter.
@@ -6316,19 +7115,21 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 and k != _NO_SPOILER_MANAGER_KEY
             ]
             if not remaining_entries:
-                if hass.services.has_service(DOMAIN, _RC_LOG_SERVICE):
-                    with suppress(Exception):
-                        hass.services.async_remove(DOMAIN, _RC_LOG_SERVICE)
-                data_root.pop(_RC_LOG_SERVICE_MARKER, None)
                 stats = data_root.get(_JOLPICA_STATS_KEY)
                 unsub = stats.get("unsub") if isinstance(stats, dict) else None
                 if callable(unsub):
                     with suppress(Exception):
                         unsub()
                 data_root.pop(_JOLPICA_STATS_KEY, None)
+                await _async_close_shared_client_if_unused(hass)
     except Exception as err:  # noqa: BLE001
         _LOGGER.debug("Error during entry data cleanup: %s", err)
     return unload_ok
+
+
+async def async_remove_entry(hass: HomeAssistant, entry: F1ConfigEntry) -> None:
+    """Remove storage owned by a deleted config entry."""
+    await async_remove_entry_storage(hass, entry.entry_id)
 
 
 def _build_replay_reset_callbacks(*coordinators: Any) -> list[Callable[[], None]]:
@@ -6463,7 +7264,6 @@ def _reset_replay_sensitive_coordinator_state(coordinator: Any) -> None:
 
     if isinstance(coordinator, SessionClockCoordinator):
         _clear_delayed_ingest_state(coordinator)
-        coordinator._stop_tick()
         coordinator._reset_runtime()
         coordinator._state = coordinator._empty_state()
         coordinator.data_list = [coordinator._state]
@@ -6485,6 +7285,7 @@ class F1DataCoordinator(DataUpdateCoordinator):
         ttl_seconds: int = 30,
         persist_map=None,
         persist_save=None,
+        provider_registry: ProviderRegistry | None = None,
         config_entry: ConfigEntry | None = None,
     ):
         super().__init__(
@@ -6502,6 +7303,7 @@ class F1DataCoordinator(DataUpdateCoordinator):
         self._ttl = int(ttl_seconds or 30)
         self._persist = persist_map
         self._persist_save = persist_save
+        self._provider_registry = provider_registry
         self._last_seen_season: str | None = None
 
         # Initialize last-seen season from persisted current.json payload if present.
@@ -6604,24 +7406,53 @@ class F1DataCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self):
         """Fetch data from the F1 API."""
         try:
-            async with asyncio.timeout(10):
-                data = await fetch_json(
-                    self.hass,
-                    self._session,
-                    self._url,
-                    headers=self._headers,
-                    ttl_seconds=self._ttl,
-                    cache=self._cache,
-                    inflight=self._inflight,
-                    persist_map=self._persist,
-                    persist_save=self._persist_save,
-                )
-                # Detect season rollovers in current.json and clear stale caches if needed.
-                self._handle_season_rollover_if_needed(data)
-                # No-spoiler: keep the cache warm but don't deliver new data to entities.
-                if _is_no_spoiler_jolpica_blocked(self):
-                    return self.data
+            from yarl import URL
+
+            request_url = str(URL(self._url).update_query({"limit": "100"}))
+
+            def _validate(payload: dict[str, Any]) -> None:
+                if "/driverstandings.json" in request_url:
+                    validate_single_page_jolpica(
+                        payload,
+                        lambda data: standings_leaf_keys(data, "DriverStandings"),
+                    )
+                elif "/constructorstandings.json" in request_url:
+                    validate_single_page_jolpica(
+                        payload,
+                        lambda data: standings_leaf_keys(data, "ConstructorStandings"),
+                    )
+                elif "/results.json" in request_url:
+                    validate_single_page_jolpica(
+                        payload,
+                        lambda data: result_leaf_keys(data, "Results"),
+                    )
+                else:
+                    validate_single_page_jolpica(payload, race_leaf_keys)
+
+            data = await fetch_json(
+                self.hass,
+                self._session,
+                request_url,
+                headers=self._headers,
+                ttl_seconds=self._ttl,
+                cache=self._cache,
+                inflight=self._inflight,
+                persist_map=self._persist,
+                persist_save=self._persist_save,
+                validator=_validate,
+            )
+            # Detect season rollovers in current.json and clear stale caches if needed.
+            self._handle_season_rollover_if_needed(data)
+            # No-spoiler: keep the cache warm but don't deliver new data to entities.
+            if _is_no_spoiler_jolpica_blocked(self):
+                return self.data
+            if self._provider_registry is None:
                 return data
+            return self._provider_registry.normalize(
+                "jolpica",
+                self._url,
+                data,
+            ).payload
         except Exception as err:
             raise UpdateFailed(
                 f"Error fetching data: {_format_update_error(err)}"
@@ -6908,18 +7739,37 @@ class F1NextRaceHistoryCoordinator(DataUpdateCoordinator):
         )
 
     async def _fetch_url(self, url: str) -> Any:
-        async with asyncio.timeout(10):
-            return await fetch_json(
-                self.hass,
-                self._session,
-                url,
-                headers=self._headers,
-                ttl_seconds=self._ttl,
-                cache=self._cache,
-                inflight=self._inflight,
-                persist_map=self._persist,
-                persist_save=self._persist_save,
-            )
+        from yarl import URL
+
+        request_url = str(URL(url).update_query({"limit": "100"}))
+
+        def _validate(payload: dict[str, Any]) -> None:
+            if "/qualifying.json" in request_url:
+                validate_single_page_jolpica(
+                    payload,
+                    lambda data: result_leaf_keys(data, "QualifyingResults"),
+                )
+            elif "/results" in request_url:
+                validate_single_page_jolpica(
+                    payload,
+                    lambda data: result_leaf_keys(data, "Results"),
+                )
+            else:
+                validate_single_page_jolpica(payload, race_leaf_keys)
+
+        payload = await fetch_json(
+            self.hass,
+            self._session,
+            request_url,
+            headers=self._headers,
+            ttl_seconds=self._ttl,
+            cache=self._cache,
+            inflight=self._inflight,
+            persist_map=self._persist,
+            persist_save=self._persist_save,
+            validator=_validate,
+        )
+        return payload
 
     def _target_race(self) -> dict[str, Any] | None:
         payload = getattr(self._race_coordinator, "data", None) or {}
@@ -7344,82 +8194,62 @@ class F1SeasonResultsCoordinator(DataUpdateCoordinator):
             return base.replace(marker, f"/ergast/f1/{season}/")
         return base
 
-    def _ttl_for_offset(self, offset: int, last_offset: int, page_size: int) -> int:
-        """Return TTL for a given results page offset.
-
-        - Stable pages (older part of season): very long TTL.
-        - Recent pages: daily.
-        - Latest page: every few hours.
-        """
-        try:
-            o = int(offset)
-            last = int(last_offset)
-            size = max(1, int(page_size))
-        except Exception:
-            return self._ttl_latest
-        if last <= 0:
-            return self._ttl_latest
-        if o >= last:
-            return self._ttl_latest
-        if o >= max(0, last - size):
-            return self._ttl_recent
-        return self._ttl_stable
-
     async def _fetch_page(
-        self, limit: int, offset: int, *, ttl_seconds: int | None = None
-    ):
+        self,
+        limit: int,
+        offset: int,
+        ttl_seconds: int,
+        force_refresh: bool = False,
+        validator: Callable[[dict[str, Any]], None] | None = None,
+    ) -> dict[str, Any]:
         from yarl import URL
 
-        ttl = int(ttl_seconds or self._ttl_latest)
+        if not 1 <= int(limit) <= 100:
+            raise JolpicaPaginationError(
+                f"Refusing Jolpica request with invalid limit {limit}"
+            )
 
-        # Primary: season-scoped URL when we can derive season from current.json.
         primary_base = self._effective_base_url()
         primary_url = str(
             URL(primary_base).with_query({"limit": str(limit), "offset": str(offset)})
         )
-
-        async with asyncio.timeout(10):
-            try:
+        try:
+            async with asyncio.timeout(15):
                 return await fetch_json(
                     self.hass,
                     self._session,
                     primary_url,
                     headers=self._headers,
-                    ttl_seconds=ttl,
+                    ttl_seconds=ttl_seconds,
                     cache=self._cache,
                     inflight=self._inflight,
                     persist_map=self._persist,
                     persist_save=self._persist_save,
+                    force_refresh=force_refresh,
+                    validator=validator,
                 )
-            except Exception:
-                # Fallback: legacy /current/ URL (in case the API doesn't support season-scoped paths)
-                fallback_url = str(
-                    URL(str(self._base_url)).with_query(
-                        {"limit": str(limit), "offset": str(offset)}
-                    )
+        except JolpicaRouteNotFoundError:
+            fallback_url = str(
+                URL(str(self._base_url)).with_query(
+                    {"limit": str(limit), "offset": str(offset)}
                 )
-                if fallback_url == primary_url:
-                    raise
+            )
+            if fallback_url == primary_url:
+                raise
+            async with asyncio.timeout(15):
                 return await fetch_json(
                     self.hass,
                     self._session,
                     fallback_url,
                     headers=self._headers,
-                    ttl_seconds=ttl,
+                    ttl_seconds=ttl_seconds,
                     cache=self._cache,
                     inflight=self._inflight,
                     persist_map=self._persist,
                     persist_save=self._persist_save,
+                    force_refresh=force_refresh,
+                    validator=validator,
                 )
-
-    @staticmethod
-    def _race_key(r: dict) -> tuple:
-        season = r.get("season")
-        round_ = r.get("round")
-        return (
-            str(season) if season is not None else "",
-            str(round_) if round_ is not None else "",
-        )
 
     @staticmethod
     def _empty_result() -> dict[str, Any]:
@@ -7427,111 +8257,14 @@ class F1SeasonResultsCoordinator(DataUpdateCoordinator):
 
     async def _async_update_data(self):
         try:
-            # Start with a large page size; use API-returned limit/offset/total for correctness
-            request_limit = 200
-            offset = 0
-
-            races_by_key: dict[tuple, dict] = {}
-            order: list[tuple] = []
-
-            def merge_page(page_races: list[dict]):
-                for race in page_races or []:
-                    key = self._race_key(race)
-                    existing = races_by_key.get(key)
-                    if not existing:
-                        copy = dict(race)
-                        copy["Results"] = list(race.get("Results", []) or [])
-                        races_by_key[key] = copy
-                        order.append(key)
-                    else:
-                        seen = {
-                            (res.get("Driver", {}).get("driverId"), res.get("position"))
-                            for res in existing.get("Results", [])
-                        }
-                        for res in race.get("Results", []) or []:
-                            ident = (
-                                res.get("Driver", {}).get("driverId"),
-                                res.get("position"),
-                            )
-                            if ident not in seen:
-                                existing["Results"].append(res)
-                                seen.add(ident)
-
-            # Fetch first page (use recent TTL; we'll apply more specific TTLs
-            # for additional pages once we know the total/last offset).
-            first = await self._fetch_page(
-                request_limit, offset, ttl_seconds=self._ttl_recent
+            paginated = await async_paginate_jolpica(
+                self._fetch_page,
+                lambda payload: result_leaf_keys(payload, "Results"),
+                ttl_stable=self._ttl_stable,
+                ttl_recent=self._ttl_recent,
+                ttl_latest=self._ttl_latest,
             )
-            mr = (first or {}).get("MRData", {})
-            total = int(mr.get("total") or "0")
-            limit_used = int(mr.get("limit") or request_limit)
-            offset_used = int(mr.get("offset") or offset)
-
-            merge_page((mr.get("RaceTable", {}) or {}).get("Races", []) or [])
-
-            # Determine last page offset for TTL selection
-            try:
-                last_page_offset = (max(0, total - 1) // max(1, limit_used)) * max(
-                    1, limit_used
-                )
-            except Exception:
-                last_page_offset = offset_used
-
-            # Defensive cap for pagination loop, based on server-reported totals.
-            max_loops = 50
-            if total > 0 and limit_used > 0:
-                max_loops = max(1, ((total + limit_used - 1) // limit_used) + 1)
-
-            # Iterate deterministically using server-reported paging
-            next_offset = offset_used + limit_used
-            # Cap loop iterations defensively
-            safety = 0
-            while next_offset < total and safety < max_loops:
-                page_ttl = self._ttl_for_offset(
-                    next_offset, last_page_offset, limit_used
-                )
-                page = await self._fetch_page(
-                    limit_used, next_offset, ttl_seconds=page_ttl
-                )
-                pmr = (page or {}).get("MRData", {})
-                praces = (pmr.get("RaceTable", {}) or {}).get("Races", []) or []
-                merge_page(praces)
-                with suppress(Exception):
-                    limit_used = int(pmr.get("limit") or limit_used)
-                    offset_used = int(pmr.get("offset") or next_offset)
-                    total = int(pmr.get("total") or total)
-                    if total > 0 and limit_used > 0:
-                        max_loops = max(
-                            max_loops,
-                            max(1, ((total + limit_used - 1) // limit_used) + 1),
-                        )
-                next_offset = offset_used + limit_used
-                safety += 1
-
-            # Assemble and sort by season then numeric round
-            assembled_races = [races_by_key[k] for k in order]
-            assembled_races.sort(
-                key=lambda r: (str(r.get("season")), int(str(r.get("round") or 0)))
-            )
-            # Warn only if pagination was cut short by the safety cap, meaning
-            # some result rows were not fetched. Note: `total` counts individual
-            # driver-race result rows, not races, so comparing len(assembled_races)
-            # to total would be a false positive whenever there are fewer races
-            # than classified finishers per race.
-            if safety >= max_loops and next_offset < total:
-                _LOGGER.warning(
-                    "Season results pagination incomplete: safety cap reached "
-                    "at offset %s, total reported as %s",
-                    next_offset,
-                    total,
-                )
-            result = {
-                "MRData": {
-                    "RaceTable": {
-                        "Races": assembled_races,
-                    }
-                }
-            }
+            result = merge_result_pages(paginated, "Results")
             # No-spoiler: keep cache warm but don't deliver new data to entities.
             if _is_no_spoiler_jolpica_blocked(self):
                 blocked_data = self.data
@@ -7547,8 +8280,8 @@ class F1SeasonResultsCoordinator(DataUpdateCoordinator):
             ) from err
 
 
-class F1SprintResultsCoordinator(DataUpdateCoordinator):
-    """Fetch sprint results for the current season (single, non-paginated endpoint)."""
+class F1SprintResultsCoordinator(F1SeasonResultsCoordinator):
+    """Fetch complete sprint results for the current season."""
 
     def __init__(
         self,
@@ -7566,41 +8299,36 @@ class F1SprintResultsCoordinator(DataUpdateCoordinator):
     ):
         super().__init__(
             hass,
-            _LOGGER,
-            name=name,
-            update_interval=timedelta(hours=1),
+            url,
+            name,
+            session=session,
+            user_agent=user_agent,
+            cache=cache,
+            inflight=inflight,
+            ttl_seconds=ttl_seconds,
+            ttl_stable=ttl_seconds,
+            ttl_recent=ttl_seconds,
+            ttl_latest=ttl_seconds,
+            persist_map=persist_map,
+            persist_save=persist_save,
             config_entry=config_entry,
         )
-        self._session = session or async_get_clientsession(hass)
-        self._headers = {"User-Agent": str(user_agent)} if user_agent else None
-        self._url = url
-        self._cache = cache
-        self._inflight = inflight
-        self._ttl = int(ttl_seconds or 60)
-        self._persist = persist_map
-        self._persist_save = persist_save
-
-    async def async_close(self, *_):
-        return
 
     async def _async_update_data(self):
         try:
-            async with asyncio.timeout(10):
-                data = await fetch_json(
-                    self.hass,
-                    self._session,
-                    self._url,
-                    headers=self._headers,
-                    ttl_seconds=self._ttl,
-                    cache=self._cache,
-                    inflight=self._inflight,
-                    persist_map=self._persist,
-                    persist_save=self._persist_save,
+            paginated = await async_paginate_jolpica(
+                self._fetch_page,
+                lambda payload: result_leaf_keys(payload, "SprintResults"),
+                ttl_stable=self._ttl_stable,
+                ttl_recent=self._ttl_recent,
+                ttl_latest=self._ttl_latest,
+            )
+            data = merge_result_pages(paginated, "SprintResults")
+            if _is_no_spoiler_jolpica_blocked(self):
+                return (
+                    self.data if isinstance(self.data, dict) else self._empty_result()
                 )
-                # No-spoiler: keep cache warm but don't deliver new data to entities.
-                if _is_no_spoiler_jolpica_blocked(self):
-                    return self.data
-                return data
+            return data
         except Exception as err:
             raise UpdateFailed(
                 f"Error fetching sprint results: {_format_update_error(err)}"
@@ -7793,9 +8521,15 @@ class F1LapPositionProgressionCoordinator(DataUpdateCoordinator):
         limit: int,
         offset: int,
         ttl_seconds: int,
+        force_refresh: bool = False,
+        validator: Callable[[dict[str, Any]], None] | None = None,
     ) -> dict:
         from yarl import URL
 
+        if not 1 <= int(limit) <= 100:
+            raise JolpicaPaginationError(
+                f"Refusing Jolpica request with invalid limit {limit}"
+            )
         url = str(
             URL(
                 self._LAPS_BASE_URL.format(
@@ -7815,6 +8549,8 @@ class F1LapPositionProgressionCoordinator(DataUpdateCoordinator):
                 inflight=self._inflight,
                 persist_map=self._persist,
                 persist_save=self._persist_save,
+                force_refresh=force_refresh,
+                validator=validator,
             )
 
     async def _fetch_laps_for_race(
@@ -7824,31 +8560,38 @@ class F1LapPositionProgressionCoordinator(DataUpdateCoordinator):
         if not season or not round_number:
             return None, [], False
 
-        request_limit = 100
-        offset = 0
         ttl_seconds = self._page_ttl(race, latest_round)
         lap_timings: dict[int, dict[str, dict]] = {}
         race_meta: dict | None = None
-        total = 0
-        limit_used = request_limit
-        safety = 0
-        max_loops = 1
 
-        while safety < max_loops:
-            page = await self._fetch_lap_page(
-                season, round_number, limit_used, offset, ttl_seconds
+        async def _fetch_page(
+            limit: int,
+            offset: int,
+            page_ttl: int,
+            force_refresh: bool,
+            validator: Callable[[dict[str, Any]], None],
+        ) -> dict[str, Any]:
+            return await self._fetch_lap_page(
+                season,
+                round_number,
+                limit,
+                offset,
+                page_ttl,
+                force_refresh,
+                validator,
             )
-            mr = (page or {}).get("MRData", {})
-            with suppress(Exception):
-                total = int(mr.get("total") or total or 0)
-            with suppress(Exception):
-                limit_used = int(mr.get("limit") or limit_used or request_limit)
-            with suppress(Exception):
-                offset = int(mr.get("offset") or offset)
-            if total > 0 and limit_used > 0:
-                max_loops = max(1, ((total + limit_used - 1) // limit_used) + 1)
 
-            page_races = self._race_table_races(page)
+        paginated = await async_paginate_jolpica(
+            _fetch_page,
+            lap_leaf_keys,
+            ttl_stable=ttl_seconds,
+            ttl_recent=ttl_seconds,
+            ttl_latest=ttl_seconds,
+            ttl_probe=self._ttl_pending,
+        )
+
+        for validated_page in paginated.pages:
+            page_races = self._race_table_races(validated_page.payload)
             for page_race in page_races:
                 if race_meta is None:
                     race_meta = {
@@ -7875,12 +8618,6 @@ class F1LapPositionProgressionCoordinator(DataUpdateCoordinator):
                             continue
                         timings_by_driver[driver_id] = dict(timing)
 
-            next_offset = offset + max(1, limit_used)
-            if total <= 0 or next_offset >= total:
-                break
-            offset = next_offset
-            safety += 1
-
         laps = []
         for lap_number in sorted(lap_timings):
             timings = sorted(
@@ -7888,7 +8625,7 @@ class F1LapPositionProgressionCoordinator(DataUpdateCoordinator):
                 key=self._sort_timing_key,
             )
             laps.append({"number": str(lap_number), "Timings": timings})
-        return race_meta, laps, total > 0
+        return race_meta, laps, paginated.total > 0
 
     def _result_metadata(self, race: dict) -> dict[str, dict]:
         metadata = {}
@@ -8397,14 +9134,8 @@ class FiaDocumentsCoordinator(DataUpdateCoordinator):
         except Exception as err:  # noqa: BLE001
             _LOGGER.debug("Failed to resolve FIA season slug for %s: %s", season, err)
         if not slug:
-            _LOGGER.debug(
-                "FIA season slug not found for %s; using fallback URL", season
-            )
-        url = (
-            urljoin(FIA_DOCUMENTS_BASE_URL + "/", slug)
-            if slug
-            else FIA_SEASON_FALLBACK_URL
-        )
+            raise UpdateFailed(f"FIA season page for {season} is unavailable")
+        url = urljoin(FIA_DOCUMENTS_BASE_URL + "/", slug)
         self._season_url_cache[season] = url
         return url
 
@@ -8811,6 +9542,7 @@ class SessionStatusCoordinator(DataUpdateCoordinator):
         config_entry: ConfigEntry | None = None,
         delay_controller: LiveDelayController | None = None,
         live_state: LiveAvailabilityTracker | None = None,
+        live_supervisor: LiveSessionSupervisor | None = None,
     ):
         super().__init__(
             hass,
@@ -8829,7 +9561,9 @@ class SessionStatusCoordinator(DataUpdateCoordinator):
             live_state=live_state,
         )
         self._context_unsubs: list[Callable[[], None]] = []
+        self._live_supervisor = live_supervisor
         self.is_qualifying_like_session = False
+        self.is_testing_session = False
         self.qualifying_part: int | None = None
 
     async def async_close(self, *_):
@@ -8861,7 +9595,33 @@ class SessionStatusCoordinator(DataUpdateCoordinator):
     def _on_bus_message(self, msg: dict) -> None:
         if not isinstance(msg, dict):
             return
+        window_qualifying, window_testing = self._window_context()
+        self.is_qualifying_like_session |= window_qualifying
+        self.is_testing_session |= window_testing
         self._deliver(msg)
+
+    def _window_context(self) -> tuple[bool, bool]:
+        window = getattr(self._live_supervisor, "current_window", None)
+        if window is None:
+            return False, False
+        session_name = str(getattr(window, "session_name", "") or "").casefold()
+        meeting_name = str(getattr(window, "meeting_name", "") or "").casefold()
+        return (
+            "qualifying" in session_name or "shootout" in session_name,
+            "testing" in meeting_name,
+        )
+
+    def _refresh_finished_context(self) -> None:
+        if (
+            isinstance(self._last_message, dict)
+            and str(
+                self._last_message.get("Status")
+                or self._last_message.get("Message")
+                or ""
+            ).strip()
+            == "Finished"
+        ):
+            self.async_set_updated_data(self._last_message)
 
     @staticmethod
     def _iter_series_items(value: Any) -> list[dict[str, Any]]:
@@ -8896,7 +9656,28 @@ class SessionStatusCoordinator(DataUpdateCoordinator):
     def _on_session_info_context(self, msg: dict) -> None:
         if not isinstance(msg, dict):
             return
-        self.is_qualifying_like_session = self._is_qualifying_like_session(msg)
+        window = getattr(self._live_supervisor, "current_window", None)
+        window_key = getattr(window, "session_key", None)
+        if window_key is not None and "Key" in msg:
+            if str(msg["Key"]) != str(window_key):
+                return
+        previous = (self.is_qualifying_like_session, self.is_testing_session)
+        window_qualifying, window_testing = self._window_context()
+        if "Type" in msg or "Name" in msg:
+            self.is_qualifying_like_session = (
+                self._is_qualifying_like_session(msg) or window_qualifying
+            )
+        else:
+            self.is_qualifying_like_session |= window_qualifying
+        meeting = msg.get("Meeting")
+        if isinstance(meeting, dict) and "Name" in meeting:
+            self.is_testing_session = (
+                "testing" in str(meeting.get("Name") or "").casefold() or window_testing
+            )
+        else:
+            self.is_testing_session |= window_testing
+        if previous != (self.is_qualifying_like_session, self.is_testing_session):
+            self._refresh_finished_context()
 
     def _on_session_data_context(self, msg: dict) -> None:
         if not isinstance(msg, dict):
@@ -8911,7 +9692,10 @@ class SessionStatusCoordinator(DataUpdateCoordinator):
             except (TypeError, ValueError):
                 continue
         if latest_part is not None:
+            changed = self.qualifying_part != latest_part
             self.qualifying_part = latest_part
+            if changed:
+                self._refresh_finished_context()
 
     @staticmethod
     def _parse_message(data):
@@ -8984,6 +9768,7 @@ class SessionStatusCoordinator(DataUpdateCoordinator):
         self.available = is_live
         if not is_live:
             self.is_qualifying_like_session = False
+            self.is_testing_session = False
             self.qualifying_part = None
             _clear_delayed_ingest_state(self)
             self._last_message = None
@@ -9307,6 +10092,24 @@ class SessionClockCoordinator(DataUpdateCoordinator):
     )
     _QUALI_TOTALS = {1: 18 * 60, 2: 15 * 60, 3: 12 * 60}
     _SPRINT_QUALI_TOTALS = {1: 12 * 60, 2: 10 * 60, 3: 8 * 60}
+    _PUBLISH_FIELDS = (
+        "clock_remaining_s",
+        "clock_elapsed_s",
+        "race_three_hour_remaining_s",
+        "clock_total_s",
+        "session_part",
+        "session_type",
+        "session_name",
+        "session_status",
+        "clock_running",
+        "clock_phase",
+        "source_quality",
+    )
+    _ANCHOR_FIELDS = (
+        "session_start_utc",
+        "race_start_utc",
+        "race_three_hour_cap_utc",
+    )
 
     def __init__(
         self,
@@ -9333,9 +10136,11 @@ class SessionClockCoordinator(DataUpdateCoordinator):
         self._state = self._empty_state()
         self.data_list: list[dict] = [self._state]
         self._live_supervisor = live_supervisor
-        self._tick_unsub: Callable[[], None] | None = None
+        self._last_published_state: dict[str, Any] | None = None
         self._replay_controller = replay_controller
         self._replay_state_unsub: Callable[[], None] | None = None
+        self._tick_unsub: Callable[[], None] | None = None
+        self._tick_enabled = False
         self._reset_runtime()
         _init_stream_delay_state(
             self,
@@ -9346,6 +10151,7 @@ class SessionClockCoordinator(DataUpdateCoordinator):
         )
 
     async def async_close(self, *_):
+        self._tick_enabled = False
         self._stop_tick()
         if self._replay_state_unsub is not None:
             with suppress(Exception):
@@ -9354,6 +10160,7 @@ class SessionClockCoordinator(DataUpdateCoordinator):
         _close_stream_delay_state(self)
 
     async def _async_update_data(self):
+        self._last_published_state = dict(self._state)
         return self._state
 
     @staticmethod
@@ -9378,6 +10185,7 @@ class SessionClockCoordinator(DataUpdateCoordinator):
         }
 
     def _reset_runtime(self) -> None:
+        self._stop_tick()
         self._session_info: dict[str, Any] = {}
         self._session_status: dict[str, Any] = {}
         self._clock_anchor_utc: datetime | None = None
@@ -9465,18 +10273,42 @@ class SessionClockCoordinator(DataUpdateCoordinator):
             return
         remaining_s = self._parse_remaining(msg.get("Remaining"))
         anchor_utc = self._parse_utc(msg.get("Utc"))
+        if anchor_utc is None and "Extrapolating" in msg:
+            anchor_utc = self._server_now_utc()
+        force_publish = False
+        if (
+            anchor_utc is not None
+            and self._clock_anchor_remaining_s is not None
+            and self._clock_anchor_utc is not None
+        ):
+            elapsed = max(0, int((anchor_utc - self._clock_anchor_utc).total_seconds()))
+            expected = (
+                max(0, self._clock_anchor_remaining_s - elapsed)
+                if self._clock_anchor_extrapolating
+                else self._clock_anchor_remaining_s
+            )
+            if remaining_s is None:
+                # Sparse pause/resume updates move the anchor without repeating
+                # Remaining. Rebase before applying the new running flag.
+                remaining_s = expected
+            else:
+                force_publish = abs(remaining_s - expected) > 2
+        previous_extrapolating = self._clock_anchor_extrapolating
         if remaining_s is not None:
             self._clock_anchor_remaining_s = remaining_s
         if anchor_utc is not None:
             self._clock_anchor_utc = anchor_utc
         if "Extrapolating" in msg:
             self._clock_anchor_extrapolating = bool(msg.get("Extrapolating"))
+            force_publish = force_publish or (
+                previous_extrapolating != self._clock_anchor_extrapolating
+            )
         segment_id = self._segment_id(
             self._resolve_session_part_at(anchor_utc or self._server_now_utc())
         )
         self._clock_anchor_segment_id = segment_id
         self._update_clock_total(segment_id, remaining_s)
-        self._schedule_deliver()
+        self._deliver(force=force_publish)
 
     def _on_heartbeat(self, msg: dict) -> None:
         if not isinstance(msg, dict):
@@ -9486,17 +10318,25 @@ class SessionClockCoordinator(DataUpdateCoordinator):
         )
         if hb_utc is None:
             return
+        had_heartbeat = self._last_heartbeat_utc is not None
         mono_now = time.monotonic()
         self._last_heartbeat_utc = hb_utc
         self._last_heartbeat_mono = mono_now
         self._replay_now_anchor_utc = hb_utc
         self._replay_now_anchor_mono = mono_now
-        self._schedule_deliver()
+        self._deliver(force=not had_heartbeat and self._clock_anchor_utc is not None)
 
     def _on_session_status(self, msg: dict) -> None:
         if not isinstance(msg, dict):
             return
         self._session_status = msg
+        status = str(msg.get("Status") or msg.get("Message") or "").strip()
+        if status in self._CLOCK_FREEZE_STATES:
+            # SessionData can arrive later than the status change. Freeze now
+            # and let an earlier official terminal timestamp refine the result.
+            self._record_segment_terminal(
+                self._parse_utc(msg.get("Utc")) or self._server_now_utc()
+            )
         self._schedule_deliver()
 
     def _on_session_info(self, msg: dict) -> None:
@@ -9626,7 +10466,7 @@ class SessionClockCoordinator(DataUpdateCoordinator):
             ReplayState.PLAYING,
             ReplayState.SEEKING,
         ):
-            self._deliver()
+            self._deliver(force=True)
 
     def _server_now_utc(self) -> datetime:
         if self._is_replay_temporarily_frozen():
@@ -9802,7 +10642,9 @@ class SessionClockCoordinator(DataUpdateCoordinator):
 
     def _record_segment_terminal(self, utc: datetime) -> None:
         segment_id = self._segment_id(self._resolve_session_part_at(utc))
-        self._segment_terminal_utc.setdefault(segment_id, utc)
+        current = self._segment_terminal_utc.get(segment_id)
+        if current is None or utc < current:
+            self._segment_terminal_utc[segment_id] = utc
 
     def _segment_start(self, segment_id: int) -> datetime | None:
         if segment_id in self._segment_start_utc:
@@ -9940,9 +10782,11 @@ class SessionClockCoordinator(DataUpdateCoordinator):
             self._clock_anchor_extrapolating
             and isinstance(self._clock_anchor_utc, datetime)
             and isinstance(clock_total, int)
-            and isinstance(clock_remaining, int)
+            and isinstance(self._clock_anchor_remaining_s, int)
         ):
-            offset = max(0, int(clock_total) - int(clock_remaining))
+            # Use values from the same clock anchor. Subtracting the current
+            # remaining time from the old anchor moves the inferred start.
+            offset = max(0, clock_total - self._clock_anchor_remaining_s)
             return self._clock_anchor_utc - timedelta(seconds=offset), "clock_inferred"
 
         if clock_total is not None:
@@ -10114,65 +10958,74 @@ class SessionClockCoordinator(DataUpdateCoordinator):
             "last_server_utc": self._iso(now_utc),
         }
 
-    def _stop_tick(self) -> None:
-        if self._tick_unsub:
-            with suppress(Exception):
-                self._tick_unsub()
-            self._tick_unsub = None
+    def _should_publish_state(self, state: dict[str, Any]) -> bool:
+        previous = self._last_published_state
+        if not isinstance(previous, dict):
+            return True
+        if any(previous.get(key) != state.get(key) for key in self._PUBLISH_FIELDS):
+            return True
+        for key in self._ANCHOR_FIELDS:
+            previous_value = self._parse_utc(previous.get(key))
+            current_value = self._parse_utc(state.get(key))
+            if previous_value is None or current_value is None:
+                if previous_value != current_value:
+                    return True
+                continue
+            if abs((current_value - previous_value).total_seconds()) > 2:
+                return True
+        return False
 
-    def _on_tick(self, _now: datetime | None = None) -> None:
-        if not self.available:
+    def _stop_tick(self) -> None:
+        """Release the shared local clock timer on pause, reset or unload."""
+        self._tick_unsub = _call_unsub(self._tick_unsub)
+
+    def _update_tick(self) -> None:
+        """Run one local timer only while a published clock can advance."""
+        state = self._state
+        should_tick = (
+            self._tick_enabled
+            and self.available
+            and not _is_no_spoiler_blocked(self)
+            and not self._is_replay_temporarily_frozen()
+            and state.get("session_status") not in self._CLOCK_FREEZE_STATES
+            and (
+                state.get("clock_running")
+                or (state.get("race_three_hour_remaining_s") or 0) > 0
+                or (
+                    state.get("clock_remaining_s") is None
+                    and state.get("clock_elapsed_s") is not None
+                    and state.get("session_status") in {"Started", "Resumed"}
+                )
+            )
+        )
+        if not should_tick:
             self._stop_tick()
-            return
+        elif self._tick_unsub is None:
+            self._tick_unsub = async_track_time_interval(
+                self.hass, self._tick, timedelta(seconds=1)
+            )
+
+    @ha_callback
+    def _tick(self, _now: datetime) -> None:
+        """Advance from the delayed/replay clock anchor without network I/O."""
         self._deliver()
 
-    def _should_tick(self, state: dict[str, Any]) -> bool:
-        if not self.available:
-            return False
-        if self._is_replay_temporarily_frozen():
-            return False
-        if bool(state.get("clock_running")):
-            return True
-        status = str(state.get("session_status") or "").strip() or None
-        has_official_clock = isinstance(
-            state.get("clock_remaining_s"), int
-        ) and isinstance(state.get("clock_total_s"), int)
-        elapsed = state.get("clock_elapsed_s")
-        if (
-            not has_official_clock
-            and isinstance(elapsed, int)
-            and not self._status_is_terminal(status)
-        ):
-            return True
-        race_remaining = state.get("race_three_hour_remaining_s")
-        return (
-            isinstance(race_remaining, int)
-            and race_remaining > 0
-            and not self._status_is_terminal(status)
-        )
-
-    def _ensure_tick(self, state: dict[str, Any]) -> None:
-        should_tick = self._should_tick(state)
-        if should_tick and self._tick_unsub is None:
-            self._tick_unsub = async_track_time_interval(
-                self.hass,
-                self._on_tick,
-                timedelta(seconds=1),
-            )
-        elif not should_tick and self._tick_unsub is not None:
-            self._stop_tick()
-
-    def _deliver(self) -> None:
+    def _deliver(self, *, force: bool = False) -> None:
         if _is_no_spoiler_blocked(self):
+            self._stop_tick()
             return
         self.available = True
         self._state = self._build_state()
         self.data_list = [self._state]
-        self.async_set_updated_data(self._state)
-        self._ensure_tick(self._state)
+        self._update_tick()
+        if force or self._should_publish_state(self._state):
+            self._last_published_state = dict(self._state)
+            self.async_set_updated_data(self._state)
 
     async def async_config_entry_first_refresh(self):
         await super().async_config_entry_first_refresh()
+        self._tick_enabled = True
+        self._update_tick()
         if self._replay_controller is not None:
             with suppress(Exception):
                 self._replay_state_unsub = (
@@ -10221,13 +11074,12 @@ class SessionClockCoordinator(DataUpdateCoordinator):
         if self._replay_mode:
             _clear_delayed_ingest_state(self)
         if _is_no_spoiler_live_state(reason):
-            _clear_delayed_ingest_state(self)
             self._stop_tick()
+            _clear_delayed_ingest_state(self)
             return
         self.available = is_live
         if not is_live:
             _clear_delayed_ingest_state(self)
-            self._stop_tick()
             self._reset_runtime()
             self._state = self._empty_state()
             self.data_list = [self._state]

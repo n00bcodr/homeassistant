@@ -1,7 +1,11 @@
 """Bodymiscale entity module."""
 
 from homeassistant.const import CONF_NAME
-from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
+from homeassistant.helpers.device_registry import (
+    ChildDeviceInfo,
+    DeviceEntryType,
+    DeviceInfo,
+)
 from homeassistant.helpers.entity import Entity, EntityDescription
 from homeassistant.helpers.typing import UNDEFINED
 
@@ -50,3 +54,10 @@ class BodyScaleBaseEntity(Entity):
             sw_version=VERSION,
             identifiers={(DOMAIN, self._handler.config_entry_id)},
         )
+
+    @property
+    def device_info(self) -> DeviceInfo | ChildDeviceInfo | None:
+        """Return device info only when bound to a config entry platform."""
+        if self.platform is None or self.platform.config_entry is None:
+            return None
+        return self._attr_device_info

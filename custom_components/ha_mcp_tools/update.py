@@ -29,8 +29,9 @@ from .const import (
     DOMAIN,
     OPT_AUTO_UPDATE,
 )
-from .coordinator import ServerVersionCoordinator
+from .coordinator import ServerVersionCoordinator, ServerVersionInfo
 from .embedded_server import _installed_dist_version
+from .embedded_setup import _async_update_held_by_component
 
 if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
@@ -45,6 +46,19 @@ _RELEASES_URL = (
     "https://api.github.com/repos/homeassistant-ai/ha-mcp/releases?per_page=30"
 )
 _RELEASE_NOTES_TIMEOUT_SECONDS = 15
+
+# Prepended to the release notes while the automatic server update is HELD on a
+# newer custom component (embedded_setup's auto-update gate). ``ha-alert`` renders
+# as a prominent banner in Home Assistant's markdown; ``{shipped}`` is the
+# component version the release ships, ``{running}`` the one currently installed.
+_COMPONENT_HOLD_WARNING = (
+    '<ha-alert alert-type="warning">\n'
+    "This release also updates the HA-MCP Custom Component (to {shipped}; you "
+    "are running {running}). Update the component in HACS first — installing "
+    "this server update now runs a server build the HACS component has never "
+    "been tested with.\n"
+    "</ha-alert>"
+)
 
 
 async def async_setup_entry(
@@ -95,8 +109,10 @@ class ServerUpdateEntity(CoordinatorEntity[ServerVersionCoordinator], UpdateEnti
 
     @property
     def auto_update(self) -> bool:
-        """Reflect the entry's automatic-update option."""
-        return bool(self._entry.options.get(OPT_AUTO_UPDATE, DEFAULT_AUTO_UPDATE))
+        """Reflect the effective automatic-update policy."""
+        return not self.coordinator.hass.config.skip_pip and bool(
+            self._entry.options.get(OPT_AUTO_UPDATE, DEFAULT_AUTO_UPDATE)
+        )
 
     @property
     def release_url(self) -> str | None:
@@ -112,25 +128,87 @@ class ServerUpdateEntity(CoordinatorEntity[ServerVersionCoordinator], UpdateEnti
 
     @property
     def supported_features(self) -> UpdateEntityFeature:
-        """RELEASE_NOTES only on the stable channel — dev builds have no tags."""
-        features = UpdateEntityFeature.INSTALL
+        """Expose install only when Home Assistant may manage the package."""
+        features = UpdateEntityFeature(0)
+        if not self.coordinator.hass.config.skip_pip:
+            features |= UpdateEntityFeature.INSTALL
         data = self.coordinator.data
         if data is not None and data.dist != DIST_NAME_DEV:
             features |= UpdateEntityFeature.RELEASE_NOTES
         return features
 
     async def async_release_notes(self) -> str | None:
-        """Concatenate GitHub release bodies between installed and latest.
+        """Return the GitHub release notes, with a component-update warning
+        prepended when the pending update is held on a component update.
+
+        When the newer server release also ships a newer custom component than
+        the one running, the auto-update gate HOLDS the install (see
+        embedded_setup._async_update_held_by_component), so the dialog leads
+        with a prominent warning to update the component in HACS first. That
+        warning must survive even a failed or empty notes fetch — surfacing it
+        is the whole point of opening a held update's dialog — so a held update
+        returns the warning alone rather than None. When not held, behaviour is
+        unchanged.
 
         Advisory-only (same reasoning as embedded_setup's
         _async_check_component_compat): a GitHub fetch failure, rate limit, or
-        unexpected payload shape must degrade to None - the UI then falls back
-        to :attr:`release_url` - rather than break the update dialog.
+        unexpected payload shape degrades to the :attr:`release_url` fallback
+        rather than breaking the update dialog.
         """
         data = self.coordinator.data
         if data is None or data.installed is None or data.latest is None:
             return None
 
+        # Both probes are advisory network calls that contain their own
+        # failures and timeouts; run them concurrently so the dialog waits for
+        # the slower of the two, not their sum — a blocked/slow manifest host
+        # must not stall the ordinary notes fetch (review finding).
+        warning, notes = await asyncio.gather(
+            self._async_component_hold_warning(data),
+            self._async_fetch_release_notes(data),
+        )
+
+        if warning is None:
+            # Not held: exactly the pre-existing behaviour (the notes, or None
+            # on any failure/empty — the UI then falls back to release_url).
+            return notes
+        # Held: the warning must always surface, even when the notes fetch
+        # failed or returned nothing — it must never vanish with the notes.
+        if notes is None:
+            return warning
+        return f"{warning}\n\n{notes}"
+
+    async def _async_component_hold_warning(
+        self, data: ServerVersionInfo
+    ) -> str | None:
+        """Return the markdown component-hold warning, or None when not held.
+
+        Reuses the auto-update gate's own held-check so this dialog and the
+        Repairs hold agree on when the component is behind. Fully advisory: any
+        failure — including an unexpected error escaping the gate — degrades to
+        None so the hold warning can never break the release-notes dialog.
+        """
+        try:
+            held = await _async_update_held_by_component(self.hass, data)
+        except Exception:
+            # The gate contains all its expected failures internally, so an
+            # exception escaping it is a bug — logged visibly per the repo's
+            # convention (review finding), still degrading to plain notes.
+            _LOGGER.warning(
+                "HA-MCP release-notes component-hold check failed", exc_info=True
+            )
+            return None
+        if held is None:
+            return None
+        shipped, running = held
+        return _COMPONENT_HOLD_WARNING.format(shipped=shipped, running=running)
+
+    async def _async_fetch_release_notes(self, data: ServerVersionInfo) -> str | None:
+        """Concatenate GitHub release bodies between installed and latest.
+
+        Advisory-only: a GitHub fetch failure, rate limit, or unexpected payload
+        shape degrades to None so the dialog falls back to :attr:`release_url`.
+        """
         try:
             installed = AwesomeVersion(data.installed)
             latest = AwesomeVersion(data.latest)
@@ -183,6 +261,14 @@ class ServerUpdateEntity(CoordinatorEntity[ServerVersionCoordinator], UpdateEnti
         that can still fail (review finding).
         """
         data = self.coordinator.data
+        if self.coordinator.hass.config.skip_pip:
+            raise HomeAssistantError(
+                "The HA-MCP server package is externally managed by the system "
+                "package manager because Home Assistant was started with "
+                "skip_pip. Install the update there, then reload this "
+                "integration."
+            )
+
         target = version or self.latest_version
         if target is None:
             raise HomeAssistantError("No target version available to install.")

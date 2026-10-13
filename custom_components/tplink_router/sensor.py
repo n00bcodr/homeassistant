@@ -1,19 +1,34 @@
 from dataclasses import dataclass
 from collections.abc import Callable
+from functools import partial
 from typing import Any
 from homeassistant.components.sensor import (
+    SensorDeviceClass,
     SensorStateClass,
     SensorEntity,
     SensorEntityDescription,
 )
-from homeassistant.const import PERCENTAGE, SIGNAL_STRENGTH_DECIBELS_MILLIWATT, UnitOfDataRate, UnitOfInformation
+from homeassistant.const import (
+    PERCENTAGE,
+    SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
+    EntityCategory,
+    UnitOfDataRate,
+    UnitOfInformation,
+    UnitOfFrequency,
+)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
-from .const import DOMAIN
+from .const import DOMAIN, CONF_SUPPORT_TRACKER
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .coordinator import TPLinkRouterCoordinator
-from tplinkrouterc6u import Status, LTEStatus, VPNStatus
+from .port import find_port_status, update_port_items
+from .mesh import find_mesh_node, mesh_device_info, update_mesh_sensor_items
+from tplinkrouterc6u import Status, LTEStatus, VPNStatus, ServingCell
+try:
+    from tplinkrouterc6u import MeshNode
+except ImportError:  # pragma: no cover - older tplinkrouterc6u without mesh
+    MeshNode = Any  # type: ignore[misc, assignment]
 
 
 @dataclass
@@ -36,6 +51,44 @@ class TPLinkRouterLTESensorConfig(TPLinkRouterSensorConfigBase[LTEStatus]):
 @dataclass
 class TPLinkRouterVPNServerSensorConfig(TPLinkRouterSensorConfigBase[VPNStatus]):
     sensor_type: str = "vpn_server_status"
+
+
+@dataclass
+class TPLinkRouterServingCellSensorConfig(TPLinkRouterSensorConfigBase[list[ServingCell]]):
+    sensor_type: str = "serving_cells"
+
+
+@dataclass
+class TPLinkRouterMeshNodeSensorConfig(TPLinkRouterSensorConfigBase[MeshNode]):
+    sensor_type: str = "mesh_node"
+
+
+# --- Serving cell helpers ---
+_NT_NR = 8
+_NT_LTE_PLUS = 7
+_NT_LTE = 3
+
+
+def _sc(cells, nt):
+    if not cells:
+        return None
+    return next((c for c in cells if c.network_type == nt), None)
+
+
+def _scf(cells, nt, field):
+    c = _sc(cells, nt)
+    if c is None:
+        return None
+    return getattr(c, field)
+
+
+def _active_bands(cells):
+    if not cells:
+        return None
+    prefix = {_NT_LTE: 'B', _NT_LTE_PLUS: 'B', _NT_NR: 'N'}
+    parts = [f"{prefix[nt]}{_sc(cells, nt).band}"
+             for nt in (_NT_LTE, _NT_LTE_PLUS, _NT_NR) if _sc(cells, nt)]
+    return '+'.join(parts) if parts else None
 
 
 SENSOR_TYPES = (
@@ -132,6 +185,22 @@ SENSOR_TYPES = (
             key="lan_ipv4_addr",
             name="LAN IPv4 Address",
             icon="mdi:lan",
+        ),
+    ),
+    TPLinkRouterSensorConfig(
+        value=lambda status: status.wan_ipv6_enabled,
+        description=SensorEntityDescription(
+            key="wan_ipv6_enabled",
+            name="WAN IPv6 Enabled",
+            icon="mdi:wan",
+        ),
+    ),
+    TPLinkRouterSensorConfig(
+        value=lambda status: status.wan_ipv6_addr,
+        description=SensorEntityDescription(
+            key="wan_ipv6_addr",
+            name="WAN IPv6 Address",
+            icon="mdi:wan",
         ),
     ),
 )
@@ -276,6 +345,218 @@ LTE_SENSOR_TYPES = (
     ),
 )
 
+SERVING_CELL_SENSOR_TYPES = (
+    # Overview
+    TPLinkRouterServingCellSensorConfig(
+        value=lambda cells: _active_bands(cells),
+        description=SensorEntityDescription(
+            key="cell_active_bands",
+            name="Active Bands",
+            icon="mdi:antenna",
+        ),
+    ),
+    # 5G NR cell
+    TPLinkRouterServingCellSensorConfig(
+        value=lambda cells: _scf(cells, _NT_NR, 'band'),
+        description=SensorEntityDescription(
+            key="cell_nr_band",
+            name="NR Band",
+            icon="mdi:antenna",
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+    ),
+    TPLinkRouterServingCellSensorConfig(
+        value=lambda cells: _scf(cells, _NT_NR, 'arfcn'),
+        description=SensorEntityDescription(
+            key="cell_nr_arfcn",
+            name="NR-ARFCN",
+            icon="mdi:antenna",
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+    ),
+    TPLinkRouterServingCellSensorConfig(
+        value=lambda cells: _scf(cells, _NT_NR, 'downlink_bandwidth'),
+        description=SensorEntityDescription(
+            key="cell_nr_dl_bandwidth",
+            name="NR DL Bandwidth",
+            icon="mdi:antenna",
+            state_class=SensorStateClass.MEASUREMENT,
+            native_unit_of_measurement=UnitOfFrequency.MEGAHERTZ,
+        ),
+    ),
+    TPLinkRouterServingCellSensorConfig(
+        value=lambda cells: _scf(cells, _NT_NR, 'downlink_frequency'),
+        description=SensorEntityDescription(
+            key="cell_nr_dl_freq",
+            name="NR DL Frequency",
+            icon="mdi:antenna",
+            state_class=SensorStateClass.MEASUREMENT,
+            native_unit_of_measurement=UnitOfFrequency.MEGAHERTZ,
+        ),
+    ),
+    TPLinkRouterServingCellSensorConfig(
+        value=lambda cells: _scf(cells, _NT_NR, 'downlink_modulation'),
+        description=SensorEntityDescription(
+            key="cell_nr_dl_mod",
+            name="NR DL Modulation",
+            icon="mdi:sine-wave",
+        ),
+    ),
+    TPLinkRouterServingCellSensorConfig(
+        value=lambda cells: _scf(cells, _NT_NR, 'uplink_modulation'),
+        description=SensorEntityDescription(
+            key="cell_nr_ul_mod",
+            name="NR UL Modulation",
+            icon="mdi:sine-wave",
+        ),
+    ),
+    TPLinkRouterServingCellSensorConfig(
+        value=lambda cells: _scf(cells, _NT_NR, 'cqi'),
+        description=SensorEntityDescription(
+            key="cell_nr_cqi",
+            name="NR CQI",
+            icon="mdi:antenna",
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+    ),
+    TPLinkRouterServingCellSensorConfig(
+        value=lambda cells: _scf(cells, _NT_NR, 'ri'),
+        description=SensorEntityDescription(
+            key="cell_nr_ri",
+            name="NR RI",
+            icon="mdi:antenna",
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+    ),
+    TPLinkRouterServingCellSensorConfig(
+        value=lambda cells: _scf(cells, _NT_NR, 'resource_blocks'),
+        description=SensorEntityDescription(
+            key="cell_nr_num_rbs",
+            name="NR Resource Blocks",
+            icon="mdi:antenna",
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+    ),
+    # LTE anchor cell
+    TPLinkRouterServingCellSensorConfig(
+        value=lambda cells: _scf(cells, _NT_LTE, 'band'),
+        description=SensorEntityDescription(
+            key="cell_lte_anchor_band",
+            name="LTE Anchor Band",
+            icon="mdi:antenna",
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+    ),
+    TPLinkRouterServingCellSensorConfig(
+        value=lambda cells: _scf(cells, _NT_LTE, 'arfcn'),
+        description=SensorEntityDescription(
+            key="cell_lte_anchor_arfcn",
+            name="LTE Anchor E-ARFCN",
+            icon="mdi:antenna",
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+    ),
+    TPLinkRouterServingCellSensorConfig(
+        value=lambda cells: _scf(cells, _NT_LTE, 'downlink_bandwidth'),
+        description=SensorEntityDescription(
+            key="cell_lte_anchor_dl_bandwidth",
+            name="LTE Anchor DL Bandwidth",
+            icon="mdi:antenna",
+            state_class=SensorStateClass.MEASUREMENT,
+            native_unit_of_measurement=UnitOfFrequency.MEGAHERTZ,
+        ),
+    ),
+    TPLinkRouterServingCellSensorConfig(
+        value=lambda cells: _scf(cells, _NT_LTE, 'downlink_frequency'),
+        description=SensorEntityDescription(
+            key="cell_lte_anchor_dl_freq",
+            name="LTE Anchor DL Frequency",
+            icon="mdi:antenna",
+            state_class=SensorStateClass.MEASUREMENT,
+            native_unit_of_measurement=UnitOfFrequency.MEGAHERTZ,
+        ),
+    ),
+    TPLinkRouterServingCellSensorConfig(
+        value=lambda cells: _scf(cells, _NT_LTE, 'rsrp'),
+        description=SensorEntityDescription(
+            key="cell_lte_anchor_rsrp",
+            name="LTE Anchor RSRP",
+            icon="mdi:antenna",
+            state_class=SensorStateClass.MEASUREMENT,
+            native_unit_of_measurement=SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
+        ),
+    ),
+    TPLinkRouterServingCellSensorConfig(
+        value=lambda cells: _scf(cells, _NT_LTE, 'rsrq'),
+        description=SensorEntityDescription(
+            key="cell_lte_anchor_rsrq",
+            name="LTE Anchor RSRQ",
+            icon="mdi:antenna",
+            state_class=SensorStateClass.MEASUREMENT,
+            native_unit_of_measurement=SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
+        ),
+    ),
+    # LTE CA secondary cell (networkType 7, LTE+)
+    TPLinkRouterServingCellSensorConfig(
+        value=lambda cells: _scf(cells, _NT_LTE_PLUS, 'band'),
+        description=SensorEntityDescription(
+            key="cell_lte_ca_band",
+            name="LTE CA Band",
+            icon="mdi:antenna",
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+    ),
+    TPLinkRouterServingCellSensorConfig(
+        value=lambda cells: _scf(cells, _NT_LTE_PLUS, 'arfcn'),
+        description=SensorEntityDescription(
+            key="cell_lte_ca_arfcn",
+            name="LTE CA E-ARFCN",
+            icon="mdi:antenna",
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+    ),
+    TPLinkRouterServingCellSensorConfig(
+        value=lambda cells: _scf(cells, _NT_LTE_PLUS, 'downlink_bandwidth'),
+        description=SensorEntityDescription(
+            key="cell_lte_ca_dl_bandwidth",
+            name="LTE CA DL Bandwidth",
+            icon="mdi:antenna",
+            state_class=SensorStateClass.MEASUREMENT,
+            native_unit_of_measurement=UnitOfFrequency.MEGAHERTZ,
+        ),
+    ),
+    TPLinkRouterServingCellSensorConfig(
+        value=lambda cells: _scf(cells, _NT_LTE_PLUS, 'downlink_frequency'),
+        description=SensorEntityDescription(
+            key="cell_lte_ca_dl_freq",
+            name="LTE CA DL Frequency",
+            icon="mdi:antenna",
+            state_class=SensorStateClass.MEASUREMENT,
+            native_unit_of_measurement=UnitOfFrequency.MEGAHERTZ,
+        ),
+    ),
+    TPLinkRouterServingCellSensorConfig(
+        value=lambda cells: _scf(cells, _NT_LTE_PLUS, 'rsrp'),
+        description=SensorEntityDescription(
+            key="cell_lte_ca_rsrp",
+            name="LTE CA RSRP",
+            icon="mdi:antenna",
+            state_class=SensorStateClass.MEASUREMENT,
+            native_unit_of_measurement=SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
+        ),
+    ),
+    TPLinkRouterServingCellSensorConfig(
+        value=lambda cells: _scf(cells, _NT_LTE_PLUS, 'rsrq'),
+        description=SensorEntityDescription(
+            key="cell_lte_ca_rsrq",
+            name="LTE CA RSRQ",
+            icon="mdi:antenna",
+            state_class=SensorStateClass.MEASUREMENT,
+            native_unit_of_measurement=SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
+        ),
+    ),
+)
+
 VPN_SERVER_SENSOR_TYPES = (
     TPLinkRouterVPNServerSensorConfig(
         value=lambda status: status.openvpn_clients_total,
@@ -297,6 +578,93 @@ VPN_SERVER_SENSOR_TYPES = (
     ),
 )
 
+# Backhaul metrics describe a unit's uplink to the mesh, so they are None on the
+# master (no uplink). Entities are created only once a node reports a value, so
+# EasyMesh nodes and the main router get no always-unknown sensors. internet_status
+# can be present on the master as well and is created when reported.
+MESH_NODE_SENSOR_TYPES = (
+    TPLinkRouterMeshNodeSensorConfig(
+        value=lambda node: node.signal_2g,
+        description=SensorEntityDescription(
+            key="mesh_signal_2g",
+            name="Backhaul signal 2.4GHz",
+            device_class=SensorDeviceClass.SIGNAL_STRENGTH,
+            native_unit_of_measurement=SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
+            state_class=SensorStateClass.MEASUREMENT,
+            entity_category=EntityCategory.DIAGNOSTIC,
+        ),
+    ),
+    TPLinkRouterMeshNodeSensorConfig(
+        value=lambda node: node.signal_5g,
+        description=SensorEntityDescription(
+            key="mesh_signal_5g",
+            name="Backhaul signal 5GHz",
+            device_class=SensorDeviceClass.SIGNAL_STRENGTH,
+            native_unit_of_measurement=SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
+            state_class=SensorStateClass.MEASUREMENT,
+            entity_category=EntityCategory.DIAGNOSTIC,
+        ),
+    ),
+    TPLinkRouterMeshNodeSensorConfig(
+        value=lambda node: node.rx_rate_2g,
+        description=SensorEntityDescription(
+            key="mesh_rx_rate_2g",
+            name="Backhaul RX rate 2.4GHz",
+            device_class=SensorDeviceClass.DATA_RATE,
+            native_unit_of_measurement=UnitOfDataRate.MEGABITS_PER_SECOND,
+            state_class=SensorStateClass.MEASUREMENT,
+            entity_category=EntityCategory.DIAGNOSTIC,
+        ),
+    ),
+    TPLinkRouterMeshNodeSensorConfig(
+        value=lambda node: node.tx_rate_2g,
+        description=SensorEntityDescription(
+            key="mesh_tx_rate_2g",
+            name="Backhaul TX rate 2.4GHz",
+            device_class=SensorDeviceClass.DATA_RATE,
+            native_unit_of_measurement=UnitOfDataRate.MEGABITS_PER_SECOND,
+            state_class=SensorStateClass.MEASUREMENT,
+            entity_category=EntityCategory.DIAGNOSTIC,
+        ),
+    ),
+    TPLinkRouterMeshNodeSensorConfig(
+        value=lambda node: node.rx_rate_5g,
+        description=SensorEntityDescription(
+            key="mesh_rx_rate_5g",
+            name="Backhaul RX rate 5GHz",
+            device_class=SensorDeviceClass.DATA_RATE,
+            native_unit_of_measurement=UnitOfDataRate.MEGABITS_PER_SECOND,
+            state_class=SensorStateClass.MEASUREMENT,
+            entity_category=EntityCategory.DIAGNOSTIC,
+        ),
+    ),
+    TPLinkRouterMeshNodeSensorConfig(
+        value=lambda node: node.tx_rate_5g,
+        description=SensorEntityDescription(
+            key="mesh_tx_rate_5g",
+            name="Backhaul TX rate 5GHz",
+            device_class=SensorDeviceClass.DATA_RATE,
+            native_unit_of_measurement=UnitOfDataRate.MEGABITS_PER_SECOND,
+            state_class=SensorStateClass.MEASUREMENT,
+            entity_category=EntityCategory.DIAGNOSTIC,
+        ),
+    ),
+    TPLinkRouterMeshNodeSensorConfig(
+        value=lambda node: node.internet_status,
+        description=SensorEntityDescription(
+            key="mesh_internet_status",
+            name="Internet status",
+            icon="mdi:web",
+            entity_category=EntityCategory.DIAGNOSTIC,
+        ),
+    ),
+)
+
+
+def _status_sensor_types(status) -> tuple[TPLinkRouterSensorConfig, ...]:
+    """Return status sensors whose value is reported (not None) for this device."""
+    return tuple(sensor for sensor in SENSOR_TYPES if sensor.value(status) is not None)
+
 
 async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
@@ -305,18 +673,53 @@ async def async_setup_entry(
 
     sensors = []
 
-    for sensor in SENSOR_TYPES:
+    for sensor in _status_sensor_types(coordinator.status):
         sensors.append(TPLinkRouterSensor(coordinator, sensor))
 
     if coordinator.lte_status is not None:
         for sensor in LTE_SENSOR_TYPES:
             sensors.append(TPLinkRouterSensor(coordinator, sensor))
 
+    if coordinator.serving_cells is not None:
+        for sensor in SERVING_CELL_SENSOR_TYPES:
+            sensors.append(TPLinkRouterSensor(coordinator, sensor))
+
     if coordinator.vpn_server_status is not None:
         for sensor in VPN_SERVER_SENSOR_TYPES:
             sensors.append(TPLinkRouterSensor(coordinator, sensor))
 
+    if coordinator.reservations is not None:
+        sensors.append(TPLinkRouterReservationsSensor(coordinator))
+
     async_add_entities(sensors, False)
+
+    tracked: set[int] = set()
+    tracked_mesh: set[tuple[str, str]] = set()
+    # Mesh backhaul sensors attach to the node devices that the tracker platform
+    # owns; skip them when trackers are disabled to avoid sparse orphan devices.
+    support_mesh_sensors = entry.data.get(CONF_SUPPORT_TRACKER, True)
+
+    @callback
+    def coordinator_updated():
+        update_port_items(
+            coordinator,
+            async_add_entities,
+            tracked,
+            TPLinkRouterPortLinkSpeedSensor,
+        )
+        if support_mesh_sensors:
+            for config in MESH_NODE_SENSOR_TYPES:
+                update_mesh_sensor_items(
+                    coordinator,
+                    async_add_entities,
+                    tracked_mesh,
+                    partial(TPLinkRouterMeshNodeSensor, config=config),
+                    key=config.description.key,
+                    value=config.value,
+                )
+
+    entry.async_on_unload(coordinator.async_add_listener(coordinator_updated))
+    coordinator_updated()
 
 
 class TPLinkRouterSensor(CoordinatorEntity[TPLinkRouterCoordinator], SensorEntity):
@@ -334,19 +737,146 @@ class TPLinkRouterSensor(CoordinatorEntity[TPLinkRouterCoordinator], SensorEntit
         self.entity_description = sensor.description
         self.sensor = sensor
 
-    @callback
-    def _handle_coordinator_update(self) -> None:
-        """Handle updated data from the coordinator."""
-        coordinator_data = getattr(
-            self.coordinator, self.sensor.sensor_type
-        )
-        self._attr_native_value = self.sensor.value(coordinator_data)
-        self.async_write_ha_state()
+    @property
+    def native_value(self):
+        """Return the sensor value from current coordinator data."""
+        coordinator_data = getattr(self.coordinator, self.sensor.sensor_type)
+        return self.sensor.value(coordinator_data)
 
     @property
     def available(self) -> bool:
         """Return True if entity is available."""
-        coordinator_data = getattr(
-            self.coordinator, self.sensor.sensor_type
+        return self.native_value is not None
+
+
+class TPLinkRouterPortLinkSpeedSensor(CoordinatorEntity[TPLinkRouterCoordinator], SensorEntity):
+    _attr_has_entity_name = True
+
+    def __init__(
+        self,
+        coordinator: TPLinkRouterCoordinator,
+        port: int
+    ) -> None:
+        super().__init__(coordinator)
+
+        self._port = port
+        self._attr_device_info = coordinator.device_info
+        self.entity_description = SensorEntityDescription(
+            key=f"port_{port}_link_speed",
+            name=f"Port {port} link speed",
+            device_class=SensorDeviceClass.DATA_RATE,
+            state_class=SensorStateClass.MEASUREMENT,
+            native_unit_of_measurement=UnitOfDataRate.MEGABITS_PER_SECOND,
+            entity_category=EntityCategory.DIAGNOSTIC,
         )
-        return self.sensor.value(coordinator_data) is not None
+        self._attr_unique_id = f"{coordinator.unique_id}_{DOMAIN}_{self.entity_description.key}"
+
+    @property
+    def _current_port_status(self):
+        return find_port_status(self.coordinator, self._port)
+
+    @property
+    def native_value(self):
+        """Return the sensor value from current coordinator data."""
+        port_status = self._current_port_status
+        if port_status is None:
+            return None
+        return port_status.negotiated_speed
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any] | None:
+        port_status = self._current_port_status
+        if port_status is None:
+            return None
+        return {
+            "negotiated_duplex": port_status.negotiated_duplex,
+            "enabled": port_status.enabled,
+            "auto_negotiation": port_status.auto_negotiation,
+            "configured_speed": port_status.configured_speed,
+            "configured_duplex": port_status.configured_duplex,
+            "flow_control_enabled": port_status.flow_control_enabled,
+            "flow_control_active": port_status.flow_control_active,
+            "lag": port_status.lag,
+            "tx_good_packets": port_status.tx_good_packets,
+            "tx_bad_packets": port_status.tx_bad_packets,
+            "rx_good_packets": port_status.rx_good_packets,
+            "rx_bad_packets": port_status.rx_bad_packets,
+        }
+
+    @property
+    def available(self) -> bool:
+        """Return True if entity is available."""
+        return super().available and self._current_port_status is not None
+
+
+class TPLinkRouterReservationsSensor(CoordinatorEntity[TPLinkRouterCoordinator], SensorEntity):
+    _attr_has_entity_name = True
+
+    def __init__(self, coordinator: TPLinkRouterCoordinator) -> None:
+        super().__init__(coordinator)
+        self._attr_device_info = coordinator.device_info
+        self._attr_unique_id = f"{coordinator.unique_id}_{DOMAIN}_dhcp_reservations"
+        self.entity_description = SensorEntityDescription(
+            key="dhcp_reservations",
+            name="DHCP Reservations",
+            icon="mdi:table-network",
+            entity_category=EntityCategory.DIAGNOSTIC,
+        )
+
+    @property
+    def native_value(self) -> int | None:
+        if self.coordinator.reservations is None:
+            return None
+        return len(self.coordinator.reservations)
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        if not self.coordinator.reservations:
+            return {"reservations": []}
+        return {
+            "reservations": [
+                {
+                    "mac": r.macaddr,
+                    "ip": r.ipaddr,
+                    "hostname": r.hostname or "",
+                    "enabled": r.enabled,
+                }
+                for r in self.coordinator.reservations
+            ]
+        }
+
+
+class TPLinkRouterMeshNodeSensor(CoordinatorEntity[TPLinkRouterCoordinator], SensorEntity):
+    """One backhaul metric of one mesh node, shown on that node's device."""
+
+    _attr_has_entity_name = True
+
+    def __init__(
+        self,
+        coordinator: TPLinkRouterCoordinator,
+        macaddr: str,
+        config: TPLinkRouterMeshNodeSensorConfig,
+    ) -> None:
+        super().__init__(coordinator)
+
+        self._macaddr = macaddr
+        self._config = config
+        self.entity_description = config.description
+        self._attr_device_info = mesh_device_info(coordinator, self._current_node)
+        self._attr_unique_id = (
+            f"{coordinator.unique_id}_{DOMAIN}_{macaddr}_{config.description.key}"
+        )
+
+    @property
+    def _current_node(self) -> MeshNode | None:
+        return find_mesh_node(self.coordinator, self._macaddr)
+
+    @property
+    def native_value(self) -> Any:
+        node = self._current_node
+        return self._config.value(node) if node is not None else None
+
+    @property
+    def available(self) -> bool:
+        """Return True if entity is available."""
+        return super().available and self._current_node is not None

@@ -442,10 +442,7 @@ class MediaBrowserHub:
             raise aiohttp.ClientResponseError(None, None, status=401, message="No API key provided")
 
         try:
-            # Test the API key by making a test request to an authenticated endpoint
-            await self._async_rest_get_json(ApiUrl.USERS)
-
-            # Get user info for operations that need user context
+            # Validate the API key and get user context in one request.
             # API keys have server-level permissions but we still need a user context for some operations
             users = await self._async_rest_get_json(ApiUrl.USERS)
             admin_users = [user for user in users if user.get("Policy", {}).get("IsAdministrator", False)]
@@ -563,7 +560,9 @@ class MediaBrowserHub:
         _LOGGER.debug("Connecting to %s", self._ws_url)
         self._abort = False
         async with async_timeout.timeout(self.timeout):
-            self._ws = await self._rest.ws_connect(self._ws_url)
+            self._ws = await self._rest.ws_connect(
+                self._ws_url, headers=self._default_headers
+            )
         await self._ws.send_str('{"MessageType":"SessionsStart", "Data": "0,1500"}')
         if self.send_activity_events:
             await self._ws.send_str(
@@ -658,6 +657,10 @@ class MediaBrowserHub:
                 + f', Token="{self.api_key}"'
             )
             self._default_headers["X-Emby-Authorization"] = auth
+            # Jellyfin 12+ disables legacy auth (X-Emby-Authorization/X-Emby-Token/
+            # api_key) by default. The standard "Authorization" header is never
+            # gated, so send it too - harmless on older servers or Emby.
+            self._default_headers["Authorization"] = auth
 
             # Also set as parameter for compatibility
             self._default_params["X-Emby-Token"] = self.api_key

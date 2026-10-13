@@ -12,7 +12,10 @@ from homeassistant.const import (
     CONF_PASSWORD,
     CONF_EMAIL,
 )
-from homeassistant.helpers.device_registry import async_get as device_registry_async_get
+from homeassistant.helpers.device_registry import (
+    async_entries_for_config_entry as device_registry_async_entries_for_config_entry,
+    async_get as device_registry_async_get,
+)
 from homeassistant.helpers.selector import selector
 
 from .utils import (
@@ -23,6 +26,8 @@ from .utils import (
     areCameraPortsOpened,
     isOpen,
     isKLAP,
+    getConfiguredColdDirPath,
+    getDataPath,
 )
 from .const import (
     CLOUD_USERNAME,
@@ -39,6 +44,9 @@ from .const import (
     ENABLE_TIME_SYNC,
     MEDIA_SYNC_COLD_STORAGE_PATH,
     MEDIA_SYNC_HOURS,
+    MEDIA_SYNC_PREVIOUS_STORAGE_PATH,
+    MEDIA_THUMBNAIL_CACHE,
+    MEDIA_THUMBNAIL_PRELOAD,
     MEDIA_VIEW_DAYS_ORDER,
     MEDIA_VIEW_DAYS_ORDER_OPTIONS,
     MEDIA_VIEW_RECORDINGS_ORDER,
@@ -52,6 +60,9 @@ from .const import (
     CONF_CUSTOM_STREAM_SD,
     CONF_CUSTOM_STREAM_6,
     CONF_CUSTOM_STREAM_7,
+    CONF_DIRECT_STREAM_ARGUMENTS,
+    CONF_SHOW_ON_MAP,
+    DIRECT_STREAM_ARGUMENTS,
     HAS_STREAM_6,
     HAS_STREAM_7,
     CONF_RTSP_TRANSPORT,
@@ -1499,11 +1510,16 @@ class TapoOptionsFlowHandler(OptionsFlow):
         media_sync_cold_storage_path = self.config_entry.data[
             MEDIA_SYNC_COLD_STORAGE_PATH
         ]
+        thumbnail_cache = self.config_entry.data.get(MEDIA_THUMBNAIL_CACHE, False)
+        thumbnail_preload = self.config_entry.data.get(MEDIA_THUMBNAIL_PRELOAD, True)
 
         allConfigData = {**self.config_entry.data}
         if user_input is not None:
             try:
-
+                thumbnail_cache = user_input.get(MEDIA_THUMBNAIL_CACHE, thumbnail_cache)
+                thumbnail_preload = user_input.get(
+                    MEDIA_THUMBNAIL_PRELOAD, thumbnail_preload
+                )
                 if MEDIA_VIEW_DAYS_ORDER in user_input:
                     media_view_days_order = user_input[MEDIA_VIEW_DAYS_ORDER]
                 else:
@@ -1528,14 +1544,43 @@ class TapoOptionsFlowHandler(OptionsFlow):
                 else:
                     media_sync_cold_storage_path = ""
 
-                if media_sync_cold_storage_path != "" and not os.path.exists(
+                if media_sync_cold_storage_path != "" and not os.path.isdir(
                     media_sync_cold_storage_path
                 ):
                     raise Exception("Cold storage path does not exist")
 
+                old_path = os.path.realpath(getConfiguredColdDirPath(self.config_entry))
+                new_path = os.path.realpath(
+                    media_sync_cold_storage_path or os.path.join(
+                        getDataPath(), ".storage", DOMAIN, self.config_entry.entry_id
+                    )
+                )
+                for entry in self.hass.config_entries.async_entries(DOMAIN):
+                    if entry.entry_id == self.config_entry.entry_id:
+                        continue
+                    other_paths = [getConfiguredColdDirPath(entry)]
+                    if entry.data.get(MEDIA_SYNC_PREVIOUS_STORAGE_PATH):
+                        other_paths.append(
+                            entry.data[MEDIA_SYNC_PREVIOUS_STORAGE_PATH]
+                        )
+                    for other_path in other_paths:
+                        other_path = os.path.realpath(other_path)
+                        if os.path.commonpath([other_path, new_path]) in (
+                            other_path, new_path
+                        ):
+                            raise Exception("Cold storage path is already in use")
+                if old_path != new_path:
+                    if MEDIA_SYNC_PREVIOUS_STORAGE_PATH in allConfigData:
+                        raise Exception("Cold storage move is pending")
+                    if os.path.commonpath([old_path, new_path]) in (old_path, new_path):
+                        raise Exception("Cold storage paths must not overlap")
+                    allConfigData[MEDIA_SYNC_PREVIOUS_STORAGE_PATH] = old_path
+
                 allConfigData[MEDIA_VIEW_DAYS_ORDER] = media_view_days_order
                 allConfigData[MEDIA_VIEW_RECORDINGS_ORDER] = media_view_recordings_order
                 allConfigData[MEDIA_SYNC_HOURS] = media_sync_hours
+                allConfigData[MEDIA_THUMBNAIL_CACHE] = thumbnail_cache
+                allConfigData[MEDIA_THUMBNAIL_PRELOAD] = thumbnail_preload
                 allConfigData[MEDIA_SYNC_COLD_STORAGE_PATH] = (
                     media_sync_cold_storage_path
                 )
@@ -1547,6 +1592,12 @@ class TapoOptionsFlowHandler(OptionsFlow):
             except Exception as e:
                 if "Cold storage path does not exist" in str(e):
                     errors["base"] = "cold_storage_path_does_not_exist"
+                elif "Cold storage path is already in use" in str(e):
+                    errors["base"] = "cold_storage_path_in_use"
+                elif "Cold storage paths must not overlap" in str(e):
+                    errors["base"] = "cold_storage_path_overlap"
+                elif "Cold storage move is pending" in str(e):
+                    errors["base"] = "cold_storage_move_pending"
                 else:
                     errors["base"] = "unknown"
                 LOGGER.error(e)
@@ -1571,6 +1622,8 @@ class TapoOptionsFlowHandler(OptionsFlow):
                         MEDIA_SYNC_COLD_STORAGE_PATH,
                         description={"suggested_value": media_sync_cold_storage_path},
                     ): str,
+                    vol.Required(MEDIA_THUMBNAIL_CACHE, default=thumbnail_cache): bool,
+                    vol.Required(MEDIA_THUMBNAIL_PRELOAD, default=thumbnail_preload): bool,
                 }
             ),
             errors=errors,
@@ -1588,17 +1641,43 @@ class TapoOptionsFlowHandler(OptionsFlow):
         enable_motion_sensor = self.config_entry.data[ENABLE_MOTION_SENSOR]
         enable_webhooks = self.config_entry.data[ENABLE_WEBHOOKS]
         enable_stream = self.config_entry.data[ENABLE_STREAM]
+        show_on_map = self.config_entry.data.get(CONF_SHOW_ON_MAP, True)
         enable_time_sync = self.config_entry.data[ENABLE_TIME_SYNC]
         extra_arguments = self.config_entry.data[CONF_EXTRA_ARGUMENTS]
         custom_stream_hd = self.config_entry.data.get(CONF_CUSTOM_STREAM_HD, "")
         custom_stream_sd = self.config_entry.data.get(CONF_CUSTOM_STREAM_SD, "")
         custom_stream6 = self.config_entry.data.get(CONF_CUSTOM_STREAM_6, "")
         custom_stream7 = self.config_entry.data.get(CONF_CUSTOM_STREAM_7, "")
+        direct_stream_arguments = self.config_entry.data.get(
+            CONF_DIRECT_STREAM_ARGUMENTS, {}
+        )
         rtsp_transport = self.config_entry.data[CONF_RTSP_TRANSPORT]
         ip_address = self.config_entry.data[CONF_IP_ADDRESS]
         controlPort = self.config_entry.data[CONTROL_PORT]
         if user_input is not None:
             try:
+                show_on_map = user_input.get(CONF_SHOW_ON_MAP, show_on_map)
+                direct_stream_arguments = user_input.get(
+                    CONF_DIRECT_STREAM_ARGUMENTS, {}
+                )
+                if not isinstance(direct_stream_arguments, dict) or any(
+                    key not in DIRECT_STREAM_ARGUMENTS
+                    or (value is None and key != "-vsync")
+                    or (
+                        value is not None
+                        and (
+                            type(value) not in (str, int, float)
+                            or not str(value).strip()
+                        )
+                    )
+                    for key, value in direct_stream_arguments.items()
+                ):
+                    raise ValueError("Invalid direct stream arguments")
+                direct_stream_arguments = {
+                    key: str(value) if value is not None else None
+                    for key, value in direct_stream_arguments.items()
+                }
+
                 if CONF_IP_ADDRESS in user_input:
                     ip_address = user_input[CONF_IP_ADDRESS]
 
@@ -1832,15 +1911,12 @@ class TapoOptionsFlowHandler(OptionsFlow):
                     camData = await getCamData(self.hass, tapoController)
                     reported_ip_address = getIP(camData)
                     device_registry = device_registry_async_get(self.hass)
-                    devices_to_remove = []
-                    for deviceID in device_registry.devices:
-                        device = device_registry.devices[deviceID]
-                        if (
-                            len(device.config_entries)
-                            and list(device.config_entries)[0]
-                            == self.config_entry.entry_id
-                        ):
-                            devices_to_remove.append(device.id)
+                    devices_to_remove = [
+                        device.id
+                        for device in device_registry_async_entries_for_config_entry(
+                            device_registry, self.config_entry.entry_id
+                        )
+                    ]
                     for deviceID in devices_to_remove:
                         LOGGER.debug("[%s] Removing device %s.", ip_address, deviceID)
                         device_registry.async_remove_device(deviceID)
@@ -1878,6 +1954,7 @@ class TapoOptionsFlowHandler(OptionsFlow):
 
                 allConfigData = {**self.config_entry.data}
                 allConfigData[ENABLE_STREAM] = enable_stream
+                allConfigData[CONF_SHOW_ON_MAP] = show_on_map
                 allConfigData[ENABLE_MOTION_SENSOR] = enable_motion_sensor
                 allConfigData[ENABLE_WEBHOOKS] = enable_webhooks
                 allConfigData[CONF_IP_ADDRESS] = ip_address
@@ -1891,6 +1968,7 @@ class TapoOptionsFlowHandler(OptionsFlow):
                 allConfigData[CONF_CUSTOM_STREAM_SD] = custom_stream_sd
                 allConfigData[CONF_CUSTOM_STREAM_6] = custom_stream6
                 allConfigData[CONF_CUSTOM_STREAM_7] = custom_stream7
+                allConfigData[CONF_DIRECT_STREAM_ARGUMENTS] = direct_stream_arguments
                 allConfigData[CONF_RTSP_TRANSPORT] = rtsp_transport
                 allConfigData[CONTROL_PORT] = controlPort
                 self.hass.config_entries.async_update_entry(
@@ -1916,7 +1994,11 @@ class TapoOptionsFlowHandler(OptionsFlow):
                     )
                 return self.async_create_entry(title="", data=None)
             except Exception as e:
-                if "Failed to establish a new connection" in str(e):
+                if str(e) == "Invalid direct stream arguments":
+                    errors[
+                        CONF_DIRECT_STREAM_ARGUMENTS
+                    ] = "invalid_direct_stream_arguments"
+                elif "Failed to establish a new connection" in str(e):
                     errors["base"] = "connection_failed"
                     LOGGER.error(e)
                 elif str(e) == "Invalid authentication data":
@@ -1963,6 +2045,7 @@ class TapoOptionsFlowHandler(OptionsFlow):
                         ENABLE_STREAM,
                         description={"suggested_value": enable_stream},
                     ): bool,
+                    vol.Optional(CONF_SHOW_ON_MAP, default=show_on_map): bool,
                     vol.Optional(
                         CONF_EXTRA_ARGUMENTS,
                         description={"suggested_value": extra_arguments},
@@ -1987,6 +2070,10 @@ class TapoOptionsFlowHandler(OptionsFlow):
                         CONF_RTSP_TRANSPORT,
                         description={"suggested_value": rtsp_transport},
                     ): vol.In(RTSP_TRANS_PROTOCOLS),
+                    vol.Optional(
+                        CONF_DIRECT_STREAM_ARGUMENTS,
+                        description={"suggested_value": direct_stream_arguments},
+                    ): selector({"object": {}}),
                 }
             ),
             errors=errors,

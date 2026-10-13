@@ -1,0 +1,14 @@
+send_raw_command:
+  name: Send raw command
+  description: >-
+    Send a raw base64 "multiSync" command to the heater over AWS IoT.
+    Advanced/diagnostic use - handy for capturing and testing the display
+    light's real on/off codes.
+  fields:
+    code:
+      name: Code
+      description: Base64-encoded 20-byte command, e.g. one logged by the homebridge-govee plugin in debug mode.
+      required: true
+      example: "MwEBAAAAAAAAAAAAAAAAAAAAADM="
+      selector:
+        text:

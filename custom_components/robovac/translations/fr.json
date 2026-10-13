@@ -6,6 +6,7 @@
         "error": {
             "cannot_connect": "Échec de la connexion",
             "invalid_auth": "Authentification invalide",
+            "no_vacuums_found": "Aucun appareil RoboVac compatible n'a été trouvé dans votre compte Eufy",
             "unknown": "Erreur inattendue"
         },
         "step": {
@@ -38,11 +39,15 @@
                 "title": "Modifier l'aspirateur",
                 "data": {
                     "autodiscovery": "Activer la découverte automatique",
-                    "ip_address": "Adresse IP"
+                    "ip_address": "Adresse IP",
+                    "room_segment_map_id": "Room segment map ID",
+                    "room_segments": "Room segments"
                 },
                 "data_description": {
                     "autodiscovery": "Trouver automatiquement l'aspirateur sur le réseau.",
-                    "ip_address": "L'adresse IP statique de votre aspirateur sur votre réseau local (optionnel si la découverte automatique est activée)."
+                    "ip_address": "L'adresse IP statique de votre aspirateur sur votre réseau local (optionnel si la découverte automatique est activée).",
+                    "room_segment_map_id": "The map ID used when cleaning configured room segments.",
+                    "room_segments": "Comma-separated room segments in id:name format, for example 1:Kitchen,2:Living Room."
                 },
                 "description": "La découverte automatique mettra à jour automatiquement l'adresse IP"
             }

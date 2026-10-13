@@ -12,10 +12,12 @@ from homeassistant.components.bluetooth import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EVENT_HOMEASSISTANT_STOP
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.requirements import RequirementsNotFound
 from homeassistant.util.package import install_package, is_installed
 
 from .api import IdExchangeResponse
+from .appliance_controls import forget_controls
 from .bluetooth import HomewhizBluetoothUpdateCoordinator
 from .cloud import HomewhizCloudUpdateCoordinator
 from .config_flow import CloudConfig
@@ -28,7 +30,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     _LOGGER.info("Setting up entry %s", entry.unique_id)
     address = entry.unique_id
     if "ids" not in entry.data:
-        raise Exception(
+        raise HomeAssistantError(
             "Appliance config not fetched from the API. "
             "Please configure the integration again"
         )
@@ -53,12 +55,14 @@ async def setup_bluetooth(
     )
 
     async def connect_retrieving_errors() -> None:
-        # connect() logs its own failure and try_reconnect takes over;
-        # retrieving the exception here avoids a duplicate traceback.
+        # Heals on the next advertisement, not via try_reconnect() (that
+        # only runs after a disconnect from an established connection).
         try:
             await coordinator.connect()
         except Exception:  # noqa: BLE001
-            _LOGGER.debug("Connect from advertisement failed, reconnect retries")
+            _LOGGER.debug(
+                "Connect from advertisement failed, waiting for the next advertisement"
+            )
 
     @callback
     def connect(
@@ -85,7 +89,9 @@ async def setup_bluetooth(
         hass.create_task(coordinator.kill())
 
     _LOGGER.debug("Setting up shutdown event listener")
-    hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, disconnect_service)
+    entry.async_on_unload(
+        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, disconnect_service)
+    )
 
     return True
 
@@ -100,7 +106,7 @@ def _lazy_install_awsiotsdk() -> None:
 async def setup_cloud(entry: ConfigEntry, hass: HomeAssistant) -> bool:
     _LOGGER.info("Setting up cloud connection")
 
-    loop = asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()
     lazy_install_awsiotsdk_task = loop.run_in_executor(None, _lazy_install_awsiotsdk)
     await lazy_install_awsiotsdk_task
 
@@ -120,4 +126,5 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await hass.data[DOMAIN][entry.entry_id].kill()
     if unload_ok := await hass.config_entries.async_unload_platforms(entry, PLATFORMS):
         hass.data[DOMAIN].pop(entry.entry_id)
+        forget_controls(entry.entry_id)
     return unload_ok

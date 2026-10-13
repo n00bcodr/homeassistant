@@ -1,0 +1,23 @@
+{
+  "domain": "jellyha",
+  "name": "JellyHA",
+  "after_dependencies": [
+    "zeroconf"
+  ],
+  "codeowners": [
+    "@zupancicmarko"
+  ],
+  "config_flow": true,
+  "dependencies": [
+    "media_source",
+    "http"
+  ],
+  "documentation": "https://github.com/zupancicmarko/jellyha",
+  "integration_type": "service",
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/zupancicmarko/jellyha/issues",
+  "requirements": [
+    "pychromecast"
+  ],
+  "version": "1.6.0"
+}

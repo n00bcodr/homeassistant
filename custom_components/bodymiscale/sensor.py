@@ -309,7 +309,7 @@ _DUAL_SENSORS: tuple[
             key=CONF_SENSOR_IMPEDANCE_HIGH,
             translation_key="impedance_high",
             state_class=SensorStateClass.MEASUREMENT,
-            suggested_display_precision=0,
+            suggested_display_precision=1,
             icon="mdi:omega",
         ),
         Metric.IMPEDANCE_HIGH,
@@ -320,7 +320,7 @@ _DUAL_SENSORS: tuple[
             key=CONF_SENSOR_IMPEDANCE_LOW,
             translation_key="impedance_low",
             state_class=SensorStateClass.MEASUREMENT,
-            suggested_display_precision=0,
+            suggested_display_precision=1,
             icon="mdi:omega",
         ),
         Metric.IMPEDANCE_LOW,
@@ -391,8 +391,8 @@ class BodyScaleSensor(BodyScaleBaseEntity, RestoreSensor):
         entity_description: SensorEntityDescription,
         metric: Metric,
         get_attributes: (
-            None
-            | Callable[[StateType | datetime, Mapping[str, Any]], Mapping[str, Any]]
+            Callable[[StateType | datetime, Mapping[str, Any]], Mapping[str, Any]]
+            | None
         ) = None,
     ) -> None:
         super().__init__(handler, entity_description)

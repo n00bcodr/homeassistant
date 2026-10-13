@@ -71,6 +71,7 @@
       }
     },
     "error": {
+      "cold_storage_path_in_use": "Ce chemin de stockage à froid est déjà utilisé par une autre caméra. Chaque caméra doit utiliser un chemin unique.",
       "skip_rtsp_not_checked": "Entrez à la fois le nom d'utilisateur et le mot de passe, ou laissez vide et activez l'option Ignorer la vérification RTSP.\n Si laissé vide, le flux RTSP ne fonctionnera pas.",
       "invalid_stream_auth": "Données d'authentification de flux RTSP invalides",
       "account_suspended": "Compte temporairement suspendu, veuillez réessayer plus tard.\n Voir le journal pour plus de détails.",
@@ -113,9 +114,15 @@
           "media_view_days_order": "Ordre des jours dans le navigateur multimédia",
           "media_view_recordings_order": "Ordre des enregistrements dans Media Browser",
           "media_sync_hours": "Number of hours to keep synchronized",
-          "media_sync_cold_storage_path": "[Nécessite un redémarrage] Chemin de stockage à froid"
+          "media_sync_cold_storage_path": "Chemin de stockage à froid",
+          "media_thumbnail_cache": "Mettre les miniatures en cache",
+          "media_thumbnail_preload": "Précharger les miniatures"
         },
-        "description": "Modifier les paramètres de synchronisation des médias d'enregistrement"
+        "description": "Modifier les paramètres de synchronisation des médias d'enregistrement\n\nChanger le chemin déplace les vidéos et miniatures existantes et recharge la caméra.",
+        "data_description": {
+          "media_thumbnail_cache": "Conserver les miniatures des vidéos non téléchargées. Si désactivé, ces miniatures sont supprimées après environ 5 minutes.",
+          "media_thumbnail_preload": "Charger les miniatures au démarrage uniquement si le cache est également activé. Sans cache, les charger uniquement lors de la navigation. Si le préchargement est désactivé, les charger uniquement lors de la navigation si le cache est activé. Désactivez les deux options pour afficher uniquement les miniatures des vidéos téléchargées."
+        }
       },
       "update_interval": {
         "data": {
@@ -138,18 +145,24 @@
           "enable_motion_sensor": "Activer le détecteur de mouvement",
           "enable_webhooks": "Activer les webhooks",
           "enable_stream": "Utiliser le flux de Home Assistant (redémarrage requis)",
+          "show_on_map": "Afficher la caméra sur la carte",
           "cloud_password": "Mot de passe Cloud (facultatif)",
           "extra_arguments": "Arguments supplémentaires pour ffmpeg (redémarrage requis)",
           "custom_stream_hd": "Lien de flux personnalisé (HD)",
           "custom_stream_sd": "Lien de flux personnalisé (SD)",
           "custom_stream6": "Lien de flux personnalisé (téléobjectif HD)",
           "custom_stream7": "Lien de flux personnalisé (téléobjectif SD)",
-          "rtsp_transport": "Mécanisme de transport RTSP"
+          "rtsp_transport": "Mécanisme de transport RTSP",
+          "direct_stream_arguments": "Paramètres FFmpeg des flux directs"
         },
-        "description": "Modifier les paramètres de votre caméra Tapo.\n\nUtiliser le flux de Home Assistant:\nOui - Délai de lecture plus long, utilisation réduite du processeur, permet le contrôle de la lecture\nNon - Délai de lecture très court, utilisation plus élevée du processeur, aucun contrôle de lecture"
+        "description": "Modifier les paramètres de votre caméra Tapo.\n\nUtiliser le flux de Home Assistant:\nOui - Délai de lecture plus long, utilisation réduite du processeur, permet le contrôle de la lecture\nNon - Délai de lecture très court, utilisation plus élevée du processeur, aucun contrôle de lecture",
+        "data_description": {
+          "direct_stream_arguments": "Réglages avancés des flux directs et des instantanés. Une correspondance vide rétablit les valeurs par défaut. -vsync: null omet ce paramètre. Paramètres pris en charge : -loglevel, -probesize, -analyzeduration, -frames:v, -map-video, -vsync, -c:v, -f. Applicable aux nouveaux flux ; rechargez l’intégration pour arrêter les flux existants."
+        }
       }
     },
     "error": {
+      "cold_storage_path_in_use": "Ce chemin de stockage à froid est déjà utilisé par une autre caméra. Chaque caméra doit utiliser un chemin unique.",
       "invalid_stream_auth": "Données d'authentification du flux RTSP invalides",
       "account_suspended": "Compte temporairement suspendu, veuillez réessayer plus tard.\nVoir le journal pour plus de détails.",
       "invalid_auth": "Données d'authentification invalides",
@@ -159,7 +172,10 @@
       "cold_storage_path_does_not_exist": "Le chemin de stockage à froid n'existe pas",
       "camera_requires_admin": "La caméra nécessite un mot de passe cloud pour le contrôle",
       "incorrect_peak_value": "Valeur de pic de détection sonore incorrecte.",
-      "incorrect_options_action": "Action incorrecte choisie"
+      "incorrect_options_action": "Action incorrecte choisie",
+      "invalid_direct_stream_arguments": "Saisissez une correspondance entre les paramètres FFmpeg pris en charge et des textes non vides ou des nombres. Seul -vsync peut être null.",
+      "cold_storage_path_overlap": "Les anciens et nouveaux chemins de stockage ne doivent pas être imbriqués.",
+      "cold_storage_move_pending": "Un déplacement est en attente. Corrigez l’erreur dans les journaux de l’intégration et rechargez-la avant de modifier à nouveau le chemin."
     }
   }
 }

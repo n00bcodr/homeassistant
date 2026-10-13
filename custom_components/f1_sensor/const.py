@@ -12,19 +12,24 @@ PLATFORMS: list[Platform] = [
     Platform.SWITCH,
     Platform.SELECT,
     Platform.CALENDAR,
+    Platform.WEATHER,
 ]
 
 # Replay Mode
 REPLAY_CACHE_DIR = "f1_replay_cache"
 REPLAY_CACHE_RETENTION_DAYS = (
-    1  # Short retention - cache is deleted on stop, this is just backup
+    7  # Bounded Replay v2 LRU cache; runtime data never ships in releases
 )
+REPLAY_CACHE_MAX_BYTES = 512 * 1024 * 1024
+REPLAY_CACHE_MAX_SESSIONS = 3
 
 CONF_OPERATION_MODE = "operation_mode"
 CONF_REPLAY_FILE = "replay_file"
 CONF_LIVE_TIMING_AUTH_HEADER = "live_timing_auth_header"
 CONF_CLEAR_LIVE_TIMING_AUTH_HEADER = "clear_live_timing_auth_header"
 CONF_START_F1TV_PAIRING = "start_f1tv_pairing"
+CONF_INSTALL_DASHBOARD_CARDS = "install_dashboard_cards"
+CONF_INSTALL_LEGACY_CARDS = "install_legacy_cards"
 CONF_RACE_WEEK_SUNDAY_START = "race_week_sunday_start"
 CONF_RACE_WEEK_START_DAY = "race_week_start_day"
 RACE_WEEK_START_MONDAY = "monday"
@@ -35,6 +40,9 @@ DEFAULT_RACE_WEEK_START_DAY = RACE_WEEK_START_MONDAY
 OPERATION_MODE_LIVE = "live"
 OPERATION_MODE_DEVELOPMENT = "development"
 DEFAULT_OPERATION_MODE = OPERATION_MODE_LIVE
+DEFAULT_INSTALL_DASHBOARD_CARDS = True
+# Preserve existing dashboards when an older entry has no explicit choice.
+DEFAULT_INSTALL_LEGACY_CARDS = True
 
 # Internal naming metadata. This is not user-configurable; it lets new config
 # entries snapshot the backend language for localized friendly names while
@@ -44,6 +52,10 @@ CONF_ENTITY_NAME_LANGUAGE = "entity_name_language"
 ENTITY_NAME_MODE_LEGACY = "legacy"
 ENTITY_NAME_MODE_LOCALIZED = "localized"
 DEFAULT_ENTITY_NAME_LANGUAGE = "en"
+
+# Compatibility metadata for entries created before event delivery became
+# dependent on sensor selection. Kept in entry data across options changes.
+CONF_LEGACY_RACE_CONTROL_EVENTS = "legacy_race_control_events"
 
 # Race schedule grace period: keep a session "current" briefly after start.
 RACE_SWITCH_GRACE = timedelta(hours=3)
@@ -71,6 +83,10 @@ ENABLE_DEVELOPMENT_MODE_UI = False
 ENABLE_F1TV_AUTH = True
 
 LATEST_TRACK_STATUS = "f1_latest_track_status"
+
+# Features that require an explicit user choice instead of being enabled when
+# their sensor key first appears in an integration update.
+OPT_IN_SENSOR_KEYS = frozenset({"favorite_driver"})
 
 # All supported sensor keys (used for normalization and config entry filtering).
 SUPPORTED_SENSOR_KEYS = frozenset(
@@ -111,6 +127,7 @@ SUPPORTED_SENSOR_KEYS = frozenset(
         "live_timing_diagnostics",
         "tyre_statistics",
         "driver_positions",
+        "favorite_driver",
         "starting_grid",
         "track_limits",
         "investigations",
@@ -177,7 +194,6 @@ FIA_DOCUMENTS_BASE_URL = (
     "https://www.fia.com/documents/championships/fia-formula-one-world-championship-14"
 )
 FIA_SEASON_LIST_URL = f"{FIA_DOCUMENTS_BASE_URL}/season"
-FIA_SEASON_FALLBACK_URL = f"{FIA_DOCUMENTS_BASE_URL}/season/season-2025-2071"
 FIA_DOCS_POLL_INTERVAL = 900  # seconds
 FIA_DOCS_FETCH_TIMEOUT = 15
 
@@ -216,6 +232,7 @@ F1_CIRCUIT_IMAGE_SLUGS: dict[str, dict[str, str]] = {
         "vegas": "lasvegas",
         "losail": "lusail",
         "yas_marina": "yasmarinacircuit",
+        "sepang": "kualalumpur",
     }
 }
 

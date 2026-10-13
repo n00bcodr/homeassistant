@@ -1,12 +1,17 @@
 {
-    "domain": "f1_sensor",
-    "name": "F1 Sensor",
-    "after_dependencies": ["http", "logbook", "lovelace", "recorder"],
-    "codeowners": ["@Nicxe"],
-    "config_flow": true,
-    "documentation": "https://github.com/Nicxe/f1_sensor",
-    "iot_class": "cloud_polling",
-    "issue_tracker": "https://github.com/Nicxe/f1_sensor/issues",
-    "requirements": ["python-dateutil>=2.8"],
-    "version": "5.3.0"
+  "domain": "f1_sensor",
+  "name": "F1 Sensor",
+  "after_dependencies": [
+    "http",
+    "lovelace"
+  ],
+  "codeowners": [
+    "@Nicxe"
+  ],
+  "config_flow": true,
+  "documentation": "https://github.com/Nicxe/f1_sensor",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/Nicxe/f1_sensor/issues",
+  "requirements": [],
+  "version": "5.7.2"
 }

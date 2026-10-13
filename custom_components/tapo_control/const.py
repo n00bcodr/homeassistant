@@ -9,7 +9,7 @@ from homeassistant.helpers import config_validation as cv
 TPLINK_DOMAIN = "tplink"
 
 CONTROL_PORT = "control_port"
-PYTAPO_REQUIRED_VERSION = "3.4.18"
+PYTAPO_REQUIRED_VERSION = "3.4.26"
 DOMAIN = "tapo_control"
 DOMAIN_CONFIG = DOMAIN + "_config"
 BRAND = "TP-Link"
@@ -36,6 +36,19 @@ CONF_CUSTOM_STREAM_HD = "custom_stream_hd"
 CONF_CUSTOM_STREAM_SD = "custom_stream_sd"
 CONF_CUSTOM_STREAM_6 = "custom_stream6"
 CONF_CUSTOM_STREAM_7 = "custom_stream7"
+CONF_DIRECT_STREAM_ARGUMENTS = "direct_stream_arguments"
+CONF_SHOW_ON_MAP = "show_on_map"
+# Arguments supported by pytapo Streamer when audio is disabled.
+DIRECT_STREAM_ARGUMENTS = (
+    "-loglevel",
+    "-probesize",
+    "-analyzeduration",
+    "-frames:v",
+    "-map-video",
+    "-vsync",
+    "-c:v",
+    "-f",
+)
 CONF_SKIP_RTSP = "skip_rtsp"
 CONF_TRANSPORT_METHOD = "transport_method"
 
@@ -58,6 +71,10 @@ MEDIA_VIEW_DAYS_ORDER = "media_view_days_order"
 MEDIA_VIEW_RECORDINGS_ORDER = "media_view_recordings_order"
 MEDIA_SYNC_HOURS = "media_sync_hours"
 MEDIA_SYNC_COLD_STORAGE_PATH = "media_sync_cold_storage_path"
+MEDIA_SYNC_PREVIOUS_STORAGE_PATH = "media_sync_previous_storage_path"
+MEDIA_THUMBNAIL_CACHE = "media_thumbnail_cache"
+MEDIA_THUMBNAIL_PRELOAD = "media_thumbnail_preload"
+THUMBNAIL_CACHE_SECONDS = 5 * 60
 
 TOGGLE_STATES = ["on", "off"]
 
@@ -89,6 +106,8 @@ UPDATE_CHECK_PERIOD = 86400
 COLD_DIR_DELETE_TIME = 24 * 60 * 60
 HOT_DIR_DELETE_TIME = 60 * 60
 
+MEDIA_SYNC_WATCHDOG_SECONDS = 5 * 60
+
 SERVICE_SAVE_PRESET = "save_preset"
 SCHEMA_SERVICE_SAVE_PRESET = {
     vol.Required(NAME): cv.string,
@@ -98,6 +117,39 @@ SERVICE_DELETE_PRESET = "delete_preset"
 SCHEMA_SERVICE_DELETE_PRESET = {
     vol.Required(PRESET): cv.string,
 }
+
+
+def _validate_record_plan_period(value):
+    """Validate a same-day recording period in pytapo's HHMM-HHMM:mode format."""
+    value = vol.All(
+        str,
+        vol.Match(
+            r"^(?:[01][0-9]|2[0-3])[0-5][0-9]-"
+            r"(?:(?:[01][0-9]|2[0-3])[0-5][0-9]|2400):[12]\Z"
+        ),
+    )(value)
+    if value[:4] >= value[5:9]:
+        raise vol.Invalid("Recording period must end after it starts")
+    return value
+
+
+SERVICE_SET_RECORD_PLAN = "set_record_plan"
+SCHEMA_SERVICE_SET_RECORD_PLAN = {
+    vol.Required("enabled"): cv.boolean,
+    **{
+        vol.Optional(day): [_validate_record_plan_period]
+        for day in (
+            "sunday",
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+        )
+    },
+}
+
 
 TAPO_PREFIXES = (
     r"^c[0-9]{3}[a-zA-Z]*_.*",  # Security Cameras (C100, C200, C310, C325WB, etc.)

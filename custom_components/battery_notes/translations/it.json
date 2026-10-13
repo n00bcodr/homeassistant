@@ -11,22 +11,26 @@
                     "battery_type": "Tipo di batteria",
                     "battery_quantity": "Quantità di batterie",
                     "note": "Note",
-                    "battery_low_threshold": "Soglia batteria bassa"
+                    "battery_low_threshold": "Soglia batteria bassa",
+                    "battery_increase_threshold": "Soglia aumento batteria"
                 },
                 "data_description": {
-                    "battery_low_threshold": "0 utilizzerà la soglia globale predefinita"
+                    "battery_low_threshold": "0 utilizzerà la soglia globale predefinita",
+                    "battery_increase_threshold": "La soglia è la differenza tra il livello precedente e quello attuale della batteria\n0 utilizzerà la soglia globale predefinita"
                 },
                 "sections": {
                     "advanced_settings": {
-                        "name": "Impostazioni avanzate",
+                        "name": "Impostazioni aggiuntive",
                         "data": {
                             "battery_percentage_template": "Template percentuale batteria",
                             "battery_low_template": "Template batteria scarica",
+                            "retain_state": "Mantieni stato",
                             "filter_outliers": "Filtra valori anomali"
                         },
                         "data_description": {
                             "battery_percentage_template": "Template per calcolare la percentuale della batteria.\nNecessario solo per dispositivi che non forniscono una percentuale standard.",
                             "battery_low_template": "Template per determinare se la batteria è scarica; deve restituire vero quando la batteria è bassa.\nNecessario solo per livelli di batteria non standard.",
+                            "retain_state": "Mantieni l'ultimo stato della batteria quando l'entità di origine non è disponibile.\nUtile per i dispositivi che vanno in standby e diventano non disponibili.",
                             "filter_outliers": "Filtra cali improvvisi e anomali della batteria, riducendo falsi allarmi su dispositivi che riportano valori errati occasionalmente."
                         }
                     }
@@ -84,22 +88,26 @@
                         "battery_type": "Tipo di batteria",
                         "battery_quantity": "Quantità di batterie",
                         "note": "Note",
-                        "battery_low_threshold": "Soglia batteria bassa"
+                        "battery_low_threshold": "Soglia batteria bassa",
+                        "battery_increase_threshold": "Soglia aumento batteria"
                     },
                     "data_description": {
-                        "battery_low_threshold": "0 utilizzerà la soglia globale predefinita"
+                        "battery_low_threshold": "0 utilizzerà la soglia globale predefinita",
+                        "battery_increase_threshold": "La soglia è la differenza tra il livello precedente e quello attuale della batteria\n0 utilizzerà la soglia globale predefinita"
                     },
                     "sections": {
                         "advanced_settings": {
-                            "name": "Impostazioni avanzate",
+                            "name": "Impostazioni aggiuntive",
                             "data": {
                                 "battery_percentage_template": "Template percentuale batteria",
                                 "battery_low_template": "Template batteria scarica",
+                                "retain_state": "Mantieni stato",
                                 "filter_outliers": "Filtra valori anomali"
                             },
                             "data_description": {
                                 "battery_percentage_template": "Template per calcolare la percentuale della batteria.\nNecessario solo per dispositivi che non forniscono una percentuale standard.",
                                 "battery_low_template": "Template per determinare se la batteria è scarica; deve restituire vero quando la batteria è bassa.\nNecessario solo per livelli di batteria non standard.",
+                                "retain_state": "Mantieni l'ultimo stato della batteria quando l'entità di origine non è disponibile.\nUtile per i dispositivi che vanno in standby e diventano non disponibili.",
                                 "filter_outliers": "Filtra cali improvvisi e anomali della batteria, riducendo falsi allarmi su dispositivi che riportano valori errati occasionalmente."
                             }
                         }
@@ -116,23 +124,27 @@
                         "battery_type": "Tipo di batteria",
                         "battery_quantity": "Quantità di batterie",
                         "note": "Note",
-                        "battery_low_threshold": "Soglia batteria bassa"
+                        "battery_low_threshold": "Soglia batteria bassa",
+                        "battery_increase_threshold": "Soglia aumento batteria"
                     },
                     "data_description": {
                         "name": "Se lasci vuoto, verrà utilizzato il nome del dispositivo di origine",
-                        "battery_low_threshold": "0 utilizzerà la soglia globale predefinita"
+                        "battery_low_threshold": "0 utilizzerà la soglia globale predefinita",
+                        "battery_increase_threshold": "La soglia è la differenza tra il livello precedente e quello attuale della batteria\n0 utilizzerà la soglia globale predefinita"
                     },
                     "sections": {
                         "advanced_settings": {
-                            "name": "Impostazioni avanzate",
+                            "name": "Impostazioni aggiuntive",
                             "data": {
                                 "battery_percentage_template": "Template percentuale batteria",
                                 "battery_low_template": "Template batteria scarica",
+                                "retain_state": "Mantieni stato",
                                 "filter_outliers": "Filtra valori anomali"
                             },
                             "data_description": {
                                 "battery_percentage_template": "Template per calcolare la percentuale della batteria.\nNecessario solo per dispositivi che non forniscono una percentuale standard.",
                                 "battery_low_template": "Template per determinare se la batteria è scarica; deve restituire vero quando la batteria è bassa.\nNecessario solo per livelli di batteria non standard.",
+                                "retain_state": "Mantieni l'ultimo stato della batteria quando l'entità di origine non è disponibile.\nUtile per i dispositivi che vanno in standby e diventano non disponibili.",
                                 "filter_outliers": "Filtra cali improvvisi e anomali della batteria, riducendo falsi allarmi su dispositivi che riportano valori errati occasionalmente."
                             }
                         }
@@ -169,15 +181,17 @@
                 },
                 "sections": {
                     "advanced_settings": {
-                        "name": "Impostazioni avanzate",
+                        "name": "Impostazioni aggiuntive",
                         "data": {
                             "enable_autodiscovery": "Rilevamento automatico",
                             "enable_replaced": "Abilita batteria sostituita",
+                            "hide_battery_low": "Nascondi batteria bassa",
                             "user_library": "Libreria utente"
                         },
                         "data_description": {
                             "enable_autodiscovery": "Rilevamento automatico dei dispositivi presenti nella libreria.",
                             "enable_replaced": "Abilita il pulsante di sostituzione batteria su ogni Battery Note.",
+                            "hide_battery_low": "Nascondi il sensore binario batteria bassa quando una percentuale di batteria è disponibile, evitando duplicazioni nei dashboard generati.",
                             "user_library": "Se specificata, verrà utilizzata una libreria utente prima di quella principale. Deve avere lo stesso formato della libreria principale e trovarsi in 'config/storage/battery_note'."
                         }
                     }
@@ -193,6 +207,9 @@
             "battery_low": {
                 "name": "{device_name}Batteria bassa",
                 "state_attributes": {
+                    "battery_increase_threshold": {
+                        "name": "Soglia aumento batteria"
+                    },
                     "battery_low_threshold": {
                         "name": "Soglia batteria bassa"
                     }
@@ -222,6 +239,9 @@
                     },
                     "battery_last_replaced": {
                         "name": "Ultima sostituzione batteria"
+                    },
+                    "battery_increase_threshold": {
+                        "name": "Soglia aumento batteria"
                     },
                     "battery_low": {
                         "name": "Batteria bassa"
@@ -334,6 +354,29 @@
                     }
                 }
             }
+        },
+        "composite_device_id": {
+            "fix_flow": {
+                "abort": {
+                    "entry_removed": "La voce di configurazione di Battery Note è stata rimossa"
+                },
+                "error": {
+                    "invalid_device": "Seleziona un dispositivo esistente o lascia il campo vuoto"
+                },
+                "step": {
+                    "select_device": {
+                        "data": {
+                            "device_id": "Dispositivo"
+                        },
+                        "data_description": {
+                            "device_id": "Il dispositivo a cui deve essere collegata questa nota sulla batteria."
+                        },
+                        "description": "La nota sulla batteria {name} era collegata a un dispositivo che è stato diviso in più dispositivi.\n\nSeleziona il dispositivo a cui deve essere collegata questa nota sulla batteria, o lascia vuoto per rimuovere la nota sulla batteria.",
+                        "title": "Seleziona dispositivo per {name}"
+                    }
+                }
+            },
+            "title": "Il dispositivo per la nota sulla batteria {name} deve essere selezionato di nuovo"
         },
         "deprecated_yaml": {
             "title": "La configurazione YAML di {integration_title} è stata rimossa",
