@@ -27,8 +27,7 @@
     "bleak",
     "bleak_retry_connector",
     "dacite",
-    "aiohttp",
     "bidict"
   ],
-  "version": "v0.5.27"
+  "version": "0.5.28"
 }

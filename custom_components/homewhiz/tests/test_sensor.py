@@ -22,7 +22,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from custom_components.homewhiz.api import ApplianceContents
 from custom_components.homewhiz.appliance_config import ApplianceFeatureBoundedOption
-from custom_components.homewhiz.appliance_controls import NumericControl
+from custom_components.homewhiz.appliance_controls import EnumControl, NumericControl
 from custom_components.homewhiz.config_flow import EntryData
 from custom_components.homewhiz.const import DOMAIN
 from custom_components.homewhiz.sensor import (
@@ -30,6 +30,7 @@ from custom_components.homewhiz.sensor import (
     INSTANT_CONSUMPTION_KEY,
     MAX_INTEGRATION_GAP_HOURS,
     HomeWhizEnergyEntity,
+    HomeWhizMachineStatusEntity,
     HomeWhizSensorEntity,
     _find_instant_consumption_controls,
 )
@@ -421,3 +422,93 @@ def test_advance_integration_never_raises_on_bad_coordinator_data(
     # normally; only coordinator.data being None short-circuits before any
     # byte access happens. Either way, the result must stay a finite float.
     assert math.isfinite(entity.native_value)
+
+
+def _status_entity(coordinator: Mock) -> HomeWhizMachineStatusEntity:
+    return HomeWhizMachineStatusEntity(
+        coordinator,
+        "Test washer",
+        _entry_data(),
+        state_control=EnumControl(
+            "state",
+            35,
+            {10: "device_state_on", 20: "device_state_off", 30: "device_state_running"},
+        ),
+        sub_state_control=EnumControl(
+            "sub_state",
+            50,
+            {1: "washer_substate_washing", 15: "washer_substate_remove_laundry"},
+        ),
+    )
+
+
+def _frame(state: int, sub_state: int) -> bytearray:
+    data = bytearray(60)
+    data[35] = state
+    data[50] = sub_state
+    return data
+
+
+def test_machine_status_entity_is_enum_and_always_available() -> None:
+    coordinator = Mock()
+    entity = _status_entity(coordinator)
+    assert entity.device_class == SensorDeviceClass.ENUM
+    assert entity.unique_id == "Test washer_machine_status"
+    assert entity.translation_key == "machine_status"
+    assert entity.available is True
+
+
+def test_machine_status_stale_sub_state_after_reconnect() -> None:
+    coordinator = Mock()
+    coordinator.available = True
+    coordinator.data = _frame(30, 15)  # running + stale "remove laundry"
+    entity = _status_entity(coordinator)
+    entity._refresh()
+    assert entity.native_value == "running"
+    assert entity.extra_state_attributes["raw_state"] == "device_state_running"
+    assert entity.extra_state_attributes["raw_sub_state"] == (
+        "washer_substate_remove_laundry"
+    )
+
+
+def test_machine_status_keeps_last_status_during_grace_then_unavailable() -> None:
+    coordinator = Mock()
+    coordinator.available = True
+    coordinator.data = _frame(30, 1)
+    entity = _status_entity(coordinator)
+    entity._refresh()
+    assert entity.native_value == "washing"
+    # short drop: coordinator still available, still serves the last data
+    entity._refresh()
+    assert entity.native_value == "washing"
+    # grace expired
+    coordinator.available = False
+    coordinator.data = None
+    entity._refresh()
+    assert entity.native_value == "unavailable"
+
+
+def test_machine_status_no_cycle_complete_after_long_drop() -> None:
+    coordinator = Mock()
+    coordinator.available = True
+    coordinator.data = _frame(30, 1)
+    entity = _status_entity(coordinator)
+    entity._refresh()
+    coordinator.available = False
+    coordinator.data = None
+    entity._refresh()
+    coordinator.available = True
+    coordinator.data = _frame(10, 15)  # reconnected, finished, stale sub-state
+    entity._refresh()
+    assert entity.native_value == "idle"
+
+
+def test_machine_status_cycle_complete_in_same_session() -> None:
+    coordinator = Mock()
+    coordinator.available = True
+    coordinator.data = _frame(30, 1)
+    entity = _status_entity(coordinator)
+    entity._refresh()
+    coordinator.data = _frame(10, 15)
+    entity._refresh()
+    assert entity.native_value == "cycle_complete"

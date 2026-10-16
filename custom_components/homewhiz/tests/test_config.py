@@ -29,6 +29,7 @@ file_names = [
     "grundig-dishwasher.json",
     "grundig-dryer.json",
     "grundig-oven.json",
+    "grundig-oven-sparse.json",
     "grundig-refrigerator.json",
     "grundig-washer.json",
     "oven-meat-probe.json",
@@ -146,3 +147,49 @@ def test_fetch_config_preserves_optional_fields(
 ) -> None:
     expected = from_dict(ApplianceConfiguration, payload)
     assert fetch_config(payload).config == expected
+
+
+def test_fetch_oven_config_with_partial_step_cooking_progress(
+    fetch_config: Callable[[dict[str, Any]], api.ApplianceContents],
+) -> None:
+    """A sparse oven config may use null progress and list metadata."""
+    file_path = Path(__file__).parent / "fixtures" / "grundig-oven-sparse.json"
+    with file_path.open() as file:
+        payload = json.load(file)
+
+    contents = fetch_config(payload)
+
+    assert contents.config.stepCooking is not None
+    parsed_progress = contents.config.stepCooking.defaultCookingStep.progressVariables
+    assert parsed_progress.delay is None
+    assert parsed_progress.duration.hour.strKeyRef is None
+    assert parsed_progress.duration.minute.strKeyRef is None
+    assert parsed_progress.remaining is None
+    assert contents.config.ovenTemperatureInfo is not None
+    assert isinstance(
+        contents.config.ovenTemperatureInfo.ovenTemperatureSubprograms, list
+    )
+    assert contents.config.screenSaver is not None
+    assert contents.config.screenSaver.ovenScreenSaverTimer is None
+
+
+@pytest.mark.parametrize(
+    "temperature_info",
+    [
+        {"ovenTemperatureSubprograms": []},
+        {
+            "ovenTemperatureSubprograms": [],
+            "ovenTemperatureNotVisiblePrograms": None,
+        },
+    ],
+    ids=["omitted", "null"],
+)
+def test_fetch_oven_temperature_info_without_hidden_programs(
+    fetch_config: Callable[[dict[str, Any]], api.ApplianceContents],
+    temperature_info: dict[str, Any],
+) -> None:
+    """Hidden-program metadata may be omitted or explicitly null."""
+    contents = fetch_config({"ovenTemperatureInfo": temperature_info})
+
+    assert contents.config.ovenTemperatureInfo is not None
+    assert contents.config.ovenTemperatureInfo.ovenTemperatureNotVisiblePrograms is None

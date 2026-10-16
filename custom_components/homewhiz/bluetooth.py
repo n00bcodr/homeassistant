@@ -3,6 +3,7 @@ import contextlib
 import logging
 from collections.abc import Callable
 from datetime import datetime, timedelta
+from time import monotonic
 from typing import Any
 
 from bleak import BleakClient, BLEDevice
@@ -10,12 +11,20 @@ from bleak_retry_connector import establish_connection
 from homeassistant.components import bluetooth
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import HomeAssistantError
-from homeassistant.helpers.event import async_track_point_in_time
+from homeassistant.helpers.event import (
+    async_track_point_in_time,
+    async_track_time_interval,
+)
 
-from .const import DOMAIN
+from .const import DEFAULT_BT_GRACE_PERIOD, DOMAIN
 from .homewhiz import Command, HomewhizCoordinator
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
+
+# Seconds to wait between reconnect attempts; the last value repeats.
+RECONNECT_BACKOFF = (2, 5, 10, 30)
+# Request that makes the machine send its full state (sent on every connect).
+REQUEST_STATE_PAYLOAD = bytearray.fromhex("02 04 00 04 00 1a 01 03")
 
 
 class MessageAccumulator:
@@ -49,6 +58,8 @@ class HomewhizBluetoothUpdateCoordinator(HomewhizCoordinator):
         hass: HomeAssistant,
         address: str,
         reconnect_interval: int | None = None,
+        grace_period: int = DEFAULT_BT_GRACE_PERIOD,
+        keepalive_interval: int = 0,
     ) -> None:
         self.address = address
         self._accumulator = MessageAccumulator()
@@ -63,6 +74,14 @@ class HomewhizBluetoothUpdateCoordinator(HomewhizCoordinator):
         # Allow users to configure regular Bluetooth reconnections
         self._reconnect_interval: int | None = reconnect_interval
         self._reconnect_interval_task: None | Callable = None
+        # Keep last known values / availability for this long after a drop
+        self._grace_period = grace_period
+        self._disconnected_since: float | None = None
+        self._grace_timer: asyncio.TimerHandle | None = None
+        self._connected_since: float | None = None
+        self._deliberate_disconnect = False
+        self._keepalive_interval = keepalive_interval
+        self._keepalive_unsub: Callable | None = None
         super().__init__(hass, _LOGGER, name=DOMAIN)
 
     async def connect(self) -> bool:
@@ -74,6 +93,10 @@ class HomewhizBluetoothUpdateCoordinator(HomewhizCoordinator):
                 _LOGGER.debug("Already connected, skipping connect()")
                 return True
             _LOGGER.info("Connecting to %s", self.address)
+            self._log_connection_paths()
+            # A half received message from the previous link must not be
+            # glued to the first message of the new one.
+            self._accumulator = MessageAccumulator()
             async with self._device_lock:
                 self._device = bluetooth.async_ble_device_from_address(
                     self._hass, self.address, connectable=True
@@ -115,11 +138,7 @@ class HomewhizBluetoothUpdateCoordinator(HomewhizCoordinator):
                     ),
                 )
                 _LOGGER.debug("Sending initial command")
-                await self._connection.write_gatt_char(
-                    "0000ac01-0000-1000-8000-00805f9b34fb",
-                    bytearray.fromhex("02 04 00 04 00 1a 01 03"),
-                    response=False,
-                )
+                await self._request_state()
             except Exception:
                 # WARNING, not ERROR: this failure is transient and the
                 # reconnect loop takes over; a persistent problem still
@@ -139,9 +158,15 @@ class HomewhizBluetoothUpdateCoordinator(HomewhizCoordinator):
             self.hass, self.address, connectable=True
         )
         if service_info is not None:
-            _LOGGER.info("Successfully connected. RSSI: %s", service_info.rssi)
+            _LOGGER.info(
+                "Successfully connected. Adapter/proxy source: %s, RSSI: %s",
+                service_info.source,
+                service_info.rssi,
+            )
         else:
             _LOGGER.info("Successfully connected (RSSI not available)")
+
+        self._mark_connected()
 
         # If reconnection is configured, set a task to reconnect after interval
         if self._reconnect_interval:
@@ -150,6 +175,86 @@ class HomewhizBluetoothUpdateCoordinator(HomewhizCoordinator):
             _LOGGER.debug("Reconnect after interval task not set")
 
         return True
+
+    def _log_connection_paths(self) -> None:
+        """Evidence for "which adapter/proxy does HA use". HA picks the path
+        itself (best RSSI/score) on every connect, it can not be pinned."""
+        try:
+            paths = bluetooth.async_scanner_devices_by_address(
+                self.hass, self.address, connectable=True
+            )
+            _LOGGER.debug(
+                "[%s] Connection paths: %s",
+                self.address,
+                ", ".join(
+                    f"{p.scanner.name} (source={p.scanner.source}, "
+                    f"rssi={p.advertisement.rssi})"
+                    for p in paths
+                )
+                or "none",
+            )
+        except Exception:
+            _LOGGER.debug("Could not list connection paths", exc_info=True)
+
+    async def _request_state(self) -> None:
+        assert self._connection is not None
+        await self._connection.write_gatt_char(
+            "0000ac01-0000-1000-8000-00805f9b34fb",
+            REQUEST_STATE_PAYLOAD,
+            response=False,
+        )
+
+    def _mark_connected(self) -> None:
+        self._connected_since = monotonic()
+        self._disconnected_since = None
+        if self._grace_timer is not None:
+            self._grace_timer.cancel()
+            self._grace_timer = None
+        self._start_keepalive()
+
+    def _start_keepalive(self) -> None:
+        self._stop_keepalive()
+        if self._keepalive_interval > 0:
+            self._keepalive_unsub = async_track_time_interval(
+                self.hass,
+                self._keepalive,
+                timedelta(seconds=self._keepalive_interval),
+            )
+
+    def _stop_keepalive(self) -> None:
+        if self._keepalive_unsub is not None:
+            self._keepalive_unsub()
+            self._keepalive_unsub = None
+
+    async def _keepalive(self, _now: datetime) -> None:
+        if not self.is_connected:
+            return
+        _LOGGER.debug("[%s] Keep-alive: requesting state", self.address)
+        try:
+            await self._request_state()
+        except Exception:
+            _LOGGER.debug("Keep-alive write failed", exc_info=True)
+
+    @property
+    def available(self) -> bool:
+        if self.is_connected:
+            return True
+        return (
+            self._disconnected_since is not None
+            and monotonic() - self._disconnected_since < self._grace_period
+        )
+
+    @callback
+    def _grace_expired(self) -> None:
+        self._grace_timer = None
+        if self.alive and not self.is_connected:
+            _LOGGER.info(
+                "[%s] Still disconnected after %ss grace period, "
+                "marking entities unavailable",
+                self.address,
+                self._grace_period,
+            )
+            self.async_set_updated_data(None)
 
     def create_reconnect_interval_task(self) -> None:
         # Cancel any existing task
@@ -185,6 +290,7 @@ class HomewhizBluetoothUpdateCoordinator(HomewhizCoordinator):
         # Trigger a disconnect, the disconnected_callback will trigger the reconnect
         _LOGGER.debug("Reconnect callback")
         if self.alive:
+            self._deliberate_disconnect = True
             connection = self._connection  # capture a local reference atomically
             if connection is not None:
                 self.hass.create_task(connection.disconnect())
@@ -192,15 +298,16 @@ class HomewhizBluetoothUpdateCoordinator(HomewhizCoordinator):
     async def try_reconnect(self) -> None:
         async with self.reconnecting_lock:
             _LOGGER.debug("[%s] Trying to reconnect", self.address)
+            attempt = 0
             while self.alive and not self.is_connected:
                 if not bluetooth.async_address_present(
                     self.hass, self.address, connectable=True
                 ):
-                    _LOGGER.info(
-                        "Device not found. "
-                        "Will reconnect automatically when the device becomes available"
+                    _LOGGER.debug(
+                        "[%s] Device not seen by any adapter/proxy, waiting",
+                        self.address,
                     )
-                    await asyncio.sleep(60)
+                    await asyncio.sleep(5)
                     continue  # keep waiting instead of giving up
                 try:
                     _LOGGER.debug(
@@ -210,11 +317,18 @@ class HomewhizBluetoothUpdateCoordinator(HomewhizCoordinator):
                     await self.connect()
                     # Reconnect was successful!
                     _LOGGER.debug("Reconnecting was successful!")
-                except Exception:
-                    _LOGGER.exception(
-                        "Can't reconnect. Waiting 30 seconds to try again"
+                except Exception as err:
+                    delay = RECONNECT_BACKOFF[min(attempt, len(RECONNECT_BACKOFF) - 1)]
+                    attempt += 1
+                    _LOGGER.warning(
+                        "[%s] Can't reconnect (attempt %d): %s. Retrying in %ds",
+                        self.address,
+                        attempt,
+                        err,
+                        delay,
                     )
-                    await asyncio.sleep(30)
+                    _LOGGER.debug("Reconnect failure details", exc_info=True)
+                    await asyncio.sleep(delay)
 
     async def handle_disconnect(
         self, client: BleakClient | None = None, *args: Any
@@ -231,6 +345,18 @@ class HomewhizBluetoothUpdateCoordinator(HomewhizCoordinator):
             ):
                 _LOGGER.debug("Ignoring disconnect from a stale connection")
                 return
+            if self._connected_since is not None:
+                _LOGGER.info(
+                    "[%s] Bluetooth link %s after %.0fs connected "
+                    "(the BLE stack does not report a reason; check the "
+                    "ESPHome proxy / bluetooth logs at the same timestamp)",
+                    self.address,
+                    "closed by us" if self._deliberate_disconnect else "dropped",
+                    monotonic() - self._connected_since,
+                )
+            self._deliberate_disconnect = False
+            self._connected_since = None
+            self._stop_keepalive()
             async with self._device_lock:
                 self._device = None
             # Ensure device is disconnected
@@ -238,11 +364,26 @@ class HomewhizBluetoothUpdateCoordinator(HomewhizCoordinator):
                 _LOGGER.info("Triggering disconnect")
                 with contextlib.suppress(Exception):
                     await self._connection.disconnect()
-            self.hass.add_job(self.async_set_updated_data, None)
+            self._start_grace()
             self._connection = None
         # Spawn the task AFTER releasing the lock
         _LOGGER.info("[%s] Disconnected", self.address)
         self.hass.create_task(self.try_reconnect())
+
+    def _start_grace(self) -> None:
+        """Keep the last data and availability for the grace period instead of
+        wiping everything on every short drop."""
+        if self._disconnected_since is None:
+            self._disconnected_since = monotonic()
+        if self._grace_period <= 0:
+            self.hass.add_job(self.async_set_updated_data, None)
+            return
+        if self._grace_timer is None:
+            self._grace_timer = self.hass.loop.call_later(
+                self._grace_period, self._grace_expired
+            )
+        # entities re-evaluate (they stay available, with their old data)
+        self.hass.add_job(self.async_update_listeners)
 
     # @callback removed – the function is invoked via create_task, not called directly
     async def handle_notify(self, message: bytearray) -> None:
@@ -282,6 +423,10 @@ class HomewhizBluetoothUpdateCoordinator(HomewhizCoordinator):
     async def kill(self) -> None:
         _LOGGER.debug("[%s] Killing connection", self.address)
         self.alive = False  # set FIRST, before calling disconnect()
+        self._stop_keepalive()
+        if self._grace_timer is not None:
+            self._grace_timer.cancel()
+            self._grace_timer = None
         async with self._connection_lock:
             if self._connection is not None:
                 with contextlib.suppress(Exception):

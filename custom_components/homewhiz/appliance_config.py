@@ -239,8 +239,8 @@ class ApplianceOvenRecipe:
 
 @dataclass
 class ApplianceFeatureReference:
-    strKeyRef: str
     wifiArrayIndex: int
+    strKeyRef: str | None = None
 
 
 @dataclass
@@ -258,9 +258,9 @@ class ApplianceProgressFeatureReference:
 
 @dataclass
 class ApplianceProgressReference:
-    delay: ApplianceProgressFeature
+    delay: ApplianceProgressFeature | None
     duration: ApplianceProgressFeatureReference
-    remaining: ApplianceProgressFeature
+    remaining: ApplianceProgressFeature | None
 
 
 @dataclass
@@ -291,8 +291,8 @@ class ApplianceOvenStepCooking:
 
 @dataclass
 class OvenTemperatureInfo:
-    ovenTemperatureNotVisiblePrograms: str
-    ovenTemperatureSubprograms: ApplianceFeature
+    ovenTemperatureSubprograms: ApplianceFeature | list[ApplianceFeature]
+    ovenTemperatureNotVisiblePrograms: str | list[str] | None = None
 
 
 @dataclass
@@ -326,9 +326,9 @@ class ApplianceRemoteControl:
 
 @dataclass
 class ApplianceScreenSaver:
-    ovenScreenSaverTimer: ApplianceFeature
     ovenStandByMode: ApplianceFeature
     ovenStandByTimer: ApplianceFeature
+    ovenScreenSaverTimer: ApplianceFeature | None = None
 
 
 @dataclass

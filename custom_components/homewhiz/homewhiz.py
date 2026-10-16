@@ -28,6 +28,12 @@ class HomewhizCoordinator(
     def is_connected(self) -> bool:
         pass
 
+    @property
+    def available(self) -> bool:
+        """Whether entities should be shown as available (may outlive a short
+        disconnect, see the Bluetooth coordinator's grace period)."""
+        return self.is_connected
+
     @abc.abstractmethod
     async def send_command(self, command: Command) -> None:
         pass

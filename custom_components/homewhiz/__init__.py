@@ -21,7 +21,14 @@ from .appliance_controls import forget_controls
 from .bluetooth import HomewhizBluetoothUpdateCoordinator
 from .cloud import HomewhizCloudUpdateCoordinator
 from .config_flow import CloudConfig
-from .const import CONF_BT_RECONNECT_INTERVAL, DOMAIN, PLATFORMS
+from .const import (
+    CONF_BT_GRACE_PERIOD,
+    CONF_BT_KEEPALIVE_INTERVAL,
+    CONF_BT_RECONNECT_INTERVAL,
+    DEFAULT_BT_GRACE_PERIOD,
+    DOMAIN,
+    PLATFORMS,
+)
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
@@ -50,7 +57,13 @@ async def setup_bluetooth(
 
     coordinator = hass.data.setdefault(DOMAIN, {})[entry.entry_id] = (
         HomewhizBluetoothUpdateCoordinator(
-            hass, entry.unique_id, entry.options.get(CONF_BT_RECONNECT_INTERVAL)
+            hass,
+            entry.unique_id,
+            entry.options.get(CONF_BT_RECONNECT_INTERVAL),
+            grace_period=entry.options.get(
+                CONF_BT_GRACE_PERIOD, DEFAULT_BT_GRACE_PERIOD
+            ),
+            keepalive_interval=entry.options.get(CONF_BT_KEEPALIVE_INTERVAL, 0),
         )
     )
 

@@ -1,0 +1,1546 @@
+{
+  "autoController": null,
+  "clock": null,
+  "commands": [
+    {
+      "boundedValues": null,
+      "enumValues": [
+        {
+          "strKey": "COMMAND_DECLINE",
+          "wifiArrayValue": 0
+        },
+        {
+          "strKey": "COMMAND_CONFIRM",
+          "wifiArrayValue": 1
+        }
+      ],
+      "isSwitch": null,
+      "isVisible": 1,
+      "strKey": "COMMAND_AWAITING_INPUT",
+      "wfaWriteIndex": null,
+      "wifiArrayIndex": 117
+    },
+    {
+      "boundedValues": null,
+      "enumValues": [
+        {
+          "strKey": "COOK_MORE_CANCEL",
+          "wifiArrayValue": 0
+        },
+        {
+          "strKey": "COOK_MORE_START",
+          "wifiArrayValue": 1
+        }
+      ],
+      "isSwitch": null,
+      "isVisible": 1,
+      "strKey": "COMMAND_COOK_MORE",
+      "wfaWriteIndex": null,
+      "wifiArrayIndex": 112
+    },
+    {
+      "boundedValues": null,
+      "enumValues": [
+        {
+          "strKey": "OVEN_SKIP_PREHEATING_OFF",
+          "wifiArrayValue": 0
+        },
+        {
+          "strKey": "OVEN_SKIP_PREHEATING_ON",
+          "wifiArrayValue": 1
+        }
+      ],
+      "isSwitch": null,
+      "isVisible": 1,
+      "strKey": "OVEN_SKIP_PREHEATING",
+      "wfaWriteIndex": null,
+      "wifiArrayIndex": 110
+    }
+  ],
+  "consumableSettings": null,
+  "customSubPrograms": null,
+  "deviceStates": {
+    "states": [
+      {
+        "allowedTransitions": [
+          "DEVICE_STATE_OFF",
+          "DEVICE_STATE_RUNNING"
+        ],
+        "notificationInfo": {
+          "necessity": null,
+          "priority": "MEDIUM",
+          "strKey": "DEVICE_STATE_ON_NOTIFICATION"
+        },
+        "strKey": "DEVICE_STATE_ON",
+        "wifiArrayValue": 10
+      },
+      {
+        "allowedTransitions": [
+          "DEVICE_STATE_ON"
+        ],
+        "notificationInfo": {
+          "necessity": null,
+          "priority": "MEDIUM",
+          "strKey": "DEVICE_STATE_OFF_NOTIFICATION"
+        },
+        "strKey": "DEVICE_STATE_OFF",
+        "wifiArrayValue": 20
+      },
+      {
+        "allowedTransitions": [
+          "DEVICE_STATE_OFF",
+          "DEVICE_STATE_CANCELLING"
+        ],
+        "notificationInfo": {
+          "necessity": null,
+          "priority": "MEDIUM",
+          "strKey": "DEVICE_STATE_RUNNING_NOTIFICATION"
+        },
+        "strKey": "DEVICE_STATE_RUNNING",
+        "wifiArrayValue": 30
+      },
+      {
+        "allowedTransitions": [
+          "DEVICE_STATE_OFF",
+          "DEVICE_STATE_RUNNING"
+        ],
+        "notificationInfo": {
+          "necessity": null,
+          "priority": "MEDIUM",
+          "strKey": "DEVICE_STATE_PAUSED_NOTIFICATION"
+        },
+        "strKey": "DEVICE_STATE_PAUSED",
+        "wifiArrayValue": 40
+      },
+      {
+        "allowedTransitions": [
+          "DEVICE_STATE_OFF"
+        ],
+        "notificationInfo": {
+          "necessity": null,
+          "priority": "MEDIUM",
+          "strKey": "DEVICE_STATE_PREHEATING_NOTIFICATION"
+        },
+        "strKey": "DEVICE_STATE_CANCELLING",
+        "wifiArrayValue": 50
+      },
+      {
+        "allowedTransitions": [
+          "DEVICE_STATE_OFF",
+          "DEVICE_STATE_CANCELLING"
+        ],
+        "notificationInfo": {
+          "necessity": null,
+          "priority": "LOW",
+          "strKey": "DEVICE_STATE_TIME_DELAY_ACTIVE_NOTIFICATION"
+        },
+        "strKey": "DEVICE_STATE_TIME_DELAY_ACTIVE",
+        "wifiArrayValue": 60
+      }
+    ],
+    "wfaIndex": null,
+    "wifiArrayReadIndex": 35,
+    "wifiArrayWriteIndex": 34
+  },
+  "deviceSubStates": {
+    "subStates": [
+      {
+        "strKey": "OVEN_MESSAGE_GOOD_APPETITE",
+        "wifiArrayValue": 1
+      },
+      {
+        "strKey": "OVEN_MESSAGE_COOKING",
+        "wifiArrayValue": 2
+      },
+      {
+        "strKey": "OVEN_MESSAGE_PAUSED",
+        "wifiArrayValue": 3
+      },
+      {
+        "strKey": "OVEN_MESSAGE_WAITING",
+        "wifiArrayValue": 6
+      },
+      {
+        "strKey": "OVEN_MESSAGE_DEFROSTING",
+        "wifiArrayValue": 7
+      },
+      {
+        "strKey": "OVEN_MESSAGE_PREHEATING",
+        "wifiArrayValue": 11
+      },
+      {
+        "strKey": "OVEN_MESSAGE_PREHEATING_COMPLETED",
+        "wifiArrayValue": 15
+      }
+    ],
+    "wifiArrayReadIndex": 36
+  },
+  "deviceWarnings": {
+    "warnings": [
+      {
+        "bitIndex": 0,
+        "notificationInfo": {
+          "necessity": "OPTON",
+          "priority": "HIGH",
+          "strKey": "OVEN_WARNING_DOOR_IS_OPEN_NOTIFICATION"
+        },
+        "reasonInfo": null,
+        "strKey": "OVEN_WARNING_DOOR_IS_OPEN"
+      }
+    ],
+    "wifiArrayByteCount": 3,
+    "wifiArrayReadIndex": 37
+  },
+  "deviceWarningsExtra": null,
+  "downloadCycleSettingsModel": null,
+  "monitorings": [
+    {
+      "boundedValues": null,
+      "enumValues": [
+        {
+          "strKey": "AWAITING_INPUT_NOT_EXIST",
+          "wifiArrayValue": 0
+        }
+      ],
+      "isSwitch": null,
+      "isVisible": 1,
+      "strKey": "MONITORING_AWAITING_INPUT",
+      "wfaWriteIndex": null,
+      "wifiArrayIndex": 116
+    },
+    {
+      "boundedValues": null,
+      "enumValues": [
+        {
+          "strKey": "COOK_MORE_NOT_AVAILABLE",
+          "wifiArrayValue": 0
+        },
+        {
+          "strKey": "COOK_MORE_AVAILABLE",
+          "wifiArrayValue": 1
+        }
+      ],
+      "isSwitch": null,
+      "isVisible": 1,
+      "strKey": "MONITORING_COOK_MORE_STATUS",
+      "wfaWriteIndex": null,
+      "wifiArrayIndex": 111
+    }
+  ],
+  "ovenClockWifiArrayIndexes": null,
+  "ovenDownloadedAutoBakeInformation": null,
+  "ovenMeatProbeAccessory": null,
+  "ovenRecipeInformation": {
+    "cookingTypeRecipeFromOvenStartedWifiArrayValue": null,
+    "cookingTypeRecipeFromOvenWifiArrayValue": null,
+    "cookingTypeRecipeWifiArrayValue": 3,
+    "cookingTypeWifiArrayIndex": 44,
+    "isRecipeUIHidden": null,
+    "recipeCommandLength": 26,
+    "recipeCommandWifiArrayStartIndex": 72,
+    "recipeFormatVersion": "1.1",
+    "recipeIdHighWifiArrayIndex": 59,
+    "recipeIdLowWifiArrayIndex": 58
+  },
+  "ovenTemperatureInfo": {
+    "ovenTemperatureNotVisiblePrograms": [
+      "PROGRAM_DEFROST",
+      "PROGRAM_PYRO"
+    ],
+    "ovenTemperatureSubprograms": [
+      {
+        "boundedValues": [
+          {
+            "factor": 5,
+            "lowerLimit": 40,
+            "step": 5,
+            "strKey": "TEMPERATURE",
+            "unit": "°C",
+            "upperLimit": 280
+          }
+        ],
+        "enumValues": null,
+        "isSwitch": null,
+        "isVisible": 1,
+        "strKey": "OVEN_TEMPERATURE",
+        "wfaWriteIndex": null,
+        "wifiArrayIndex": 52
+      },
+      {
+        "boundedValues": [
+          {
+            "factor": 5,
+            "lowerLimit": 0,
+            "step": 5,
+            "strKey": "TEMPERATURE",
+            "unit": "°C",
+            "upperLimit": 300
+          }
+        ],
+        "enumValues": null,
+        "isSwitch": null,
+        "isVisible": 1,
+        "strKey": "OVEN_CURRENT_TEMPERATURE",
+        "wfaWriteIndex": null,
+        "wifiArrayIndex": 53
+      }
+    ]
+  },
+  "program": {
+    "isSwitch": null,
+    "isVisible": 1,
+    "strKey": "OVEN_PROGRAM",
+    "values": [
+      {
+        "customSubProgramOverrides": null,
+        "isDownloadableCycle": null,
+        "isVisible": 1,
+        "progressVariableOverrides": [
+          {
+            "hour": {
+              "allowedValueIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "isDisabled": null,
+              "strKeyRef": null
+            },
+            "minute": null,
+            "strKeyRef": "VARIABLE_OVEN_DURATION"
+          }
+        ],
+        "strKey": "PROGRAM_TOP_BOTTOM",
+        "subProgramOverrides": [
+          {
+            "allowedValueIndices": null,
+            "isDisabled": 1,
+            "strKeyRef": "OVEN_SKIP_PREHEATING"
+          },
+          {
+            "allowedValueIndices": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33,
+              34,
+              35,
+              36,
+              37,
+              38,
+              39,
+              40,
+              41,
+              42,
+              43,
+              44,
+              45,
+              46,
+              47,
+              48
+            ],
+            "isDisabled": null,
+            "strKeyRef": "OVEN_TEMPERATURE"
+          }
+        ],
+        "wifiArrayValue": 0
+      },
+      {
+        "customSubProgramOverrides": null,
+        "isDownloadableCycle": null,
+        "isVisible": 1,
+        "progressVariableOverrides": [
+          {
+            "hour": {
+              "allowedValueIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "isDisabled": null,
+              "strKeyRef": null
+            },
+            "minute": null,
+            "strKeyRef": "VARIABLE_OVEN_DURATION"
+          }
+        ],
+        "strKey": "PROGRAM_TOP_BOTTOM_FAN",
+        "subProgramOverrides": [
+          {
+            "allowedValueIndices": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33,
+              34,
+              35,
+              36,
+              37,
+              38,
+              39,
+              40,
+              41,
+              42,
+              43,
+              44,
+              45,
+              46,
+              47,
+              48
+            ],
+            "isDisabled": null,
+            "strKeyRef": "OVEN_TEMPERATURE"
+          },
+          {
+            "allowedValueIndices": null,
+            "isDisabled": 1,
+            "strKeyRef": "OVEN_SKIP_PREHEATING"
+          }
+        ],
+        "wifiArrayValue": 1
+      },
+      {
+        "customSubProgramOverrides": null,
+        "isDownloadableCycle": null,
+        "isVisible": 1,
+        "progressVariableOverrides": [
+          {
+            "hour": {
+              "allowedValueIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "isDisabled": null,
+              "strKeyRef": null
+            },
+            "minute": null,
+            "strKeyRef": "VARIABLE_OVEN_DURATION"
+          }
+        ],
+        "strKey": "PROGRAM_FAN_HEATING",
+        "subProgramOverrides": [
+          {
+            "allowedValueIndices": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33,
+              34,
+              35,
+              36,
+              37,
+              38,
+              39,
+              40,
+              41,
+              42,
+              43,
+              44,
+              45,
+              46,
+              47,
+              48
+            ],
+            "isDisabled": null,
+            "strKeyRef": "OVEN_TEMPERATURE"
+          },
+          {
+            "allowedValueIndices": null,
+            "isDisabled": 1,
+            "strKeyRef": "OVEN_SKIP_PREHEATING"
+          }
+        ],
+        "wifiArrayValue": 2
+      },
+      {
+        "customSubProgramOverrides": null,
+        "isDownloadableCycle": null,
+        "isVisible": 1,
+        "progressVariableOverrides": [
+          {
+            "hour": {
+              "allowedValueIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "isDisabled": null,
+              "strKeyRef": null
+            },
+            "minute": null,
+            "strKeyRef": "VARIABLE_OVEN_DURATION"
+          }
+        ],
+        "strKey": "PROGRAM_MULTI_COOKING",
+        "subProgramOverrides": [
+          {
+            "allowedValueIndices": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33,
+              34,
+              35,
+              36,
+              37,
+              38,
+              39,
+              40,
+              41,
+              42,
+              43,
+              44,
+              45,
+              46,
+              47,
+              48
+            ],
+            "isDisabled": null,
+            "strKeyRef": "OVEN_TEMPERATURE"
+          },
+          {
+            "allowedValueIndices": null,
+            "isDisabled": 1,
+            "strKeyRef": "OVEN_SKIP_PREHEATING"
+          }
+        ],
+        "wifiArrayValue": 3
+      },
+      {
+        "customSubProgramOverrides": null,
+        "isDownloadableCycle": null,
+        "isVisible": 1,
+        "progressVariableOverrides": [
+          {
+            "hour": {
+              "allowedValueIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "isDisabled": null,
+              "strKeyRef": null
+            },
+            "minute": null,
+            "strKeyRef": "VARIABLE_OVEN_DURATION"
+          }
+        ],
+        "strKey": "PROGRAM_PIZZA",
+        "subProgramOverrides": [
+          {
+            "allowedValueIndices": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33,
+              34,
+              35,
+              36,
+              37,
+              38,
+              39,
+              40,
+              41,
+              42,
+              43,
+              44,
+              45,
+              46,
+              47,
+              48
+            ],
+            "isDisabled": null,
+            "strKeyRef": "OVEN_TEMPERATURE"
+          },
+          {
+            "allowedValueIndices": null,
+            "isDisabled": 1,
+            "strKeyRef": "OVEN_SKIP_PREHEATING"
+          }
+        ],
+        "wifiArrayValue": 4
+      },
+      {
+        "customSubProgramOverrides": null,
+        "isDownloadableCycle": null,
+        "isVisible": 1,
+        "progressVariableOverrides": [
+          {
+            "hour": {
+              "allowedValueIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "isDisabled": null,
+              "strKeyRef": null
+            },
+            "minute": null,
+            "strKeyRef": "VARIABLE_OVEN_DURATION"
+          }
+        ],
+        "strKey": "PROGRAM_FULL_GRILL_FAN",
+        "subProgramOverrides": [
+          {
+            "allowedValueIndices": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33,
+              34,
+              35,
+              36,
+              37,
+              38,
+              39,
+              40,
+              41,
+              42,
+              43,
+              44,
+              45,
+              46,
+              47,
+              48
+            ],
+            "isDisabled": null,
+            "strKeyRef": "OVEN_TEMPERATURE"
+          },
+          {
+            "allowedValueIndices": null,
+            "isDisabled": 1,
+            "strKeyRef": "OVEN_SKIP_PREHEATING"
+          }
+        ],
+        "wifiArrayValue": 8
+      },
+      {
+        "customSubProgramOverrides": null,
+        "isDownloadableCycle": null,
+        "isVisible": 1,
+        "progressVariableOverrides": [
+          {
+            "hour": {
+              "allowedValueIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "isDisabled": null,
+              "strKeyRef": null
+            },
+            "minute": null,
+            "strKeyRef": "VARIABLE_OVEN_DURATION"
+          }
+        ],
+        "strKey": "PROGRAM_FULL_GRILL",
+        "subProgramOverrides": [
+          {
+            "allowedValueIndices": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33,
+              34,
+              35,
+              36,
+              37,
+              38,
+              39,
+              40,
+              41,
+              42,
+              43,
+              44,
+              45,
+              46,
+              47,
+              48
+            ],
+            "isDisabled": null,
+            "strKeyRef": "OVEN_TEMPERATURE"
+          },
+          {
+            "allowedValueIndices": null,
+            "isDisabled": 1,
+            "strKeyRef": "OVEN_SKIP_PREHEATING"
+          }
+        ],
+        "wifiArrayValue": 6
+      },
+      {
+        "customSubProgramOverrides": null,
+        "isDownloadableCycle": null,
+        "isVisible": 1,
+        "progressVariableOverrides": [
+          {
+            "hour": {
+              "allowedValueIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "isDisabled": null,
+              "strKeyRef": null
+            },
+            "minute": null,
+            "strKeyRef": "VARIABLE_OVEN_DURATION"
+          }
+        ],
+        "strKey": "PROGRAM_ECO_GRILL",
+        "subProgramOverrides": [
+          {
+            "allowedValueIndices": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33,
+              34,
+              35,
+              36,
+              37,
+              38,
+              39,
+              40,
+              41,
+              42,
+              43,
+              44,
+              45,
+              46,
+              47,
+              48
+            ],
+            "isDisabled": null,
+            "strKeyRef": "OVEN_TEMPERATURE"
+          },
+          {
+            "allowedValueIndices": null,
+            "isDisabled": 1,
+            "strKeyRef": "OVEN_SKIP_PREHEATING"
+          }
+        ],
+        "wifiArrayValue": 5
+      },
+      {
+        "customSubProgramOverrides": null,
+        "isDownloadableCycle": null,
+        "isVisible": 1,
+        "progressVariableOverrides": [
+          {
+            "hour": {
+              "allowedValueIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "isDisabled": null,
+              "strKeyRef": null
+            },
+            "minute": null,
+            "strKeyRef": "VARIABLE_OVEN_DURATION"
+          }
+        ],
+        "strKey": "PROGRAM_ECO_FAN_HEATING",
+        "subProgramOverrides": [
+          {
+            "allowedValueIndices": [
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33,
+              34,
+              35,
+              36
+            ],
+            "isDisabled": null,
+            "strKeyRef": "OVEN_TEMPERATURE"
+          },
+          {
+            "allowedValueIndices": null,
+            "isDisabled": 1,
+            "strKeyRef": "OVEN_SKIP_PREHEATING"
+          }
+        ],
+        "wifiArrayValue": 14
+      },
+      {
+        "customSubProgramOverrides": null,
+        "isDownloadableCycle": null,
+        "isVisible": 1,
+        "progressVariableOverrides": [
+          {
+            "hour": {
+              "allowedValueIndices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "isDisabled": null,
+              "strKeyRef": null
+            },
+            "minute": null,
+            "strKeyRef": "VARIABLE_OVEN_DURATION"
+          }
+        ],
+        "strKey": "PROGRAM_BOTTOM_HEATING",
+        "subProgramOverrides": [
+          {
+            "allowedValueIndices": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33,
+              34,
+              35,
+              36
+            ],
+            "isDisabled": null,
+            "strKeyRef": "OVEN_TEMPERATURE"
+          },
+          {
+            "allowedValueIndices": null,
+            "isDisabled": 1,
+            "strKeyRef": "OVEN_SKIP_PREHEATING"
+          }
+        ],
+        "wifiArrayValue": 10
+      },
+      {
+        "customSubProgramOverrides": null,
+        "isDownloadableCycle": null,
+        "isVisible": 1,
+        "progressVariableOverrides": null,
+        "strKey": "PROGRAM_LOW_TEMP_COOKING",
+        "subProgramOverrides": [
+          {
+            "allowedValueIndices": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22
+            ],
+            "isDisabled": null,
+            "strKeyRef": "OVEN_TEMPERATURE"
+          },
+          {
+            "allowedValueIndices": null,
+            "isDisabled": 1,
+            "strKeyRef": "OVEN_SKIP_PREHEATING"
+          }
+        ],
+        "wifiArrayValue": 16
+      },
+      {
+        "customSubProgramOverrides": null,
+        "isDownloadableCycle": null,
+        "isVisible": 1,
+        "progressVariableOverrides": null,
+        "strKey": "PROGRAM_WARM_KEEPING",
+        "subProgramOverrides": [
+          {
+            "allowedValueIndices": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12
+            ],
+            "isDisabled": null,
+            "strKeyRef": "OVEN_TEMPERATURE"
+          },
+          {
+            "allowedValueIndices": null,
+            "isDisabled": 1,
+            "strKeyRef": "OVEN_SKIP_PREHEATING"
+          }
+        ],
+        "wifiArrayValue": 13
+      },
+      {
+        "customSubProgramOverrides": null,
+        "isDownloadableCycle": null,
+        "isVisible": 1,
+        "progressVariableOverrides": null,
+        "strKey": "PROGRAM_DEFROST",
+        "subProgramOverrides": [
+          {
+            "allowedValueIndices": null,
+            "isDisabled": 1,
+            "strKeyRef": "OVEN_TEMPERATURE"
+          },
+          {
+            "allowedValueIndices": null,
+            "isDisabled": 1,
+            "strKeyRef": "OVEN_SKIP_PREHEATING"
+          }
+        ],
+        "wifiArrayValue": 11
+      }
+    ],
+    "wfaWriteIndex": null,
+    "wifiArrayIndex": 45
+  },
+  "progressVariables": {
+    "autoOff": null,
+    "autoOn": null,
+    "delay": {
+      "hour": {
+        "boundedValues": [
+          {
+            "factor": 1,
+            "lowerLimit": 0,
+            "step": 1,
+            "strKey": "HOUR",
+            "unit": "",
+            "upperLimit": 23
+          }
+        ],
+        "enumValues": null,
+        "isSwitch": null,
+        "isVisible": 1,
+        "strKey": null,
+        "wfaWriteIndex": null,
+        "wifiArrayIndex": 50
+      },
+      "isCalculatedToStart": 0,
+      "isExpandableBySwitch": null,
+      "isVisible": 1,
+      "minute": {
+        "boundedValues": [
+          {
+            "factor": 1,
+            "lowerLimit": 0,
+            "step": 1,
+            "strKey": "MINUTE",
+            "unit": "",
+            "upperLimit": 59
+          }
+        ],
+        "enumValues": null,
+        "isSwitch": null,
+        "isVisible": 1,
+        "strKey": null,
+        "wfaWriteIndex": null,
+        "wifiArrayIndex": 51
+      },
+      "strKey": "VARIABLE_DELAY",
+      "wfaIndex": null,
+      "wfaWriteIndex": null
+    },
+    "duration": {
+      "hour": {
+        "boundedValues": [
+          {
+            "factor": 1,
+            "lowerLimit": 0,
+            "step": 1,
+            "strKey": "HOUR",
+            "unit": "",
+            "upperLimit": 23
+          }
+        ],
+        "enumValues": null,
+        "isSwitch": null,
+        "isVisible": 1,
+        "strKey": null,
+        "wfaWriteIndex": null,
+        "wifiArrayIndex": 46
+      },
+      "isCalculatedToStart": null,
+      "isExpandableBySwitch": null,
+      "isVisible": 1,
+      "minute": {
+        "boundedValues": [
+          {
+            "factor": 1,
+            "lowerLimit": 0,
+            "step": 1,
+            "strKey": "MINUTE",
+            "unit": "",
+            "upperLimit": 59
+          }
+        ],
+        "enumValues": null,
+        "isSwitch": null,
+        "isVisible": 1,
+        "strKey": null,
+        "wfaWriteIndex": null,
+        "wifiArrayIndex": 47
+      },
+      "strKey": "VARIABLE_OVEN_DURATION",
+      "wfaIndex": null,
+      "wfaWriteIndex": null
+    },
+    "elapsed": null,
+    "fermentedremaining": null,
+    "remaining": {
+      "hour": {
+        "boundedValues": [
+          {
+            "factor": 1,
+            "lowerLimit": 0,
+            "step": 1,
+            "strKey": "HOUR",
+            "unit": "",
+            "upperLimit": 23
+          }
+        ],
+        "enumValues": null,
+        "isSwitch": null,
+        "isVisible": 1,
+        "strKey": null,
+        "wfaWriteIndex": null,
+        "wifiArrayIndex": 48
+      },
+      "isCalculatedToStart": null,
+      "isExpandableBySwitch": null,
+      "isVisible": 0,
+      "minute": {
+        "boundedValues": [
+          {
+            "factor": 1,
+            "lowerLimit": 0,
+            "step": 1,
+            "strKey": "MINUTE",
+            "unit": "",
+            "upperLimit": 59
+          }
+        ],
+        "enumValues": null,
+        "isSwitch": null,
+        "isVisible": 1,
+        "strKey": null,
+        "wfaWriteIndex": null,
+        "wifiArrayIndex": 49
+      },
+      "strKey": "VARIABLE_REMAINING",
+      "wfaIndex": null,
+      "wfaWriteIndex": null
+    },
+    "remainingOrElapsed": null
+  },
+  "refrigeratorDefrostInformation": null,
+  "remoteControl": {
+    "wifiArrayReadIndex": 32,
+    "wifiArrayValue": 170
+  },
+  "screenSaver": {
+    "ovenScreenSaverTimer": null,
+    "ovenStandByMode": {
+      "boundedValues": null,
+      "enumValues": [
+        {
+          "strKey": "OVEN_SELECT_STANDBY_MODE_CLOCK_ANALOG",
+          "wifiArrayValue": 0
+        },
+        {
+          "strKey": "OVEN_SELECT_STANDBY_MODE_CLOCK_DIGITAL",
+          "wifiArrayValue": 1
+        },
+        {
+          "strKey": "OVEN_SELECT_STANDBY_MODE_PHOTOFRAME",
+          "wifiArrayValue": 2
+        },
+        {
+          "strKey": "OVEN_SELECT_STANDBY_MODE_NONE",
+          "wifiArrayValue": 3
+        }
+      ],
+      "isSwitch": null,
+      "isVisible": 1,
+      "strKey": "OVEN_STANDBY_MODE",
+      "wfaWriteIndex": null,
+      "wifiArrayIndex": 113
+    },
+    "ovenStandByTimer": {
+      "boundedValues": null,
+      "enumValues": [
+        {
+          "strKey": "OVEN_STANDBY_TIMER_5",
+          "wifiArrayValue": 0
+        },
+        {
+          "strKey": "OVEN_STANDBY_TIMER_10",
+          "wifiArrayValue": 1
+        },
+        {
+          "strKey": "OVEN_STANDBY_TIMER_20",
+          "wifiArrayValue": 2
+        },
+        {
+          "strKey": "OVEN_STANDBY_TIMER_30",
+          "wifiArrayValue": 3
+        },
+        {
+          "strKey": "OVEN_STANDBY_TIMER_60",
+          "wifiArrayValue": 4
+        },
+        {
+          "strKey": "OVEN_STANDBY_TIMER_90",
+          "wifiArrayValue": 5
+        },
+        {
+          "strKey": "OVEN_STANDBY_TIMER_120",
+          "wifiArrayValue": 6
+        },
+        {
+          "strKey": "OVEN_STANDBY_TIMER_150",
+          "wifiArrayValue": 7
+        },
+        {
+          "strKey": "OVEN_STANDBY_TIMER_180",
+          "wifiArrayValue": 8
+        }
+      ],
+      "isSwitch": null,
+      "isVisible": 1,
+      "strKey": "OVEN_STANDBY_TIMER",
+      "wfaWriteIndex": null,
+      "wifiArrayIndex": 115
+    }
+  },
+  "settings": null,
+  "stepCooking": {
+    "activeStepIndex": 118,
+    "cookingTypeManuelWifiArrayValue": 1,
+    "cookingTypeStepCookingWifiArrayValue": 2,
+    "cookingTypeWifiArrayIndex": 44,
+    "defaultCookingStep": {
+      "program": {
+        "strKeyRef": "OVEN_PROGRAM",
+        "wifiArrayIndex": 67
+      },
+      "progressVariables": {
+        "delay": null,
+        "duration": {
+          "hour": {
+            "strKeyRef": null,
+            "wifiArrayIndex": 70
+          },
+          "minute": {
+            "strKeyRef": null,
+            "wifiArrayIndex": 71
+          },
+          "strKeyRef": "VARIABLE_OVEN_DURATION"
+        },
+        "remaining": null
+      },
+      "stepEnableStatusIndex": 65,
+      "subPrograms": [
+        {
+          "strKeyRef": "OVEN_TEMPERATURE",
+          "wifiArrayIndex": 68
+        }
+      ]
+    },
+    "eachStepWifiArraySegmentLength": 9,
+    "firstStepWifiArrayStartIndex": 65,
+    "numberOfSteps": 5
+  },
+  "subPrograms": [
+    {
+      "boundedValues": [
+        {
+          "factor": 5,
+          "lowerLimit": 40,
+          "step": 5,
+          "strKey": "TEMPERATURE",
+          "unit": "°C",
+          "upperLimit": 310
+        }
+      ],
+      "enumValues": null,
+      "isSwitch": null,
+      "isVisible": 1,
+      "strKey": "OVEN_TEMPERATURE",
+      "wfaWriteIndex": null,
+      "wifiArrayIndex": 52
+    },
+    {
+      "boundedValues": null,
+      "enumValues": [
+        {
+          "strKey": "OVEN_SUGGESTION_NONE",
+          "wifiArrayValue": 0
+        },
+        {
+          "strKey": "OVEN_SUGGESTION_1",
+          "wifiArrayValue": 1
+        },
+        {
+          "strKey": "OVEN_SUGGESTION_3",
+          "wifiArrayValue": 2
+        },
+        {
+          "strKey": "OVEN_SUGGESTION_4",
+          "wifiArrayValue": 3
+        },
+        {
+          "strKey": "OVEN_SUGGESTION_13",
+          "wifiArrayValue": 4
+        },
+        {
+          "strKey": "OVEN_SUGGESTION_135",
+          "wifiArrayValue": 5
+        }
+      ],
+      "isSwitch": null,
+      "isVisible": 1,
+      "strKey": "OVEN_SUGGESTION",
+      "wfaWriteIndex": null,
+      "wifiArrayIndex": 40
+    },
+    {
+      "boundedValues": null,
+      "enumValues": [
+        {
+          "strKey": "OVEN_SKIP_PREHEATING_OFF",
+          "wifiArrayValue": 0
+        },
+        {
+          "strKey": "OVEN_SKIP_PREHEATING_ON",
+          "wifiArrayValue": 1
+        }
+      ],
+      "isSwitch": null,
+      "isVisible": 1,
+      "strKey": "OVEN_SKIP_PREHEATING",
+      "wfaWriteIndex": null,
+      "wifiArrayIndex": 110
+    }
+  ],
+  "teaRecipeInformation": null,
+  "warnings": null,
+  "zones": null
+}

@@ -24,9 +24,59 @@
     }
   },
   "options": {
-    "step": {},
+    "step": {
+      "init": {
+        "title": "Homewhiz Options",
+        "description": "Allows for advanced configuration of the integration.",
+        "data": {
+          "bt_reconnect_interval": "Interval at which to reconnect Bluetooth (in hours)",
+          "bt_grace_period": "Keep last values after a disconnect for (seconds, 0 = off)",
+          "bt_keepalive_interval": "Request state from the machine every (seconds, 0 = off)"
+        }
+      }
+    },
     "abort": {
       "no_devices": "[%key:common::config_flow::abort::no_devices%]"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "machine_status": {
+        "name": "Machine status",
+        "state": {
+          "off": "Off",
+          "idle": "Idle",
+          "delayed_start": "Delayed start",
+          "starting": "Starting",
+          "running": "Running",
+          "washing": "Washing",
+          "rinsing": "Rinsing",
+          "spinning": "Spinning",
+          "drying": "Drying",
+          "paused": "Paused",
+          "door_locked": "Door locked",
+          "add_laundry": "You may add laundry",
+          "cycle_complete": "Cycle complete",
+          "unavailable": "Unavailable"
+        },
+        "state_attributes": {
+          "connected": {
+            "name": "Connected"
+          },
+          "raw_state": {
+            "name": "Raw state"
+          },
+          "raw_sub_state": {
+            "name": "Raw sub state"
+          },
+          "remaining_minutes": {
+            "name": "Remaining minutes"
+          },
+          "delay_minutes": {
+            "name": "Delay minutes"
+          }
+        }
+      }
     }
   }
 }
