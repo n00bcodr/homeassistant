@@ -1,22 +1,17 @@
 """Defines base entities for Google Home."""
 
-from __future__ import annotations
-
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from typing import override
 
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
     DataUpdateCoordinator,
 )
 
-from .const import DEFAULT_NAME, DOMAIN, MANUFACTURER
+from .api import GlocaltokensApiClient
+from .const import DOMAIN, MANUFACTURER
 from .models import GoogleHomeDevice
-
-if TYPE_CHECKING:
-    from homeassistant.helpers.device_registry import DeviceInfo
-
-    from .api import GlocaltokensApiClient
 
 
 class GoogleHomeBaseEntity(
@@ -45,24 +40,30 @@ class GoogleHomeBaseEntity(
         """Label to use for name and unique id."""
 
     @property
+    @override
     def name(self) -> str:
         """Return the name of the sensor."""
         return f"{self.device_name} {self.label}"
 
     @property
+    @override
     def unique_id(self) -> str:
         """Return a unique ID to use for this entity."""
         return f"{self.device_id}/{self.label}"
 
     @property
+    @override
     def device_info(self) -> DeviceInfo | None:
         """Return device info."""
-        return {
-            "identifiers": {(DOMAIN, self.device_id)},
-            "name": f"{DEFAULT_NAME} {self.device_name}",
-            "manufacturer": MANUFACTURER,
-            "model": self.device_model,
-        }
+        # Entity names start with the device name, which Home Assistant strips
+        # when it builds entity IDs from both: sensor.kitchen_alarms, not
+        # sensor.google_home_kitchen_kitchen_alarms.
+        return DeviceInfo(
+            identifiers={(DOMAIN, self.device_id)},
+            name=self.device_name,
+            manufacturer=MANUFACTURER,
+            model=self.device_model,
+        )
 
     def get_device(self) -> GoogleHomeDevice | None:
         """Return the device matched by device name from the list of google devices in coordinator_data."""

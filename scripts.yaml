@@ -462,3 +462,152 @@ spotcast_phone_dj:
         device_id: 00d99709e541fd7e7befaa15b0a5cc8f
   alias: Spotcast Phone DJ
   description: ''
+purge_jellyfin_orphans:
+  sequence:
+  - action: jellyfin.purge_devices
+    metadata: {}
+    data: {}
+  alias: Purge Jellyfin Orphans
+  description: ''
+  icon: cbi:jellyfin
+jellyha_play_on_android_tv_wholphin:
+  alias: 'JellyHA: Play on Android TV (Wholphin)'
+  description: Plays the selected movie or episode on Android TV (Wholphin) via Android
+    Debug Bridge (ADB).
+  mode: single
+  icon: mdi:television-play
+  fields:
+    item_id:
+      name: Item ID
+      description: Jellyfin media item ID (automatically provided when clicking a
+        card poster)
+      required: false
+      example: 49ed9530ac681f148ca09b91ca7010c8
+      selector:
+        text:
+    title:
+      name: Title
+      description: Media title
+      required: false
+      example: Inception
+      selector:
+        text:
+    media_type:
+      name: Media Type
+      description: Type of media (Movie, Episode, Series)
+      required: false
+      default: Movie
+      selector:
+        text:
+    year:
+      name: Year
+      description: Release year
+      required: false
+      selector:
+        number:
+          min: 1900
+          max: 2050
+  sequence:
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ item_id is defined and item_id not in [none, '''', ''None'']
+          }}'
+      sequence:
+      - action: logbook.log
+        data:
+          name: JellyHA
+          message: 'Playing {{ media_type | default(''Media'') }}: {{ title | default(item_id)
+            }} {% if year %}({{ year }}){% endif %} on Android TV'
+          domain: media_player
+          entity_id: media_player.google_tv
+      - choose:
+        - conditions:
+          - condition: template
+            value_template: "{{ states('media_player.google_tv') not in ['unavailable',
+              'unknown']\n   or states('media_player.google_tv') not in ['unavailable',
+              'unknown'] }}"
+          sequence:
+          - action: androidtv.adb_command
+            target:
+              entity_id: '{{ ''media_player.google_tv'' if states(''media_player.google_tv'')
+                not in [''unavailable'', ''unknown''] else ''media_player.google_tv''
+                }}'
+            data:
+              command: am start -a com.github.damontecres.wholphin.PLAYBACK -d "wholphin://play?itemId={{
+                item_id }}" -n com.github.damontecres.wholphin/.MainActivity
+        - conditions:
+          - condition: template
+            value_template: '{{ states(''media_player.android_tv'') not in [''unavailable'',
+              ''unknown''] }}'
+          sequence:
+          - action: media_player.play_media
+            target:
+              entity_id: media_player.android_tv
+            data:
+              media:
+                media_content_id: wholphin://play?itemId={{ item_id }}
+                media_content_type: url
+                metadata: {}
+        - conditions: []
+          sequence:
+          - action: media_player.play_media
+            target:
+              entity_id: media_player.jellyha_android_tv
+            data:
+              media:
+                media_content_id: '{{ item_id }}'
+                media_content_type: '{{ ''episode'' if media_type == ''Episode'' else
+                  ''movie'' }}'
+                metadata: {}
+    - conditions:
+      - condition: template
+        value_template: '{{ item_id is not defined or item_id in [none, '''', ''None'']
+          }}'
+      sequence:
+      - action: logbook.log
+        data:
+          name: JellyHA
+          message: Resume / Unpause playback on Android TV
+          domain: media_player
+          entity_id: media_player.google_tv
+      - choose:
+        - conditions:
+          - condition: template
+            value_template: '{{ states(''media_player.google_tv'') not in [''unavailable'',
+              ''unknown''] }}'
+          sequence:
+          - action: media_player.media_play_pause
+            target:
+              entity_id: media_player.google_tv
+        - conditions: []
+          sequence:
+          - action: media_player.media_play
+            target:
+              entity_id: media_player.jellyha_android_tv
+spotify_start:
+  alias: Spotify Start
+  description: Start Spotify on the speaker chosen in 'Spotify Output'. Moves playback
+    if Spotify is already playing or paused, otherwise starts the DJ.
+  icon: mdi:spotify
+  mode: single
+  sequence:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: media_player.spotify
+        state:
+        - playing
+        - paused
+      sequence:
+      - action: spotcast.transfer_playback
+        data:
+          media_player:
+            entity_id: media_player.{{ states('input_select.speakers_spotify') | lower
+              | replace("'", "_") | replace(" ", "_") }}
+    default:
+    - action: spotcast.play_dj
+      data:
+        media_player:
+          entity_id: media_player.{{ states('input_select.speakers_spotify') | lower
+            | replace("'", "_") | replace(" ", "_") }}

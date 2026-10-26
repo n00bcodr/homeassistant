@@ -101,15 +101,21 @@ pipup_url_on_google_tv:
     }
 
 reload_google_sheets_weight:
-  url: http://192.168.168.168:8123/api/config/config_entries/entry/4bcb43c8e6f2f8104c4f5b04b9e0afa4/reload
+  url: http://192.168.168.192:8123/api/config/config_entries/entry/4bcb43c8e6f2f8104c4f5b04b9e0afa4/reload
   method: POST
   headers:
     authorization: !secret api_bearer_token
     content-type: application/json
 
 reload_google_sheets_music:
-  url: http://192.168.168.168:8123/api/config/config_entries/entry/e878450630328624168726fe8e51d15d/reload
+  url: http://192.168.168.192:8123/api/config/config_entries/entry/e878450630328624168726fe8e51d15d/reload
   method: POST
   headers:
     authorization: !secret api_bearer_token
     content-type: application/json
+
+doorbell_discord:
+  url: !secret discord_camera_url
+  method: POST
+  content_type: "application/json"
+  payload: '{"flags": 4096, "embeds": [{"image": {"url": "{{ image_url }}"}}]}'

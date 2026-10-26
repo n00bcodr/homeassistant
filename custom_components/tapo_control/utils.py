@@ -623,12 +623,33 @@ async def findMedia(hass, entryData, entry, recordingsList=None):
         mediaScanResult = {}
         recordingsByDate = {}
         recordingsWithVideo = []
+        failedDays = []
         for searchResult in recordingsList:
             for key in searchResult:
-                LOGGER.debug(f"Getting media for day {searchResult[key]['date']}...")
-                recordingsForDay = await getRecordings(
-                    hass, entryData, tapoController, searchResult[key]["date"]
-                )
+                day = searchResult[key]["date"]
+                LOGGER.debug(f"Getting media for day {day}...")
+                try:
+                    recordingsForDay = await getRecordings(
+                        hass, entryData, tapoController, day
+                    )
+                except Exception as err:
+                    # One slow or failing day must not throw away every other
+                    # day of the scan: retry it once, then skip it for now.
+                    LOGGER.debug(f"Listing day {day} failed ({err}), retrying once...")
+                    await asyncio.sleep(2)
+                    try:
+                        recordingsForDay = await getRecordings(
+                            hass, entryData, tapoController, day
+                        )
+                    except Exception as err:
+                        LOGGER.warning(
+                            "Could not list recordings of %s for day %s, skipping it for now: %s",
+                            entryData["name"],
+                            day,
+                            err,
+                        )
+                        failedDays.append(day)
+                        continue
                 LOGGER.debug(
                     f"Looping through recordings for day {searchResult[key]['date']}..."
                 )
@@ -662,8 +683,24 @@ async def findMedia(hass, entryData, entry, recordingsList=None):
             await processDownload(
                 hass, entry_id, entryData, recording["startTime"], recording["endTime"]
             )
+        if failedDays:
+            # Keep what was found, but do not mark the scan as done: cleanup
+            # deletes local files missing from mediaScanResult, and the days
+            # that could not be listed would look empty.
+            entryData["mediaScanResult"].update(mediaScanResult)
+            entryData["mediaScanFailures"] = entryData.get("mediaScanFailures", 0) + 1
+            LOGGER.warning(
+                "Media scan for %s is incomplete, %d day(s) could not be listed (%s). "
+                "Recordings found so far are available; the scan will be retried later.",
+                entryData["name"],
+                len(failedDays),
+                ", ".join(failedDays),
+            )
+            return
+
         LOGGER.debug("Found media for " + entryData["name"] + ".")
         entryData["mediaScanResult"] = mediaScanResult
+        entryData["mediaScanFailures"] = 0
         entryData["initialMediaScanDone"] = True
 
         await mediaCleanup(hass, entry, entryData)
@@ -1323,16 +1360,13 @@ def tryParseInt(value):
 
 
 def getDataForController(hass, entry, controller):
-    for controller in hass.data[DOMAIN][entry.entry_id]["allControllers"]:
-        if controller == hass.data[DOMAIN][entry.entry_id]["controller"]:
-            return hass.data[DOMAIN][entry.entry_id]
-        elif (
-            "childDevices" in hass.data[DOMAIN][entry.entry_id]
-            and hass.data[DOMAIN][entry.entry_id]["childDevices"] is not False
-        ):
-            for childDevice in hass.data[DOMAIN][entry.entry_id]["childDevices"]:
-                if controller == childDevice["controller"]:
-                    return childDevice
+    entryData = hass.data[DOMAIN][entry.entry_id]
+    if controller == entryData["controller"]:
+        return entryData
+    for childDevice in entryData.get("childDevices") or []:
+        if controller == childDevice["controller"]:
+            return childDevice
+    return None
 
 
 def getNightModeMap():
@@ -1983,42 +2017,6 @@ async def getCamData(hass, controller, chInfo=None):
 
     if controller.isKLAP is False:
         try:
-            lastAlarmInfo = data["getLastAlarmInfo"][0]
-            lastAlarmInfoMsgAlarm = (
-                lastAlarmInfo.get("msg_alarm")
-                if isinstance(lastAlarmInfo, dict)
-                else None
-            )
-            alarmData = (
-                lastAlarmInfoMsgAlarm.get("chn1_msg_alarm_info")
-                if isinstance(lastAlarmInfoMsgAlarm, dict)
-                else None
-            )
-            if alarmConfig is None and isinstance(alarmData, dict):
-                alarmConfig = {
-                    "typeOfAlarm": "getAlarm",
-                    "mode": alarmData["alarm_mode"],
-                    "automatic": alarmData["enabled"],
-                }
-                if "light_type" in alarmData:
-                    alarmConfig["light_type"] = alarmData["light_type"]
-                if "siren_type" in alarmData:
-                    alarmConfig["siren_type"] = alarmData["siren_type"]
-                if "alarm_type" in alarmData:
-                    alarmConfig["siren_type"] = alarmData["alarm_type"]
-                if "siren_duration" in alarmData:
-                    alarmConfig["siren_duration"] = alarmData["siren_duration"]
-                if "alarm_duration" in alarmData:
-                    alarmConfig["alarm_duration"] = alarmData["alarm_duration"]
-                if "siren_volume" in alarmData:
-                    alarmConfig["siren_volume"] = alarmData["siren_volume"]
-                if "alarm_volume" in alarmData:
-                    alarmConfig["alarm_volume"] = alarmData["alarm_volume"]
-        except Exception as err:
-            LOGGER.error(f"getLastAlarmInfo unexpected error {err=}, {type(err)=}")
-
-    if controller.isKLAP is False:
-        try:
             for alertConfig in data["getAlertConfig"]:
                 alertConfigMsgAlarm = (
                     alertConfig.get("msg_alarm")
@@ -2054,6 +2052,42 @@ async def getCamData(hass, controller, chInfo=None):
                     break
         except Exception as err:
             LOGGER.error(f"getAlertConfig unexpected error {err=}, {type(err)=}")
+
+    if controller.isKLAP is False:
+        try:
+            lastAlarmInfo = data["getLastAlarmInfo"][0]
+            lastAlarmInfoMsgAlarm = (
+                lastAlarmInfo.get("msg_alarm")
+                if isinstance(lastAlarmInfo, dict)
+                else None
+            )
+            alarmData = (
+                lastAlarmInfoMsgAlarm.get("chn1_msg_alarm_info")
+                if isinstance(lastAlarmInfoMsgAlarm, dict)
+                else None
+            )
+            if alarmConfig is None and isinstance(alarmData, dict):
+                alarmConfig = {
+                    "typeOfAlarm": "getAlarm",
+                    "mode": alarmData["alarm_mode"],
+                    "automatic": alarmData["enabled"],
+                }
+                if "light_type" in alarmData:
+                    alarmConfig["light_type"] = alarmData["light_type"]
+                if "siren_type" in alarmData:
+                    alarmConfig["siren_type"] = alarmData["siren_type"]
+                if "alarm_type" in alarmData:
+                    alarmConfig["siren_type"] = alarmData["alarm_type"]
+                if "siren_duration" in alarmData:
+                    alarmConfig["siren_duration"] = alarmData["siren_duration"]
+                if "alarm_duration" in alarmData:
+                    alarmConfig["alarm_duration"] = alarmData["alarm_duration"]
+                if "siren_volume" in alarmData:
+                    alarmConfig["siren_volume"] = alarmData["siren_volume"]
+                if "alarm_volume" in alarmData:
+                    alarmConfig["alarm_volume"] = alarmData["alarm_volume"]
+        except Exception as err:
+            LOGGER.error(f"getLastAlarmInfo unexpected error {err=}, {type(err)=}")
 
     if controller.isKLAP is False:
         try:
@@ -2206,11 +2240,36 @@ async def getCamData(hass, controller, chInfo=None):
         whitelampConfigIntensity = None
     camData["whitelampConfigIntensity"] = whitelampConfigIntensity
 
+    # Tapo's brightness screen uses this capability, or five legacy levels.
+    try:
+        whitelampConfigIntensityMax = int(
+            data["getWhitelampCapability"][0]["image_capability"]["white_lamp"][
+                "wtl_intensity_range"
+            ]
+        )
+        if whitelampConfigIntensityMax < 1:
+            raise ValueError("Invalid spotlight intensity maximum")
+    except (KeyError, IndexError, TypeError, ValueError):
+        whitelampConfigIntensityMax = 5
+    camData["whitelampConfigIntensityMax"] = whitelampConfigIntensityMax
+
     try:
         whitelampStatus = data["getWhitelampStatus"][0]["status"]
     except Exception:
         whitelampStatus = None
     camData["whitelampStatus"] = whitelampStatus
+
+    try:
+        nightlight_status = data["getNightlightStatus"][0]
+        if nightlight_status["state"] not in ("on", "off"):
+            raise ValueError("Invalid nightlight state")
+        intensity = int(nightlight_status["intensity"])
+        if not 0 <= intensity <= 100:
+            raise ValueError("Invalid nightlight intensity")
+        nightlight_status = {**nightlight_status, "intensity": intensity}
+    except (KeyError, IndexError, TypeError, ValueError):
+        nightlight_status = None
+    camData["nightlight_status"] = nightlight_status
 
     try:
         sdCardData = []
@@ -2827,7 +2886,12 @@ async def scheduleAll(hass, device, entry, mediaSync):
         # including when there is no SD card and media sync is disabled.
         now = asyncio.get_running_loop().time()
         lastAttempt = device.get("lastMediaScanAttempt")
-        if lastAttempt is not None and now - lastAttempt < mediaSyncInterval:
+        # Back off after scans that could not list every day, up to one hour.
+        retryInterval = max(
+            mediaSyncInterval,
+            min(mediaSyncInterval * 2 ** min(device.get("mediaScanFailures", 0), 6), 3600),
+        )
+        if lastAttempt is not None and now - lastAttempt < retryInterval:
             return
         device["lastMediaScanAttempt"] = now
         LOGGER.debug("Media scan running")

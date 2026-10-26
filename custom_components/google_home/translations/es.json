@@ -1,32 +1,60 @@
 {
-  "title": "Google Home",
   "config": {
     "step": {
       "user": {
-        "title": "Identificarse en Google Home",
-        "description": "Si necesitas ayuda con la configuración revisa la documentación aquí (en inglés): https://github.com/leikoilja/ha-google-home. Por tu propia seguridad, utilitza el tu cuenta de Google, con contraseñas de aplicación. Es más seguro y facil de utilizar contraseñas de aplicación, en lugar de tu contraseña habitual. Tendrá el mismo nivel de acceso que la contaseña habitual, sin embargo Google recomienda las contraseñas de aplicación para los Scripts/Automatismos. (https://myaccount.google.com/apppasswords). De todas formas, tu contraseña habitual de la cuenta Google debería funcionar.",
+        "title": "Iniciar sesión en Google",
+        "description": "Esta integración funciona con tus altavoces y pantallas de Google, como Nest Mini, Nest Audio y Nest Hub. No añade los demás dispositivos de tu aplicación Google Home.\n\nElige cómo iniciar sesión en una cuenta de Google que sea miembro de tu casa. Si necesitas ayuda, consulta {docs_url} (en inglés).",
+        "menu_options": {
+          "browser": "Inicio de sesión en el navegador (recomendado)",
+          "master_token": "Token maestro"
+        },
+        "menu_option_descriptions": {
+          "browser": "Inicia sesión en Google en un navegador de ordenador y después pega una cookie. Funciona con la mayoría de las cuentas.",
+          "master_token": "Pega un token maestro que ya tengas."
+        }
+      },
+      "browser": {
+        "title": "Inicio de sesión en el navegador",
+        "description": "1. En un ordenador, abre {embedded_setup_url} en una ventana de navegación privada e inicia sesión. Después de aceptar, puede que la página siga cargando; es normal.\n2. Abre las herramientas para desarrolladores del navegador y busca las cookies de `accounts.google.com`.\n3. Copia el valor de la cookie `oauth_token` y pégalo abajo enseguida. Caduca en pocos minutos y solo funciona una vez.\n\nInstrucciones paso a paso (en inglés): {browser_docs_url}\n\nPara elegir otra forma de iniciar sesión, cierra esta ventana y vuelve a añadir la integración.",
         "data": {
-          "username": "Nombre de usuario de Google",
-          "password": "Contraseña de apliación de Google"
+          "oauth_token": "Cookie oauth_token"
+        },
+        "data_description": {
+          "oauth_token": "Empieza por oauth2_4/"
+        }
+      },
+      "master_token": {
+        "title": "Token maestro",
+        "description": "Pega un token maestro que hayas obtenido antes, por ejemplo con otra herramienta.\n\nPara elegir otra forma de iniciar sesión, cierra esta ventana y vuelve a añadir la integración.",
+        "data": {
+          "master_token": "Token maestro de Google"
+        },
+        "data_description": {
+          "master_token": "Empieza por aas_et/"
         }
       }
     },
     "error": {
-      "auth": "La combinación de Nombre de usuario/Contraseña no es correcta. Si tu cuenta tiene doble factor de autentificación habilitado, por favor, genera una contraseña de aplicación (https://myaccount.google.com/apppasswords). Si aún así no puedes iniciar sesión, por favor accede a https://github.com/leikoilja/ha-google-home#troubleshooting (en inglés).",
-      "missing-inputs": "Por favor, introduzca su nombre de usuario y contraseña o la contraseña maestra",
-      "master-token-invalid": "El token maestro no es válido. Asegúrese de que se ha especificado el token completo (incluido 'aas_et/')"
-    },
-    "abort": {
-      "single_instance_allowed": "Solo se permite una única instancia."
+      "oauth-token-invalid": "Google no ha aceptado la cookie. Consigue una nueva y pégala enseguida: caduca en pocos minutos y solo funciona una vez. Copia el valor completo, que empieza por oauth2_4/.",
+      "master-token-invalid": "El token maestro no es válido. Asegúrate de haber introducido el token completo (incluido 'aas_et/')",
+      "oauth-token-format": "Esta no es la cookie oauth_token. Su valor empieza por oauth2_4/.",
+      "master-token-format": "Un token maestro empieza por aas_et/ y tiene 223 caracteres. Copia el token completo."
     }
   },
   "options": {
     "step": {
       "init": {
         "data": {
-          "update_interval": "Cambia el intervalo de actualización. Aumentalo si obtiene tiempos de espera (Time Out) en los dispositivos. Valor por defecto: 180 (segundos)"
+          "update_interval": "Cambia el intervalo de actualización. Auméntalo si los dispositivos suelen agotar el tiempo de espera. Valor por defecto: 180 (segundos)",
+          "known_hosts": "Hosts conocidos"
+        },
+        "data_description": {
+          "known_hosts": "Direcciones IP de altavoces y pantallas que la integración no puede encontrar por sí misma, por ejemplo porque están en otra red o VLAN."
         }
       }
+    },
+    "error": {
+      "known-host-not-ip": "Introduce solo direcciones IP, como 192.168.1.20."
     }
   },
   "services": {
@@ -38,11 +66,11 @@
           "name": "ID de alarma"
         },
         "skip_refresh": {
-          "description": "Omita la actualización de los dispositivos Google Home después de eliminar una alarma.",
-          "name": "Saltar actualización"
+          "description": "Omitir la actualización de los dispositivos Google Home después de eliminar una alarma.",
+          "name": "Omitir actualización"
         },
         "entity_id": {
-          "description": "Representa un dispositivo Google Home (sensor.xxxx_alarms).",
+          "description": "Corresponde a un dispositivo Google Home (sensor.xxxx_alarms).",
           "name": "Entidad"
         }
       },
@@ -56,11 +84,11 @@
           "name": "ID de temporizador"
         },
         "skip_refresh": {
-          "description": "Omita la actualización de los dispositivos Google Home después de eliminar un temporizador.",
-          "name": "Saltar actualización"
+          "description": "Omitir la actualización de los dispositivos Google Home después de eliminar un temporizador.",
+          "name": "Omitir actualización"
         },
         "entity_id": {
-          "description": "Representa un dispositivo Google Home (sensor.xxxx_alarms).",
+          "description": "Corresponde a un dispositivo Google Home (sensor.xxxx_alarms).",
           "name": "Entidad"
         }
       },
@@ -71,7 +99,7 @@
       "name": "Reiniciar dispositivo"
     },
     "refresh_devices": {
-      "description": "Actualiza el estado de todos los dispositivos Google Home.",
+      "description": "Actualizar el estado de todos los dispositivos Google Home.",
       "name": "Actualizar dispositivos"
     }
   }

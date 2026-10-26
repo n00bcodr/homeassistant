@@ -9,27 +9,19 @@ homeassistant:
   whitelist_external_dirs:
     - "/share"
 
-http:
-  use_x_forwarded_for: true
-  trusted_proxies:
-    - !secret trusted_ip1
-    - !secret trusted_ip2
-    - 192.168.168.168
-    - 100.100.11.11
-    - 127.0.0.1
-    - ::1    
 
 logger:
   default: critical
   logs:
-  #  custom_components.localtuya: debug
-   custom_components.jellyfin: debug
    homeassistant.components.http: warning
+   custom_components.homewhiz: debug
+   habluetooth: info
+  #  custom_components.localtuya: debug
+  #  custom_components.jellyfin: debug
   #  homeassistant.components.androidtv: debug
 
 delete:
 my:
-battery_notes:
 automation: !include automations.yaml
 command_line: !include command_line.yaml
 conversation: !include conversation.yaml
@@ -74,7 +66,3 @@ recorder:
     entities:
       - sun.sun
       - sensor.f1_season_results
-
-spotcast:
-  sp_dc: !secret sp_dc
-  sp_key: !secret sp_key

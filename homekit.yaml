@@ -24,7 +24,6 @@
       - light.lamp
       - light.guest_bed_light
       - light.guest_light
-      - light.tv_led_strip
       - light.hallway_chandelier
       - light.kitchen_light
       - light.backyard_lights

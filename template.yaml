@@ -178,38 +178,58 @@
       
       
 - sensor:
+    # - name: "Washing Machine State"
+    #   unique_id: washing_machine_state
+    #   state: >
+    #     {% set state_map = {
+    #       'washer_substate_program_started': 'Idle',
+    #       'unavailable': 'Idle',
+    #       'washer_substate_washing': 'Washing',
+    #       'washer_substate_drying': 'Drying',
+    #       'washer_substate_rinsing': 'Rinsing',
+    #       'washer_substate_spin': 'Spinning',
+    #       'washer_substate_paused': 'Paused',
+    #       'washer_substate_remove_laundry': 'Cycle Complete',
+    #       'washer_substate_time_delay_enabled': 'Delayed Start'
+    #     } %}
+    #     {% if states('sensor.bob_sub_state') == 'washer_substate_program_started' and states('sensor.bob_state') == 'device_state_off' %}
+    #       Off
+    #     {% else %}
+    #       {{ state_map.get(states('sensor.bob_sub_state'), states('sensor.bob_sub_state')) }}
+    #     {% endif %}
+    #   icon: >
+    #     {% set icon_map = {
+    #       'washer_substate_program_started': 'mdi:washing-machine-off',
+    #       'unavailable': 'mdi:washing-machine-alert',
+    #       'washer_substate_drying': 'mdi:tumble-dryer',
+    #       'washer_substate_washing': 'mdi:washing-machine',
+    #       'washer_substate_rinsing': 'mdi:dishwasher',
+    #       'washer_substate_spin': 'fas:spinner',
+    #       'washer_substate_paused': 'mdi:pause-box-outline',
+    #       'washer_substate_remove_laundry': 'mdi:check-circle-outline',
+    #       'washer_substate_time_delay_enabled': 'phu:rooms-laundry-room'
+    #     } %}
+    #     {{ icon_map.get(states('sensor.bob_sub_state'), 'mdi:washing-machine-alert') }}
+
     - name: "Washing Machine State"
       unique_id: washing_machine_state
       state: >
-        {% set state_map = {
-          'washer_substate_program_started': 'Idle',
-          'unavailable': 'Idle',
-          'washer_substate_washing': 'Washing',
-          'washer_substate_drying': 'Drying',
-          'washer_substate_rinsing': 'Rinsing',
-          'washer_substate_spin': 'Spinning',
-          'washer_substate_paused': 'Paused',
-          'washer_substate_remove_laundry': 'Cycle Complete',
-          'washer_substate_time_delay_enabled': 'Delayed Start'
+        {% set m = {
+          'off': 'Off', 'idle': 'Idle', 'delayed_start': 'Delayed Start',
+          'starting': 'Starting', 'running': 'Washing', 'washing': 'Washing',
+          'rinsing': 'Rinsing', 'spinning': 'Spinning', 'drying': 'Drying',
+          'paused': 'Paused', 'door_locked': 'Washing', 'add_laundry': 'Washing',
+          'cycle_complete': 'Cycle Complete', 'unavailable': 'Idle'
         } %}
-        {% if states('sensor.bob_sub_state') == 'washer_substate_program_started' and states('sensor.bob_state') == 'device_state_off' %}
-          Off
-        {% else %}
-          {{ state_map.get(states('sensor.bob_sub_state'), states('sensor.bob_sub_state')) }}
-        {% endif %}
+        {{ m.get(states('sensor.bob_machine_status'), 'Idle') }}
       icon: >
-        {% set icon_map = {
-          'washer_substate_program_started': 'mdi:washing-machine-off',
-          'unavailable': 'mdi:washing-machine-alert',
-          'washer_substate_drying': 'mdi:tumble-dryer',
-          'washer_substate_washing': 'mdi:washing-machine',
-          'washer_substate_rinsing': 'mdi:dishwasher',
-          'washer_substate_spin': 'fas:spinner',
-          'washer_substate_paused': 'mdi:pause-box-outline',
-          'washer_substate_remove_laundry': 'mdi:check-circle-outline',
-          'washer_substate_time_delay_enabled': 'phu:rooms-laundry-room'
+        {% set i = {
+          'off': 'mdi:washing-machine-off', 'rinsing': 'mdi:dishwasher',
+          'spinning': 'fas:spinner', 'drying': 'mdi:tumble-dryer',
+          'paused': 'mdi:pause-box-outline', 'cycle_complete': 'mdi:check-circle-outline',
+          'delayed_start': 'phu:rooms-laundry-room', 'unavailable': 'mdi:washing-machine-alert'
         } %}
-        {{ icon_map.get(states('sensor.bob_sub_state'), 'mdi:washing-machine-alert') }}
+        {{ i.get(states('sensor.bob_machine_status'), 'mdi:washing-machine') }}
 
     - name: "Automation Count"
       unique_id: count_automations

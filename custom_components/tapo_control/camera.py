@@ -5,6 +5,7 @@ from functools import partial
 from haffmpeg.camera import CameraMjpeg
 from haffmpeg.tools import IMAGE_JPEG, ImageFrame
 from typing import Callable
+from pytapo.media_stream.snapshot import getSnapshot
 from pytapo.media_stream.streamer import Streamer
 
 from homeassistant.const import STATE_UNAVAILABLE, CONF_USERNAME, CONF_PASSWORD
@@ -621,6 +622,22 @@ class TapoDirectCamEntity(TapoCamEntity):
         self, width: int | None = None, height: int | None = None
     ):
         LOGGER.debug("async_camera_image")
+        # pytapo's native snapshot API has no lens selector.
+        if self.videoStream == 0:
+            try:
+                # Leave time for FFmpeg within HA's snapshot timeout.
+                async with asyncio.timeout(4):
+                    # getSnapshot calls this synchronous getter; prime its cache
+                    # off the HA loop so its async transport can run on that loop.
+                    await self.hass.async_add_executor_job(self._controller.getUserID)
+                    jpeg = await getSnapshot(self._controller)
+                if jpeg:
+                    LOGGER.debug("async_camera_image - Returning native jpeg")
+                    return jpeg
+                LOGGER.debug("Native snapshot unavailable; falling back to FFmpeg")
+            except Exception as err:
+                LOGGER.debug("Native snapshot failed; falling back to FFmpeg: %s", err)
+
         streamer = Streamer(
             self._controller,
             includeAudio=False,

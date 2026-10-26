@@ -1,14 +1,15 @@
 """Number Platform for Google Home."""
 
-from __future__ import annotations
-
 import logging
-from typing import TYPE_CHECKING
+from typing import override
 
 from homeassistant.components.number import NumberEntity
-from homeassistant.const import PERCENTAGE
-from homeassistant.helpers.entity import EntityCategory
+from homeassistant.const import EntityCategory, UnitOfRatio
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
+from .api import GlocaltokensApiClient
 from .const import (
     DATA_CLIENT,
     DATA_COORDINATOR,
@@ -21,15 +22,8 @@ from .const import (
     LABEL_ALARM_VOLUME,
 )
 from .entity import GoogleHomeBaseEntity
-
-if TYPE_CHECKING:
-    from homeassistant.core import HomeAssistant
-    from homeassistant.helpers.entity_platform import AddEntitiesCallback
-    from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-
-    from .api import GlocaltokensApiClient
-    from .models import GoogleHomeDevice
-    from .types import GoogleHomeConfigEntry
+from .models import GoogleHomeDevice
+from .types import GoogleHomeConfigEntry
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
@@ -62,18 +56,20 @@ async def async_setup_entry(
 class AlarmVolumeNumber(GoogleHomeBaseEntity, NumberEntity):
     """Google Home Alarm Volume Number entity."""
 
-    _attr_native_unit_of_measurement = PERCENTAGE
+    _attr_native_unit_of_measurement = UnitOfRatio.PERCENTAGE
     _attr_entity_category = EntityCategory.CONFIG
     _attr_native_min_value = 0
     _attr_native_max_value = 100
     _attr_native_step = 1
 
     @property
+    @override
     def label(self) -> str:
         """Label to use for name and unique id."""
         return LABEL_ALARM_VOLUME
 
     @property
+    @override
     def icon(self) -> str:
         """Return the icon of the sensor."""
         device = self.get_device()
@@ -89,6 +85,7 @@ class AlarmVolumeNumber(GoogleHomeBaseEntity, NumberEntity):
         return ICON_ALARM_VOLUME_HIGH
 
     @property
+    @override
     def native_value(self) -> float:
         """Return the current volume value."""
         device = self.get_device()
@@ -98,6 +95,7 @@ class AlarmVolumeNumber(GoogleHomeBaseEntity, NumberEntity):
 
         return device.get_alarm_volume()
 
+    @override
     async def async_set_native_value(self, value: float) -> None:
         """Set the alarm volume."""
         device = self.get_device()

@@ -670,38 +670,30 @@
 - id: '1675093554282'
   alias: "\U0001F9FA\U0001F4F3Wash Cycle Notification"
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - sensor.washing_machine_state
-    from: Spinning
-    to: Idle
-    id: wash
-  - platform: state
+  triggers:
+  - trigger: state
     entity_id:
     - sensor.washing_machine_state
     from: Drying
-    to: Idle
+    to: Cycle Complete
     id: dry
-  condition: []
-  action:
+  - trigger: state
+    entity_id:
+    - sensor.washing_machine_state
+    to: Cycle Complete
+    not_from:
+    - Drying
+    - unavailable
+    - unknown
+    - Cycle Complete
+    id: wash
+  conditions: []
+  actions:
   - choose:
     - conditions:
       - condition: trigger
         id: wash
       sequence:
-      - action: notify.all_phones
-        data:
-          data:
-            tag: wash_cycle
-          message: clear_notification
-        alias: Clear Existing Notifications
-      - wait_for_trigger:
-        - platform: state
-          entity_id:
-          - sensor.washing_machine_state
-          to: Cycle Complete
-        continue_on_timeout: false
       - action: notify.all_phones
         data:
           message: at {{ as_timestamp(now()) | timestamp_custom('%-I:%M %p')}}
@@ -718,24 +710,13 @@
       sequence:
       - action: notify.all_phones
         data:
-          data:
-            tag: wash_cycle
-          message: clear_notification
-        alias: Clear Existing Notifications
-      - wait_for_trigger:
-        - platform: state
-          entity_id:
-          - sensor.washing_machine_state
-          to: Cycle Complete
-        continue_on_timeout: false
-      - action: notify.all_phones
-        data:
           message: at {{ as_timestamp(now()) | timestamp_custom('%-I:%M %p')}}
           data:
             notification_icon: mdi:washing-machine
             image: /local/images/washing_machine.png
             tag: wash_cycle
             sticky: 'true'
+            icon_url: /local/images/HA_logo.png
           title: "\U0001F9FA Dry Cycle Complete"
   mode: single
 - id: '1675437001659'
@@ -840,11 +821,9 @@
               seconds: 0
               milliseconds: 0
           until:
-          - condition: template
-            value_template: '{{ states.input_boolean.bin.last_updated.timestamp()
-              > (as_timestamp(now()) - 3600) }}
-
-              '
+          - condition: state
+            entity_id: input_boolean.bin
+            state: 'on'
       alias: Black Bin collection is tomorrow, is the bin out?
     - conditions:
       - condition: template
@@ -927,11 +906,9 @@
               seconds: 0
               milliseconds: 0
           until:
-          - condition: template
-            value_template: '{{ states.input_boolean.bin.last_updated.timestamp()
-              > (as_timestamp(now()) - 3600) }}
-
-              '
+          - condition: state
+            entity_id: input_boolean.bin
+            state: 'on'
       alias: Blue Bin collection is tomorrow, is the bin out?
   mode: single
 - id: '1677184691191'
@@ -992,6 +969,7 @@
             - action: switch.turn_off
               title: 'Off'
               entity_id: switch.heating
+            icon_url: /local/images/HA_logo.png
     - conditions:
       - condition: trigger
         id: 'off'
@@ -1009,16 +987,16 @@
 - id: '1677263065986'
   alias: "\U0001F525Turn off heating after X minutes"
   description: ''
-  trigger:
-  - platform: event
-    event_type: timer.finished
+  triggers:
+  - event_type: timer.finished
     event_data:
       entity_id: timer.heating
-  condition:
+    trigger: event
+  conditions:
   - condition: state
     entity_id: switch.heating
     state: 'on'
-  action:
+  actions:
   - action: switch.turn_off
     data: {}
     target:
@@ -1030,6 +1008,7 @@
       title: "\U0001F525 Turned off"
       data:
         notification_icon: mdi:fire
+        icon_url: /local/images/HA_logo.png
   mode: single
 - id: '1679600356905'
   alias: "\U0001F4A1Synchronize states - Backyard Lights"
@@ -1187,15 +1166,6 @@
       seconds: 30
     trigger: state
   - entity_id:
-    - sensor.bob_duration
-    id: homewhiz
-    to: unavailable
-    for:
-      hours: 0
-      minutes: 5
-      seconds: 30
-    trigger: state
-  - entity_id:
     - sensor.deep_sleep
     id: fit
     to: unavailable
@@ -1214,15 +1184,6 @@
       - action: hassio.addon_start
         data:
           addon: 6b87c29e_speedtest_addon
-    - conditions:
-      - condition: trigger
-        id: homewhiz
-      sequence:
-      - action: homeassistant.reload_config_entry
-        target:
-          entity_id: sensor.bob_duration
-        data:
-          entry_id: 01J3NGYP8KVY1SFPMGH1Q60FM4
     - conditions:
       - condition: trigger
         id:
@@ -1398,6 +1359,7 @@
             title: '{{as_timestamp(strptime(states.sensor.calvin_and_hobbes.attributes.publishedDate,''%Y/%m/%d''))
               | timestamp_custom(''%-d %b, %Y'') }}'
             uri: /lovelace/calvinandhobbes
+          icon_url: /local/images/HA_logo.png
   mode: single
 - id: '1698602804746'
   alias: "\U0001F3F0 Bed Routine"
@@ -1512,6 +1474,7 @@
           data:
             notification_icon: mdi:vibrate
             timeout: 60
+            icon_url: /local/images/HA_logo.png
           message: ' '
           title: "\U0001F92B Shhh.."
     - conditions:
@@ -1536,6 +1499,7 @@
           data:
             notification_icon: mdi:volume-high
             timeout: 30
+            icon_url: /local/images/HA_logo.png
           message: ' '
   mode: single
 - id: '1700567569365'
@@ -1578,15 +1542,27 @@
           data:
             tag: bin_pickup
           message: clear_notification
+      - variables:
+          black_due: '{{ state_attr(''sensor.black_bin'',''next_collection'') is not
+            none and state_attr(''sensor.black_bin'',''next_collection'') <= 1 }}'
+          blue_due: '{{ state_attr(''sensor.blue_bin'',''next_collection'') is not
+            none and state_attr(''sensor.blue_bin'',''next_collection'') <= 1 }}'
+          bin_name: '{{ ''Black Bin'' if black_due else (''Blue Bin'' if blue_due
+            else ''Bin'') }}'
+          bin_color: '{{ ''black'' if black_due else (''blue'' if blue_due else ''green'')
+            }}'
+          bin_icon_url: '{{ ''/local/images/black_bin.png'' if black_due else (''/local/images/blue_bin.png''
+            if blue_due else '''') }}'
       - action: notify.all_phones
         data:
           data:
-            notification_icon: mdi:delete-empty
-            color: green
+            notification_icon: mdi:trash-can-outline
+            color: '{{ bin_color }}'
             timeout: 600
             activationMode: foreground
+            icon_url: '{{ bin_icon_url }}'
           message: ' '
-          title: The bin is outside.
+          title: '{{ bin_name }} is outside.'
     - conditions:
       - condition: template
         value_template: "{% set black_next_collection = state_attr('sensor.black_bin',\n'next_collection')
@@ -1821,6 +1797,7 @@
           data:
             notification_icon: mdi:wifi-alert
             tag: wifi_speed
+            icon_url: /local/images/HA_logo.png
   mode: restart
 - id: '1707523697172'
   alias: "\U0001F3F0 Turn on Workstation"
@@ -1866,17 +1843,17 @@
 - id: '1708682275062'
   alias: "\U0001F4F3Notify New Wifi Device"
   description: ''
-  trigger:
-  - platform: event
-    event_type: entity_registry_updated
+  triggers:
+  - event_type: entity_registry_updated
     event_data:
       action: create
-  condition:
+    trigger: event
+  conditions:
   - condition: template
     value_template: '{{ id.split(''.'')[0] == ''device_tracker'' }}'
   - condition: template
     value_template: '{{ id in integration_entities(''tplink_deco'') }}'
-  action:
+  actions:
   - alias: Wait a little while to make sure the entity has updated with new state
     wait_template: '{{ states(id) not in [''unknown'', ''unavailable''] }}'
     timeout:
@@ -1891,6 +1868,8 @@
       data:
         group: wifi-new-device
         clickAction: entityId:{{ id }}
+        icon_url: /local/images/HA_logo.png
+        notification_icon: mdi:wifi-plus
   mode: parallel
   max: 100
   variables:
@@ -2042,7 +2021,7 @@
             data:
               ttl: 0
               tag: doorbell
-              entity_id: camera.doorbell_fluent
+              entity_id: camera.doorbell
               notification_icon: mdi:doorbell-video
               activationMode: foreground
               channel: Doorbell
@@ -2061,6 +2040,7 @@
                 title: Will be there
                 icon: sfsymbols:person.crop.circle.badge.checkmark
               image: /local/doorbell/{{camera_snapshot}}
+              icon_url: /local/images/HA_logo.png
         - action: notify.theaterofdreams
           data:
             message: ' '
@@ -2074,6 +2054,13 @@
           id:
           - doorbell
         sequence:
+        - alias: Ring chime on Friday
+          action: tts.speak
+          target:
+            entity_id: tts.home_assistant_cloud
+          data:
+            media_player_entity_id: media_player.friday
+            message: Ding dong. Someone is at the front door.
         - action: notify.all_phones
           metadata: {}
           data:
@@ -2081,7 +2068,7 @@
             data:
               ttl: 0
               tag: bell
-              entity_id: camera.doorbell_fluent
+              entity_id: camera.doorbell
               notification_icon: mdi:doorbell-video
               activationMode: foreground
               car_ui: true
@@ -2101,6 +2088,7 @@
                 title: Will be there
                 icon: sfsymbols:person.crop.circle.badge.checkmark
               image: /local/doorbell/{{camera_snapshot}}
+              icon_url: /local/images/HA_logo.png
         - delay:
             hours: 0
             minutes: 0
@@ -2126,6 +2114,22 @@
             transparency: 50%
             image:
               path: /config/www/doorbell/{{camera_snapshot}}
+    - alias: Send Discord silent notification
+      action: rest_command.doorbell_discord
+      data:
+        image_url: https://8hzgwwt0ag8veor40ktvnmc9r9dhxpd3.ui.nabu.casa/local/doorbell/{{
+          camera_snapshot }}
+  - alias: Flash light.shapes if it is on
+    if:
+    - condition: state
+      entity_id: light.shapes
+      state: 'on'
+    then:
+    - action: light.turn_on
+      target:
+        entity_id: light.shapes
+      data:
+        flash: short
   - action: google_generative_ai_conversation.generate_content
     data:
       prompt: Very briefly describe what you see in this image from my doorbell camera.
@@ -2141,17 +2145,17 @@
       milliseconds: 0
   mode: single
 - id: '1716218179726'
-  alias: "⚙️\U0001F4F3Update Weight to Google Sheets"
+  alias: "⚙️\U0001F4F3Update Weight to Google Sheets & Health"
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - sensor.mi_scale_weight
-  condition:
+    trigger: state
+  conditions:
   - condition: numeric_state
     entity_id: sensor.mi_scale_weight
     below: 86
-  action:
+  actions:
   - delay:
       hours: 0
       minutes: 0
@@ -2168,17 +2172,19 @@
           title: Upload
         - action: ignore
           title: Ignore
+        icon_url: /local/images/HA_logo.png
+        notification_icon: mdi:scale-bathroom
   - alias: Wait for notification action
     wait_for_trigger:
-      platform: event
       event_type: mobile_app_notification_action
+      trigger: event
     continue_on_timeout: true
     timeout:
       hours: 0
       minutes: 10
       seconds: 0
       milliseconds: 0
-  - alias: Upload reading to google sheets?
+  - alias: Upload reading to Google Sheets and Google Health?
     choose:
     - conditions:
       - condition: template
@@ -2201,6 +2207,10 @@
             Visceral fat: '{{ states.sensor.mi_scale_visceral_fat.state }}'
             Water: '{{ states.sensor.mi_scale_water.state }}'
             Weight: '{{ states.sensor.mi_scale_weight.state }}'
+      - alias: Log weight to Google Health
+        action: shell_command.log_weight_to_google
+        data:
+          weight: '{{ states(''sensor.mi_scale_weight'') | float(0) }}'
       alias: Upload
     - conditions:
       - condition: template
@@ -2226,6 +2236,10 @@
           Water: '{{ states.sensor.mi_scale_water.state }}'
           Weight: '{{ states.sensor.mi_scale_weight.state }}'
       alias: Uploads by default if not ignored
+    - alias: Log weight to Google Health
+      action: shell_command.log_weight_to_google
+      data:
+        weight: '{{ states(''sensor.mi_scale_weight'') | float(0) }}'
     - action: notify.mobile_app_pixel8pro
       metadata: {}
       data:
@@ -2329,6 +2343,7 @@
               tag: battery
               notification_icon: mdi:battery-alert
               color: red
+              icon_url: /local/images/HA_logo.png
       - alias: Run user on low actions
         choose: []
         default: []
@@ -2499,6 +2514,7 @@
             data:
               notification_icon: mdi:television-box
               image: '{{ state_attr( "sensor.skynet_hq_episodes", "data")[1].fanart}}'
+              icon_url: /local/images/HA_logo.png
         - action: notify.mobile_app_pavan_thanujs_ipad_3rd_gen
           data:
             message: '{{ state_attr( "sensor.skynet_hq_episodes", "data")[1].title
@@ -2507,6 +2523,7 @@
             data:
               notification_icon: mdi:television-box
               image: '{{ state_attr( "sensor.skynet_hq_episodes", "data")[1].fanart}}'
+              icon_url: /local/images/HA_logo.png
       - conditions:
         - condition: trigger
           id:
@@ -2519,6 +2536,7 @@
             data:
               notification_icon: mdi:movie-check
               image: '{{ state_attr( "sensor.skynet_hq_movies", "data")[1].fanart}}'
+              icon_url: /local/images/HA_logo.png
         - action: notify.mobile_app_pavan_thanujs_ipad_3rd_gen
           data:
             message: '{{ state_attr( "sensor.skynet_hq_movies", "data")[1].title }}
@@ -2526,6 +2544,7 @@
             data:
               notification_icon: mdi:movie-check
               image: '{{ state_attr( "sensor.skynet_hq_movies", "data")[1].fanart}}'
+              icon_url: /local/images/HA_logo.png
       enabled: true
     enabled: false
   mode: queued
@@ -2548,7 +2567,7 @@
   - if:
     - condition: numeric_state
       entity_id: sensor.toothbrush_battery
-      below: 40
+      below: 30
     then:
     - action: notify.mobile_app_pixel8pro
       data:
@@ -2558,6 +2577,7 @@
           notification_icon: mdi:toothbrush-electric
           color: yellow
           tag: brush
+          icon_url: /local/images/HA_logo.png
   mode: single
 - id: '1731189297613'
   alias: ⚙️Doorbell Night Mode
@@ -2656,7 +2676,7 @@
     entity_id: 47abd20e8adb3067001c9352aa999ebb
     type: turned_on
     trigger: device
-  - device_id: 82b28c615b712224129d639fdd0d49b5
+  - device_id: a8cd7310ac80db16612cb4e72b7ea2a6
     domain: media_player
     entity_id: 1b924582960d0ddfc2cddf1a4872f6d2
     type: playing
@@ -2703,20 +2723,23 @@
   triggers:
   - trigger: state
     entity_id:
-    - event.overseerr_last_media_event
+    - event.seerr_last_media_event
     not_from:
     - unknown
     - unavailable
   conditions:
   - condition: template
-    value_template: '{{ state_attr(''event.overseerr_last_media_event'', ''event_type'')
+    value_template: '{{ state_attr(''event.seerr_last_media_event'', ''event_type'')
       == ''pending'' }}'
   actions:
   - action: notify.mobile_app_pixel8pro
     metadata: {}
     data:
-      message: '{{ state_attr(''event.overseerr_last_media_event'', ''subject'') }}
-        has been requested'
+      message: '{{ state_attr(''event.seerr_last_media_event'', ''subject'') }} has
+        been requested'
+      data:
+        icon_url: /local/images/HA_logo.png
+        notification_icon: mdi:movie-plus
 - id: '1743032206229'
   alias: "\U0001F4A1 LED Strip Turn off"
   description: ''
@@ -2760,28 +2783,49 @@
   actions:
   - data:
       message: Speedtest download is below 100 Mbps for the last 6 hours!
+      data:
+        icon_url: /local/images/HA_logo.png
+        notification_icon: mdi:speedometer-slow
     action: notify.mobile_app_pixel8pro
 - id: '1765110819002'
   alias: F1 Track Light
+  description: Shows F1 track status on light.shapes only during Qualifying and Race
+    sessions; restores the light's prior state once the session truly ends (instead
+    of forcing it off)
   triggers:
-  - entity_id:
-    - sensor.f1_session_f1_session_status
-    - sensor.f1_session_f1_track_status
+  - entity_id: sensor.f1_session_f1_session_status
+    id: session_status
     trigger: state
-  conditions: []
+  - entity_id: sensor.f1_session_f1_track_status
+    id: track_status
+    trigger: state
+  conditions:
+  - condition: template
+    value_template: '{{ state_attr(''sensor.f1_session_f1_current_session'', ''type'')
+      in [''Qualifying'', ''Race''] }}'
   actions:
   - choose:
-    - conditions:
-      - condition: or
-        conditions:
-        - condition: state
-          entity_id: sensor.f1_session_f1_session_status
-          state:
-          - live
-        - condition: state
-          entity_id: sensor.f1_session_f1_session_status
-          state:
-          - pre
+    - alias: Snapshot light state at session start
+      conditions:
+      - condition: trigger
+        id: session_status
+      - condition: template
+        value_template: '{{ (trigger.from_state.state if trigger.from_state else '''')
+          not in [''pre'', ''live''] and trigger.to_state.state in [''pre'', ''live'']
+          }}'
+      sequence:
+      - action: scene.create
+        data:
+          scene_id: f1_track_light_previous
+          snapshot_entities:
+          - light.shapes
+    - alias: Show track status colour while session is active
+      conditions:
+      - condition: state
+        entity_id: sensor.f1_session_f1_session_status
+        state:
+        - pre
+        - live
       sequence:
       - choose:
         - conditions:
@@ -2790,24 +2834,24 @@
             state:
             - CLEAR
           sequence:
-          - target:
+          - action: light.turn_on
+            data:
+              color_name: limegreen
+            target:
               entity_id:
               - light.shapes
-            data:
-              color_name: green
-            action: light.turn_on
         - conditions:
           - condition: state
             entity_id: sensor.f1_session_f1_track_status
             state:
             - YELLOW
           sequence:
-          - target:
-              entity_id:
-              - light.shapes
+          - action: light.turn_on
             data:
               color_name: yellow
-            action: light.turn_on
+            target:
+              entity_id:
+              - light.shapes
         - conditions:
           - condition: or
             conditions:
@@ -2820,38 +2864,38 @@
               state:
               - SC
           sequence:
-          - target:
+          - action: light.turn_on
+            data:
+              flash: short
+              effect: Safety Car
+            target:
               entity_id:
               - light.shapes
-            data:
-              color_name: yellow
-              flash: short
-            action: light.turn_on
         - conditions:
           - condition: state
             entity_id: sensor.f1_session_f1_track_status
             state:
             - RED
           sequence:
-          - target:
-              entity_id:
-              - light.shapes
+          - action: light.turn_on
             data:
               color_name: red
-            action: light.turn_on
-    - conditions:
-      - condition: not
-        conditions:
-        - condition: state
-          entity_id: sensor.f1_session_f1_session_status
-          state:
-          - live
+            target:
+              entity_id:
+              - light.shapes
+    - alias: Restore previous light state once session has truly ended
+      conditions:
+      - condition: state
+        entity_id: sensor.f1_session_f1_session_status
+        state:
+        - finished
+        - finalised
+        - ended
       sequence:
-      - target:
-          entity_id:
-          - light.shapes
-        action: light.turn_off
-        data: {}
+      - action: scene.turn_on
+        continue_on_error: true
+        target:
+          entity_id: scene.f1_track_light_previous
   mode: restart
 - id: '1765443826556'
   alias: "\U0001F3F0Leaving and Arriving Home"
@@ -2892,6 +2936,7 @@
             intent_uri: https://waze.com/ul?favorite=work&navigate=yes
             intent_package_name: com.waze
             intent_action: android.intent.action.VIEW
+        enabled: false
       - action: automation.trigger
         data:
           skip_condition: true
@@ -2912,6 +2957,7 @@
             intent_uri: https://waze.com/ul?favorite=home&navigate=yes
             intent_package_name: com.waze
             intent_action: android.intent.action.VIEW
+        enabled: false
       - wait_for_trigger:
         - entity_id: device_tracker.pixel8pro
           zone: zone.home
@@ -3128,6 +3174,7 @@
           interruption-level: time-sensitive
         tag: backyard_person
         ttl: 0
+        icon_url: /local/images/HA_logo.png
       message: ' '
       title: "Person detected in the backyard \U0001F464"
   - delay:
@@ -3136,3 +3183,36 @@
       minutes: 0
       seconds: 5
   mode: single
+- id: '1785876857918'
+  alias: "\U0001F4A1Backyard Lights on Person Detected"
+  description: Turns on backyard lights when Frigate detects a person on the backyard
+    camera, and off again after 10 minutes of no detection
+  triggers:
+  - entity_id: binary_sensor.backyard_camera_person_occupancy
+    id: person_on
+    to: 'on'
+    trigger: state
+  - entity_id: binary_sensor.backyard_camera_person_occupancy
+    for:
+      minutes: 10
+    id: person_off
+    to: 'off'
+    trigger: state
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: person_on
+      sequence:
+      - action: light.turn_on
+        target:
+          entity_id: light.backyard_lights
+    - conditions:
+      - condition: trigger
+        id: person_off
+      sequence:
+      - action: light.turn_off
+        target:
+          entity_id: light.backyard_lights
+  mode: restart
