@@ -48,4 +48,5 @@ known_devices.yaml
 home-assistant.log
 home-assistant.log.1
 home-assistant.log.fault
-.DS_Storegoogle_health.json
+.DS_Store
+google_health.json
