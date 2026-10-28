@@ -1,0 +1,1495 @@
+---
+"Glass Violet":
+  # Journal
+  state-icon-color: "rgb(var(--color-theme))"
+  border-radius: "25px"
+  ha-card-border-radius: "var(--border-radius)"
+  error-color: "var(--google-red)"
+  warning-color: "var(--google-yellow)"
+  success-color: "var(--google-green)"
+  info-color: "var(--google-blue)"
+  divider-color: "rgba(var(--color-theme),.12)"
+  accent-color: "var(--google-yellow)"
+  ha-dialog-border-radius: "28px"
+  # fix added border-lines in 2022.11
+  ha-card-border-width: "1px"
+  ha-card-border-color: "rgba(255,255,255,0.07)"
+  ha-card-background: "linear-gradient(145deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01))"
+  ha-card-box-shadow: "0 8px 30px rgba(0,0,0,0.45)"
+  ha-card-backdrop-filter: "blur(18px) saturate(140%)"
+  lovelace-background: "radial-gradient(1200px 600px at 10% -10%, rgba(150,90,255,0.22), transparent 60%), radial-gradient(900px 600px at 100% 0%, rgba(230,80,200,0.18), transparent 55%), radial-gradient(900px 700px at 50% 110%, rgba(60,120,255,0.14), transparent 60%), #0d0b16"
+  ha-dialog-surface-background: "rgba(23,19,37,1)"
+  # Dim and blur the page behind dialogs
+  mdc-dialog-scrim-color: "rgba(0,0,0,0.5)"
+  ha-dialog-scrim-backdrop-filter: "blur(10px)"
+  sidebar-background-color: "rgba(13,11,22,0.6)"
+  sidebar-menu-button-background-color: transparent
+  sidebar-icon-color: "#9aa6bd"
+  sidebar-text-color: "#9aa6bd"
+  sidebar-selected-background-color: "rgba(183,148,246,0.14)"
+  sidebar-divider-color: "rgba(255,255,255,0.06)"
+  # # Fonts
+  primary-font-family: "Ubuntu, sans-serif"
+  paper-font-common-base_-_font-family: "var(--primary-font-family)"
+  paper-font-common-code_-_font-family: "var(--primary-font-family)"
+  paper-font-body1_-_font-family: "var(--primary-font-family)"
+  paper-font-subhead_-_font-family: "var(--primary-font-family)"
+  paper-font-headline_-_font-family: "var(--primary-font-family)"
+  paper-font-caption_-_font-family: "var(--primary-font-family)"
+  paper-font-title_-_font-family: "var(--primary-font-family)"
+  ha-card-header-font-family: "var(--primary-font-family)"
+  ha-font-family-heading: "var(--primary-font-family)"
+  ha-font-family-body: "var(--primary-font-family)"
+  ha-font-family-code: "var(--primary-font-family)"
+  ha-font-family-longform: "var(--primary-font-family)"
+  md-list-item-label-text-font: "var(--primary-font-family)"
+  mdc-typography-font-family: "var(--primary-font-family)"
+  mdc-typography-body2-font-family: "var(--primary-font-family)"
+
+  # Mushroom chips (bigger, softer)
+  chip-height: 34px
+  chip-font-size: 13px
+  chip-icon-size: 20px
+  chip-border-radius: 17px
+  chip-box-shadow: none
+  chip-border-width: 0px
+  chip-spacing: 8px
+  # Bar-card severity colours (softer)
+  bar-low-color: "#3FA66B"
+  bar-mid-color: "#E08A2E"
+  bar-high-color: "#D9534F"
+
+  # Buttons: primary (loud) is now solid so "Add integration" and dialog
+  # actions are readable; secondary (normal) stays soft glass
+  wa-color-brand-fill-loud: "#B794F6"
+  wa-color-brand-on-loud: "#0d0b16"
+  wa-color-brand-border-loud: "#B794F6"
+  wa-color-brand-fill-normal: "rgba(183,148,246,0.12)"
+  wa-color-brand-on-normal: "#e2d4fb"
+  wa-color-brand-border-normal: "rgba(183,148,246,0.35)"
+  wa-color-neutral-fill-normal: "rgba(255,255,255,0.05)"
+  wa-color-neutral-border-normal: "rgba(255,255,255,0.12)"
+  wa-form-control-border-width: 1px
+  ha-color-fill-primary-loud-resting: "var(--primary-color)"
+  ha-color-fill-primary-loud-hover: "color-mix(in srgb, var(--primary-color) 82%, white)"
+  ha-color-fill-primary-loud-active: "color-mix(in srgb, var(--primary-color) 78%, black)"
+  ha-color-on-primary-loud: "var(--primary-background-color)"
+  # Input boxes and pickers
+  ha-color-form-background: "rgba(255,255,255,0.05)"
+  ha-border-radius-sm: 14px
+  ha-color-border-neutral-loud: "rgba(183,148,246,0.45)"
+  input-fill-color: "rgba(255,255,255,0.05)"
+  input-idle-line-color: "rgba(255,255,255,0.12)"
+  input-hover-line-color: "rgba(183,148,246,0.6)"
+  mdc-text-field-fill-color: "rgba(255,255,255,0.05)"
+  mdc-shape-small: 14px
+
+  # Search bars and inputs (ha-input / ha-input-search)
+  ha-color-form-background-hover: "rgba(255,255,255,0.09)"
+  ha-color-form-background-disabled: "rgba(255,255,255,0.025)"
+  ha-color-border-neutral-quiet: "rgba(255,255,255,0.14)"
+  ha-color-border-neutral-normal: "rgba(255,255,255,0.28)"
+  ha-color-text-secondary: "#9aa6bd"
+  ha-color-focus: "rgba(var(--color-blue),0.6)"
+
+  # Hover and fill states (integration cards, chips, selected menu items)
+  ha-color-fill-neutral-quiet-resting: "rgba(var(--color-blue),0.08)"
+  ha-color-fill-neutral-quiet-hover: "rgba(var(--color-blue),0.14)"
+  ha-color-fill-neutral-quiet-active: "rgba(var(--color-blue),0.06)"
+  ha-color-fill-neutral-normal-resting: "rgba(255,255,255,0.06)"
+  ha-color-fill-neutral-normal-hover: "rgba(255,255,255,0.10)"
+  ha-color-fill-neutral-normal-active: "rgba(255,255,255,0.06)"
+  ha-color-fill-primary-quiet-resting: "rgba(var(--color-blue),0.08)"
+  ha-color-fill-primary-quiet-hover: "rgba(var(--color-blue),0.14)"
+  ha-color-fill-primary-quiet-active: "rgba(var(--color-blue),0.08)"
+  ha-color-fill-primary-normal-resting: "rgba(var(--color-blue),0.16)"
+  ha-color-fill-primary-normal-hover: "rgba(var(--color-blue),0.24)"
+  ha-color-fill-primary-normal-active: "rgba(var(--color-blue),0.16)"
+
+  # Toggle switches
+  ha-switch-background-color: "rgba(255,255,255,0.08)"
+  ha-switch-background-color-hover: "rgba(255,255,255,0.14)"
+  ha-switch-border-color: "rgba(255,255,255,0.22)"
+  ha-switch-thumb-background-color: "#9aa6bd"
+  ha-switch-thumb-border-color: "#9aa6bd"
+  ha-switch-checked-background-color: "rgba(var(--color-blue),0.35)"
+  ha-switch-checked-background-color-hover: "rgba(var(--color-blue),0.5)"
+  ha-switch-checked-border-color: "var(--primary-color)"
+  ha-switch-checked-thumb-background-color: "var(--primary-color)"
+  ha-switch-checked-thumb-border-color: "var(--primary-color)"
+
+  # Cards nested inside stack-in-card cards lose their own border/background
+  card-mod-card: |
+    :host-context(vertical-stack-in-card) ha-card:not([style*="solid 0.5px"]),
+    :host-context(stack-in-card) ha-card:not([style*="solid 0.5px"]) {
+      background: none !important;
+      border: none !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
+    }
+    :host(vertical-stack-in-card) ha-card:not([style*="solid 0.5px"]):not([data-x]),
+    :host(stack-in-card) ha-card:not([style*="solid 0.5px"]):not([data-x]) {
+      background: linear-gradient(145deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01)) !important;
+      border: 1px solid rgba(255,255,255,0.07) !important;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.45) !important;
+      backdrop-filter: blur(18px) saturate(140%) !important;
+    }
+    :host-context(vertical-stack-in-card) ha-card[style*="solid 0.5px"],
+    :host-context(stack-in-card) ha-card[style*="solid 0.5px"] {
+      border: 1px solid rgba(255,255,255,0.16) !important;
+      border-radius: 14px !important;
+    }
+    :host(button-card) ha-card * {
+      --ha-card-border-width: 0px;
+      --ha-card-background: none;
+      --ha-card-box-shadow: none;
+      --ha-card-backdrop-filter: none;
+      --glass-chip-bg: transparent;
+      --glass-chip-border: transparent;
+    }
+    :host(mushroom-chip) ha-card {
+      background: var(--glass-chip-bg, rgba(255,255,255,0.06)) !important;
+      border: 1px solid var(--glass-chip-border, rgba(255,255,255,0.09)) !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
+    }
+
+  ha-color-primary-05: "#0a0316"
+  ha-color-primary-10: "#14062d"
+  ha-color-primary-20: "#280d59"
+  ha-color-primary-30: "#3c1386"
+  ha-color-primary-40: "#5019b3"
+  ha-color-primary-50: "#6420df"
+  ha-color-primary-60: "#834ce6"
+  ha-color-primary-70: "#a279ec"
+  ha-color-primary-80: "#c1a6f2"
+  ha-color-primary-90: "#e0d2f9"
+  ha-color-primary-95: "#f0e9fc"
+  # Dropdown and popup surfaces
+  wa-color-surface-default: "rgba(23,19,37,1)"
+  ha-color-surface-default: "rgba(23,19,37,1)"
+  wa-panel-border-radius: 18px
+  ha-border-radius-md: 16px
+  wa-shadow-l: "0 12px 40px rgba(0,0,0,0.55)"
+  ha-box-shadow-m: "0 12px 40px rgba(0,0,0,0.55)"
+
+  card-mod-theme: "Glass Violet"
+  card-mod-view-yaml: |
+    "*:first-child$": |
+      #columns .column > * {
+        padding-left: 5px;
+        padding-right: 5px;
+        padding-bottom: 5px;
+      }
+  # card-mod-card: |
+  #   ha-card:active {
+  #     transform: translateY(-1.5px);
+  #     transition: 0s;
+  #     box-shadow: 0 0.5px 2px 0 rgba(0, 0, 0, 0.16);
+  #   }
+  modes:
+    light:
+      # text
+      primary-text-color: "#DDDDDD"
+      # main interface colors
+      primary-color: "#B794F6"
+      google-red: "#F18B82"
+      google-green: "#80C994"
+      google-yellow: "#FCD663"
+      google-blue: "#B794F6"
+      google-violet: "#BB86FC"
+      google-grey: "#BBBBBB"
+      color-red: "241, 139, 130"
+      color-green: "128, 201, 148"
+      color-yellow: "252, 214, 99"
+      color-blue: "183, 148, 246"
+      color-theme: "221,221,221"
+      color-purple: "102, 31, 255"
+      color-grey: "187, 187, 187"
+      color-pink: "233, 30, 99"
+      color-background-yellow: "var(--color-yellow)"
+      color-background-blue: "var(--color-blue)"
+      color-background-green: "var(--color-green)"
+      color-background-red: "var(--color-red)"
+      color-background-pink: "var(--color-pink)"
+      color-background-purple: "var(--color-purple)"
+      color-yellow-text: "var(--color-yellow)"
+      color-blue-text: "var(--color-blue)"
+      color-green-text: "var(--color-green)"
+      color-red-text: "var(--color-red)"
+      color-pink-text: "var(--color-pink)"
+      color-purple-text: "var(--color-purple)"
+      opacity-bg: "0.1"
+      # floating button text color
+      mdc-theme-on-secondary: "var(--card-background-color)"
+      # background and sidebar
+      card-background-color: "#171325"
+      primary-background-color: "#0d0b16"
+      secondary-background-color: "#171325"
+      # header
+      app-header-text-color: "var(--primary-text-color)"
+      app-header-background-color: "rgba(13,11,22,0.55)"
+      paper-tabs-selection-bar-color: "var(--primary-text-color)"
+      # Sidebar
+      sidebar-selected-text-color: "rgb(var(--color-blue))"
+      sidebar-selected-icon-color: "rgb(var(--color-blue))"
+      # Slider
+      slider-color: "rgb(var(--color-blue))"
+      slider-bar-color: "rgba(var(--color-blue),0.38)"
+      # card
+      box-shadow: "none"
+      # media player
+      mini-media-player-accent-color: "var(--google-blue)"
+      # Journal
+      state-icon-color: "rgb(var(--color-theme))"
+
+    dark:
+      # text
+      primary-text-color: "#DDDDDD"
+      # main interface colors
+      primary-color: "#B794F6"
+      google-red: "#F18B82"
+      google-green: "#80C994"
+      google-yellow: "#FCD663"
+      google-blue: "#B794F6"
+      google-violet: "#BB86FC"
+      google-grey: "#BBBBBB"
+      color-red: "241, 139, 130"
+      color-green: "128, 201, 148"
+      color-yellow: "252, 214, 99"
+      color-blue: "183, 148, 246"
+      color-theme: "221,221,221"
+      color-purple: "102, 31, 255"
+      color-grey: "187, 187, 187"
+      color-pink: "233, 30, 99"
+      color-background-yellow: "var(--color-yellow)"
+      color-background-blue: "var(--color-blue)"
+      color-background-green: "var(--color-green)"
+      color-background-red: "var(--color-red)"
+      color-background-pink: "var(--color-pink)"
+      color-background-purple: "var(--color-purple)"
+      color-yellow-text: "var(--color-yellow)"
+      color-blue-text: "var(--color-blue)"
+      color-green-text: "var(--color-green)"
+      color-red-text: "var(--color-red)"
+      color-pink-text: "var(--color-pink)"
+      color-purple-text: "var(--color-purple)"
+      opacity-bg: "0.1"
+      # floating button text color
+      mdc-theme-on-secondary: "var(--card-background-color)"
+      # background and sidebar
+      card-background-color: "#171325"
+      primary-background-color: "#0d0b16"
+      secondary-background-color: "#171325"
+      # header
+      app-header-text-color: "var(--primary-text-color)"
+      app-header-background-color: "rgba(13,11,22,0.55)"
+      paper-tabs-selection-bar-color: "var(--primary-text-color)"
+      # Sidebar
+      sidebar-selected-text-color: "rgb(var(--color-blue))"
+      sidebar-selected-icon-color: "rgb(var(--color-blue))"
+      # Slider
+      slider-color: "rgb(var(--color-blue))"
+      slider-bar-color: "rgba(var(--color-blue),0.38)"
+      # card
+      box-shadow: "none"
+      # media player
+      mini-media-player-accent-color: "var(--google-blue)"
+      # Journal
+      state-icon-color: "rgb(var(--color-theme))"
+
+"Glass Emerald":
+  # Journal
+  state-icon-color: "rgb(var(--color-theme))"
+  border-radius: "25px"
+  ha-card-border-radius: "var(--border-radius)"
+  error-color: "var(--google-red)"
+  warning-color: "var(--google-yellow)"
+  success-color: "var(--google-green)"
+  info-color: "var(--google-blue)"
+  divider-color: "rgba(var(--color-theme),.12)"
+  accent-color: "var(--google-yellow)"
+  ha-dialog-border-radius: "28px"
+  # fix added border-lines in 2022.11
+  ha-card-border-width: "1px"
+  ha-card-border-color: "rgba(255,255,255,0.07)"
+  ha-card-background: "linear-gradient(145deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01))"
+  ha-card-box-shadow: "0 8px 30px rgba(0,0,0,0.45)"
+  ha-card-backdrop-filter: "blur(18px) saturate(140%)"
+  lovelace-background: "radial-gradient(1200px 600px at 10% -10%, rgba(0,200,140,0.22), transparent 60%), radial-gradient(900px 600px at 100% 0%, rgba(0,170,200,0.18), transparent 55%), radial-gradient(900px 700px at 50% 110%, rgba(80,200,80,0.14), transparent 60%), #0a1210"
+  ha-dialog-surface-background: "rgba(16,28,25,1)"
+  # Dim and blur the page behind dialogs
+  mdc-dialog-scrim-color: "rgba(0,0,0,0.5)"
+  ha-dialog-scrim-backdrop-filter: "blur(10px)"
+  sidebar-background-color: "rgba(10,18,16,0.6)"
+  sidebar-menu-button-background-color: transparent
+  sidebar-icon-color: "#9aa6bd"
+  sidebar-text-color: "#9aa6bd"
+  sidebar-selected-background-color: "rgba(110,231,183,0.14)"
+  sidebar-divider-color: "rgba(255,255,255,0.06)"
+  # # Fonts
+  primary-font-family: "Ubuntu, sans-serif"
+  paper-font-common-base_-_font-family: "var(--primary-font-family)"
+  paper-font-common-code_-_font-family: "var(--primary-font-family)"
+  paper-font-body1_-_font-family: "var(--primary-font-family)"
+  paper-font-subhead_-_font-family: "var(--primary-font-family)"
+  paper-font-headline_-_font-family: "var(--primary-font-family)"
+  paper-font-caption_-_font-family: "var(--primary-font-family)"
+  paper-font-title_-_font-family: "var(--primary-font-family)"
+  ha-card-header-font-family: "var(--primary-font-family)"
+  ha-font-family-heading: "var(--primary-font-family)"
+  ha-font-family-body: "var(--primary-font-family)"
+  ha-font-family-code: "var(--primary-font-family)"
+  ha-font-family-longform: "var(--primary-font-family)"
+  md-list-item-label-text-font: "var(--primary-font-family)"
+  mdc-typography-font-family: "var(--primary-font-family)"
+  mdc-typography-body2-font-family: "var(--primary-font-family)"
+
+  # Mushroom chips (bigger, softer)
+  chip-height: 34px
+  chip-font-size: 13px
+  chip-icon-size: 20px
+  chip-border-radius: 17px
+  chip-box-shadow: none
+  chip-border-width: 0px
+  chip-spacing: 8px
+  # Bar-card severity colours (softer)
+  bar-low-color: "#3FA66B"
+  bar-mid-color: "#E08A2E"
+  bar-high-color: "#D9534F"
+
+  # Buttons: primary (loud) is now solid so "Add integration" and dialog
+  # actions are readable; secondary (normal) stays soft glass
+  wa-color-brand-fill-loud: "#6EE7B7"
+  wa-color-brand-on-loud: "#0a1210"
+  wa-color-brand-border-loud: "#6EE7B7"
+  wa-color-brand-fill-normal: "rgba(110,231,183,0.12)"
+  wa-color-brand-on-normal: "#c5f5e2"
+  wa-color-brand-border-normal: "rgba(110,231,183,0.35)"
+  wa-color-neutral-fill-normal: "rgba(255,255,255,0.05)"
+  wa-color-neutral-border-normal: "rgba(255,255,255,0.12)"
+  wa-form-control-border-width: 1px
+  ha-color-fill-primary-loud-resting: "var(--primary-color)"
+  ha-color-fill-primary-loud-hover: "color-mix(in srgb, var(--primary-color) 82%, white)"
+  ha-color-fill-primary-loud-active: "color-mix(in srgb, var(--primary-color) 78%, black)"
+  ha-color-on-primary-loud: "var(--primary-background-color)"
+  # Input boxes and pickers
+  ha-color-form-background: "rgba(255,255,255,0.05)"
+  ha-border-radius-sm: 14px
+  ha-color-border-neutral-loud: "rgba(110,231,183,0.45)"
+  input-fill-color: "rgba(255,255,255,0.05)"
+  input-idle-line-color: "rgba(255,255,255,0.12)"
+  input-hover-line-color: "rgba(110,231,183,0.6)"
+  mdc-text-field-fill-color: "rgba(255,255,255,0.05)"
+  mdc-shape-small: 14px
+
+  # Search bars and inputs (ha-input / ha-input-search)
+  ha-color-form-background-hover: "rgba(255,255,255,0.09)"
+  ha-color-form-background-disabled: "rgba(255,255,255,0.025)"
+  ha-color-border-neutral-quiet: "rgba(255,255,255,0.14)"
+  ha-color-border-neutral-normal: "rgba(255,255,255,0.28)"
+  ha-color-text-secondary: "#9aa6bd"
+  ha-color-focus: "rgba(var(--color-blue),0.6)"
+
+  # Hover and fill states (integration cards, chips, selected menu items)
+  ha-color-fill-neutral-quiet-resting: "rgba(var(--color-blue),0.08)"
+  ha-color-fill-neutral-quiet-hover: "rgba(var(--color-blue),0.14)"
+  ha-color-fill-neutral-quiet-active: "rgba(var(--color-blue),0.06)"
+  ha-color-fill-neutral-normal-resting: "rgba(255,255,255,0.06)"
+  ha-color-fill-neutral-normal-hover: "rgba(255,255,255,0.10)"
+  ha-color-fill-neutral-normal-active: "rgba(255,255,255,0.06)"
+  ha-color-fill-primary-quiet-resting: "rgba(var(--color-blue),0.08)"
+  ha-color-fill-primary-quiet-hover: "rgba(var(--color-blue),0.14)"
+  ha-color-fill-primary-quiet-active: "rgba(var(--color-blue),0.08)"
+  ha-color-fill-primary-normal-resting: "rgba(var(--color-blue),0.16)"
+  ha-color-fill-primary-normal-hover: "rgba(var(--color-blue),0.24)"
+  ha-color-fill-primary-normal-active: "rgba(var(--color-blue),0.16)"
+
+  # Toggle switches
+  ha-switch-background-color: "rgba(255,255,255,0.08)"
+  ha-switch-background-color-hover: "rgba(255,255,255,0.14)"
+  ha-switch-border-color: "rgba(255,255,255,0.22)"
+  ha-switch-thumb-background-color: "#9aa6bd"
+  ha-switch-thumb-border-color: "#9aa6bd"
+  ha-switch-checked-background-color: "rgba(var(--color-blue),0.35)"
+  ha-switch-checked-background-color-hover: "rgba(var(--color-blue),0.5)"
+  ha-switch-checked-border-color: "var(--primary-color)"
+  ha-switch-checked-thumb-background-color: "var(--primary-color)"
+  ha-switch-checked-thumb-border-color: "var(--primary-color)"
+
+  # Cards nested inside stack-in-card cards lose their own border/background
+  card-mod-card: |
+    :host-context(vertical-stack-in-card) ha-card:not([style*="solid 0.5px"]),
+    :host-context(stack-in-card) ha-card:not([style*="solid 0.5px"]) {
+      background: none !important;
+      border: none !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
+    }
+    :host(vertical-stack-in-card) ha-card:not([style*="solid 0.5px"]):not([data-x]),
+    :host(stack-in-card) ha-card:not([style*="solid 0.5px"]):not([data-x]) {
+      background: linear-gradient(145deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01)) !important;
+      border: 1px solid rgba(255,255,255,0.07) !important;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.45) !important;
+      backdrop-filter: blur(18px) saturate(140%) !important;
+    }
+    :host-context(vertical-stack-in-card) ha-card[style*="solid 0.5px"],
+    :host-context(stack-in-card) ha-card[style*="solid 0.5px"] {
+      border: 1px solid rgba(255,255,255,0.16) !important;
+      border-radius: 14px !important;
+    }
+    :host(button-card) ha-card * {
+      --ha-card-border-width: 0px;
+      --ha-card-background: none;
+      --ha-card-box-shadow: none;
+      --ha-card-backdrop-filter: none;
+      --glass-chip-bg: transparent;
+      --glass-chip-border: transparent;
+    }
+    :host(mushroom-chip) ha-card {
+      background: var(--glass-chip-bg, rgba(255,255,255,0.06)) !important;
+      border: 1px solid var(--glass-chip-border, rgba(255,255,255,0.09)) !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
+    }
+
+  ha-color-primary-05: "#04160f"
+  ha-color-primary-10: "#082b1d"
+  ha-color-primary-20: "#0f573a"
+  ha-color-primary-30: "#178258"
+  ha-color-primary-40: "#1fad75"
+  ha-color-primary-50: "#26d992"
+  ha-color-primary-60: "#52e0a8"
+  ha-color-primary-70: "#7de8be"
+  ha-color-primary-80: "#a8f0d3"
+  ha-color-primary-90: "#d4f7e9"
+  ha-color-primary-95: "#e9fbf4"
+  # Dropdown and popup surfaces
+  wa-color-surface-default: "rgba(16,28,25,1)"
+  ha-color-surface-default: "rgba(16,28,25,1)"
+  wa-panel-border-radius: 18px
+  ha-border-radius-md: 16px
+  wa-shadow-l: "0 12px 40px rgba(0,0,0,0.55)"
+  ha-box-shadow-m: "0 12px 40px rgba(0,0,0,0.55)"
+
+  card-mod-theme: "Glass Emerald"
+  card-mod-view-yaml: |
+    "*:first-child$": |
+      #columns .column > * {
+        padding-left: 5px;
+        padding-right: 5px;
+        padding-bottom: 5px;
+      }
+  # card-mod-card: |
+  #   ha-card:active {
+  #     transform: translateY(-1.5px);
+  #     transition: 0s;
+  #     box-shadow: 0 0.5px 2px 0 rgba(0, 0, 0, 0.16);
+  #   }
+  modes:
+    light:
+      # text
+      primary-text-color: "#DDDDDD"
+      # main interface colors
+      primary-color: "#6EE7B7"
+      google-red: "#F18B82"
+      google-green: "#80C994"
+      google-yellow: "#FCD663"
+      google-blue: "#6EE7B7"
+      google-violet: "#BB86FC"
+      google-grey: "#BBBBBB"
+      color-red: "241, 139, 130"
+      color-green: "128, 201, 148"
+      color-yellow: "252, 214, 99"
+      color-blue: "110, 231, 183"
+      color-theme: "221,221,221"
+      color-purple: "102, 31, 255"
+      color-grey: "187, 187, 187"
+      color-pink: "233, 30, 99"
+      color-background-yellow: "var(--color-yellow)"
+      color-background-blue: "var(--color-blue)"
+      color-background-green: "var(--color-green)"
+      color-background-red: "var(--color-red)"
+      color-background-pink: "var(--color-pink)"
+      color-background-purple: "var(--color-purple)"
+      color-yellow-text: "var(--color-yellow)"
+      color-blue-text: "var(--color-blue)"
+      color-green-text: "var(--color-green)"
+      color-red-text: "var(--color-red)"
+      color-pink-text: "var(--color-pink)"
+      color-purple-text: "var(--color-purple)"
+      opacity-bg: "0.1"
+      # floating button text color
+      mdc-theme-on-secondary: "var(--card-background-color)"
+      # background and sidebar
+      card-background-color: "#101c19"
+      primary-background-color: "#0a1210"
+      secondary-background-color: "#101c19"
+      # header
+      app-header-text-color: "var(--primary-text-color)"
+      app-header-background-color: "rgba(10,18,16,0.55)"
+      paper-tabs-selection-bar-color: "var(--primary-text-color)"
+      # Sidebar
+      sidebar-selected-text-color: "rgb(var(--color-blue))"
+      sidebar-selected-icon-color: "rgb(var(--color-blue))"
+      # Slider
+      slider-color: "rgb(var(--color-blue))"
+      slider-bar-color: "rgba(var(--color-blue),0.38)"
+      # card
+      box-shadow: "none"
+      # media player
+      mini-media-player-accent-color: "var(--google-blue)"
+      # Journal
+      state-icon-color: "rgb(var(--color-theme))"
+
+    dark:
+      # text
+      primary-text-color: "#DDDDDD"
+      # main interface colors
+      primary-color: "#6EE7B7"
+      google-red: "#F18B82"
+      google-green: "#80C994"
+      google-yellow: "#FCD663"
+      google-blue: "#6EE7B7"
+      google-violet: "#BB86FC"
+      google-grey: "#BBBBBB"
+      color-red: "241, 139, 130"
+      color-green: "128, 201, 148"
+      color-yellow: "252, 214, 99"
+      color-blue: "110, 231, 183"
+      color-theme: "221,221,221"
+      color-purple: "102, 31, 255"
+      color-grey: "187, 187, 187"
+      color-pink: "233, 30, 99"
+      color-background-yellow: "var(--color-yellow)"
+      color-background-blue: "var(--color-blue)"
+      color-background-green: "var(--color-green)"
+      color-background-red: "var(--color-red)"
+      color-background-pink: "var(--color-pink)"
+      color-background-purple: "var(--color-purple)"
+      color-yellow-text: "var(--color-yellow)"
+      color-blue-text: "var(--color-blue)"
+      color-green-text: "var(--color-green)"
+      color-red-text: "var(--color-red)"
+      color-pink-text: "var(--color-pink)"
+      color-purple-text: "var(--color-purple)"
+      opacity-bg: "0.1"
+      # floating button text color
+      mdc-theme-on-secondary: "var(--card-background-color)"
+      # background and sidebar
+      card-background-color: "#101c19"
+      primary-background-color: "#0a1210"
+      secondary-background-color: "#101c19"
+      # header
+      app-header-text-color: "var(--primary-text-color)"
+      app-header-background-color: "rgba(10,18,16,0.55)"
+      paper-tabs-selection-bar-color: "var(--primary-text-color)"
+      # Sidebar
+      sidebar-selected-text-color: "rgb(var(--color-blue))"
+      sidebar-selected-icon-color: "rgb(var(--color-blue))"
+      # Slider
+      slider-color: "rgb(var(--color-blue))"
+      slider-bar-color: "rgba(var(--color-blue),0.38)"
+      # card
+      box-shadow: "none"
+      # media player
+      mini-media-player-accent-color: "var(--google-blue)"
+      # Journal
+      state-icon-color: "rgb(var(--color-theme))"
+
+"Glass Amber":
+  # Journal
+  state-icon-color: "rgb(var(--color-theme))"
+  border-radius: "25px"
+  ha-card-border-radius: "var(--border-radius)"
+  error-color: "var(--google-red)"
+  warning-color: "var(--google-yellow)"
+  success-color: "var(--google-green)"
+  info-color: "var(--google-blue)"
+  divider-color: "rgba(var(--color-theme),.12)"
+  accent-color: "var(--google-yellow)"
+  ha-dialog-border-radius: "28px"
+  # fix added border-lines in 2022.11
+  ha-card-border-width: "1px"
+  ha-card-border-color: "rgba(255,255,255,0.07)"
+  ha-card-background: "linear-gradient(145deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01))"
+  ha-card-box-shadow: "0 8px 30px rgba(0,0,0,0.45)"
+  ha-card-backdrop-filter: "blur(18px) saturate(140%)"
+  lovelace-background: "radial-gradient(1200px 600px at 10% -10%, rgba(255,170,0,0.22), transparent 60%), radial-gradient(900px 600px at 100% 0%, rgba(255,100,60,0.18), transparent 55%), radial-gradient(900px 700px at 50% 110%, rgba(255,200,80,0.14), transparent 60%), #120f0a"
+  ha-dialog-surface-background: "rgba(29,24,16,1)"
+  # Dim and blur the page behind dialogs
+  mdc-dialog-scrim-color: "rgba(0,0,0,0.5)"
+  ha-dialog-scrim-backdrop-filter: "blur(10px)"
+  sidebar-background-color: "rgba(18,15,10,0.6)"
+  sidebar-menu-button-background-color: transparent
+  sidebar-icon-color: "#9aa6bd"
+  sidebar-text-color: "#9aa6bd"
+  sidebar-selected-background-color: "rgba(252,214,99,0.14)"
+  sidebar-divider-color: "rgba(255,255,255,0.06)"
+  # # Fonts
+  primary-font-family: "Ubuntu, sans-serif"
+  paper-font-common-base_-_font-family: "var(--primary-font-family)"
+  paper-font-common-code_-_font-family: "var(--primary-font-family)"
+  paper-font-body1_-_font-family: "var(--primary-font-family)"
+  paper-font-subhead_-_font-family: "var(--primary-font-family)"
+  paper-font-headline_-_font-family: "var(--primary-font-family)"
+  paper-font-caption_-_font-family: "var(--primary-font-family)"
+  paper-font-title_-_font-family: "var(--primary-font-family)"
+  ha-card-header-font-family: "var(--primary-font-family)"
+  ha-font-family-heading: "var(--primary-font-family)"
+  ha-font-family-body: "var(--primary-font-family)"
+  ha-font-family-code: "var(--primary-font-family)"
+  ha-font-family-longform: "var(--primary-font-family)"
+  md-list-item-label-text-font: "var(--primary-font-family)"
+  mdc-typography-font-family: "var(--primary-font-family)"
+  mdc-typography-body2-font-family: "var(--primary-font-family)"
+
+  # Mushroom chips (bigger, softer)
+  chip-height: 34px
+  chip-font-size: 13px
+  chip-icon-size: 20px
+  chip-border-radius: 17px
+  chip-box-shadow: none
+  chip-border-width: 0px
+  chip-spacing: 8px
+  # Bar-card severity colours (softer)
+  bar-low-color: "#3FA66B"
+  bar-mid-color: "#E08A2E"
+  bar-high-color: "#D9534F"
+
+  # Buttons: primary (loud) is now solid so "Add integration" and dialog
+  # actions are readable; secondary (normal) stays soft glass
+  wa-color-brand-fill-loud: "#FCD663"
+  wa-color-brand-on-loud: "#120f0a"
+  wa-color-brand-border-loud: "#FCD663"
+  wa-color-brand-fill-normal: "rgba(252,214,99,0.12)"
+  wa-color-brand-on-normal: "#feefc1"
+  wa-color-brand-border-normal: "rgba(252,214,99,0.35)"
+  wa-color-neutral-fill-normal: "rgba(255,255,255,0.05)"
+  wa-color-neutral-border-normal: "rgba(255,255,255,0.12)"
+  wa-form-control-border-width: 1px
+  ha-color-fill-primary-loud-resting: "var(--primary-color)"
+  ha-color-fill-primary-loud-hover: "color-mix(in srgb, var(--primary-color) 82%, white)"
+  ha-color-fill-primary-loud-active: "color-mix(in srgb, var(--primary-color) 78%, black)"
+  ha-color-on-primary-loud: "var(--primary-background-color)"
+  # Input boxes and pickers
+  ha-color-form-background: "rgba(255,255,255,0.05)"
+  ha-border-radius-sm: 14px
+  ha-color-border-neutral-loud: "rgba(252,214,99,0.45)"
+  input-fill-color: "rgba(255,255,255,0.05)"
+  input-idle-line-color: "rgba(255,255,255,0.12)"
+  input-hover-line-color: "rgba(252,214,99,0.6)"
+  mdc-text-field-fill-color: "rgba(255,255,255,0.05)"
+  mdc-shape-small: 14px
+
+  # Search bars and inputs (ha-input / ha-input-search)
+  ha-color-form-background-hover: "rgba(255,255,255,0.09)"
+  ha-color-form-background-disabled: "rgba(255,255,255,0.025)"
+  ha-color-border-neutral-quiet: "rgba(255,255,255,0.14)"
+  ha-color-border-neutral-normal: "rgba(255,255,255,0.28)"
+  ha-color-text-secondary: "#9aa6bd"
+  ha-color-focus: "rgba(var(--color-blue),0.6)"
+
+  # Hover and fill states (integration cards, chips, selected menu items)
+  ha-color-fill-neutral-quiet-resting: "rgba(var(--color-blue),0.08)"
+  ha-color-fill-neutral-quiet-hover: "rgba(var(--color-blue),0.14)"
+  ha-color-fill-neutral-quiet-active: "rgba(var(--color-blue),0.06)"
+  ha-color-fill-neutral-normal-resting: "rgba(255,255,255,0.06)"
+  ha-color-fill-neutral-normal-hover: "rgba(255,255,255,0.10)"
+  ha-color-fill-neutral-normal-active: "rgba(255,255,255,0.06)"
+  ha-color-fill-primary-quiet-resting: "rgba(var(--color-blue),0.08)"
+  ha-color-fill-primary-quiet-hover: "rgba(var(--color-blue),0.14)"
+  ha-color-fill-primary-quiet-active: "rgba(var(--color-blue),0.08)"
+  ha-color-fill-primary-normal-resting: "rgba(var(--color-blue),0.16)"
+  ha-color-fill-primary-normal-hover: "rgba(var(--color-blue),0.24)"
+  ha-color-fill-primary-normal-active: "rgba(var(--color-blue),0.16)"
+
+  # Toggle switches
+  ha-switch-background-color: "rgba(255,255,255,0.08)"
+  ha-switch-background-color-hover: "rgba(255,255,255,0.14)"
+  ha-switch-border-color: "rgba(255,255,255,0.22)"
+  ha-switch-thumb-background-color: "#9aa6bd"
+  ha-switch-thumb-border-color: "#9aa6bd"
+  ha-switch-checked-background-color: "rgba(var(--color-blue),0.35)"
+  ha-switch-checked-background-color-hover: "rgba(var(--color-blue),0.5)"
+  ha-switch-checked-border-color: "var(--primary-color)"
+  ha-switch-checked-thumb-background-color: "var(--primary-color)"
+  ha-switch-checked-thumb-border-color: "var(--primary-color)"
+
+  # Cards nested inside stack-in-card cards lose their own border/background
+  card-mod-card: |
+    :host-context(vertical-stack-in-card) ha-card:not([style*="solid 0.5px"]),
+    :host-context(stack-in-card) ha-card:not([style*="solid 0.5px"]) {
+      background: none !important;
+      border: none !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
+    }
+    :host(vertical-stack-in-card) ha-card:not([style*="solid 0.5px"]):not([data-x]),
+    :host(stack-in-card) ha-card:not([style*="solid 0.5px"]):not([data-x]) {
+      background: linear-gradient(145deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01)) !important;
+      border: 1px solid rgba(255,255,255,0.07) !important;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.45) !important;
+      backdrop-filter: blur(18px) saturate(140%) !important;
+    }
+    :host-context(vertical-stack-in-card) ha-card[style*="solid 0.5px"],
+    :host-context(stack-in-card) ha-card[style*="solid 0.5px"] {
+      border: 1px solid rgba(255,255,255,0.16) !important;
+      border-radius: 14px !important;
+    }
+    :host(button-card) ha-card * {
+      --ha-card-border-width: 0px;
+      --ha-card-background: none;
+      --ha-card-box-shadow: none;
+      --ha-card-backdrop-filter: none;
+      --glass-chip-bg: transparent;
+      --glass-chip-border: transparent;
+    }
+    :host(mushroom-chip) ha-card {
+      background: var(--glass-chip-bg, rgba(255,255,255,0.06)) !important;
+      border: 1px solid var(--glass-chip-border, rgba(255,255,255,0.09)) !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
+    }
+
+  ha-color-primary-05: "#161203"
+  ha-color-primary-10: "#2d2306"
+  ha-color-primary-20: "#59460d"
+  ha-color-primary-30: "#866913"
+  ha-color-primary-40: "#b38c19"
+  ha-color-primary-50: "#dfb020"
+  ha-color-primary-60: "#e6c04c"
+  ha-color-primary-70: "#eccf79"
+  ha-color-primary-80: "#f2dfa6"
+  ha-color-primary-90: "#f9efd2"
+  ha-color-primary-95: "#fcf7e9"
+  # Dropdown and popup surfaces
+  wa-color-surface-default: "rgba(29,24,16,1)"
+  ha-color-surface-default: "rgba(29,24,16,1)"
+  wa-panel-border-radius: 18px
+  ha-border-radius-md: 16px
+  wa-shadow-l: "0 12px 40px rgba(0,0,0,0.55)"
+  ha-box-shadow-m: "0 12px 40px rgba(0,0,0,0.55)"
+
+  card-mod-theme: "Glass Amber"
+  card-mod-view-yaml: |
+    "*:first-child$": |
+      #columns .column > * {
+        padding-left: 5px;
+        padding-right: 5px;
+        padding-bottom: 5px;
+      }
+  # card-mod-card: |
+  #   ha-card:active {
+  #     transform: translateY(-1.5px);
+  #     transition: 0s;
+  #     box-shadow: 0 0.5px 2px 0 rgba(0, 0, 0, 0.16);
+  #   }
+  modes:
+    light:
+      # text
+      primary-text-color: "#DDDDDD"
+      # main interface colors
+      primary-color: "#FCD663"
+      google-red: "#F18B82"
+      google-green: "#80C994"
+      google-yellow: "#FCD663"
+      google-blue: "#FCD663"
+      google-violet: "#BB86FC"
+      google-grey: "#BBBBBB"
+      color-red: "241, 139, 130"
+      color-green: "128, 201, 148"
+      color-yellow: "252, 214, 99"
+      color-blue: "252, 214, 99"
+      color-theme: "221,221,221"
+      color-purple: "102, 31, 255"
+      color-grey: "187, 187, 187"
+      color-pink: "233, 30, 99"
+      color-background-yellow: "var(--color-yellow)"
+      color-background-blue: "var(--color-blue)"
+      color-background-green: "var(--color-green)"
+      color-background-red: "var(--color-red)"
+      color-background-pink: "var(--color-pink)"
+      color-background-purple: "var(--color-purple)"
+      color-yellow-text: "var(--color-yellow)"
+      color-blue-text: "var(--color-blue)"
+      color-green-text: "var(--color-green)"
+      color-red-text: "var(--color-red)"
+      color-pink-text: "var(--color-pink)"
+      color-purple-text: "var(--color-purple)"
+      opacity-bg: "0.1"
+      # floating button text color
+      mdc-theme-on-secondary: "var(--card-background-color)"
+      # background and sidebar
+      card-background-color: "#1d1810"
+      primary-background-color: "#120f0a"
+      secondary-background-color: "#1d1810"
+      # header
+      app-header-text-color: "var(--primary-text-color)"
+      app-header-background-color: "rgba(18,15,10,0.55)"
+      paper-tabs-selection-bar-color: "var(--primary-text-color)"
+      # Sidebar
+      sidebar-selected-text-color: "rgb(var(--color-blue))"
+      sidebar-selected-icon-color: "rgb(var(--color-blue))"
+      # Slider
+      slider-color: "rgb(var(--color-blue))"
+      slider-bar-color: "rgba(var(--color-blue),0.38)"
+      # card
+      box-shadow: "none"
+      # media player
+      mini-media-player-accent-color: "var(--google-blue)"
+      # Journal
+      state-icon-color: "rgb(var(--color-theme))"
+
+    dark:
+      # text
+      primary-text-color: "#DDDDDD"
+      # main interface colors
+      primary-color: "#FCD663"
+      google-red: "#F18B82"
+      google-green: "#80C994"
+      google-yellow: "#FCD663"
+      google-blue: "#FCD663"
+      google-violet: "#BB86FC"
+      google-grey: "#BBBBBB"
+      color-red: "241, 139, 130"
+      color-green: "128, 201, 148"
+      color-yellow: "252, 214, 99"
+      color-blue: "252, 214, 99"
+      color-theme: "221,221,221"
+      color-purple: "102, 31, 255"
+      color-grey: "187, 187, 187"
+      color-pink: "233, 30, 99"
+      color-background-yellow: "var(--color-yellow)"
+      color-background-blue: "var(--color-blue)"
+      color-background-green: "var(--color-green)"
+      color-background-red: "var(--color-red)"
+      color-background-pink: "var(--color-pink)"
+      color-background-purple: "var(--color-purple)"
+      color-yellow-text: "var(--color-yellow)"
+      color-blue-text: "var(--color-blue)"
+      color-green-text: "var(--color-green)"
+      color-red-text: "var(--color-red)"
+      color-pink-text: "var(--color-pink)"
+      color-purple-text: "var(--color-purple)"
+      opacity-bg: "0.1"
+      # floating button text color
+      mdc-theme-on-secondary: "var(--card-background-color)"
+      # background and sidebar
+      card-background-color: "#1d1810"
+      primary-background-color: "#120f0a"
+      secondary-background-color: "#1d1810"
+      # header
+      app-header-text-color: "var(--primary-text-color)"
+      app-header-background-color: "rgba(18,15,10,0.55)"
+      paper-tabs-selection-bar-color: "var(--primary-text-color)"
+      # Sidebar
+      sidebar-selected-text-color: "rgb(var(--color-blue))"
+      sidebar-selected-icon-color: "rgb(var(--color-blue))"
+      # Slider
+      slider-color: "rgb(var(--color-blue))"
+      slider-bar-color: "rgba(var(--color-blue),0.38)"
+      # card
+      box-shadow: "none"
+      # media player
+      mini-media-player-accent-color: "var(--google-blue)"
+      # Journal
+      state-icon-color: "rgb(var(--color-theme))"
+
+"Glass Rose":
+  # Journal
+  state-icon-color: "rgb(var(--color-theme))"
+  border-radius: "25px"
+  ha-card-border-radius: "var(--border-radius)"
+  error-color: "var(--google-red)"
+  warning-color: "var(--google-yellow)"
+  success-color: "var(--google-green)"
+  info-color: "var(--google-blue)"
+  divider-color: "rgba(var(--color-theme),.12)"
+  accent-color: "var(--google-yellow)"
+  ha-dialog-border-radius: "28px"
+  # fix added border-lines in 2022.11
+  ha-card-border-width: "1px"
+  ha-card-border-color: "rgba(255,255,255,0.07)"
+  ha-card-background: "linear-gradient(145deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01))"
+  ha-card-box-shadow: "0 8px 30px rgba(0,0,0,0.45)"
+  ha-card-backdrop-filter: "blur(18px) saturate(140%)"
+  lovelace-background: "radial-gradient(1200px 600px at 10% -10%, rgba(240,80,150,0.22), transparent 60%), radial-gradient(900px 600px at 100% 0%, rgba(170,80,240,0.18), transparent 55%), radial-gradient(900px 700px at 50% 110%, rgba(255,140,90,0.14), transparent 60%), #140b11"
+  ha-dialog-surface-background: "rgba(33,19,32,1)"
+  # Dim and blur the page behind dialogs
+  mdc-dialog-scrim-color: "rgba(0,0,0,0.5)"
+  ha-dialog-scrim-backdrop-filter: "blur(10px)"
+  sidebar-background-color: "rgba(20,11,17,0.6)"
+  sidebar-menu-button-background-color: transparent
+  sidebar-icon-color: "#9aa6bd"
+  sidebar-text-color: "#9aa6bd"
+  sidebar-selected-background-color: "rgba(249,168,212,0.14)"
+  sidebar-divider-color: "rgba(255,255,255,0.06)"
+  # # Fonts
+  primary-font-family: "Ubuntu, sans-serif"
+  paper-font-common-base_-_font-family: "var(--primary-font-family)"
+  paper-font-common-code_-_font-family: "var(--primary-font-family)"
+  paper-font-body1_-_font-family: "var(--primary-font-family)"
+  paper-font-subhead_-_font-family: "var(--primary-font-family)"
+  paper-font-headline_-_font-family: "var(--primary-font-family)"
+  paper-font-caption_-_font-family: "var(--primary-font-family)"
+  paper-font-title_-_font-family: "var(--primary-font-family)"
+  ha-card-header-font-family: "var(--primary-font-family)"
+  ha-font-family-heading: "var(--primary-font-family)"
+  ha-font-family-body: "var(--primary-font-family)"
+  ha-font-family-code: "var(--primary-font-family)"
+  ha-font-family-longform: "var(--primary-font-family)"
+  md-list-item-label-text-font: "var(--primary-font-family)"
+  mdc-typography-font-family: "var(--primary-font-family)"
+  mdc-typography-body2-font-family: "var(--primary-font-family)"
+
+  # Mushroom chips (bigger, softer)
+  chip-height: 34px
+  chip-font-size: 13px
+  chip-icon-size: 20px
+  chip-border-radius: 17px
+  chip-box-shadow: none
+  chip-border-width: 0px
+  chip-spacing: 8px
+  # Bar-card severity colours (softer)
+  bar-low-color: "#3FA66B"
+  bar-mid-color: "#E08A2E"
+  bar-high-color: "#D9534F"
+
+  # Buttons: primary (loud) is now solid so "Add integration" and dialog
+  # actions are readable; secondary (normal) stays soft glass
+  wa-color-brand-fill-loud: "#F9A8D4"
+  wa-color-brand-on-loud: "#140b11"
+  wa-color-brand-border-loud: "#F9A8D4"
+  wa-color-brand-fill-normal: "rgba(249,168,212,0.12)"
+  wa-color-brand-on-normal: "#fddcee"
+  wa-color-brand-border-normal: "rgba(249,168,212,0.35)"
+  wa-color-neutral-fill-normal: "rgba(255,255,255,0.05)"
+  wa-color-neutral-border-normal: "rgba(255,255,255,0.12)"
+  wa-form-control-border-width: 1px
+  ha-color-fill-primary-loud-resting: "var(--primary-color)"
+  ha-color-fill-primary-loud-hover: "color-mix(in srgb, var(--primary-color) 82%, white)"
+  ha-color-fill-primary-loud-active: "color-mix(in srgb, var(--primary-color) 78%, black)"
+  ha-color-on-primary-loud: "var(--primary-background-color)"
+  # Input boxes and pickers
+  ha-color-form-background: "rgba(255,255,255,0.05)"
+  ha-border-radius-sm: 14px
+  ha-color-border-neutral-loud: "rgba(249,168,212,0.45)"
+  input-fill-color: "rgba(255,255,255,0.05)"
+  input-idle-line-color: "rgba(255,255,255,0.12)"
+  input-hover-line-color: "rgba(249,168,212,0.6)"
+  mdc-text-field-fill-color: "rgba(255,255,255,0.05)"
+  mdc-shape-small: 14px
+
+  # Search bars and inputs (ha-input / ha-input-search)
+  ha-color-form-background-hover: "rgba(255,255,255,0.09)"
+  ha-color-form-background-disabled: "rgba(255,255,255,0.025)"
+  ha-color-border-neutral-quiet: "rgba(255,255,255,0.14)"
+  ha-color-border-neutral-normal: "rgba(255,255,255,0.28)"
+  ha-color-text-secondary: "#9aa6bd"
+  ha-color-focus: "rgba(var(--color-blue),0.6)"
+
+  # Hover and fill states (integration cards, chips, selected menu items)
+  ha-color-fill-neutral-quiet-resting: "rgba(var(--color-blue),0.08)"
+  ha-color-fill-neutral-quiet-hover: "rgba(var(--color-blue),0.14)"
+  ha-color-fill-neutral-quiet-active: "rgba(var(--color-blue),0.06)"
+  ha-color-fill-neutral-normal-resting: "rgba(255,255,255,0.06)"
+  ha-color-fill-neutral-normal-hover: "rgba(255,255,255,0.10)"
+  ha-color-fill-neutral-normal-active: "rgba(255,255,255,0.06)"
+  ha-color-fill-primary-quiet-resting: "rgba(var(--color-blue),0.08)"
+  ha-color-fill-primary-quiet-hover: "rgba(var(--color-blue),0.14)"
+  ha-color-fill-primary-quiet-active: "rgba(var(--color-blue),0.08)"
+  ha-color-fill-primary-normal-resting: "rgba(var(--color-blue),0.16)"
+  ha-color-fill-primary-normal-hover: "rgba(var(--color-blue),0.24)"
+  ha-color-fill-primary-normal-active: "rgba(var(--color-blue),0.16)"
+
+  # Toggle switches
+  ha-switch-background-color: "rgba(255,255,255,0.08)"
+  ha-switch-background-color-hover: "rgba(255,255,255,0.14)"
+  ha-switch-border-color: "rgba(255,255,255,0.22)"
+  ha-switch-thumb-background-color: "#9aa6bd"
+  ha-switch-thumb-border-color: "#9aa6bd"
+  ha-switch-checked-background-color: "rgba(var(--color-blue),0.35)"
+  ha-switch-checked-background-color-hover: "rgba(var(--color-blue),0.5)"
+  ha-switch-checked-border-color: "var(--primary-color)"
+  ha-switch-checked-thumb-background-color: "var(--primary-color)"
+  ha-switch-checked-thumb-border-color: "var(--primary-color)"
+
+  # Cards nested inside stack-in-card cards lose their own border/background
+  card-mod-card: |
+    :host-context(vertical-stack-in-card) ha-card:not([style*="solid 0.5px"]),
+    :host-context(stack-in-card) ha-card:not([style*="solid 0.5px"]) {
+      background: none !important;
+      border: none !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
+    }
+    :host(vertical-stack-in-card) ha-card:not([style*="solid 0.5px"]):not([data-x]),
+    :host(stack-in-card) ha-card:not([style*="solid 0.5px"]):not([data-x]) {
+      background: linear-gradient(145deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01)) !important;
+      border: 1px solid rgba(255,255,255,0.07) !important;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.45) !important;
+      backdrop-filter: blur(18px) saturate(140%) !important;
+    }
+    :host-context(vertical-stack-in-card) ha-card[style*="solid 0.5px"],
+    :host-context(stack-in-card) ha-card[style*="solid 0.5px"] {
+      border: 1px solid rgba(255,255,255,0.16) !important;
+      border-radius: 14px !important;
+    }
+    :host(button-card) ha-card * {
+      --ha-card-border-width: 0px;
+      --ha-card-background: none;
+      --ha-card-box-shadow: none;
+      --ha-card-backdrop-filter: none;
+      --glass-chip-bg: transparent;
+      --glass-chip-border: transparent;
+    }
+    :host(mushroom-chip) ha-card {
+      background: var(--glass-chip-bg, rgba(255,255,255,0.06)) !important;
+      border: 1px solid var(--glass-chip-border, rgba(255,255,255,0.09)) !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
+    }
+
+  ha-color-primary-05: "#16040e"
+  ha-color-primary-10: "#2b081b"
+  ha-color-primary-20: "#570f36"
+  ha-color-primary-30: "#821751"
+  ha-color-primary-40: "#ad1f6c"
+  ha-color-primary-50: "#d92687"
+  ha-color-primary-60: "#e0529f"
+  ha-color-primary-70: "#e87db7"
+  ha-color-primary-80: "#f0a8cf"
+  ha-color-primary-90: "#f7d4e7"
+  ha-color-primary-95: "#fbe9f3"
+  # Dropdown and popup surfaces
+  wa-color-surface-default: "rgba(33,19,32,1)"
+  ha-color-surface-default: "rgba(33,19,32,1)"
+  wa-panel-border-radius: 18px
+  ha-border-radius-md: 16px
+  wa-shadow-l: "0 12px 40px rgba(0,0,0,0.55)"
+  ha-box-shadow-m: "0 12px 40px rgba(0,0,0,0.55)"
+
+  card-mod-theme: "Glass Rose"
+  card-mod-view-yaml: |
+    "*:first-child$": |
+      #columns .column > * {
+        padding-left: 5px;
+        padding-right: 5px;
+        padding-bottom: 5px;
+      }
+  # card-mod-card: |
+  #   ha-card:active {
+  #     transform: translateY(-1.5px);
+  #     transition: 0s;
+  #     box-shadow: 0 0.5px 2px 0 rgba(0, 0, 0, 0.16);
+  #   }
+  modes:
+    light:
+      # text
+      primary-text-color: "#DDDDDD"
+      # main interface colors
+      primary-color: "#F9A8D4"
+      google-red: "#F18B82"
+      google-green: "#80C994"
+      google-yellow: "#FCD663"
+      google-blue: "#F9A8D4"
+      google-violet: "#BB86FC"
+      google-grey: "#BBBBBB"
+      color-red: "241, 139, 130"
+      color-green: "128, 201, 148"
+      color-yellow: "252, 214, 99"
+      color-blue: "249, 168, 212"
+      color-theme: "221,221,221"
+      color-purple: "102, 31, 255"
+      color-grey: "187, 187, 187"
+      color-pink: "233, 30, 99"
+      color-background-yellow: "var(--color-yellow)"
+      color-background-blue: "var(--color-blue)"
+      color-background-green: "var(--color-green)"
+      color-background-red: "var(--color-red)"
+      color-background-pink: "var(--color-pink)"
+      color-background-purple: "var(--color-purple)"
+      color-yellow-text: "var(--color-yellow)"
+      color-blue-text: "var(--color-blue)"
+      color-green-text: "var(--color-green)"
+      color-red-text: "var(--color-red)"
+      color-pink-text: "var(--color-pink)"
+      color-purple-text: "var(--color-purple)"
+      opacity-bg: "0.1"
+      # floating button text color
+      mdc-theme-on-secondary: "var(--card-background-color)"
+      # background and sidebar
+      card-background-color: "#211320"
+      primary-background-color: "#140b11"
+      secondary-background-color: "#211320"
+      # header
+      app-header-text-color: "var(--primary-text-color)"
+      app-header-background-color: "rgba(20,11,17,0.55)"
+      paper-tabs-selection-bar-color: "var(--primary-text-color)"
+      # Sidebar
+      sidebar-selected-text-color: "rgb(var(--color-blue))"
+      sidebar-selected-icon-color: "rgb(var(--color-blue))"
+      # Slider
+      slider-color: "rgb(var(--color-blue))"
+      slider-bar-color: "rgba(var(--color-blue),0.38)"
+      # card
+      box-shadow: "none"
+      # media player
+      mini-media-player-accent-color: "var(--google-blue)"
+      # Journal
+      state-icon-color: "rgb(var(--color-theme))"
+
+    dark:
+      # text
+      primary-text-color: "#DDDDDD"
+      # main interface colors
+      primary-color: "#F9A8D4"
+      google-red: "#F18B82"
+      google-green: "#80C994"
+      google-yellow: "#FCD663"
+      google-blue: "#F9A8D4"
+      google-violet: "#BB86FC"
+      google-grey: "#BBBBBB"
+      color-red: "241, 139, 130"
+      color-green: "128, 201, 148"
+      color-yellow: "252, 214, 99"
+      color-blue: "249, 168, 212"
+      color-theme: "221,221,221"
+      color-purple: "102, 31, 255"
+      color-grey: "187, 187, 187"
+      color-pink: "233, 30, 99"
+      color-background-yellow: "var(--color-yellow)"
+      color-background-blue: "var(--color-blue)"
+      color-background-green: "var(--color-green)"
+      color-background-red: "var(--color-red)"
+      color-background-pink: "var(--color-pink)"
+      color-background-purple: "var(--color-purple)"
+      color-yellow-text: "var(--color-yellow)"
+      color-blue-text: "var(--color-blue)"
+      color-green-text: "var(--color-green)"
+      color-red-text: "var(--color-red)"
+      color-pink-text: "var(--color-pink)"
+      color-purple-text: "var(--color-purple)"
+      opacity-bg: "0.1"
+      # floating button text color
+      mdc-theme-on-secondary: "var(--card-background-color)"
+      # background and sidebar
+      card-background-color: "#211320"
+      primary-background-color: "#140b11"
+      secondary-background-color: "#211320"
+      # header
+      app-header-text-color: "var(--primary-text-color)"
+      app-header-background-color: "rgba(20,11,17,0.55)"
+      paper-tabs-selection-bar-color: "var(--primary-text-color)"
+      # Sidebar
+      sidebar-selected-text-color: "rgb(var(--color-blue))"
+      sidebar-selected-icon-color: "rgb(var(--color-blue))"
+      # Slider
+      slider-color: "rgb(var(--color-blue))"
+      slider-bar-color: "rgba(var(--color-blue),0.38)"
+      # card
+      box-shadow: "none"
+      # media player
+      mini-media-player-accent-color: "var(--google-blue)"
+      # Journal
+      state-icon-color: "rgb(var(--color-theme))"
+
+"Glass Graphite":
+  # Journal
+  state-icon-color: "rgb(var(--color-theme))"
+  border-radius: "25px"
+  ha-card-border-radius: "var(--border-radius)"
+  error-color: "var(--google-red)"
+  warning-color: "var(--google-yellow)"
+  success-color: "var(--google-green)"
+  info-color: "var(--google-blue)"
+  divider-color: "rgba(var(--color-theme),.12)"
+  accent-color: "var(--google-yellow)"
+  ha-dialog-border-radius: "28px"
+  # fix added border-lines in 2022.11
+  ha-card-border-width: "1px"
+  ha-card-border-color: "rgba(255,255,255,0.07)"
+  ha-card-background: "linear-gradient(145deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01))"
+  ha-card-box-shadow: "0 8px 30px rgba(0,0,0,0.45)"
+  ha-card-backdrop-filter: "blur(18px) saturate(140%)"
+  lovelace-background: "radial-gradient(1200px 600px at 10% -10%, rgba(200,200,210,0.22), transparent 60%), radial-gradient(900px 600px at 100% 0%, rgba(120,130,150,0.18), transparent 55%), radial-gradient(900px 700px at 50% 110%, rgba(90,90,110,0.14), transparent 60%), #0b0b0c"
+  ha-dialog-surface-background: "rgba(21,21,22,1)"
+  # Dim and blur the page behind dialogs
+  mdc-dialog-scrim-color: "rgba(0,0,0,0.5)"
+  ha-dialog-scrim-backdrop-filter: "blur(10px)"
+  sidebar-background-color: "rgba(11,11,12,0.6)"
+  sidebar-menu-button-background-color: transparent
+  sidebar-icon-color: "#9aa6bd"
+  sidebar-text-color: "#9aa6bd"
+  sidebar-selected-background-color: "rgba(229,231,235,0.14)"
+  sidebar-divider-color: "rgba(255,255,255,0.06)"
+  # # Fonts
+  primary-font-family: "Ubuntu, sans-serif"
+  paper-font-common-base_-_font-family: "var(--primary-font-family)"
+  paper-font-common-code_-_font-family: "var(--primary-font-family)"
+  paper-font-body1_-_font-family: "var(--primary-font-family)"
+  paper-font-subhead_-_font-family: "var(--primary-font-family)"
+  paper-font-headline_-_font-family: "var(--primary-font-family)"
+  paper-font-caption_-_font-family: "var(--primary-font-family)"
+  paper-font-title_-_font-family: "var(--primary-font-family)"
+  ha-card-header-font-family: "var(--primary-font-family)"
+  ha-font-family-heading: "var(--primary-font-family)"
+  ha-font-family-body: "var(--primary-font-family)"
+  ha-font-family-code: "var(--primary-font-family)"
+  ha-font-family-longform: "var(--primary-font-family)"
+  md-list-item-label-text-font: "var(--primary-font-family)"
+  mdc-typography-font-family: "var(--primary-font-family)"
+  mdc-typography-body2-font-family: "var(--primary-font-family)"
+
+  # Mushroom chips (bigger, softer)
+  chip-height: 34px
+  chip-font-size: 13px
+  chip-icon-size: 20px
+  chip-border-radius: 17px
+  chip-box-shadow: none
+  chip-border-width: 0px
+  chip-spacing: 8px
+  # Bar-card severity colours (softer)
+  bar-low-color: "#3FA66B"
+  bar-mid-color: "#E08A2E"
+  bar-high-color: "#D9534F"
+
+  # Buttons: primary (loud) is now solid so "Add integration" and dialog
+  # actions are readable; secondary (normal) stays soft glass
+  wa-color-brand-fill-loud: "#E5E7EB"
+  wa-color-brand-on-loud: "#0b0b0c"
+  wa-color-brand-border-loud: "#E5E7EB"
+  wa-color-brand-fill-normal: "rgba(229,231,235,0.12)"
+  wa-color-brand-on-normal: "#f5f5f7"
+  wa-color-brand-border-normal: "rgba(229,231,235,0.35)"
+  wa-color-neutral-fill-normal: "rgba(255,255,255,0.05)"
+  wa-color-neutral-border-normal: "rgba(255,255,255,0.12)"
+  wa-form-control-border-width: 1px
+  ha-color-fill-primary-loud-resting: "var(--primary-color)"
+  ha-color-fill-primary-loud-hover: "color-mix(in srgb, var(--primary-color) 82%, white)"
+  ha-color-fill-primary-loud-active: "color-mix(in srgb, var(--primary-color) 78%, black)"
+  ha-color-on-primary-loud: "var(--primary-background-color)"
+  # Input boxes and pickers
+  ha-color-form-background: "rgba(255,255,255,0.05)"
+  ha-border-radius-sm: 14px
+  ha-color-border-neutral-loud: "rgba(229,231,235,0.45)"
+  input-fill-color: "rgba(255,255,255,0.05)"
+  input-idle-line-color: "rgba(255,255,255,0.12)"
+  input-hover-line-color: "rgba(229,231,235,0.6)"
+  mdc-text-field-fill-color: "rgba(255,255,255,0.05)"
+  mdc-shape-small: 14px
+
+  # Search bars and inputs (ha-input / ha-input-search)
+  ha-color-form-background-hover: "rgba(255,255,255,0.09)"
+  ha-color-form-background-disabled: "rgba(255,255,255,0.025)"
+  ha-color-border-neutral-quiet: "rgba(255,255,255,0.14)"
+  ha-color-border-neutral-normal: "rgba(255,255,255,0.28)"
+  ha-color-text-secondary: "#9aa6bd"
+  ha-color-focus: "rgba(var(--color-blue),0.6)"
+
+  # Hover and fill states (integration cards, chips, selected menu items)
+  ha-color-fill-neutral-quiet-resting: "rgba(var(--color-blue),0.08)"
+  ha-color-fill-neutral-quiet-hover: "rgba(var(--color-blue),0.14)"
+  ha-color-fill-neutral-quiet-active: "rgba(var(--color-blue),0.06)"
+  ha-color-fill-neutral-normal-resting: "rgba(255,255,255,0.06)"
+  ha-color-fill-neutral-normal-hover: "rgba(255,255,255,0.10)"
+  ha-color-fill-neutral-normal-active: "rgba(255,255,255,0.06)"
+  ha-color-fill-primary-quiet-resting: "rgba(var(--color-blue),0.08)"
+  ha-color-fill-primary-quiet-hover: "rgba(var(--color-blue),0.14)"
+  ha-color-fill-primary-quiet-active: "rgba(var(--color-blue),0.08)"
+  ha-color-fill-primary-normal-resting: "rgba(var(--color-blue),0.16)"
+  ha-color-fill-primary-normal-hover: "rgba(var(--color-blue),0.24)"
+  ha-color-fill-primary-normal-active: "rgba(var(--color-blue),0.16)"
+
+  # Toggle switches
+  ha-switch-background-color: "rgba(255,255,255,0.08)"
+  ha-switch-background-color-hover: "rgba(255,255,255,0.14)"
+  ha-switch-border-color: "rgba(255,255,255,0.22)"
+  ha-switch-thumb-background-color: "#9aa6bd"
+  ha-switch-thumb-border-color: "#9aa6bd"
+  ha-switch-checked-background-color: "rgba(var(--color-blue),0.35)"
+  ha-switch-checked-background-color-hover: "rgba(var(--color-blue),0.5)"
+  ha-switch-checked-border-color: "var(--primary-color)"
+  ha-switch-checked-thumb-background-color: "var(--primary-color)"
+  ha-switch-checked-thumb-border-color: "var(--primary-color)"
+
+  # Cards nested inside stack-in-card cards lose their own border/background
+  card-mod-card: |
+    :host-context(vertical-stack-in-card) ha-card:not([style*="solid 0.5px"]),
+    :host-context(stack-in-card) ha-card:not([style*="solid 0.5px"]) {
+      background: none !important;
+      border: none !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
+    }
+    :host(vertical-stack-in-card) ha-card:not([style*="solid 0.5px"]):not([data-x]),
+    :host(stack-in-card) ha-card:not([style*="solid 0.5px"]):not([data-x]) {
+      background: linear-gradient(145deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01)) !important;
+      border: 1px solid rgba(255,255,255,0.07) !important;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.45) !important;
+      backdrop-filter: blur(18px) saturate(140%) !important;
+    }
+    :host-context(vertical-stack-in-card) ha-card[style*="solid 0.5px"],
+    :host-context(stack-in-card) ha-card[style*="solid 0.5px"] {
+      border: 1px solid rgba(255,255,255,0.16) !important;
+      border-radius: 14px !important;
+    }
+    :host(button-card) ha-card * {
+      --ha-card-border-width: 0px;
+      --ha-card-background: none;
+      --ha-card-box-shadow: none;
+      --ha-card-backdrop-filter: none;
+      --glass-chip-bg: transparent;
+      --glass-chip-border: transparent;
+    }
+    :host(mushroom-chip) ha-card {
+      background: var(--glass-chip-bg, rgba(255,255,255,0.06)) !important;
+      border: 1px solid var(--glass-chip-border, rgba(255,255,255,0.09)) !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
+    }
+
+  ha-color-primary-05: "#0c0c0e"
+  ha-color-primary-10: "#18191b"
+  ha-color-primary-20: "#303236"
+  ha-color-primary-30: "#484b51"
+  ha-color-primary-40: "#60646c"
+  ha-color-primary-50: "#787d87"
+  ha-color-primary-60: "#93979f"
+  ha-color-primary-70: "#aeb1b7"
+  ha-color-primary-80: "#c9cbcf"
+  ha-color-primary-90: "#e4e5e7"
+  ha-color-primary-95: "#f1f2f3"
+  # Dropdown and popup surfaces
+  wa-color-surface-default: "rgba(21,21,22,1)"
+  ha-color-surface-default: "rgba(21,21,22,1)"
+  wa-panel-border-radius: 18px
+  ha-border-radius-md: 16px
+  wa-shadow-l: "0 12px 40px rgba(0,0,0,0.55)"
+  ha-box-shadow-m: "0 12px 40px rgba(0,0,0,0.55)"
+
+  card-mod-theme: "Glass Graphite"
+  card-mod-view-yaml: |
+    "*:first-child$": |
+      #columns .column > * {
+        padding-left: 5px;
+        padding-right: 5px;
+        padding-bottom: 5px;
+      }
+  # card-mod-card: |
+  #   ha-card:active {
+  #     transform: translateY(-1.5px);
+  #     transition: 0s;
+  #     box-shadow: 0 0.5px 2px 0 rgba(0, 0, 0, 0.16);
+  #   }
+  modes:
+    light:
+      # text
+      primary-text-color: "#DDDDDD"
+      # main interface colors
+      primary-color: "#E5E7EB"
+      google-red: "#F18B82"
+      google-green: "#80C994"
+      google-yellow: "#FCD663"
+      google-blue: "#E5E7EB"
+      google-violet: "#BB86FC"
+      google-grey: "#BBBBBB"
+      color-red: "241, 139, 130"
+      color-green: "128, 201, 148"
+      color-yellow: "252, 214, 99"
+      color-blue: "229, 231, 235"
+      color-theme: "221,221,221"
+      color-purple: "102, 31, 255"
+      color-grey: "187, 187, 187"
+      color-pink: "233, 30, 99"
+      color-background-yellow: "var(--color-yellow)"
+      color-background-blue: "var(--color-blue)"
+      color-background-green: "var(--color-green)"
+      color-background-red: "var(--color-red)"
+      color-background-pink: "var(--color-pink)"
+      color-background-purple: "var(--color-purple)"
+      color-yellow-text: "var(--color-yellow)"
+      color-blue-text: "var(--color-blue)"
+      color-green-text: "var(--color-green)"
+      color-red-text: "var(--color-red)"
+      color-pink-text: "var(--color-pink)"
+      color-purple-text: "var(--color-purple)"
+      opacity-bg: "0.1"
+      # floating button text color
+      mdc-theme-on-secondary: "var(--card-background-color)"
+      # background and sidebar
+      card-background-color: "#151516"
+      primary-background-color: "#0b0b0c"
+      secondary-background-color: "#151516"
+      # header
+      app-header-text-color: "var(--primary-text-color)"
+      app-header-background-color: "rgba(11,11,12,0.55)"
+      paper-tabs-selection-bar-color: "var(--primary-text-color)"
+      # Sidebar
+      sidebar-selected-text-color: "rgb(var(--color-blue))"
+      sidebar-selected-icon-color: "rgb(var(--color-blue))"
+      # Slider
+      slider-color: "rgb(var(--color-blue))"
+      slider-bar-color: "rgba(var(--color-blue),0.38)"
+      # card
+      box-shadow: "none"
+      # media player
+      mini-media-player-accent-color: "var(--google-blue)"
+      # Journal
+      state-icon-color: "rgb(var(--color-theme))"
+
+    dark:
+      # text
+      primary-text-color: "#DDDDDD"
+      # main interface colors
+      primary-color: "#E5E7EB"
+      google-red: "#F18B82"
+      google-green: "#80C994"
+      google-yellow: "#FCD663"
+      google-blue: "#E5E7EB"
+      google-violet: "#BB86FC"
+      google-grey: "#BBBBBB"
+      color-red: "241, 139, 130"
+      color-green: "128, 201, 148"
+      color-yellow: "252, 214, 99"
+      color-blue: "229, 231, 235"
+      color-theme: "221,221,221"
+      color-purple: "102, 31, 255"
+      color-grey: "187, 187, 187"
+      color-pink: "233, 30, 99"
+      color-background-yellow: "var(--color-yellow)"
+      color-background-blue: "var(--color-blue)"
+      color-background-green: "var(--color-green)"
+      color-background-red: "var(--color-red)"
+      color-background-pink: "var(--color-pink)"
+      color-background-purple: "var(--color-purple)"
+      color-yellow-text: "var(--color-yellow)"
+      color-blue-text: "var(--color-blue)"
+      color-green-text: "var(--color-green)"
+      color-red-text: "var(--color-red)"
+      color-pink-text: "var(--color-pink)"
+      color-purple-text: "var(--color-purple)"
+      opacity-bg: "0.1"
+      # floating button text color
+      mdc-theme-on-secondary: "var(--card-background-color)"
+      # background and sidebar
+      card-background-color: "#151516"
+      primary-background-color: "#0b0b0c"
+      secondary-background-color: "#151516"
+      # header
+      app-header-text-color: "var(--primary-text-color)"
+      app-header-background-color: "rgba(11,11,12,0.55)"
+      paper-tabs-selection-bar-color: "var(--primary-text-color)"
+      # Sidebar
+      sidebar-selected-text-color: "rgb(var(--color-blue))"
+      sidebar-selected-icon-color: "rgb(var(--color-blue))"
+      # Slider
+      slider-color: "rgb(var(--color-blue))"
+      slider-bar-color: "rgba(var(--color-blue),0.38)"
+      # card
+      box-shadow: "none"
+      # media player
+      mini-media-player-accent-color: "var(--google-blue)"
+      # Journal
+      state-icon-color: "rgb(var(--color-theme))"
