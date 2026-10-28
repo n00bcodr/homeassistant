@@ -41,6 +41,14 @@
       "master-token-format": "Eit master token byrjar med aas_et/ og er 223 teikn langt. Kopier heile tokenet."
     }
   },
+  "exceptions": {
+    "alarms_and_timers_not_fetched": {
+      "message": "Klarte ikkje å hente gjeldande alarmar og tidtakarar frå {device}, så ingenting vart sletta frå denne eininga. Kontroller at eininga er på nett, og prøv igjen seinare."
+    },
+    "alarms_and_timers_not_fetched_from_devices": {
+      "message": "Klarte ikkje å hente gjeldande alarmar og tidtakarar frå desse einingane, så ingenting vart sletta frå dei: {devices}. Kontroller at einingane er på nett, og prøv igjen seinare."
+    }
+  },
   "options": {
     "step": {
       "init": {
@@ -88,11 +96,31 @@
           "name": "Hopp over oppdatering"
         },
         "entity_id": {
-          "description": "Svarar til ei Google Home-eining (sensor.xxxx_alarms).",
+          "description": "Svarar til ei Google Home-eining (sensor.xxxx_timers).",
           "name": "Entitet"
         }
       },
       "name": "Slett tidtakar"
+    },
+    "delete_all_alarms": {
+      "description": "Slett alle alarmar frå Google Home-einingar.",
+      "fields": {
+        "skip_refresh": {
+          "description": "Hopp over oppdatering av Google Home-einingar etter å ha sletta alarmane.",
+          "name": "Hopp over oppdatering"
+        }
+      },
+      "name": "Slett alle alarmar"
+    },
+    "delete_all_timers": {
+      "description": "Slett alle tidtakarar frå Google Home-einingar.",
+      "fields": {
+        "skip_refresh": {
+          "description": "Hopp over oppdatering av Google Home-einingar etter å ha sletta tidtakarane.",
+          "name": "Hopp over oppdatering"
+        }
+      },
+      "name": "Slett alle tidtakarar"
     },
     "reboot_device": {
       "description": "Start ei Google Home-eining på nytt.",

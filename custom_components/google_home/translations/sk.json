@@ -41,6 +41,14 @@
       "master-token-format": "Hlavný token sa začína aas_et/ a má 223 znakov. Skopírujte celý token."
     }
   },
+  "exceptions": {
+    "alarms_and_timers_not_fetched": {
+      "message": "Nepodarilo sa načítať aktuálne budíky a časovače zo zariadenia {device}, preto sa z neho nič neodstránilo. Skontrolujte, či je zariadenie online, a skúste to znova neskôr."
+    },
+    "alarms_and_timers_not_fetched_from_devices": {
+      "message": "Nepodarilo sa načítať aktuálne budíky a časovače z nasledujúcich zariadení, preto sa z nich nič neodstránilo: {devices}. Skontrolujte, či sú zariadenia online, a skúste to znova neskôr."
+    }
+  },
   "options": {
     "step": {
       "init": {
@@ -66,7 +74,7 @@
           "name": "ID budíka"
         },
         "skip_refresh": {
-          "description": "Preskočiť obnovenie zariadení Google Home po odstránení budíka.",
+          "description": "Preskočiť obnovenie stavu zariadení Google Home po odstránení budíka.",
           "name": "Preskočiť obnovenie"
         },
         "entity_id": {
@@ -84,15 +92,35 @@
           "name": "ID časovača"
         },
         "skip_refresh": {
-          "description": "Preskočiť obnovenie zariadení Google Home po odstránení časovača.",
+          "description": "Preskočiť obnovenie stavu zariadení Google Home po odstránení časovača.",
           "name": "Preskočiť obnovenie"
         },
         "entity_id": {
-          "description": "Zodpovedá zariadeniu Google Home (sensor.xxxx_alarms).",
+          "description": "Zodpovedá zariadeniu Google Home (sensor.xxxx_timers).",
           "name": "Entita"
         }
       },
       "name": "Odstrániť časovač"
+    },
+    "delete_all_alarms": {
+      "description": "Odstrániť všetky budíky zo zariadení Google Home.",
+      "fields": {
+        "skip_refresh": {
+          "description": "Preskočiť obnovenie stavu zariadení Google Home po odstránení budíkov.",
+          "name": "Preskočiť obnovenie"
+        }
+      },
+      "name": "Odstrániť všetky budíky"
+    },
+    "delete_all_timers": {
+      "description": "Odstrániť všetky časovače zo zariadení Google Home.",
+      "fields": {
+        "skip_refresh": {
+          "description": "Preskočiť obnovenie stavu zariadení Google Home po odstránení časovačov.",
+          "name": "Preskočiť obnovenie"
+        }
+      },
+      "name": "Odstrániť všetky časovače"
     },
     "reboot_device": {
       "description": "Reštartovať zariadenie Google Home.",

@@ -41,6 +41,14 @@
       "master-token-format": "Token główny zaczyna się od aas_et/ i ma 223 znaki. Skopiuj cały token."
     }
   },
+  "exceptions": {
+    "alarms_and_timers_not_fetched": {
+      "message": "Nie udało się pobrać aktualnych alarmów i timerów z urządzenia {device}, więc nic z niego nie usunięto. Sprawdź, czy urządzenie jest online, i spróbuj ponownie później."
+    },
+    "alarms_and_timers_not_fetched_from_devices": {
+      "message": "Nie udało się pobrać aktualnych alarmów i timerów z tych urządzeń, więc nic z nich nie usunięto: {devices}. Sprawdź, czy urządzenia są online, i spróbuj ponownie później."
+    }
+  },
   "options": {
     "step": {
       "init": {
@@ -88,11 +96,31 @@
           "name": "Pomiń odświeżanie"
         },
         "entity_id": {
-          "description": "Odpowiada urządzeniu Google Home (sensor.xxxx_alarms).",
+          "description": "Odpowiada urządzeniu Google Home (sensor.xxxx_timers).",
           "name": "Encja"
         }
       },
       "name": "Usuń timer"
+    },
+    "delete_all_alarms": {
+      "description": "Usuń wszystkie alarmy z urządzeń Google Home.",
+      "fields": {
+        "skip_refresh": {
+          "description": "Pomiń odświeżanie urządzeń Google Home po usunięciu alarmów.",
+          "name": "Pomiń odświeżanie"
+        }
+      },
+      "name": "Usuń wszystkie alarmy"
+    },
+    "delete_all_timers": {
+      "description": "Usuń wszystkie timery z urządzeń Google Home.",
+      "fields": {
+        "skip_refresh": {
+          "description": "Pomiń odświeżanie urządzeń Google Home po usunięciu timerów.",
+          "name": "Pomiń odświeżanie"
+        }
+      },
+      "name": "Usuń wszystkie timery"
     },
     "reboot_device": {
       "description": "Uruchom ponownie urządzenie Google Home.",

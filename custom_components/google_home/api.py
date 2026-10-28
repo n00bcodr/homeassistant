@@ -4,6 +4,7 @@ import asyncio
 from http import HTTPStatus
 import ipaddress
 import logging
+from time import monotonic
 from typing import Literal, cast
 
 from aiohttp import ClientError, ClientSession, ClientTimeout
@@ -22,6 +23,8 @@ from .const import (
     API_ENDPOINT_DO_NOT_DISTURB,
     API_ENDPOINT_EUREKA_INFO,
     API_ENDPOINT_REBOOT,
+    FETCH_DEVICES_EVERY,
+    FETCH_DEVICES_INTERVAL,
     HEADER_CAST_LOCAL_AUTH,
     HEADER_CONTENT_TYPE,
     JSON_ALARM,
@@ -31,7 +34,7 @@ from .const import (
     PORT,
     TIMEOUT,
 )
-from .exceptions import InvalidMasterToken
+from .exceptions import AlarmsAndTimersNotFetched, InvalidMasterToken
 from .models import GoogleHomeDevice
 from .types import AlarmJsonDict, JsonDict, TimerJsonDict
 
@@ -60,20 +63,23 @@ class GlocaltokensApiClient:
         self._password = password
         self._session = session
         self._android_id = android_id
-        verbose = _LOGGER.level == logging.DEBUG
         self._client = GLocalAuthenticationTokens(
             username=username,
             password=password,
             master_token=master_token,
             oauth_token=oauth_token,
             android_id=android_id,
-            verbose=verbose,
         )
         self.google_devices: list[GoogleHomeDevice] = []
-        # Whether Google's device list was fetched, as a failed fetch returns none
+        # Whether google_devices is the list of the last successful fetch, which can
+        # be empty. It isn't until a fetch succeeds, or once a device rejects its
+        # token.
         self.google_devices_fetched = False
         self.zeroconf_instance = zeroconf_instance
         self.known_hosts = known_hosts or []
+        self.updates_until_fetch = FETCH_DEVICES_EVERY
+        # Setup fetches the list straight after creating the client
+        self.next_scheduled_fetch = monotonic() + FETCH_DEVICES_INTERVAL
 
     async def async_get_master_token(self) -> str:
         """Get master API token."""
@@ -109,13 +115,17 @@ class GlocaltokensApiClient:
             _LOGGER.debug("Failed to get the account's email address", exc_info=True)
             return None
 
-    async def get_google_devices(self) -> list[GoogleHomeDevice]:
+    async def get_google_devices(
+        self, *, refetch: bool = False
+    ) -> list[GoogleHomeDevice]:
         """Get google device authentication tokens.
 
         Note this method will fetch necessary access tokens if missing.
         """
 
-        if not self.google_devices:
+        if not self.google_devices_fetched or refetch:
+            # Whether this works or not, the next scheduled fetch waits a full interval
+            self.next_scheduled_fetch = monotonic() + FETCH_DEVICES_INTERVAL
 
             def _get_google_devices() -> list[Device]:
                 return self._client.get_google_devices(
@@ -126,33 +136,34 @@ class GlocaltokensApiClient:
             google_devices = await self.hass.async_add_executor_job(_get_google_devices)
             # glocaltokens drops the home graph before fetching it and returns no
             # devices if it can't get it again, for example when signing in fails
-            self.google_devices_fetched = self._client.homegraph is not None
-            # glocaltokens names a device found by mDNS after what it announces, such
-            # as one speaker of a pair, and doesn't keep the ID that devices report
-            # locally. Take both from Google's list instead.
-            google_items = (
-                {
-                    item.device_info.device_id: item
-                    for item in self._client.homegraph.home.devices
-                }
-                if self._client.homegraph is not None
-                else {}
-            )
+            if self._client.homegraph is None:
+                # Keep the devices of an earlier fetch rather than drop them
+                return self.google_devices
+            self.google_devices_fetched = True
+            known_devices = {device.device_id: device for device in self.google_devices}
             self.google_devices = []
-            for device in google_devices:
-                item = google_items.get(device.device_id)
-                self.google_devices.append(
-                    GoogleHomeDevice(
-                        device_id=device.device_id,
-                        name=item.device_name if item else device.device_name,
-                        auth_token=device.local_auth_token,
-                        ip_address=device.ip_address,
-                        hardware=device.hardware,
-                        cloud_device_id=(
-                            item.device_info.agent_info.unique_id if item else None
-                        ),
-                    )
+            for google_device in google_devices:
+                device = GoogleHomeDevice(
+                    device_id=google_device.device_id,
+                    name=google_device.device_name,
+                    auth_token=google_device.local_auth_token,
+                    ip_address=google_device.ip_address,
+                    hardware=google_device.hardware,
+                    cloud_device_id=google_device.cloud_device_id,
                 )
+                # Keep a known device's alarms, timers and settings, so a device
+                # that doesn't answer this update doesn't lose them
+                if known_device := known_devices.get(device.device_id):
+                    known_device.name = device.name
+                    known_device.auth_token = device.auth_token
+                    # mDNS can miss a device that it found before: keep its address
+                    known_device.ip_address = (
+                        device.ip_address or known_device.ip_address
+                    )
+                    known_device.hardware = device.hardware
+                    known_device.cloud_device_id = device.cloud_device_id
+                    device = known_device
+                self.google_devices.append(device)
             # Known hosts are only asked when mDNS left a device without an address
             if self.known_hosts and any(
                 not device.ip_address and device.cloud_device_id
@@ -160,6 +171,29 @@ class GlocaltokensApiClient:
             ):
                 await self.async_use_known_hosts()
         return self.google_devices
+
+    async def async_fetch_devices_when_due(self) -> None:
+        """Fetch Google's device list again when it may have changed.
+
+        Once an hour, to find devices added in or removed from the Google Home app.
+        And every few updates while a device has no address: a device that was
+        offline at setup has none until the list is fetched again.
+        """
+        # Until the list is known, every update fetches it anyway
+        if not self.google_devices_fetched:
+            return
+        if monotonic() < self.next_scheduled_fetch:
+            if all(device.ip_address for device in self.google_devices):
+                return
+            self.updates_until_fetch -= 1
+            if self.updates_until_fetch > 0:
+                return
+        self.updates_until_fetch = FETCH_DEVICES_EVERY
+        _LOGGER.debug("Fetching Google's device list again")
+        try:
+            await self.get_google_devices(refetch=True)
+        except RequestException:
+            _LOGGER.debug("Failed to fetch Google's device list", exc_info=True)
 
     async def async_use_known_hosts(self) -> None:
         """Give devices that mDNS didn't find the address of the known host they're at.
@@ -236,6 +270,7 @@ class GlocaltokensApiClient:
     async def update_google_devices_information(self) -> list[GoogleHomeDevice]:
         """Retrieve devices from glocaltokens and fetches alarm/timer data from each of the device."""
 
+        await self.async_fetch_devices_when_due()
         devices = await self.get_google_devices()
 
         # Gives the user a warning if the device is offline
@@ -271,45 +306,54 @@ class GlocaltokensApiClient:
         return await self.update_do_not_disturb(device)
 
     async def update_alarms_and_timers(
-        self, device: GoogleHomeDevice
+        self, device: GoogleHomeDevice, *, polling: bool = True
     ) -> GoogleHomeDevice:
-        """Fetch timers and alarms from google device."""
+        """Fetch timers and alarms from google device.
+
+        Unless polling, raise if they can't be fetched, so an action doesn't
+        work from the alarms and timers of the last update.
+        """
         response = await self.request(
-            method="GET", endpoint=API_ENDPOINT_ALARMS, device=device, polling=True
+            method="GET", endpoint=API_ENDPOINT_ALARMS, device=device, polling=polling
         )
 
+        if response is not None and JSON_TIMER in response and JSON_ALARM in response:
+            device.set_timers(cast(list[TimerJsonDict], response[JSON_TIMER]))
+            device.set_alarms(cast(list[AlarmJsonDict], response[JSON_ALARM]))
+            _LOGGER.debug(
+                "Successfully retrieved alarms and timers from %s. Response: %s",
+                device.name,
+                response,
+            )
+            return device
         if response is not None:
-            if JSON_TIMER in response and JSON_ALARM in response:
-                device.set_timers(cast(list[TimerJsonDict], response[JSON_TIMER]))
-                device.set_alarms(cast(list[AlarmJsonDict], response[JSON_ALARM]))
-                _LOGGER.debug(
-                    "Successfully retrieved alarms and timers from %s. Response: %s",
-                    device.name,
-                    response,
-                )
-            else:
-                _LOGGER.error(
-                    (
-                        "Failed to parse fetched alarms and timers for device %s - "
-                        "API returned unknown json structure. "
-                        "Received = %s"
-                    ),
-                    device.name,
-                    response,
-                )
+            _LOGGER.error(
+                (
+                    "Failed to parse fetched alarms and timers for device %s - "
+                    "API returned unknown json structure. "
+                    "Received = %s"
+                ),
+                device.name,
+                response,
+            )
+        if not polling:
+            raise AlarmsAndTimersNotFetched(device.name)
         return device
 
     async def delete_alarm_or_timer(
-        self, device: GoogleHomeDevice, item_to_delete: str
+        self, device: GoogleHomeDevice, items_to_delete: list[str]
     ) -> None:
-        """Delete a timer or alarm.
+        """Delete one or more timers or alarms in a single request.
 
-        Can also delete multiple if a list is provided (Not implemented yet).
+        Once the device confirms, also remove them from the device's data.
         """
 
-        data = {"ids": [item_to_delete]}
+        if not items_to_delete:
+            return
 
-        item_type = item_to_delete.split("/", maxsplit=1)[0]
+        data = {"ids": items_to_delete}
+
+        item_type = items_to_delete[0].split("/", maxsplit=1)[0]
 
         _LOGGER.debug(
             "Deleting %s from Google Home device %s - Raw data: %s",
@@ -330,6 +374,7 @@ class GlocaltokensApiClient:
                         item_type,
                         device.name,
                     )
+                    device.remove_alarms_and_timers(items_to_delete)
                 else:
                     _LOGGER.error(
                         "Couldn't delete %s for %s - %s",
@@ -340,7 +385,7 @@ class GlocaltokensApiClient:
             else:
                 _LOGGER.error(
                     (
-                        "Failed to get a confirmation that the %s"
+                        "Failed to get a confirmation that the %s "
                         "was deleted for device %s. "
                         "Received = %s"
                     ),
@@ -550,8 +595,10 @@ class GlocaltokensApiClient:
                             "Token will be refreshed, please try again later.",
                             device.name,
                         )
-                    # We need to retry the update task instead of just cleaning the list
-                    self.google_devices = []
+                    # Fetch Google's list, with new tokens, at the next update. Keep
+                    # the devices meanwhile, so the fetch keeps their data, and the
+                    # others still update if Google can't be reached.
+                    self.google_devices_fetched = False
                     device.available = False
                 elif response.status == HTTPStatus.NOT_FOUND:
                     _LOGGER.debug(

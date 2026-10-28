@@ -41,6 +41,14 @@
       "master-token-format": "Et master token starter med aas_et/ og er 223 tegn langt. Kopiér hele tokenet."
     }
   },
+  "exceptions": {
+    "alarms_and_timers_not_fetched": {
+      "message": "Kunne ikke hente de aktuelle alarmer og timere fra {device}, så der blev ikke slettet noget fra enheden. Kontrollér, at den er online, og prøv igen senere."
+    },
+    "alarms_and_timers_not_fetched_from_devices": {
+      "message": "Kunne ikke hente de aktuelle alarmer og timere fra disse enheder, så der blev ikke slettet noget fra dem: {devices}. Kontrollér, at de er online, og prøv igen senere."
+    }
+  },
   "options": {
     "step": {
       "init": {
@@ -88,11 +96,31 @@
           "name": "Spring opdatering over"
         },
         "entity_id": {
-          "description": "Svarer til en Google Home-enhed (sensor.xxxx_alarms).",
+          "description": "Svarer til en Google Home-enhed (sensor.xxxx_timers).",
           "name": "Entitet"
         }
       },
       "name": "Slet timer"
+    },
+    "delete_all_alarms": {
+      "description": "Slet alle alarmer fra Google Home-enheder.",
+      "fields": {
+        "skip_refresh": {
+          "description": "Spring opdatering af Google Home-enheder over efter sletning af alarmerne.",
+          "name": "Spring opdatering over"
+        }
+      },
+      "name": "Slet alle alarmer"
+    },
+    "delete_all_timers": {
+      "description": "Slet alle timere fra Google Home-enheder.",
+      "fields": {
+        "skip_refresh": {
+          "description": "Spring opdatering af Google Home-enheder over efter sletning af timerne.",
+          "name": "Spring opdatering over"
+        }
+      },
+      "name": "Slet alle timere"
     },
     "reboot_device": {
       "description": "Genstart en Google Home-enhed.",

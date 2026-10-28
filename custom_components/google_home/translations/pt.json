@@ -41,6 +41,14 @@
       "master-token-format": "Um token principal começa por aas_et/ e tem 223 caracteres. Copie o token completo."
     }
   },
+  "exceptions": {
+    "alarms_and_timers_not_fetched": {
+      "message": "Não foi possível obter os alarmes e temporizadores atuais do dispositivo {device}, pelo que nada foi eliminado desse dispositivo. Verifique se está online e tente novamente mais tarde."
+    },
+    "alarms_and_timers_not_fetched_from_devices": {
+      "message": "Não foi possível obter os alarmes e temporizadores atuais dos seguintes dispositivos, pelo que nada foi eliminado desses dispositivos: {devices}. Verifique se estão online e tente novamente mais tarde."
+    }
+  },
   "options": {
     "step": {
       "init": {
@@ -88,11 +96,31 @@
           "name": "Ignorar atualização"
         },
         "entity_id": {
-          "description": "Corresponde a um dispositivo Google Home (sensor.xxxx_alarms).",
+          "description": "Corresponde a um dispositivo Google Home (sensor.xxxx_timers).",
           "name": "Entidade"
         }
       },
       "name": "Eliminar temporizador"
+    },
+    "delete_all_alarms": {
+      "description": "Eliminar todos os alarmes dos dispositivos Google Home.",
+      "fields": {
+        "skip_refresh": {
+          "description": "Ignorar a atualização dos dispositivos Google Home depois de eliminar os alarmes.",
+          "name": "Ignorar atualização"
+        }
+      },
+      "name": "Eliminar todos os alarmes"
+    },
+    "delete_all_timers": {
+      "description": "Eliminar todos os temporizadores dos dispositivos Google Home.",
+      "fields": {
+        "skip_refresh": {
+          "description": "Ignorar a atualização dos dispositivos Google Home depois de eliminar os temporizadores.",
+          "name": "Ignorar atualização"
+        }
+      },
+      "name": "Eliminar todos os temporizadores"
     },
     "reboot_device": {
       "description": "Reiniciar um dispositivo Google Home.",

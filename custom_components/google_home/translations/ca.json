@@ -41,6 +41,14 @@
       "master-token-format": "Un testimoni mestre comença per aas_et/ i té 223 caràcters. Copia el testimoni sencer."
     }
   },
+  "exceptions": {
+    "alarms_and_timers_not_fetched": {
+      "message": "No s'han pogut obtenir les alarmes i els temporitzadors actuals de {device}, de manera que no s'ha eliminat res d'aquest dispositiu. Comprova que estigui en línia i torna-ho a provar més tard."
+    },
+    "alarms_and_timers_not_fetched_from_devices": {
+      "message": "No s'han pogut obtenir les alarmes i els temporitzadors actuals d'aquests dispositius, de manera que no se n'ha eliminat res: {devices}. Comprova que estiguin en línia i torna-ho a provar més tard."
+    }
+  },
   "options": {
     "step": {
       "init": {
@@ -88,11 +96,31 @@
           "name": "Omet l'actualització"
         },
         "entity_id": {
-          "description": "Correspon a un dispositiu Google Home (sensor.xxxx_alarms).",
+          "description": "Correspon a un dispositiu Google Home (sensor.xxxx_timers).",
           "name": "Entitat"
         }
       },
       "name": "Elimina temporitzador"
+    },
+    "delete_all_alarms": {
+      "description": "Elimina totes les alarmes dels dispositius Google Home.",
+      "fields": {
+        "skip_refresh": {
+          "description": "Omet l'actualització dels dispositius de Google Home després d'haver suprimit les alarmes.",
+          "name": "Omet l'actualització"
+        }
+      },
+      "name": "Elimina totes les alarmes"
+    },
+    "delete_all_timers": {
+      "description": "Elimina tots els temporitzadors dels dispositius Google Home.",
+      "fields": {
+        "skip_refresh": {
+          "description": "Omet l'actualització dels dispositius de Google Home després d'haver suprimit els temporitzadors.",
+          "name": "Omet l'actualització"
+        }
+      },
+      "name": "Elimina tots els temporitzadors"
     },
     "reboot_device": {
       "description": "Reinicia un dispositiu Google Home.",

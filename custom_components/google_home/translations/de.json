@@ -41,6 +41,14 @@
       "master-token-format": "Ein Master-Token beginnt mit aas_et/ und ist 223 Zeichen lang. Kopiere das vollständige Token."
     }
   },
+  "exceptions": {
+    "alarms_and_timers_not_fetched": {
+      "message": "Die aktuellen Wecker und Timer konnten nicht von {device} abgerufen werden. Daher wurde auf diesem Gerät nichts gelöscht. Prüfe, ob es online ist, und versuche es später erneut."
+    },
+    "alarms_and_timers_not_fetched_from_devices": {
+      "message": "Die aktuellen Wecker und Timer konnten von den folgenden Geräten nicht abgerufen werden: {devices}. Daher wurde auf diesen Geräten nichts gelöscht. Prüfe, ob sie online sind, und versuche es später erneut."
+    }
+  },
   "options": {
     "step": {
       "init": {
@@ -88,11 +96,31 @@
           "name": "Aktualisierung überspringen"
         },
         "entity_id": {
-          "description": "Entspricht einem Google Home-Gerät (sensor.xxxx_alarms).",
+          "description": "Entspricht einem Google Home-Gerät (sensor.xxxx_timers).",
           "name": "Entität"
         }
       },
       "name": "Timer löschen"
+    },
+    "delete_all_alarms": {
+      "description": "Alle Wecker von Google Home-Geräten löschen.",
+      "fields": {
+        "skip_refresh": {
+          "description": "Aktualisierung der Google Home-Geräte nach dem Löschen der Wecker überspringen.",
+          "name": "Aktualisierung überspringen"
+        }
+      },
+      "name": "Alle Wecker löschen"
+    },
+    "delete_all_timers": {
+      "description": "Alle Timer von Google Home-Geräten löschen.",
+      "fields": {
+        "skip_refresh": {
+          "description": "Aktualisierung der Google Home-Geräte nach dem Löschen der Timer überspringen.",
+          "name": "Aktualisierung überspringen"
+        }
+      },
+      "name": "Alle Timer löschen"
     },
     "reboot_device": {
       "description": "Ein Google Home-Gerät neu starten.",
