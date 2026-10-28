@@ -1,0 +1,44 @@
+blueprint:
+  name: Synchronize states
+  description: Synchronize the on/off state of 2 entities
+  domain: automation
+  input:
+    entity_1:
+      name: First entity
+      selector:
+        entity: {}
+    entity_2:
+      name: Second entity
+      selector:
+        entity: {}
+  source_url: https://community.home-assistant.io/t/synchronize-the-on-off-state-of-2-entities/259010
+mode: restart
+max_exceeded: silent
+variables:
+  entity_1: !input entity_1
+  entity_2: !input entity_2
+trigger:
+- platform: state
+  entity_id: !input entity_1
+  to:
+  - 'off'
+  - 'on'
+- platform: state
+  entity_id: !input entity_2
+  to:
+  - 'off'
+  - 'on'
+condition:
+- condition: template
+  value_template: '{{ states(entity_1) != states(entity_2) }}'
+- condition: template
+  value_template: '{{ trigger.to_state.state != trigger.from_state.state }}'
+- condition: template
+  value_template: '{{ trigger.to_state.context.parent_id is none or (trigger.to_state.context.id
+    != this.context.id and trigger.to_state.context.parent_id != this.context.id)
+    }}'
+action:
+- service: homeassistant.turn_{{ trigger.to_state.state }}
+  data:
+    entity_id: '{% if trigger.from_state.entity_id == entity_1 %} {{ entity_2 }} {%
+      else %} {{ entity_1 }} {% endif %}'
