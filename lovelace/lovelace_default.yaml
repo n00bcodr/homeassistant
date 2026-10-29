@@ -5702,6 +5702,12 @@ views:
           method: state
         type: custom:auto-entities
       type: vertical-stack
+    type: grid
+    visibility:
+    - condition: user
+      users:
+      - 74f7e2ffd3594037b1a2fc4de82d9fea
+  - cards:
     - cards:
       - alignment: center
         chips:
@@ -5790,13 +5796,524 @@ views:
               service: shell_command.git_marketplace_update
             type: template
           type: custom:mushroom-chips-card
+        - cards:
+          - cards:
+            - entities:
+              - icon: catppuccin:git
+                name: /n00bcodr/Jellyfin-Enhanced
+                type: weblink
+                url: https://github.com/n00bcodr/Jellyfin-Enhanced
+              type: entities
+            - cards:
+              - double_tap_action:
+                  action: more-info
+                entity: sensor.n00bcodr_jellyfin_enhanced_stars
+                hold_action:
+                  action: none
+                icon: mdi:star
+                icon_color: amber
+                layout: vertical
+                primary: '{{ states(''sensor.n00bcodr_jellyfin_enhanced_stars'') |
+                  replace(''unavailable'', ''–'') }}'
+                secondary: Stars
+                tap_action:
+                  action: url
+                  url_path: https://github.com/n00bcodr/Jellyfin-Enhanced/stargazers
+                type: custom:mushroom-template-card
+              - double_tap_action:
+                  action: more-info
+                entity: sensor.n00bcodr_jellyfin_enhanced_forks
+                hold_action:
+                  action: none
+                icon: mdi:source-fork
+                icon_color: blue
+                layout: vertical
+                primary: '{{ states(''sensor.n00bcodr_jellyfin_enhanced_forks'') |
+                  replace(''unavailable'', ''–'') }}'
+                secondary: Forks
+                tap_action:
+                  action: url
+                  url_path: https://github.com/n00bcodr/Jellyfin-Enhanced/forks
+                type: custom:mushroom-template-card
+              - double_tap_action:
+                  action: more-info
+                entity: sensor.n00bcodr_jellyfin_enhanced_latest_release_downloads
+                hold_action:
+                  action: none
+                icon: mdi:download
+                icon_color: green
+                layout: vertical
+                primary: '{{ states(''sensor.n00bcodr_jellyfin_enhanced_latest_release_downloads'')
+                  | replace(''unavailable'', ''–'') }}'
+                secondary: Downloads
+                tap_action:
+                  action: url
+                  url_path: https://github.com/n00bcodr/Jellyfin-Enhanced/releases/latest
+                type: custom:mushroom-template-card
+              - double_tap_action:
+                  action: more-info
+                entity: sensor.n00bcodr_jellyfin_enhanced_issues
+                hold_action:
+                  action: none
+                icon: mdi:bug
+                icon_color: red
+                layout: vertical
+                primary: '{{ states(''sensor.n00bcodr_jellyfin_enhanced_issues'')
+                  | replace(''unavailable'', ''–'') }}'
+                secondary: Issues
+                tap_action:
+                  action: url
+                  url_path: https://github.com/n00bcodr/Jellyfin-Enhanced/issues
+                type: custom:mushroom-template-card
+              - double_tap_action:
+                  action: more-info
+                entity: sensor.n00bcodr_jellyfin_enhanced_pull_requests
+                hold_action:
+                  action: none
+                icon: mdi:source-pull
+                icon_color: orange
+                layout: vertical
+                primary: '{{ states(''sensor.n00bcodr_jellyfin_enhanced_pull_requests'')
+                  | replace(''unavailable'', ''–'') }}'
+                secondary: PRs
+                tap_action:
+                  action: url
+                  url_path: https://github.com/n00bcodr/Jellyfin-Enhanced/pulls
+                type: custom:mushroom-template-card
+              - double_tap_action:
+                  action: more-info
+                entity: sensor.n00bcodr_jellyfin_enhanced_merged_pull_requests
+                hold_action:
+                  action: none
+                icon: mdi:source-merge
+                icon_color: purple
+                layout: vertical
+                primary: '{{ states(''sensor.n00bcodr_jellyfin_enhanced_merged_pull_requests'')
+                  | replace(''unavailable'', ''–'') }}'
+                secondary: Merged
+                tap_action:
+                  action: url
+                  url_path: https://github.com/n00bcodr/Jellyfin-Enhanced/pulls?q=is%3Apr+is%3Amerged
+                type: custom:mushroom-template-card
+              columns: 3
+              square: false
+              type: grid
+            - entity: sensor.n00bcodr_jellyfin_enhanced_latest_commit
+              icon: mdi:source-commit
+              name: '[[[ return entity.state ]]]'
+              show_state: false
+              styles:
+                card:
+                - padding: 8px 16px
+                - background: none
+                - box-shadow: none
+                - border: none
+                grid:
+                - grid-template-areas: '"i n"'
+                - grid-template-columns: 28px 1fr
+                icon:
+                - color: grey
+                - width: 20px
+                name:
+                - justify-self: start
+                - text-align: left
+                - white-space: normal
+                - font-size: 13px
+              tap_action:
+                action: url
+                url_path: '[[[ return entity.attributes.url ]]]'
+              type: custom:button-card
+            type: vertical-stack
+          - cards:
+            - entities:
+              - icon: catppuccin:git
+                name: /n00bcodr/Jellyfin-JavaScript-Injector
+                type: weblink
+                url: https://github.com/n00bcodr/Jellyfin-JavaScript-Injector
+              type: entities
+            - cards:
+              - double_tap_action:
+                  action: more-info
+                entity: sensor.n00bcodr_jellyfin_javascript_injector_stars
+                hold_action:
+                  action: none
+                icon: mdi:star
+                icon_color: amber
+                layout: vertical
+                primary: '{{ states(''sensor.n00bcodr_jellyfin_javascript_injector_stars'')
+                  | replace(''unavailable'', ''–'') }}'
+                secondary: Stars
+                tap_action:
+                  action: url
+                  url_path: https://github.com/n00bcodr/Jellyfin-JavaScript-Injector/stargazers
+                type: custom:mushroom-template-card
+              - double_tap_action:
+                  action: more-info
+                entity: sensor.n00bcodr_jellyfin_javascript_injector_forks
+                hold_action:
+                  action: none
+                icon: mdi:source-fork
+                icon_color: blue
+                layout: vertical
+                primary: '{{ states(''sensor.n00bcodr_jellyfin_javascript_injector_forks'')
+                  | replace(''unavailable'', ''–'') }}'
+                secondary: Forks
+                tap_action:
+                  action: url
+                  url_path: https://github.com/n00bcodr/Jellyfin-JavaScript-Injector/forks
+                type: custom:mushroom-template-card
+              - double_tap_action:
+                  action: more-info
+                entity: sensor.n00bcodr_jellyfin_javascript_injector_latest_release_downloads
+                hold_action:
+                  action: none
+                icon: mdi:download
+                icon_color: green
+                layout: vertical
+                primary: '{{ states(''sensor.n00bcodr_jellyfin_javascript_injector_latest_release_downloads'')
+                  | replace(''unavailable'', ''–'') }}'
+                secondary: Downloads
+                tap_action:
+                  action: url
+                  url_path: https://github.com/n00bcodr/Jellyfin-JavaScript-Injector/releases/latest
+                type: custom:mushroom-template-card
+              - double_tap_action:
+                  action: more-info
+                entity: sensor.n00bcodr_jellyfin_javascript_injector_issues
+                hold_action:
+                  action: none
+                icon: mdi:bug
+                icon_color: red
+                layout: vertical
+                primary: '{{ states(''sensor.n00bcodr_jellyfin_javascript_injector_issues'')
+                  | replace(''unavailable'', ''–'') }}'
+                secondary: Issues
+                tap_action:
+                  action: url
+                  url_path: https://github.com/n00bcodr/Jellyfin-JavaScript-Injector/issues
+                type: custom:mushroom-template-card
+              - double_tap_action:
+                  action: more-info
+                entity: sensor.n00bcodr_jellyfin_javascript_injector_pull_requests
+                hold_action:
+                  action: none
+                icon: mdi:source-pull
+                icon_color: orange
+                layout: vertical
+                primary: '{{ states(''sensor.n00bcodr_jellyfin_javascript_injector_pull_requests'')
+                  | replace(''unavailable'', ''–'') }}'
+                secondary: PRs
+                tap_action:
+                  action: url
+                  url_path: https://github.com/n00bcodr/Jellyfin-JavaScript-Injector/pulls
+                type: custom:mushroom-template-card
+              - double_tap_action:
+                  action: more-info
+                entity: sensor.n00bcodr_jellyfin_javascript_injector_merged_pull_requests
+                hold_action:
+                  action: none
+                icon: mdi:source-merge
+                icon_color: purple
+                layout: vertical
+                primary: '{{ states(''sensor.n00bcodr_jellyfin_javascript_injector_merged_pull_requests'')
+                  | replace(''unavailable'', ''–'') }}'
+                secondary: Merged
+                tap_action:
+                  action: url
+                  url_path: https://github.com/n00bcodr/Jellyfin-JavaScript-Injector/pulls?q=is%3Apr+is%3Amerged
+                type: custom:mushroom-template-card
+              columns: 3
+              square: false
+              type: grid
+            - entity: sensor.n00bcodr_jellyfin_javascript_injector_latest_commit
+              icon: mdi:source-commit
+              name: '[[[ return entity.state ]]]'
+              show_state: false
+              styles:
+                card:
+                - padding: 8px 16px
+                - background: none
+                - box-shadow: none
+                - border: none
+                grid:
+                - grid-template-areas: '"i n"'
+                - grid-template-columns: 28px 1fr
+                icon:
+                - color: grey
+                - width: 20px
+                name:
+                - justify-self: start
+                - text-align: left
+                - white-space: normal
+                - font-size: 13px
+              tap_action:
+                action: url
+                url_path: '[[[ return entity.attributes.url ]]]'
+              type: custom:button-card
+            type: vertical-stack
+          - cards:
+            - entities:
+              - icon: catppuccin:git
+                name: /n00bcodr/JellyfinTweaks
+                type: weblink
+                url: https://github.com/n00bcodr/JellyfinTweaks
+              type: entities
+            - cards:
+              - double_tap_action:
+                  action: more-info
+                entity: sensor.n00bcodr_jellyfintweaks_stars
+                hold_action:
+                  action: none
+                icon: mdi:star
+                icon_color: amber
+                layout: vertical
+                primary: '{{ states(''sensor.n00bcodr_jellyfintweaks_stars'') | replace(''unavailable'',
+                  ''–'') }}'
+                secondary: Stars
+                tap_action:
+                  action: url
+                  url_path: https://github.com/n00bcodr/JellyfinTweaks/stargazers
+                type: custom:mushroom-template-card
+              - double_tap_action:
+                  action: more-info
+                entity: sensor.n00bcodr_jellyfintweaks_forks
+                hold_action:
+                  action: none
+                icon: mdi:source-fork
+                icon_color: blue
+                layout: vertical
+                primary: '{{ states(''sensor.n00bcodr_jellyfintweaks_forks'') | replace(''unavailable'',
+                  ''–'') }}'
+                secondary: Forks
+                tap_action:
+                  action: url
+                  url_path: https://github.com/n00bcodr/JellyfinTweaks/forks
+                type: custom:mushroom-template-card
+              - double_tap_action:
+                  action: more-info
+                entity: sensor.n00bcodr_jellyfintweaks_latest_release_downloads
+                hold_action:
+                  action: none
+                icon: mdi:download
+                icon_color: green
+                layout: vertical
+                primary: '{{ states(''sensor.n00bcodr_jellyfintweaks_latest_release_downloads'')
+                  | replace(''unavailable'', ''–'') }}'
+                secondary: Downloads
+                tap_action:
+                  action: url
+                  url_path: https://github.com/n00bcodr/JellyfinTweaks/releases/latest
+                type: custom:mushroom-template-card
+              - double_tap_action:
+                  action: more-info
+                entity: sensor.n00bcodr_jellyfintweaks_issues
+                hold_action:
+                  action: none
+                icon: mdi:bug
+                icon_color: red
+                layout: vertical
+                primary: '{{ states(''sensor.n00bcodr_jellyfintweaks_issues'') | replace(''unavailable'',
+                  ''–'') }}'
+                secondary: Issues
+                tap_action:
+                  action: url
+                  url_path: https://github.com/n00bcodr/JellyfinTweaks/issues
+                type: custom:mushroom-template-card
+              - double_tap_action:
+                  action: more-info
+                entity: sensor.n00bcodr_jellyfintweaks_pull_requests
+                hold_action:
+                  action: none
+                icon: mdi:source-pull
+                icon_color: orange
+                layout: vertical
+                primary: '{{ states(''sensor.n00bcodr_jellyfintweaks_pull_requests'')
+                  | replace(''unavailable'', ''–'') }}'
+                secondary: PRs
+                tap_action:
+                  action: url
+                  url_path: https://github.com/n00bcodr/JellyfinTweaks/pulls
+                type: custom:mushroom-template-card
+              - double_tap_action:
+                  action: more-info
+                entity: sensor.n00bcodr_jellyfintweaks_merged_pull_requests
+                hold_action:
+                  action: none
+                icon: mdi:source-merge
+                icon_color: purple
+                layout: vertical
+                primary: '{{ states(''sensor.n00bcodr_jellyfintweaks_merged_pull_requests'')
+                  | replace(''unavailable'', ''–'') }}'
+                secondary: Merged
+                tap_action:
+                  action: url
+                  url_path: https://github.com/n00bcodr/JellyfinTweaks/pulls?q=is%3Apr+is%3Amerged
+                type: custom:mushroom-template-card
+              columns: 3
+              square: false
+              type: grid
+            - entity: sensor.n00bcodr_jellyfintweaks_latest_commit
+              icon: mdi:source-commit
+              name: '[[[ return entity.state ]]]'
+              show_state: false
+              styles:
+                card:
+                - padding: 8px 16px
+                - background: none
+                - box-shadow: none
+                - border: none
+                grid:
+                - grid-template-areas: '"i n"'
+                - grid-template-columns: 28px 1fr
+                icon:
+                - color: grey
+                - width: 20px
+                name:
+                - justify-self: start
+                - text-align: left
+                - white-space: normal
+                - font-size: 13px
+              tap_action:
+                action: url
+                url_path: '[[[ return entity.attributes.url ]]]'
+              type: custom:button-card
+            type: vertical-stack
+          - cards:
+            - entities:
+              - icon: catppuccin:git
+                name: /n00bcodr/Jellyfish
+                type: weblink
+                url: https://github.com/n00bcodr/Jellyfish
+              type: entities
+            - cards:
+              - double_tap_action:
+                  action: more-info
+                entity: sensor.n00bcodr_jellyfish_stars
+                hold_action:
+                  action: none
+                icon: mdi:star
+                icon_color: amber
+                layout: vertical
+                primary: '{{ states(''sensor.n00bcodr_jellyfish_stars'') | replace(''unavailable'',
+                  ''–'') }}'
+                secondary: Stars
+                tap_action:
+                  action: url
+                  url_path: https://github.com/n00bcodr/Jellyfish/stargazers
+                type: custom:mushroom-template-card
+              - double_tap_action:
+                  action: more-info
+                entity: sensor.n00bcodr_jellyfish_forks
+                hold_action:
+                  action: none
+                icon: mdi:source-fork
+                icon_color: blue
+                layout: vertical
+                primary: '{{ states(''sensor.n00bcodr_jellyfish_forks'') | replace(''unavailable'',
+                  ''–'') }}'
+                secondary: Forks
+                tap_action:
+                  action: url
+                  url_path: https://github.com/n00bcodr/Jellyfish/forks
+                type: custom:mushroom-template-card
+              - double_tap_action:
+                  action: more-info
+                entity: sensor.n00bcodr_jellyfish_latest_release_downloads
+                hold_action:
+                  action: none
+                icon: mdi:download
+                icon_color: green
+                layout: vertical
+                primary: '{{ states(''sensor.n00bcodr_jellyfish_latest_release_downloads'')
+                  | replace(''unavailable'', ''–'') }}'
+                secondary: Downloads
+                tap_action:
+                  action: url
+                  url_path: https://github.com/n00bcodr/Jellyfish/releases/latest
+                type: custom:mushroom-template-card
+              - double_tap_action:
+                  action: more-info
+                entity: sensor.n00bcodr_jellyfish_issues
+                hold_action:
+                  action: none
+                icon: mdi:bug
+                icon_color: red
+                layout: vertical
+                primary: '{{ states(''sensor.n00bcodr_jellyfish_issues'') | replace(''unavailable'',
+                  ''–'') }}'
+                secondary: Issues
+                tap_action:
+                  action: url
+                  url_path: https://github.com/n00bcodr/Jellyfish/issues
+                type: custom:mushroom-template-card
+              - double_tap_action:
+                  action: more-info
+                entity: sensor.n00bcodr_jellyfish_pull_requests
+                hold_action:
+                  action: none
+                icon: mdi:source-pull
+                icon_color: orange
+                layout: vertical
+                primary: '{{ states(''sensor.n00bcodr_jellyfish_pull_requests'') |
+                  replace(''unavailable'', ''–'') }}'
+                secondary: PRs
+                tap_action:
+                  action: url
+                  url_path: https://github.com/n00bcodr/Jellyfish/pulls
+                type: custom:mushroom-template-card
+              - double_tap_action:
+                  action: more-info
+                entity: sensor.n00bcodr_jellyfish_merged_pull_requests
+                hold_action:
+                  action: none
+                icon: mdi:source-merge
+                icon_color: purple
+                layout: vertical
+                primary: '{{ states(''sensor.n00bcodr_jellyfish_merged_pull_requests'')
+                  | replace(''unavailable'', ''–'') }}'
+                secondary: Merged
+                tap_action:
+                  action: url
+                  url_path: https://github.com/n00bcodr/Jellyfish/pulls?q=is%3Apr+is%3Amerged
+                type: custom:mushroom-template-card
+              columns: 3
+              square: false
+              type: grid
+            - entity: sensor.n00bcodr_jellyfish_latest_commit
+              icon: mdi:source-commit
+              name: '[[[ return entity.state ]]]'
+              show_state: false
+              styles:
+                card:
+                - padding: 8px 16px
+                - background: none
+                - box-shadow: none
+                - border: none
+                grid:
+                - grid-template-areas: '"i n"'
+                - grid-template-columns: 28px 1fr
+                icon:
+                - color: grey
+                - width: 20px
+                name:
+                - justify-self: start
+                - text-align: left
+                - white-space: normal
+                - font-size: 13px
+              tap_action:
+                action: url
+                url_path: '[[[ return entity.attributes.url ]]]'
+              type: custom:button-card
+            type: vertical-stack
+          columns: 2
+          square: false
+          type: grid
         type: custom:vertical-stack-in-card
+      grid_options:
+        columns: full
       type: vertical-stack
+    column_span: 3
     type: grid
-    visibility:
-    - condition: user
-      users:
-      - 74f7e2ffd3594037b1a2fc4de82d9fea
   type: sections
   visible:
   - user: 74f7e2ffd3594037b1a2fc4de82d9fea
