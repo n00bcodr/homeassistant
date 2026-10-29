@@ -1,7 +1,8 @@
 - id: homeassistant_update_notification
   alias: ⚙️HomeAssistant Update notification
   triggers:
-  - entity_id:
+  - trigger: state
+    entity_id:
     - update.home_assistant_core_update
     from: 'off'
     to: 'on'
@@ -9,11 +10,13 @@
       hours: 0
       minutes: 0
       seconds: 0
-    trigger: state
   conditions: []
   actions:
-  - choose:
-    - conditions:
+  - alias: 'Choose by Minor version update: ''on'' / ''off'''
+    choose:
+    - alias: "If Minor version update is 'on': notify pixel8pro '\U0001F195 Minor
+        version Updating!' → install Home Assistant Core Update"
+      conditions:
       - condition: state
         entity_id: binary_sensor.minor_version_update
         state: 'on'
@@ -30,7 +33,7 @@
               is available.
             tag: update
             clickAction: /lovelace/updates
-            icon_url: /local/images/party.png
+            icon_url: /local/images/notifications/party.png
             sticky: 'true'
         enabled: false
       - action: update.install
@@ -40,7 +43,9 @@
         target:
           entity_id: update.home_assistant_core_update
         enabled: false
-    - conditions:
+    - alias: "If Minor version update is 'off': notify pixel8pro '\U0001F195 Update
+        Available!'"
+      conditions:
       - condition: state
         entity_id: binary_sensor.minor_version_update
         state: 'off'
@@ -57,19 +62,20 @@
               is available.
             tag: update
             clickAction: /lovelace/updates
-            icon_url: /local/images/party.png
+            icon_url: /local/images/notifications/party.png
             sticky: 'true'
   mode: single
 - id: music_spotify
   alias: "\U0001F3B5Music Jukebox"
   triggers:
-  - event_type: tag_scanned
-    trigger: event
+  - trigger: event
+    event_type: tag_scanned
   conditions:
   - condition: template
     value_template: '{{ trigger.event.data.tag_id in tags }}'
   actions:
-  - variables:
+  - alias: Set uri
+    variables:
       uri: '{{ tags[trigger.event.data.tag_id].uri }}'
   - action: spotcast.play_media
     data:
@@ -127,14 +133,15 @@
 - id: player_controls
   alias: "\U0001F3B5Player Controls"
   description: ''
-  trigger:
-  - platform: event
+  triggers:
+  - trigger: event
     event_type: tag_scanned
-  condition:
+  conditions:
   - condition: template
     value_template: '{{ trigger.event.data.tag_id in tags }}'
-  action:
-  - variables:
+  actions:
+  - alias: Set action
+    variables:
       action: '{{ tags[trigger.event.data.tag_id].service }}'
   - action: '{{ action }}'
     target:
@@ -151,11 +158,11 @@
 - id: '1636123727125'
   alias: ⚙️Shopping list update
   description: ''
-  trigger:
-  - platform: state
+  triggers:
+  - trigger: state
     entity_id: input_text.shopping_list
-  condition: []
-  action:
+  conditions: []
+  actions:
   - action: script.add_shopping_list
     data: {}
   mode: single
@@ -163,20 +170,24 @@
   alias: ⚙️Homeassistant Start/Stop
   description: Runs various automations based on homeassistant starting or stopping.
   triggers:
-  - event: shutdown
+  - trigger: homeassistant
+    event: shutdown
     id: shutdown
-    trigger: homeassistant
-  - event: start
+  - trigger: homeassistant
+    event: start
     id: start
-    trigger: homeassistant
   conditions: []
   actions:
-  - choose:
-    - conditions:
+  - alias: 'Choose: Home Assistant shutdowns / Home Assistant starts'
+    choose:
+    - alias: 'If Home Assistant shutdowns: do nothing'
+      conditions:
       - condition: trigger
         id: shutdown
       sequence: []
-    - conditions:
+    - alias: 'If Home Assistant starts: rest_command reload google sheets music →
+        rest_command reload google sheets weight'
+      conditions:
       - condition: trigger
         id: start
       sequence:
@@ -189,34 +200,34 @@
 - id: '1654855874344'
   alias: ⚙️Convert Lovelace configuration to yaml
   description: ''
-  trigger:
-  - platform: event
+  triggers:
+  - trigger: event
     event_type: lovelace_updated
     event_data: {}
-  condition: []
-  action:
+  conditions: []
+  actions:
   - action: shell_command.convert_lovelace
     data: {}
   mode: single
 - id: '1655137751596'
   alias: ⚙️Tag Github with version when core updated
   description: ''
-  trigger:
-  - platform: homeassistant
+  triggers:
+  - trigger: homeassistant
     event: start
-  condition: []
-  action:
-  - action: hassio.addon_restart
-    metadata: {}
-    data:
-      addon: core_git_pull
-  - delay:
+  conditions: []
+  actions:
+  - alias: Wait 1 min
+    delay:
       hours: 0
       minutes: 1
       seconds: 0
       milliseconds: 0
-  - condition: template
-    value_template: '{{states.sensor.current_version.state > states.sensor.n00bcodr_homeassistant_latest_tag.state}}'
+  - alias: Only continue if the running Core version is newer than the last GitHub
+      tag
+    condition: template
+    value_template: '{{ version(states(''sensor.current_version'')) > states(''sensor.n00bcodr_homeassistant_latest_tag'')
+      }}'
   - action: notify.mobile_app_pixel8pro
     data:
       message: Update tag in GitHub?
@@ -224,7 +235,7 @@
       data:
         tag: update
         notification_icon: mdi:git
-        icon_url: /local/images/HA_logo.png
+        icon_url: /local/images/emoji/label.png
         color: red
         actions:
         - action: tag_update
@@ -237,12 +248,14 @@
   alias: "\U0001F3ACCapture Shared URL - Google TV"
   description: Captures the URL shared and updates input_text ccgtv_share_url
   triggers:
-  - event_type: mobile_app.share
-    trigger: event
+  - trigger: event
+    event_type: mobile_app.share
   conditions: []
   actions:
-  - choose:
-    - conditions:
+  - alias: 'Choose by app: Netflix / Amazon Prime / Hotstar / YouTube'
+    choose:
+    - alias: 'If the shared link is from Netflix: set value of ccgtv_share_url'
+      conditions:
       - condition: template
         value_template: '{{ trigger.event.data|regex_search(''com.netflix'', ignorecase=TRUE)
           }}'
@@ -255,7 +268,8 @@
             '
         target:
           entity_id: input_text.ccgtv_share_url
-    - conditions:
+    - alias: 'If the shared link is from Amazon Prime: set value of ccgtv_share_url'
+      conditions:
       - condition: template
         value_template: '{{ trigger.event.data|regex_search(''com.amazon'', ignorecase=TRUE)
           }}'
@@ -268,7 +282,8 @@
             '
         target:
           entity_id: input_text.ccgtv_share_url
-    - conditions:
+    - alias: 'If the shared link is from Hotstar: set value of ccgtv_share_url'
+      conditions:
       - condition: template
         value_template: '{{ trigger.event.data|regex_search(''startv.hotstar'', ignorecase=TRUE)
           }}'
@@ -281,7 +296,8 @@
             '
         target:
           entity_id: input_text.ccgtv_share_url
-    - conditions:
+    - alias: 'If the shared link is from YouTube: set value of ccgtv_share_url'
+      conditions:
       - condition: template
         value_template: '{{ trigger.event.data|regex_search(''youtu.be'', ignorecase=TRUE)
           }}'
@@ -311,24 +327,24 @@
   alias: "\U0001F3F0Den off"
   description: Turns off all things in DEN when I exit.
   triggers:
-  - tag_id: 5f5bedc8-6a15-486a-ab22-49ce237dde40
+  - trigger: tag
+    tag_id: 5f5bedc8-6a15-486a-ab22-49ce237dde40
     enabled: true
-    trigger: tag
-  - event_type: mobile_app_notification_action
+  - trigger: event
+    event_type: mobile_app_notification_action
     event_data:
       action: Den_OFF
-    trigger: event
-  - entity_id:
+  - trigger: state
+    entity_id:
     - input_boolean.den
     from: 'on'
     to: 'off'
-    trigger: state
-  - domain: mqtt
+  - trigger: device
+    domain: mqtt
     device_id: 3fd72c6a517024c03b9531259c2d55d9
     type: action
     subtype: long
     discovery_id: 0x00124b001eaa8251 action_long
-    trigger: device
   - trigger: state
     entity_id:
     - person.pavanthanuj
@@ -341,11 +357,17 @@
     - Work
   conditions: []
   actions:
-  - choose:
-    - conditions:
-      - condition: template
-        value_template: '{{(states.media_player.spotify.attributes.source) != ''Pixel
-          8 Pro''}}'
+  - alias: 'Choose by Spotify source: not ''Pixel 8 Pro'' / ''Pixel 8 Pro'''
+    choose:
+    - alias: 'If Spotify source is not ''Pixel 8 Pro'': save scene → turn off Workstation
+        Socket, Shapes +3 (+1 more)'
+      conditions:
+      - condition: not
+        conditions:
+        - condition: state
+          entity_id: media_player.spotify
+          attribute: source
+          state: Pixel 8 Pro
       sequence:
       - action: scene.create
         data:
@@ -370,10 +392,13 @@
         target:
           entity_id:
           - media_player.spotify
-    - conditions:
-      - condition: template
-        value_template: '{{(states.media_player.spotify.attributes.source) == ''Pixel
-          8 Pro''}}'
+    - alias: 'If Spotify source is ''Pixel 8 Pro'': save scene → turn off Workstation
+        Socket, Shapes +2'
+      conditions:
+      - condition: state
+        entity_id: media_player.spotify
+        attribute: source
+        state: Pixel 8 Pro
       sequence:
       - action: scene.create
         data:
@@ -395,29 +420,33 @@
   alias: "\U0001F3F0Den Button"
   description: ''
   triggers:
-  - domain: mqtt
+  - trigger: device
+    domain: mqtt
     device_id: 3fd72c6a517024c03b9531259c2d55d9
     type: action
     subtype: single
     discovery_id: 0x00124b001eaa8251 action_single
     id: click
-    trigger: device
-  - domain: mqtt
+  - trigger: device
+    domain: mqtt
     device_id: 3fd72c6a517024c03b9531259c2d55d9
     type: action
     subtype: double
     discovery_id: 0x00124b001eaa8251 action_double
     id: doubleclick
-    trigger: device
   conditions: []
   actions:
-  - choose:
-    - conditions:
+  - alias: 'Choose by button pressed: ''single'' / ''double'''
+    choose:
+    - alias: 'If button ''single'' is pressed: Choose by Den light: ''on'' / ''off'''
+      conditions:
       - condition: trigger
         id: click
       sequence:
-      - choose:
-        - conditions:
+      - alias: 'Choose by Den light: ''on'' / ''off'''
+        choose:
+        - alias: 'If Den light is ''on'': turn off Den light'
+          conditions:
           - condition: state
             entity_id: light.light
             state: 'on'
@@ -426,7 +455,8 @@
             data: {}
             target:
               entity_id: light.light
-        - conditions:
+        - alias: 'If Den light is ''off'': turn on Den light'
+          conditions:
           - condition: state
             entity_id: light.light
             state: 'off'
@@ -438,12 +468,15 @@
             target:
               entity_id: light.light
         default: []
-    - conditions:
+    - alias: 'If button ''double'' is pressed: Choose by Den light: ''on'' / ''off'''
+      conditions:
       - condition: trigger
         id: doubleclick
       sequence:
-      - choose:
-        - conditions:
+      - alias: 'Choose by Den light: ''on'' / ''off'''
+        choose:
+        - alias: 'If Den light is ''on'': turn off Den light'
+          conditions:
           - condition: state
             entity_id: light.light
             state: 'on'
@@ -452,7 +485,8 @@
             target:
               entity_id: light.light
             data: {}
-        - conditions:
+        - alias: 'If Den light is ''off'': turn on Den light'
+          conditions:
           - condition: state
             entity_id: light.light
             state: 'off'
@@ -470,11 +504,11 @@
   alias: "\U0001F3F0Den as it was"
   description: Returns Den State to back what it was when Den OFF was triggered.
   triggers:
-  - entity_id:
+  - trigger: state
+    entity_id:
     - input_boolean.den
     from: 'off'
     to: 'on'
-    trigger: state
   conditions: []
   actions:
   - action: scene.turn_on
@@ -489,13 +523,13 @@
 - id: '1671638012875'
   alias: "\U0001F3F0Send notification if no motion in Den"
   description: ''
-  trigger:
-  - platform: state
+  triggers:
+  - trigger: state
     entity_id: binary_sensor.den_motion_occupancy
     to: 'off'
     for: 00:04:00
     from: 'on'
-  condition:
+  conditions:
   - condition: and
     conditions:
     - condition: time
@@ -515,7 +549,7 @@
         hours: 0
         minutes: 5
         seconds: 0
-  action:
+  actions:
   - action: notify.mobile_app_pixel8pro
     data:
       title: Are you there?
@@ -526,16 +560,16 @@
           title: 'NO'
         notification_icon: mdi:motion-sensor-off
         tag: den_off
-        icon_url: /local/images/ninja.png
+        icon_url: /local/images/notifications/ninja.png
   mode: single
 - id: '1671638403506'
   alias: "\U0001F3F0Desk Presence Detection"
   description: ''
   triggers:
-  - entity_id:
+  - trigger: state
+    entity_id:
     - binary_sensor.vibration_vibration
     to: 'on'
-    trigger: state
   conditions:
   - condition: and
     conditions:
@@ -552,8 +586,10 @@
       entity_id: ae489ef14055e8adb0e0f817ebadaea4
       domain: binary_sensor
   actions:
-  - choose:
-    - conditions:
+  - alias: 'Choose by Den: ''off'' / ''on'''
+    choose:
+    - alias: 'If Den is ''off'': run Den as it was'
+      conditions:
       - condition: state
         entity_id: input_boolean.den
         state: 'off'
@@ -562,7 +598,8 @@
         target:
           entity_id: automation.den_as_it_was
         data: {}
-    - conditions:
+    - alias: 'If Den is ''on'': turn on Workstation Socket'
+      conditions:
       - condition: state
         entity_id: input_boolean.den
         state: 'on'
@@ -576,19 +613,19 @@
 - id: '1672227190927'
   alias: "\U0001F3F0Clear Notification when motion is detected"
   description: ''
-  trigger:
-  - platform: state
+  triggers:
+  - trigger: state
     entity_id: binary_sensor.den_motion_occupancy
     from: 'off'
     to: 'on'
     enabled: false
-  - platform: state
+  - trigger: state
     entity_id:
     - binary_sensor.chair_occupancy
     from: 'off'
     to: 'on'
-  condition: []
-  action:
+  conditions: []
+  actions:
   - action: notify.mobile_app_pixel8pro
     data:
       data:
@@ -598,31 +635,31 @@
 - id: '1672404137791'
   alias: "\U0001F3F0 Bed IFTTT"
   description: ''
-  trigger:
-    platform: event
+  triggers:
+  - trigger: event
     event_type: ifttt_webhook_received
     event_data:
       action: call_service
-  action:
-    service_template: '{{ trigger.event.data.service }}'
-    data_template:
+  actions:
+    action: '{{ trigger.event.data.service }}'
+    data:
       entity_id: '{{ trigger.event.data.entity_id }}'
 - id: '1674758476057'
   alias: "\U0001F4A1Living Room Light Presence"
   description: ''
   triggers:
-  - entity_id:
+  - trigger: state
+    entity_id:
     - binary_sensor.living_room_presence
     to: 'on'
     from: 'off'
     id: presence
-    trigger: state
-  - entity_id:
+  - trigger: state
+    entity_id:
     - binary_sensor.living_room_presence
     to: 'off'
     from: 'on'
     id: clear
-    trigger: state
   conditions:
   - condition: and
     conditions:
@@ -637,8 +674,12 @@
       entity_id: light.chandelier
       state: 'off'
   actions:
-  - choose:
-    - conditions:
+  - alias: 'Choose: Living Room Presence turns ''on'' and it is after sunset and…
+      / Living Room Presence turns ''off'''
+    choose:
+    - alias: 'If Living Room Presence turns ''on'' and it is after sunset and before
+        sunrise or Presence sensor light level below 40: turn on…'
+      conditions:
       - condition: trigger
         id:
         - presence
@@ -656,7 +697,8 @@
           brightness_pct: 100
         target:
           entity_id: light.living_room_lamp
-    - conditions:
+    - alias: 'If Living Room Presence turns ''off'': turn off Living Room Lamp'
+      conditions:
       - condition: trigger
         id:
         - clear
@@ -689,8 +731,11 @@
     id: wash
   conditions: []
   actions:
-  - choose:
-    - conditions:
+  - alias: 'Choose by cycle: wash complete / dry complete'
+    choose:
+    - alias: "If Washing Machine State turns 'Cycle Complete': notify all phones '\U0001F9FA
+        Wash Cycle Complete'"
+      conditions:
       - condition: trigger
         id: wash
       sequence:
@@ -699,12 +744,14 @@
           message: at {{ as_timestamp(now()) | timestamp_custom('%-I:%M %p')}}
           data:
             notification_icon: mdi:washing-machine
-            icon_url: /local/images/washing_machine.png
+            icon_url: /local/images/notifications/washing_machine.png
             sticky: 'true'
-            image: /local/images/washing_machine.png
+            image: /local/images/notifications/washing_machine.png
             tag: wash_cycle
           title: "\U0001F9FA Wash Cycle Complete"
-    - conditions:
+    - alias: "If Washing Machine State turns 'Cycle Complete': notify all phones '\U0001F9FA
+        Dry Cycle Complete'"
+      conditions:
       - condition: trigger
         id: dry
       sequence:
@@ -713,37 +760,46 @@
           message: at {{ as_timestamp(now()) | timestamp_custom('%-I:%M %p')}}
           data:
             notification_icon: mdi:washing-machine
-            image: /local/images/washing_machine.png
+            image: /local/images/notifications/washing_machine.png
             tag: wash_cycle
             sticky: 'true'
-            icon_url: /local/images/HA_logo.png
+            icon_url: /local/images/emoji/basket.png
           title: "\U0001F9FA Dry Cycle Complete"
   mode: single
 - id: '1675437001659'
   alias: "\U0001F6AE\U0001F4F3Bin Pickup Notification"
   description: ''
   triggers:
-  - at: '11:00:00'
+  - trigger: time
+    at: '11:00:00'
     id: morning
     enabled: true
-    trigger: time
-  - at: '21:00:00'
+  - trigger: time
+    at: '21:00:00'
     id: night
-    trigger: time
   conditions:
   - alias: Check if the collection is in the next two days
-    condition: template
-    value_template: '{{ state_attr(''sensor.black_bin'', ''next_collection'') <= 2
-      or state_attr(''sensor.blue_bin'', ''next_collection'') <= 2 }}
-
-      '
+    condition: or
+    conditions:
+    - condition: numeric_state
+      entity_id: sensor.black_bin
+      attribute: next_collection
+      below: 3
+    - condition: numeric_state
+      entity_id: sensor.blue_bin
+      attribute: next_collection
+      below: 3
   actions:
-  - choose:
-    - conditions:
-      - condition: template
-        value_template: '{{(state_attr("sensor.black_bin", "next_collection")) ==
-          2 }}'
-        alias: Black Bin Next Collection is in 2 Days
+  - alias: 'Choose by bin and days left: black 2 / black 1 / blue 2 / blue 1 …'
+    choose:
+    - alias: 'If Black bin next collection is 2 and it is 11:00:00: Clear any existing
+        notifications → notify all phones ''Black Bin'''
+      conditions:
+      - alias: Black Bin Next Collection is in 2 Days
+        condition: state
+        entity_id: sensor.black_bin
+        attribute: next_collection
+        state: 2
       - condition: trigger
         id:
         - morning
@@ -759,16 +815,17 @@
           data:
             activationMode: foreground
             notification_icon: mdi:trash-can-outline
-            icon_url: /local/images/black_bin.png
+            icon_url: /local/images/bins/black_bin.png
             tag: bin_pickup
             color: black
           message: Pickup is in two days on {{ states.sensor.black_bin.state}}
           title: Black Bin
     - conditions:
       - alias: Black Bin Next Collection is tomorrow
-        condition: template
-        value_template: '{{(state_attr("sensor.black_bin", "next_collection")) ==
-          1 }}'
+        condition: state
+        entity_id: sensor.black_bin
+        attribute: next_collection
+        state: 1
       - condition: trigger
         id:
         - morning
@@ -783,19 +840,21 @@
         data:
           data:
             notification_icon: mdi:trash-can-outline
-            icon_url: /local/images/black_bin.png
+            icon_url: /local/images/bins/black_bin.png
             color: black
             tag: bin_pickup
           message: Pickup is tomorrow, {{ states.sensor.black_bin.state}}
           title: Black Bin
       alias: Black Bin collection is tomorrow and it is 11 AM
     - conditions:
-      - condition: template
-        value_template: '{{(state_attr("sensor.black_bin", "next_collection")) ==
-          1 }}'
-        alias: Black Bin Next Collection is in 1 Day
+      - alias: Black Bin Next Collection is in 1 Day
+        condition: state
+        entity_id: sensor.black_bin
+        attribute: next_collection
+        state: 1
       sequence:
-      - repeat:
+      - alias: 'Repeat until Bin is ''on'': Clear any existing notifications (+2 more)'
+        repeat:
           sequence:
           - action: notify.all_phones
             data:
@@ -808,14 +867,15 @@
               data:
                 notification_icon: mdi:trash-can
                 color: black
-                icon_url: /local/images/black_bin.png
+                icon_url: /local/images/bins/black_bin.png
                 tag: bin_pickup
                 actions:
                 - action: BIN_OUT
                   title: Yeah, the bin is out!
               message: Put the Black Bin out.
               title: Black Bin
-          - delay:
+          - alias: Wait 30 min
+            delay:
               hours: 0
               minutes: 30
               seconds: 0
@@ -825,11 +885,14 @@
             entity_id: input_boolean.bin
             state: 'on'
       alias: Black Bin collection is tomorrow, is the bin out?
-    - conditions:
-      - condition: template
-        value_template: '{{(state_attr("sensor.blue_bin", "next_collection")) == 2
-          }}'
-        alias: Blue Bin Next Collection is in 2 Days
+    - alias: 'If Blue bin next collection is 2 and it is 11:00:00: Clear any existing
+        notifications → notify all phones ''Blue Bin'''
+      conditions:
+      - alias: Blue Bin Next Collection is in 2 Days
+        condition: state
+        entity_id: sensor.blue_bin
+        attribute: next_collection
+        state: 2
       - condition: trigger
         id:
         - morning
@@ -844,16 +907,17 @@
         data:
           data:
             notification_icon: mdi:trash-can
-            icon_url: /local/images/blue_bin.png
+            icon_url: /local/images/bins/blue_bin.png
             tag: bin_pickup
             color: blue
           message: Pickup is in two days on {{ states.sensor.blue_bin.state}}
           title: Blue Bin
     - conditions:
       - alias: Blue Bin Next Collection is tomorrow
-        condition: template
-        value_template: '{{(state_attr("sensor.blue_bin", "next_collection")) == 1
-          }}'
+        condition: state
+        entity_id: sensor.blue_bin
+        attribute: next_collection
+        state: 1
       - condition: trigger
         id:
         - morning
@@ -868,19 +932,21 @@
         data:
           data:
             notification_icon: mdi:trash-can
-            icon_url: /local/images/blue_bin.png
+            icon_url: /local/images/bins/blue_bin.png
             tag: bin_pickup
             color: blue
           message: Pickup is tomorrow, {{ states.sensor.blue_bin.state}}
           title: Blue Bin
       alias: Blue Bin Collection is tomorrow and it is 11 AM
     - conditions:
-      - condition: template
-        value_template: '{{(state_attr("sensor.blue_bin", "next_collection")) == 1
-          }}'
-        alias: Blue Bin Next Collection is in 1 Day
+      - alias: Blue Bin Next Collection is in 1 Day
+        condition: state
+        entity_id: sensor.blue_bin
+        attribute: next_collection
+        state: 1
       sequence:
-      - repeat:
+      - alias: 'Repeat until Bin is ''on'': Clear any existing notifications (+2 more)'
+        repeat:
           sequence:
           - action: notify.all_phones
             data:
@@ -893,14 +959,15 @@
               data:
                 notification_icon: mdi:trash-can
                 color: blue
-                icon_url: /local/images/blue_bin.png
+                icon_url: /local/images/bins/blue_bin.png
                 tag: bin_pickup
                 actions:
                 - action: BIN_OUT
                   title: Yeah, the bin is out!
               message: Put the Blue Bin out.
               title: Blue Bin
-          - delay:
+          - alias: Wait 30 min
+            delay:
               hours: 0
               minutes: 30
               seconds: 0
@@ -915,7 +982,8 @@
   alias: "\U0001F525Start/stop Timer when heating is turned on/off"
   description: ''
   triggers:
-  - entity_id:
+  - trigger: state
+    entity_id:
     - switch.heating
     for:
       hours: 0
@@ -924,8 +992,8 @@
     id: 'on'
     from: 'off'
     to: 'on'
-    trigger: state
-  - entity_id:
+  - trigger: state
+    entity_id:
     - switch.heating
     for:
       hours: 0
@@ -934,11 +1002,13 @@
     id: 'off'
     from: 'on'
     to: 'off'
-    trigger: state
   conditions: []
   actions:
-  - choose:
-    - conditions:
+  - alias: 'Choose by Heating: ''on'' / ''off'''
+    choose:
+    - alias: "If Heating turns 'on': start Heating timer → notify pixel8pro '\U0001F525
+        Heating'"
+      conditions:
       - condition: trigger
         id: 'on'
       sequence:
@@ -958,7 +1028,7 @@
             when: '{{ ((as_timestamp(now()) + 5400 ) - as_timestamp(''1970-01-01T00:00:00Z''))
               | int }}'
             notification_icon: mdi:heating-coil
-            image: /local/images/heating.png
+            image: /local/images/notifications/heating.png
             sticky: true
             persistant: true
             tag: heat
@@ -969,8 +1039,9 @@
             - action: switch.turn_off
               title: 'Off'
               entity_id: switch.heating
-            icon_url: /local/images/HA_logo.png
-    - conditions:
+            icon_url: /local/images/emoji/fire.png
+    - alias: 'If Heating turns ''off'': cancel Heating timer → notify pixel8pro ''clear_notification'''
+      conditions:
       - condition: trigger
         id: 'off'
       sequence:
@@ -988,10 +1059,10 @@
   alias: "\U0001F525Turn off heating after X minutes"
   description: ''
   triggers:
-  - event_type: timer.finished
+  - trigger: event
+    event_type: timer.finished
     event_data:
       entity_id: timer.heating
-    trigger: event
   conditions:
   - condition: state
     entity_id: switch.heating
@@ -1008,7 +1079,7 @@
       title: "\U0001F525 Turned off"
       data:
         notification_icon: mdi:fire
-        icon_url: /local/images/HA_logo.png
+        icon_url: /local/images/emoji/fire.png
   mode: single
 - id: '1679600356905'
   alias: "\U0001F4A1Synchronize states - Backyard Lights"
@@ -1022,11 +1093,11 @@
   alias: "\U0001F4A1Hallway String Lights Motion"
   description: ''
   triggers:
-  - entity_id:
+  - trigger: state
+    entity_id:
     - binary_sensor.hallway_motion_occupancy
     to: 'on'
     from: 'off'
-    trigger: state
   conditions:
   - condition: or
     conditions:
@@ -1042,14 +1113,16 @@
     target:
       entity_id:
       - light.string_lights
-  - wait_for_trigger:
+  - alias: Wait until Hallway motion turns 'off'
+    wait_for_trigger:
     - entity_id:
       - binary_sensor.hallway_motion_occupancy
       from: 'on'
       to: 'off'
       trigger: state
     continue_on_timeout: false
-  - delay:
+  - alias: Wait 1 min
+    delay:
       hours: 0
       minutes: 1
       seconds: 0
@@ -1072,17 +1145,21 @@
   alias: "\U0001F3F0Bed Routine for curtains"
   description: ''
   triggers:
-  - entity_id:
+  - trigger: state
+    entity_id:
     - binary_sensor.in_bed
     for:
       hours: 0
       minutes: 0
       seconds: 0
-    trigger: state
   conditions: []
   actions:
-  - choose:
-    - conditions:
+  - alias: 'Choose: In Bed is ''on'' and Curtains is ''open'' and time is 21:00-04:00
+      / In Bed is ''off'' and Curtains is ''closed'' and time is…'
+    choose:
+    - alias: 'If In Bed is ''on'' and Curtains is ''open'' and time is 21:00-04:00:
+        close Curtains'
+      conditions:
       - condition: state
         entity_id: binary_sensor.in_bed
         state: 'on'
@@ -1097,7 +1174,9 @@
         data: {}
         target:
           entity_id: cover.curtains
-    - conditions:
+    - alias: 'If In Bed is ''off'' and Curtains is ''closed'' and time is 06:00-11:59:
+        Wait until Toothbrush turns ''running'' (up to 10 min) → open…'
+      conditions:
       - condition: state
         entity_id: binary_sensor.in_bed
         state: 'off'
@@ -1108,7 +1187,8 @@
         after: 06:00:00
         before: '11:59:00'
       sequence:
-      - wait_for_trigger:
+      - alias: Wait until Toothbrush turns 'running' (up to 10 min)
+        wait_for_trigger:
         - entity_id:
           - sensor.toothbrush
           to: running
@@ -1127,22 +1207,21 @@
 - id: '1685201261360'
   alias: "\U0001F4A1Entrance Light Motion"
   description: ''
-  trigger:
-  - type: motion
-    platform: device
-    device_id: 59ae4f51536e6ef0aad9797908c43c4f
-    entity_id: 2469b2b43494bb595c40223eb03614cf
-    domain: binary_sensor
-  condition:
+  triggers:
+  - trigger: motion.detected
+    target:
+      entity_id: binary_sensor.porch_motion_occupancy
+  conditions:
   - condition: sun
     before: sunrise
     after: sunset
-  action:
+  actions:
   - action: homeassistant.turn_on
     data: {}
     target:
       entity_id: switch.porch_light
-  - delay:
+  - alias: Wait 50 s
+    delay:
       hours: 0
       minutes: 0
       seconds: 50
@@ -1151,12 +1230,13 @@
     data: {}
     target:
       entity_id: switch.porch_light
-  mode: single
+  mode: restart
 - id: '1687359882327'
   alias: ⚙️Reload Unavailable Entities
   description: ''
   triggers:
-  - entity_id:
+  - trigger: state
+    entity_id:
     - sensor.speedtest_download
     id: speedtest
     to: unavailable
@@ -1164,8 +1244,8 @@
       hours: 0
       minutes: 2
       seconds: 30
-    trigger: state
-  - entity_id:
+  - trigger: state
+    entity_id:
     - sensor.deep_sleep
     id: fit
     to: unavailable
@@ -1173,18 +1253,20 @@
       hours: 0
       minutes: 1
       seconds: 30
-    trigger: state
   conditions: []
   actions:
-  - choose:
-    - conditions:
+  - alias: 'Choose: Speedtest download turns ''unavailable'' / Deep sleep turns ''unavailable'''
+    choose:
+    - alias: 'If Speedtest download turns ''unavailable'': hassio addon start'
+      conditions:
       - condition: trigger
         id: speedtest
       sequence:
       - action: hassio.addon_start
         data:
           addon: 6b87c29e_speedtest_addon
-    - conditions:
+    - alias: 'If Deep sleep turns ''unavailable'': run script Reload config entries'
+      conditions:
       - condition: trigger
         id:
         - fit
@@ -1197,9 +1279,9 @@
   alias: "\U0001F3B5Text Search and Play Music on Spotify"
   description: ''
   triggers:
-  - entity_id:
+  - trigger: state
+    entity_id:
     - input_text.text_spotify
-    trigger: state
   conditions: []
   actions:
   - action: spotcast.play_from_search
@@ -1221,13 +1303,14 @@
   alias: "\U0001F3B5Music Jukebox - Living Room"
   description: Music Jukebox for the Living Room
   triggers:
-  - event_type: tag_scanned
-    trigger: event
+  - trigger: event
+    event_type: tag_scanned
   conditions:
   - condition: template
     value_template: '{{ trigger.event.data.tag_id in tags }}'
   actions:
-  - variables:
+  - alias: Set uri
+    variables:
       uri: '{{ tags[trigger.event.data.tag_id].uri }}'
   - action: spotcast.play_media
     data:
@@ -1235,7 +1318,8 @@
         entity_id: '{% if is_state(''remote.google_tv_streamer_remote'', ''on'') %}
           {{''media_player.google_tv_streamer''}} {%else%}{{''media_player.nest_mini''}}{%endif%}'
       spotify_uri: '{{ uri }}'
-  - if:
+  - alias: 'If Google TV Streamer is ''on'': select source on Google TV Streamer'
+    if:
     - condition: state
       entity_id: media_player.google_tv_streamer
       state: 'on'
@@ -1255,18 +1339,18 @@
   alias: "\U0001F4A1Kitchen Light Presence"
   description: ''
   triggers:
-  - entity_id:
+  - trigger: state
+    entity_id:
     - binary_sensor.kitchen_presence
     to: 'on'
     from: 'off'
     id: presence
-    trigger: state
-  - entity_id:
+  - trigger: state
+    entity_id:
     - binary_sensor.kitchen_presence
     to: 'off'
     from: 'on'
     id: clear
-    trigger: state
   conditions:
   - condition: or
     conditions:
@@ -1281,8 +1365,10 @@
       entity_id: switch.kitchen_light
       state: 'on'
   actions:
-  - choose:
-    - conditions:
+  - alias: 'Choose by Kitchen Presence: ''on'' / ''off'''
+    choose:
+    - alias: 'If Kitchen Presence turns ''on'': turn on Kitchen Light'
+      conditions:
       - condition: trigger
         id:
         - presence
@@ -1291,17 +1377,21 @@
         data: {}
         target:
           entity_id: light.kitchen_light
-    - conditions:
+    - alias: 'If Kitchen Presence turns ''off'': Wait 30 s → Only continue if Kitchen
+        Presence is ''off'' (+1 more)'
+      conditions:
       - condition: trigger
         id:
         - clear
       sequence:
-      - delay:
+      - alias: Wait 30 s
+        delay:
           hours: 0
           minutes: 0
           seconds: 30
           milliseconds: 0
-      - condition: state
+      - alias: Only continue if Kitchen Presence is 'off'
+        condition: state
         entity_id: binary_sensor.kitchen_presence
         state: 'off'
       - action: homeassistant.turn_off
@@ -1314,19 +1404,22 @@
   alias: "\U0001F4F3Calvin and Hobbes Notifications"
   description: ''
   triggers:
-  - event: sunrise
+  - trigger: sun
+    event: sunrise
     offset: 0
     id: sunrise
-    trigger: sun
   conditions: []
   actions:
-  - delay:
+  - alias: Wait 10 s
+    delay:
       hours: 0
       minutes: 0
       seconds: 10
       milliseconds: 0
-  - choose:
-    - conditions:
+  - alias: 'Choose: sunrise / otherwise notify pixel8pro'
+    choose:
+    - alias: 'If sunrise: send a message'
+      conditions:
       - condition: trigger
         id:
         - sunrise
@@ -1359,13 +1452,14 @@
             title: '{{as_timestamp(strptime(states.sensor.calvin_and_hobbes.attributes.publishedDate,''%Y/%m/%d''))
               | timestamp_custom(''%-d %b, %Y'') }}'
             uri: /lovelace/calvinandhobbes
-          icon_url: /local/images/HA_logo.png
+          icon_url: /local/images/emoji/tiger.png
   mode: single
 - id: '1698602804746'
   alias: "\U0001F3F0 Bed Routine"
   description: ''
   triggers:
-  - entity_id:
+  - trigger: state
+    entity_id:
     - binary_sensor.in_bed
     from: 'off'
     to: 'on'
@@ -1373,15 +1467,14 @@
       hours: 0
       minutes: 10
       seconds: 0
-    trigger: state
     id: in
-  - entity_id:
+  - trigger: state
+    entity_id:
     - binary_sensor.in_bed
     for:
       hours: 0
       minutes: 10
       seconds: 0
-    trigger: state
     from:
     - 'on'
     to:
@@ -1400,8 +1493,10 @@
       entity_id: 1c04ba793b3856b58a044bd262b89dc9
       domain: light
   actions:
-  - choose:
-    - conditions:
+  - alias: 'Choose by bed trigger: in bed / in bed or out of bed'
+    choose:
+    - alias: 'If In Bed turns ''on'': run script Bed Routine Script → turn on Lamp'
+      conditions:
       - condition: trigger
         id:
         - in
@@ -1413,7 +1508,8 @@
         target:
           entity_id: light.lamp
         data: {}
-    - conditions:
+    - alias: 'If In Bed turns ''on'' or In Bed turns ''off'': turn off Lamp'
+      conditions:
       - condition: trigger
         id:
         - in
@@ -1429,38 +1525,44 @@
   alias: "\U0001F3F0Toggle Phone to Vibrate when at Work"
   description: ''
   triggers:
-  - entity_id: person.pavanthanuj
+  - trigger: zone
+    entity_id: person.pavanthanuj
     zone: zone.work
     event: enter
     id: work
-    trigger: zone
-  - entity_id:
+  - trigger: state
+    entity_id:
     - sensor.pixel8pro_wi_fi_connection
     to: EWA@INTERNET
     id: work
-    trigger: state
-  - entity_id: person.pavanthanuj
+  - trigger: zone
+    entity_id: person.pavanthanuj
     zone: zone.work
     event: leave
     id: leave work
-    trigger: zone
-  - entity_id:
+  - trigger: state
+    entity_id:
     - sensor.pixel8pro_wi_fi_connection
     to: Mad House
     id: leave work
-    trigger: state
   conditions: []
   actions:
-  - choose:
-    - conditions:
+  - alias: 'Choose: Pixel8pro wi fi connection turns ''EWA@INTERNET'' and… / Pixel8pro
+      wi fi connection turns ''Mad House'' and Pixel8Pro…'
+    choose:
+    - alias: 'If Pixel8pro wi fi connection turns ''EWA@INTERNET'' and Pixel8Pro Ringer
+        mode is not ''vibrate'': Silence Phone when at Work → Send…'
+      conditions:
       - condition: and
         conditions:
         - condition: trigger
           id:
           - work
-        - condition: template
-          value_template: '{{ states(''sensor.pixel8pro_ringer_mode'') != ''vibrate''
-            }}'
+        - condition: not
+          conditions:
+          - condition: state
+            entity_id: sensor.pixel8pro_ringer_mode
+            state: vibrate
       sequence:
       - action: notify.mobile_app_pixel8pro
         data:
@@ -1474,18 +1576,20 @@
           data:
             notification_icon: mdi:vibrate
             timeout: 60
-            icon_url: /local/images/HA_logo.png
+            icon_url: /local/images/emoji/shush.png
           message: ' '
           title: "\U0001F92B Shhh.."
-    - conditions:
+    - alias: 'If Pixel8pro wi fi connection turns ''Mad House'' and Pixel8Pro Ringer
+        mode is ''vibrate'': Ringer when leaving work → Send…'
+      conditions:
       - condition: and
         conditions:
         - condition: trigger
           id:
           - leave work
-        - condition: template
-          value_template: '{{ states(''sensor.pixel8pro_ringer_mode'') == ''vibrate''
-            }}'
+        - condition: state
+          entity_id: sensor.pixel8pro_ringer_mode
+          state: vibrate
       sequence:
       - alias: Ringer when leaving work
         action: notify.mobile_app_pixel8pro
@@ -1499,26 +1603,30 @@
           data:
             notification_icon: mdi:volume-high
             timeout: 30
-            icon_url: /local/images/HA_logo.png
+            icon_url: /local/images/emoji/shush.png
           message: ' '
   mode: single
 - id: '1700567569365'
   alias: "\U0001F6AE\U0001F4F3Is the Bin Outside?"
   description: ''
   triggers:
-  - entity_id:
+  - trigger: state
+    entity_id:
     - binary_sensor.back_door_contact
     from: 'off'
     to: 'on'
-    trigger: state
-  - event_type: mobile_app_notification_action
+  - trigger: event
+    event_type: mobile_app_notification_action
     event_data:
       action: BIN_OUT
-    trigger: event
   conditions: []
   actions:
-  - choose:
-    - conditions:
+  - alias: 'Choose: time is 18:00-02:00 and Blue bin next collection below 2 or… /
+      the nearer bin pickup is within a day'
+    choose:
+    - alias: 'If time is 18:00-02:00 and Blue bin next collection below 2 or Black
+        bin next collection below 2: turn on Bin → notify all…'
+      conditions:
       - condition: and
         conditions:
         - condition: time
@@ -1526,12 +1634,14 @@
           before: 02:00:00
         - condition: or
           conditions:
-          - condition: template
-            value_template: '{{(state_attr("sensor.blue_bin", "next_collection"))
-              <= 1 }}'
-          - condition: template
-            value_template: '{{(state_attr("sensor.black_bin", "next_collection"))
-              <= 1 }}'
+          - condition: numeric_state
+            entity_id: sensor.blue_bin
+            attribute: next_collection
+            below: 2
+          - condition: numeric_state
+            entity_id: sensor.black_bin
+            attribute: next_collection
+            below: 2
       sequence:
       - action: input_boolean.turn_on
         target:
@@ -1542,7 +1652,8 @@
           data:
             tag: bin_pickup
           message: clear_notification
-      - variables:
+      - alias: Set black_due, blue_due, bin_name, bin_color, bin_icon_url
+        variables:
           black_due: '{{ state_attr(''sensor.black_bin'',''next_collection'') is not
             none and state_attr(''sensor.black_bin'',''next_collection'') <= 1 }}'
           blue_due: '{{ state_attr(''sensor.blue_bin'',''next_collection'') is not
@@ -1551,8 +1662,8 @@
             else ''Bin'') }}'
           bin_color: '{{ ''black'' if black_due else (''blue'' if blue_due else ''green'')
             }}'
-          bin_icon_url: '{{ ''/local/images/black_bin.png'' if black_due else (''/local/images/blue_bin.png''
-            if blue_due else '''') }}'
+          bin_icon_url: '{{ ''/local/images/bins/black_bin.png'' if black_due else
+            (''/local/images/bins/blue_bin.png'' if blue_due else '''') }}'
       - action: notify.all_phones
         data:
           data:
@@ -1563,7 +1674,8 @@
             icon_url: '{{ bin_icon_url }}'
           message: ' '
           title: '{{ bin_name }} is outside.'
-    - conditions:
+    - alias: 'If the nearer bin pickup is within a day: turn off Bin'
+      conditions:
       - condition: template
         value_template: "{% set black_next_collection = state_attr('sensor.black_bin',\n'next_collection')
           %} {% set blue_next_collection =\nstate_attr('sensor.blue_bin', 'next_collection')
@@ -1580,18 +1692,21 @@
   alias: "\U0001F3B5Move Music to Friday"
   description: ''
   triggers:
-  - tag_id: b7e48c34-d74d-4a6b-be87-491037aff87f
+  - trigger: tag
+    tag_id: b7e48c34-d74d-4a6b-be87-491037aff87f
     id: tag
-    trigger: tag
-  - entity_id:
+  - trigger: state
+    entity_id:
     - sensor.pixel8pro_charger_type
     to: wireless
     id: phone
-    trigger: state
   conditions: []
   actions:
-  - choose:
-    - conditions:
+  - alias: 'Choose: a tag is scanned / Pixel8Pro Charger type turns ''wireless'' and
+      Spotify source…'
+    choose:
+    - alias: 'If a tag is scanned: spotcast play dj'
+      conditions:
       - condition: trigger
         id:
         - tag
@@ -1600,15 +1715,18 @@
         data:
           media_player:
             entity_id: media_player.friday
-    - conditions:
+    - alias: 'If Pixel8Pro Charger type turns ''wireless'' and Spotify source is ''Pixel
+        8 Pro'': spotcast transfer playback'
+      conditions:
       - condition: and
         conditions:
         - condition: trigger
           id:
           - phone
-        - condition: template
-          value_template: '{{ is_state_attr(''media_player.spotify'', ''source'',
-            ''Pixel 8 Pro'') }}'
+        - condition: state
+          entity_id: media_player.spotify
+          attribute: source
+          state: Pixel 8 Pro
       sequence:
       - action: spotcast.transfer_playback
         data:
@@ -1619,31 +1737,33 @@
   alias: Hilary's Button
   description: ''
   triggers:
-  - domain: mqtt
+  - trigger: device
+    domain: mqtt
     device_id: b6f8b4147e2c746231ccf83a15c53889
     type: action
     subtype: 'on'
     discovery_id: 0x70ac08fffe71f036 action_on
     id: single
-    trigger: device
-  - domain: mqtt
+  - trigger: device
+    domain: mqtt
     device_id: b6f8b4147e2c746231ccf83a15c53889
     type: action
     subtype: 'off'
     discovery_id: 0x70ac08fffe71f036 action_off
     id: double
-    trigger: device
-  - domain: mqtt
+  - trigger: device
+    domain: mqtt
     device_id: b6f8b4147e2c746231ccf83a15c53889
     type: action
     subtype: brightness_move_up
     discovery_id: 0x70ac08fffe71f036 action_brightness_move_up
     id: hold
-    trigger: device
   conditions: []
   actions:
-  - choose:
-    - conditions:
+  - alias: 'Choose by button pressed: ''on'' / ''off'' / ''brightness_move_up'''
+    choose:
+    - alias: 'If button ''on'' is pressed: toggle Bed Lamp'
+      conditions:
       - condition: trigger
         id:
         - single
@@ -1652,12 +1772,14 @@
         data: {}
         target:
           entity_id: light.bed_lamp
-    - conditions:
+    - alias: 'If button ''off'' is pressed: do nothing'
+      conditions:
       - condition: trigger
         id:
         - double
       sequence: []
-    - conditions:
+    - alias: 'If button ''brightness_move_up'' is pressed: do nothing'
+      conditions:
       - condition: trigger
         id:
         - hold
@@ -1666,39 +1788,41 @@
 - id: '1704234098620'
   alias: "\U0001F3F0Curtains - Ikea Remote"
   description: ''
-  trigger:
-  - platform: device
+  triggers:
+  - trigger: device
     domain: mqtt
     device_id: 2b20c2dcd73f02e2c283f6786b16a489
     type: action
     subtype: 'off'
     discovery_id: 0xb4e3f9fffe8c1f22 action_off
     id: close
-  - platform: device
+  - trigger: device
     domain: mqtt
     device_id: 2b20c2dcd73f02e2c283f6786b16a489
     type: action
     subtype: 'on'
     discovery_id: 0xb4e3f9fffe8c1f22 action_on
     id: open
-  - platform: device
+  - trigger: device
     domain: mqtt
     device_id: 2b20c2dcd73f02e2c283f6786b16a489
     type: action
     subtype: brightness_move_down
     discovery_id: 0xb4e3f9fffe8c1f22 action_brightness_move_down
     id: hold
-  - platform: device
+  - trigger: device
     domain: mqtt
     device_id: 2b20c2dcd73f02e2c283f6786b16a489
     type: action
     subtype: brightness_move_up
     discovery_id: 0xb4e3f9fffe8c1f22 action_brightness_move_up
     id: hold
-  condition: []
-  action:
-  - choose:
-    - conditions:
+  conditions: []
+  actions:
+  - alias: 'Choose by button pressed: ''off'' / ''on'' / ''brightness_move_up'''
+    choose:
+    - alias: 'If button ''off'' is pressed: open Curtains'
+      conditions:
       - condition: trigger
         id:
         - close
@@ -1707,7 +1831,8 @@
         data: {}
         target:
           entity_id: cover.curtains
-    - conditions:
+    - alias: 'If button ''on'' is pressed: close Curtains'
+      conditions:
       - condition: trigger
         id:
         - open
@@ -1716,7 +1841,8 @@
         data: {}
         target:
           entity_id: cover.curtains
-    - conditions:
+    - alias: 'If button ''brightness_move_up'' is pressed: stop Curtains'
+      conditions:
       - condition: trigger
         id:
         - hold
@@ -1731,13 +1857,14 @@
   alias: ⚙️ SpeedTest
   description: Runs SpeedTest every 3 hours
   triggers:
-  - hours: /3
-    trigger: time_pattern
+  - trigger: time_pattern
+    hours: /3
   - trigger: homeassistant
     event: start
   conditions: []
   actions:
-  - delay:
+  - alias: Wait 30 s
+    delay:
       hours: 0
       minutes: 0
       seconds: 30
@@ -1746,13 +1873,18 @@
     metadata: {}
     data:
       addon: 6b87c29e_speedtest_addon
-  - delay:
+  - alias: Wait 30 s
+    delay:
       hours: 0
       minutes: 0
       seconds: 30
       milliseconds: 0
-  - choose:
-    - conditions:
+  - alias: 'Choose: Speedtest download below 100 and Internet speed below 4 / Internet
+      speed above 3 and Speedtest download below 100'
+    choose:
+    - alias: 'If Speedtest download below 100 and Internet speed below 4: counter
+        increment Internet speed → run Speedtest'
+      conditions:
       - condition: and
         conditions:
         - condition: numeric_state
@@ -1773,7 +1905,9 @@
           skip_condition: true
         target:
           entity_id: automation.speedtest
-    - conditions:
+    - alias: 'If Internet speed above 3 and Speedtest download below 100: counter
+        reset Internet speed → notify all phones android ''Internet…'
+      conditions:
       - condition: and
         conditions:
         - condition: numeric_state
@@ -1797,21 +1931,21 @@
           data:
             notification_icon: mdi:wifi-alert
             tag: wifi_speed
-            icon_url: /local/images/HA_logo.png
+            icon_url: /local/images/emoji/globe.png
   mode: restart
 - id: '1707523697172'
   alias: "\U0001F3F0 Turn on Workstation"
   description: ''
-  trigger:
-  - platform: state
+  triggers:
+  - trigger: state
     entity_id:
     - sensor.theaterofdreams_sessionstate
     to: Unlocked
-  condition:
+  conditions:
   - condition: state
     entity_id: switch.workstation
     state: 'off'
-  action:
+  actions:
   - action: switch.turn_on
     metadata: {}
     data: {}
@@ -1821,15 +1955,16 @@
 - id: '1708182186928'
   alias: ⚙️Lovelace Reload
   description: ''
-  trigger:
-  - platform: event
+  triggers:
+  - trigger: event
     event_type: lovelace_updated
     event_data:
       url_path: dashboard-tablet
     context: {}
-  condition: []
-  action:
-  - delay:
+  conditions: []
+  actions:
+  - alias: Wait 20 s
+    delay:
       hours: 0
       minutes: 0
       seconds: 20
@@ -1844,10 +1979,10 @@
   alias: "\U0001F4F3Notify New Wifi Device"
   description: ''
   triggers:
-  - event_type: entity_registry_updated
+  - trigger: event
+    event_type: entity_registry_updated
     event_data:
       action: create
-    trigger: event
   conditions:
   - condition: template
     value_template: '{{ id.split(''.'')[0] == ''device_tracker'' }}'
@@ -1868,7 +2003,7 @@
       data:
         group: wifi-new-device
         clickAction: entityId:{{ id }}
-        icon_url: /local/images/HA_logo.png
+        icon_url: /local/images/emoji/signal.png
         notification_icon: mdi:wifi-plus
   mode: parallel
   max: 100
@@ -1877,11 +2012,11 @@
 - id: '1708687666073'
   alias: "\U0001F50BBattery Replaced"
   description: Battery Replaced
-  trigger:
-  - platform: event
+  triggers:
+  - trigger: event
     event_type: battery_notes_battery_increased
-  condition: []
-  action:
+  conditions: []
+  actions:
   - action: battery_notes.set_battery_replaced
     data:
       device_id: '{{ trigger.event.data.device_id }}'
@@ -1941,8 +2076,8 @@
   alias: "\U0001F50BBattery Increased Notification"
   description: Battery Increased Notification
   triggers:
-  - event_type: battery_notes_battery_increased
-    trigger: event
+  - trigger: event
+    event_type: battery_notes_battery_increased
   conditions:
   - condition: template
     value_template: '{{ trigger.event.data.device_name not in [''Porch Motion'', ''MagicCube'']
@@ -1970,22 +2105,28 @@
   alias: "\U0001F514Doorbell"
   description: ''
   triggers:
-  - entity_id:
+  - trigger: state
+    entity_id:
     - binary_sensor.doorbell_visitor
     from: 'off'
     to: 'on'
     id: doorbell
-    trigger: state
-  - entity_id:
+  - trigger: state
+    entity_id:
     - binary_sensor.doorbell_person
     - binary_sensor.porch_motion_occupancy
     from: 'off'
     to: 'on'
     id: person
-    trigger: state
-  conditions: []
+  conditions:
+  - alias: Ring always goes through; a person alert needs 2 minutes since the last
+      alert
+    condition: template
+    value_template: '{{ trigger.id == ''doorbell'' or this.attributes.last_triggered
+      is none or (now() - this.attributes.last_triggered).total_seconds() > 120 }}'
   actions:
-  - variables:
+  - alias: Set timestamp, camera_snapshot
+    variables:
       timestamp: '{{ as_timestamp(trigger.to_state.last_changed) | timestamp_custom(''%Y-%m-%d_%H-%M-%S'')
         }}'
       camera_snapshot: '{{ timestamp }}.jpg'
@@ -2005,7 +2146,9 @@
     target:
       entity_id:
       - camera.doorbell
-  - parallel:
+  - alias: 'In parallel: Choose between motion and doorbell press; Send Notification
+      on Google TV Streamer if it is on.; Send…'
+    parallel:
     - alias: Choose between motion and doorbell press
       choose:
       - conditions:
@@ -2040,7 +2183,7 @@
                 title: Will be there
                 icon: sfsymbols:person.crop.circle.badge.checkmark
               image: /local/doorbell/{{camera_snapshot}}
-              icon_url: /local/images/HA_logo.png
+              icon_url: /local/images/emoji/bell.png
         - action: notify.theaterofdreams
           data:
             message: ' '
@@ -2088,8 +2231,9 @@
                 title: Will be there
                 icon: sfsymbols:person.crop.circle.badge.checkmark
               image: /local/doorbell/{{camera_snapshot}}
-              icon_url: /local/images/HA_logo.png
-        - delay:
+              icon_url: /local/images/emoji/bell.png
+        - alias: Wait 10 s
+          delay:
             hours: 0
             minutes: 0
             seconds: 10
@@ -2138,7 +2282,8 @@
       image_filename: /config/www/doorbell/{{camera_snapshot}}
     response_variable: generated_content
     enabled: false
-  - delay:
+  - alias: Wait 5 s
+    delay:
       hours: 0
       minutes: 0
       seconds: 5
@@ -2148,15 +2293,16 @@
   alias: "⚙️\U0001F4F3Update Weight to Google Sheets & Health"
   description: ''
   triggers:
-  - entity_id:
+  - trigger: state
+    entity_id:
     - sensor.mi_scale_weight
-    trigger: state
   conditions:
   - condition: numeric_state
     entity_id: sensor.mi_scale_weight
     below: 86
   actions:
-  - delay:
+  - alias: Wait 30 s
+    delay:
       hours: 0
       minutes: 0
       seconds: 30
@@ -2172,7 +2318,7 @@
           title: Upload
         - action: ignore
           title: Ignore
-        icon_url: /local/images/HA_logo.png
+        icon_url: /local/images/emoji/scales.png
         notification_icon: mdi:scale-bathroom
   - alias: Wait for notification action
     wait_for_trigger:
@@ -2216,7 +2362,8 @@
       - condition: template
         value_template: '{{ wait.trigger.event.data.action == ''ignore'' }}'
       sequence:
-      - stop: Selected Don't Upload
+      - alias: 'Stop: Selected Don''t Upload'
+        stop: Selected Don't Upload
       alias: Don't Upload
     default:
     - action: google_sheets.append_sheet
@@ -2251,11 +2398,11 @@
   alias: ⚙️Notification Actions
   description: This listens to all notification actions and acts based on the action
     chosen.
-  trigger:
-  - platform: event
+  triggers:
+  - trigger: event
     event_type: mobile_app_notification_action
-  condition: []
-  action:
+  conditions: []
+  actions:
   - alias: Run action based on notification choice
     choose:
     - conditions:
@@ -2290,29 +2437,33 @@
   alias: "\U0001F50BBattery Notes - Battery Threshold"
   description: ''
   triggers:
-  - event_type: battery_notes_battery_threshold
+  - trigger: event
+    event_type: battery_notes_battery_threshold
     event_data:
       battery_low: true
     id: low
     alias: Battery went low
-    trigger: event
-  - event_type: battery_notes_battery_threshold
+  - trigger: event
+    event_type: battery_notes_battery_threshold
     event_data:
       battery_low: false
     id: high
     alias: Battery went high
-    trigger: event
   conditions:
   - condition: template
     value_template: '{{ trigger.event.data.device_id not in excluded_devices}}'
   actions:
-  - choose:
-    - conditions:
+  - alias: 'Choose by battery state: low / high'
+    choose:
+    - alias: 'If event battery_notes_battery_threshold: If a low-battery notification
+        is due: save scene → notify pixel8pro → Run user on low…'
+      conditions:
       - condition: trigger
         id:
         - low
       sequence:
-      - if:
+      - alias: 'If a low-battery notification is due: save scene → notify pixel8pro'
+        if:
         - condition: template
           value_template: '{{ low_notification }}'
         then:
@@ -2343,16 +2494,19 @@
               tag: battery
               notification_icon: mdi:battery-alert
               color: red
-              icon_url: /local/images/HA_logo.png
+              icon_url: /local/images/emoji/low_battery.png
       - alias: Run user on low actions
         choose: []
         default: []
-    - conditions:
+    - alias: 'If event battery_notes_battery_threshold: If a low-battery notification
+        is due: persistent_notification dismiss → Run user on…'
+      conditions:
       - condition: trigger
         id:
         - high
       sequence:
-      - if:
+      - alias: 'If a low-battery notification is due: persistent_notification dismiss'
+        if:
         - condition: template
           value_template: '{{ low_notification }}'
         then:
@@ -2417,11 +2571,11 @@
 - id: '1721641858827'
   alias: "\U0001F50BBattery Notes - Check Battery Low"
   description: ''
-  trigger:
-  - platform: time
+  triggers:
+  - trigger: time
     at: '10:00:00'
-  condition: []
-  action:
+  conditions: []
+  actions:
   - action: battery_notes.check_battery_low
     data: {}
   mode: single
@@ -2429,7 +2583,8 @@
   alias: "\U0001F3ACPause Google TV when no one is watching"
   description: ''
   triggers:
-  - entity_id:
+  - trigger: state
+    entity_id:
     - binary_sensor.living_room_presence
     to: 'off'
     from: 'on'
@@ -2437,7 +2592,6 @@
       hours: 0
       minutes: 0
       seconds: 10
-    trigger: state
   conditions:
   - condition: or
     conditions:
@@ -2462,31 +2616,35 @@
   alias: "\U0001F4FANotify downloads on Jellyfin"
   description: Notifies when downloads of a new episode or a movie complete
   triggers:
-  - entity_id:
+  - trigger: state
+    entity_id:
     - sensor.sonarr_queue
     id: sonarr
     enabled: true
-    trigger: state
     to:
-  - entity_id:
+  - trigger: state
+    entity_id:
     - sensor.radarr_queue
     id: radarr
     enabled: true
-    trigger: state
     to:
   conditions:
   - condition: template
     value_template: '{{ trigger.to_state.state | float < trigger.from_state.state
       | float }}'
   actions:
-  - sequence:
+  - alias: 'Run: press Skynet hq rescan libraries → Wait until Skynet hq movies changes
+      or Skynet hq episodes changes (up to 2…'
+    sequence:
     - action: button.press
       metadata: {}
       data: {}
       target:
         entity_id:
         - button.skynet_hq_rescan_libraries
-    - wait_for_trigger:
+    - alias: Wait until Skynet hq movies changes or Skynet hq episodes changes (up
+        to 2 min)
+      wait_for_trigger:
       - entity_id:
         - sensor.skynet_hq_movies
         trigger: state
@@ -2500,8 +2658,11 @@
         milliseconds: 0
       continue_on_timeout: false
       enabled: true
-    - choose:
-      - conditions:
+    - alias: 'Choose: Sonarr queue changes / Radarr queue changes'
+      choose:
+      - alias: 'If Sonarr queue changes: notify pixel8pro → notify pavan thanujs ipad
+          3rd gen'
+        conditions:
         - condition: trigger
           id:
           - sonarr
@@ -2514,7 +2675,7 @@
             data:
               notification_icon: mdi:television-box
               image: '{{ state_attr( "sensor.skynet_hq_episodes", "data")[1].fanart}}'
-              icon_url: /local/images/HA_logo.png
+              icon_url: /local/images/emoji/popcorn.png
         - action: notify.mobile_app_pavan_thanujs_ipad_3rd_gen
           data:
             message: '{{ state_attr( "sensor.skynet_hq_episodes", "data")[1].title
@@ -2523,8 +2684,10 @@
             data:
               notification_icon: mdi:television-box
               image: '{{ state_attr( "sensor.skynet_hq_episodes", "data")[1].fanart}}'
-              icon_url: /local/images/HA_logo.png
-      - conditions:
+              icon_url: /local/images/emoji/popcorn.png
+      - alias: 'If Radarr queue changes: notify pixel8pro → notify pavan thanujs ipad
+          3rd gen'
+        conditions:
         - condition: trigger
           id:
           - radarr
@@ -2536,7 +2699,7 @@
             data:
               notification_icon: mdi:movie-check
               image: '{{ state_attr( "sensor.skynet_hq_movies", "data")[1].fanart}}'
-              icon_url: /local/images/HA_logo.png
+              icon_url: /local/images/emoji/popcorn.png
         - action: notify.mobile_app_pavan_thanujs_ipad_3rd_gen
           data:
             message: '{{ state_attr( "sensor.skynet_hq_movies", "data")[1].title }}
@@ -2544,7 +2707,7 @@
             data:
               notification_icon: mdi:movie-check
               image: '{{ state_attr( "sensor.skynet_hq_movies", "data")[1].fanart}}'
-              icon_url: /local/images/HA_logo.png
+              icon_url: /local/images/emoji/popcorn.png
       enabled: true
     enabled: false
   mode: queued
@@ -2554,17 +2717,18 @@
   description: Launch oral-b app when toothbrush is running and notify when battery
     is low.
   triggers:
-  - entity_id:
+  - trigger: state
+    entity_id:
     - sensor.toothbrush
     to: running
-    trigger: state
   actions:
   - action: notify.mobile_app_pixel8pro
     data:
       message: command_launch_app
       data:
         package_name: com.pg.oralb.oralbapp
-  - if:
+  - alias: "If Toothbrush battery below 30: notify pixel8pro 'Recharge to Brush tomorrow!\U0001FAA5'"
+    if:
     - condition: numeric_state
       entity_id: sensor.toothbrush_battery
       below: 30
@@ -2577,7 +2741,7 @@
           notification_icon: mdi:toothbrush-electric
           color: yellow
           tag: brush
-          icon_url: /local/images/HA_logo.png
+          icon_url: /local/images/emoji/toothbrush.png
   mode: single
 - id: '1731189297613'
   alias: ⚙️Doorbell Night Mode
@@ -2597,8 +2761,10 @@
     id: 'off'
   conditions: []
   actions:
-  - choose:
-    - conditions:
+  - alias: 'Choose by Porch Light: ''on'' / ''off'''
+    choose:
+    - alias: 'If Porch Light turns ''on'': select option on Doorbell Day night mode'
+      conditions:
       - condition: trigger
         id:
         - 'on'
@@ -2609,7 +2775,8 @@
           option: color
         target:
           entity_id: select.doorbell_day_night_mode
-    - conditions:
+    - alias: 'If Porch Light turns ''off'': select option on Doorbell Day night mode'
+      conditions:
       - condition: trigger
         id:
         - 'off'
@@ -2662,7 +2829,8 @@
     - (Download|Add|download|add) movie {title}
   conditions: []
   actions:
-  - set_conversation_response: Sure, adding {{ trigger.slots.title }} to Radarr!
+  - alias: Reply to the voice command
+    set_conversation_response: Sure, adding {{ trigger.slots.title }} to Radarr!
   - action: hassarr.add_radarr_movie
     data:
       title: '{{ trigger.slots.title }}'
@@ -2671,16 +2839,12 @@
   alias: Turn on LED strip when watching TV
   description: ''
   triggers:
-  - device_id: 15f5b82d6343c35685dcaa44f0a6ec79
-    domain: media_player
-    entity_id: 47abd20e8adb3067001c9352aa999ebb
-    type: turned_on
-    trigger: device
-  - device_id: a8cd7310ac80db16612cb4e72b7ea2a6
-    domain: media_player
-    entity_id: 1b924582960d0ddfc2cddf1a4872f6d2
-    type: playing
-    trigger: device
+  - trigger: media_player.turned_on
+    target:
+      entity_id: media_player.google_tv_streamer_remote
+  - trigger: media_player.started_playing
+    target:
+      entity_id: media_player.google_tv_streamer
   - trigger: state
     entity_id:
     - binary_sensor.couch_presence
@@ -2728,9 +2892,10 @@
     - unknown
     - unavailable
   conditions:
-  - condition: template
-    value_template: '{{ state_attr(''event.seerr_last_media_event'', ''event_type'')
-      == ''pending'' }}'
+  - condition: state
+    entity_id: event.seerr_last_media_event
+    attribute: event_type
+    state: pending
   actions:
   - action: notify.mobile_app_pixel8pro
     metadata: {}
@@ -2738,18 +2903,18 @@
       message: '{{ state_attr(''event.seerr_last_media_event'', ''subject'') }} has
         been requested'
       data:
-        icon_url: /local/images/HA_logo.png
+        icon_url: /local/images/emoji/clapper.png
         notification_icon: mdi:movie-plus
 - id: '1743032206229'
   alias: "\U0001F4A1 LED Strip Turn off"
   description: ''
   triggers:
-  - entity_id:
+  - trigger: state
+    entity_id:
     - binary_sensor.living_room_presence
     to: 'off'
     from: 'on'
     id: clear
-    trigger: state
     for:
       hours: 0
       minutes: 10
@@ -2775,16 +2940,16 @@
   alias: Notify if speedtest download is below 100 Mbps
   description: ''
   triggers:
-  - entity_id: sensor.speedtest_download
+  - trigger: numeric_state
+    entity_id: sensor.speedtest_download
     below: 100
     for:
       hours: 6
-    trigger: numeric_state
   actions:
   - data:
       message: Speedtest download is below 100 Mbps for the last 6 hours!
       data:
-        icon_url: /local/images/HA_logo.png
+        icon_url: /local/images/emoji/turtle.png
         notification_icon: mdi:speedometer-slow
     action: notify.mobile_app_pixel8pro
 - id: '1765110819002'
@@ -2793,18 +2958,23 @@
     sessions; restores the light's prior state once the session truly ends (instead
     of forcing it off)
   triggers:
-  - entity_id: sensor.f1_session_f1_session_status
+  - trigger: state
+    entity_id: sensor.f1_session_f1_session_status
     id: session_status
-    trigger: state
-  - entity_id: sensor.f1_session_f1_track_status
+  - trigger: state
+    entity_id: sensor.f1_session_f1_track_status
     id: track_status
-    trigger: state
   conditions:
-  - condition: template
-    value_template: '{{ state_attr(''sensor.f1_session_f1_current_session'', ''type'')
-      in [''Qualifying'', ''Race''] }}'
+  - condition: state
+    entity_id: sensor.f1_session_f1_current_session
+    attribute: type
+    state:
+    - Qualifying
+    - Race
   actions:
-  - choose:
+  - alias: 'Choose: F1 session status changes and the F1… / F1 session status is ''pre''
+      or ''live'' / F1 session status is ''finished'' or…'
+    choose:
     - alias: Snapshot light state at session start
       conditions:
       - condition: trigger
@@ -2827,8 +2997,11 @@
         - pre
         - live
       sequence:
-      - choose:
-        - conditions:
+      - alias: 'Choose by F1 track status: ''CLEAR'' / ''YELLOW'' / ''VSC'' or F1
+          track… / ''RED'''
+        choose:
+        - alias: 'If F1 track status is ''CLEAR'': turn on Shapes'
+          conditions:
           - condition: state
             entity_id: sensor.f1_session_f1_track_status
             state:
@@ -2840,7 +3013,8 @@
             target:
               entity_id:
               - light.shapes
-        - conditions:
+        - alias: 'If F1 track status is ''YELLOW'': turn on Shapes'
+          conditions:
           - condition: state
             entity_id: sensor.f1_session_f1_track_status
             state:
@@ -2852,7 +3026,9 @@
             target:
               entity_id:
               - light.shapes
-        - conditions:
+        - alias: 'If F1 track status is ''VSC'' or F1 track status is ''SC'': turn
+            on Shapes'
+          conditions:
           - condition: or
             conditions:
             - condition: state
@@ -2871,7 +3047,8 @@
             target:
               entity_id:
               - light.shapes
-        - conditions:
+        - alias: 'If F1 track status is ''RED'': turn on Shapes'
+          conditions:
           - condition: state
             entity_id: sensor.f1_session_f1_track_status
             state:
@@ -2901,19 +3078,22 @@
   alias: "\U0001F3F0Leaving and Arriving Home"
   description: ''
   triggers:
-  - entity_id:
+  - trigger: state
+    entity_id:
     - binary_sensor.pixel8pro_android_auto
     to: 'on'
     from: 'off'
-    trigger: state
   conditions:
   - condition: state
     entity_id: binary_sensor.workday_sensor
     state: 'on'
     enabled: false
   actions:
-  - choose:
-    - conditions:
+  - alias: 'Choose: time is 07:00-09:00 and Pavan is ''home'' / time is 15:00-18:00'
+    choose:
+    - alias: 'If time is 07:00-09:00 and Pavan is ''home'': Wait 30 s → notify pixel8pro
+        ''command_activity'' (+1 more)'
+      conditions:
       - condition: and
         conditions:
         - condition: time
@@ -2924,7 +3104,8 @@
           entity_id: person.pavanthanuj
           state: home
       sequence:
-      - delay:
+      - alias: Wait 30 s
+        delay:
           hours: 0
           minutes: 0
           seconds: 30
@@ -2943,7 +3124,9 @@
         target:
           entity_id: automation.tag_desk_is_scanned
         enabled: true
-    - conditions:
+    - alias: 'If time is 15:00-18:00: notify pixel8pro ''command_activity'' → Wait
+        until Pixel8Pro enters Home (+1 more)'
+      conditions:
       - condition: and
         conditions:
         - condition: time
@@ -2958,7 +3141,8 @@
             intent_package_name: com.waze
             intent_action: android.intent.action.VIEW
         enabled: false
-      - wait_for_trigger:
+      - alias: Wait until Pixel8Pro enters Home
+        wait_for_trigger:
         - entity_id: device_tracker.pixel8pro
           zone: zone.home
           event: enter
@@ -2972,53 +3156,18 @@
           entity_id: automation.den_as_it_was
         enabled: true
   mode: single
-- id: spotify_playback
-  alias: "\U0001F3B5Spotify Selected Device Force playback"
-  description: ''
-  triggers:
-  - entity_id: input_select.speakers_spotify
-    trigger: state
-  conditions: []
-  actions:
-  - choose:
-    - conditions:
-      - condition: state
-        entity_id: media_player.spotify
-        state:
-        - playing
-        - paused
-      sequence:
-      - action: spotcast.transfer_playback
-        metadata: {}
-        data:
-          media_player:
-            entity_id: media_player.{{ states('input_select.speakers_spotify') | lower
-              | replace("'", "_") | replace(" ", "_") }}
-    - conditions:
-      - condition: not
-        conditions:
-        - condition: state
-          entity_id: media_player.spotify
-          state:
-          - playing
-          - paused
-      sequence:
-      - action: spotcast.play_dj
-        metadata: {}
-        data:
-          media_player:
-            entity_id: media_player.friday
-  mode: single
 - id: '1768417677081'
   alias: "\U0001F3B5Spotify Selected Device Force playback"
   description: ''
   triggers:
-  - entity_id: input_select.speakers_spotify
-    trigger: state
+  - trigger: state
+    entity_id: input_select.speakers_spotify
   conditions: []
   actions:
-  - choose:
-    - conditions:
+  - alias: 'Choose by Spotify: ''playing'' or ''paused'' / not ''playing'' or…'
+    choose:
+    - alias: 'If Spotify is ''playing'' or ''paused'': spotcast transfer playback'
+      conditions:
       - condition: state
         entity_id: media_player.spotify
         state:
@@ -3031,7 +3180,8 @@
           media_player:
             entity_id: media_player.{{ states('input_select.speakers_spotify') | lower
               | replace("'", "_") | replace(" ", "_") }}
-    - conditions:
+    - alias: 'If Spotify is not ''playing'' or ''paused'': spotcast play dj'
+      conditions:
       - condition: not
         conditions:
         - condition: state
@@ -3051,20 +3201,23 @@
   alias: "\U0001F3F0Open Curtains when I am away"
   description: ''
   triggers:
-  - entity_id: person.pavanthanuj
+  - trigger: zone
+    entity_id: person.pavanthanuj
     zone: zone.home
     event: leave
     id: Away
-    trigger: zone
-  - entity_id: person.pavanthanuj
+  - trigger: zone
+    entity_id: person.pavanthanuj
     zone: zone.home
     event: enter
     id: Home
-    trigger: zone
   conditions: []
   actions:
-  - choose:
-    - conditions:
+  - alias: 'Choose: Pavan leaves Home and Curtains is ''closed'' / Pavan enters Home
+      and Curtains is ''open'''
+    choose:
+    - alias: 'If Pavan leaves Home and Curtains is ''closed'': open Curtains'
+      conditions:
       - condition: and
         conditions:
         - condition: trigger
@@ -3079,7 +3232,8 @@
         target:
           entity_id: cover.curtains
         data: {}
-    - conditions:
+    - alias: 'If Pavan enters Home and Curtains is ''open'': close Curtains'
+      conditions:
       - condition: trigger
         id:
         - Home
@@ -3136,15 +3290,16 @@
   description: Sends a snapshot to Pixel 8 Pro when Frigate detects a person on the
     backyard camera
   triggers:
-  - entity_id:
+  - trigger: state
+    entity_id:
     - binary_sensor.backyard_camera_person_occupancy
     from: 'off'
     id: person
     to: 'on'
-    trigger: state
   conditions: []
   actions:
-  - variables:
+  - alias: Set camera_snapshot, timestamp
+    variables:
       camera_snapshot: '{{ timestamp }}.jpg'
       timestamp: '{{ as_timestamp(trigger.to_state.last_changed) | timestamp_custom(''%Y-%m-%d_%H-%M-%S'')
         }}'
@@ -3174,10 +3329,11 @@
           interruption-level: time-sensitive
         tag: backyard_person
         ttl: 0
-        icon_url: /local/images/HA_logo.png
+        icon_url: /local/images/emoji/person.png
       message: ' '
       title: "Person detected in the backyard \U0001F464"
-  - delay:
+  - alias: Wait 5 s
+    delay:
       hours: 0
       milliseconds: 0
       minutes: 0
@@ -3188,31 +3344,377 @@
   description: Turns on backyard lights when Frigate detects a person on the backyard
     camera, and off again after 10 minutes of no detection
   triggers:
-  - entity_id: binary_sensor.backyard_camera_person_occupancy
+  - trigger: state
+    entity_id: binary_sensor.backyard_camera_person_occupancy
     id: person_on
     to: 'on'
-    trigger: state
-  - entity_id: binary_sensor.backyard_camera_person_occupancy
+  - trigger: state
+    entity_id: binary_sensor.backyard_camera_person_occupancy
     for:
       minutes: 10
     id: person_off
     to: 'off'
-    trigger: state
   conditions: []
   actions:
-  - choose:
-    - conditions:
+  - alias: 'Choose by Backyard Camera Person occupancy: ''on'' / ''off'''
+    choose:
+    - alias: 'If Backyard Camera Person occupancy turns ''on'': turn on Backyard Lights'
+      conditions:
       - condition: trigger
         id: person_on
       sequence:
       - action: light.turn_on
         target:
           entity_id: light.backyard_lights
-    - conditions:
+    - alias: 'If Backyard Camera Person occupancy turns ''off'': turn off Backyard
+        Lights'
+      conditions:
       - condition: trigger
         id: person_off
       sequence:
       - action: light.turn_off
         target:
           entity_id: light.backyard_lights
+  mode: restart
+- id: '1793187499966'
+  alias: 'Tablet: screen follows hallway motion'
+  description: Turns the Nexus 7 screen on when there is movement in the hallway (06:30
+    to 23:00) and off after 10 minutes without movement, and always at 23:00.
+  triggers:
+  - trigger: state
+    entity_id: binary_sensor.hallway_motion_occupancy
+    id: motion
+    to: 'on'
+  - trigger: state
+    entity_id: binary_sensor.hallway_motion_occupancy
+    for:
+      minutes: 10
+    id: idle
+    to: 'off'
+  - trigger: time
+    at: '23:00:00'
+    id: night
+  conditions: []
+  actions:
+  - alias: 'Choose: Hallway motion turns ''on'' and time is 06:30-23:00 / Hallway
+      motion turns ''off'' or it is 23:00:00'
+    choose:
+    - alias: 'If Hallway motion turns ''on'' and time is 06:30-23:00: turn on Nexus
+        7 Screen'
+      conditions:
+      - condition: trigger
+        id: motion
+      - after: 06:30:00
+        before: '23:00:00'
+        condition: time
+      sequence:
+      - action: switch.turn_on
+        target:
+          entity_id: switch.nexus_7_screen
+    - alias: 'If Hallway motion turns ''off'' or it is 23:00:00: turn off Nexus 7
+        Screen'
+      conditions:
+      - condition: trigger
+        id:
+        - idle
+        - night
+      sequence:
+      - action: switch.turn_off
+        target:
+          entity_id: switch.nexus_7_screen
+  mode: single
+- id: '1793187506029'
+  alias: 'Tablet: battery or power problem alert'
+  description: Sends a phone notification when the Nexus 7 battery is low, the charger
+    is lost, or the tablet goes offline.
+  triggers:
+  - trigger: numeric_state
+    below: 20
+    entity_id: sensor.nexus_7_battery
+    for:
+      minutes: 2
+    id: low_battery
+  - trigger: state
+    entity_id: binary_sensor.nexus_7_plugged_in
+    for:
+      minutes: 5
+    id: unplugged
+    to: 'off'
+  - trigger: state
+    entity_id: sensor.nexus_7_battery
+    for:
+      minutes: 10
+    id: offline
+    to: unavailable
+  conditions: []
+  actions:
+  - action: notify.send_message
+    data:
+      message: '{% if trigger.id == ''low_battery'' %}Battery is at {{ states(''sensor.nexus_7_battery'')
+        }}%. Check the charger and cable.{% elif trigger.id == ''unplugged'' %}The
+        charger is not connected.{% else %}The tablet has been offline for 10 minutes.{%
+        endif %}'
+      title: Nexus 7 tablet
+    target:
+      entity_id: notify.pixel8pro
+  max_exceeded: silent
+  mode: single
+- id: '1793189889487'
+  alias: 'Tablet: screen brightness follows room light'
+  description: Sets the Nexus 7 screen brightness from its light sensor, and again
+    whenever the screen turns on.
+  triggers:
+  - trigger: state
+    entity_id: sensor.nexus_7_light_sensor
+    for:
+      minutes: 1
+    id: light
+  - trigger: state
+    entity_id: switch.nexus_7_screen
+    id: screen_on
+    to: 'on'
+  conditions:
+  - condition: state
+    entity_id: switch.nexus_7_screen
+    state: 'on'
+  actions:
+  - alias: Choose by room light level (5 brightness steps)
+    choose:
+    - alias: 'If Nexus 7 Light sensor below 5: set value of Nexus 7 Screen brightness'
+      conditions:
+      - below: 5
+        condition: numeric_state
+        entity_id: sensor.nexus_7_light_sensor
+      sequence:
+      - action: number.set_value
+        data:
+          value: 25
+        target:
+          entity_id: number.nexus_7_screen_brightness
+    - alias: 'If Nexus 7 Light sensor above 4.999 and below 30: set value of Nexus
+        7 Screen brightness'
+      conditions:
+      - above: 4.999
+        below: 30
+        condition: numeric_state
+        entity_id: sensor.nexus_7_light_sensor
+      sequence:
+      - action: number.set_value
+        data:
+          value: 60
+        target:
+          entity_id: number.nexus_7_screen_brightness
+    - alias: 'If Nexus 7 Light sensor above 29.999 and below 100: set value of Nexus
+        7 Screen brightness'
+      conditions:
+      - above: 29.999
+        below: 100
+        condition: numeric_state
+        entity_id: sensor.nexus_7_light_sensor
+      sequence:
+      - action: number.set_value
+        data:
+          value: 105
+        target:
+          entity_id: number.nexus_7_screen_brightness
+    - alias: 'If Nexus 7 Light sensor above 99.999 and below 250: set value of Nexus
+        7 Screen brightness'
+      conditions:
+      - above: 99.999
+        below: 250
+        condition: numeric_state
+        entity_id: sensor.nexus_7_light_sensor
+      sequence:
+      - action: number.set_value
+        data:
+          value: 155
+        target:
+          entity_id: number.nexus_7_screen_brightness
+    - alias: 'If Nexus 7 Light sensor above 249.999: set value of Nexus 7 Screen brightness'
+      conditions:
+      - above: 249.999
+        condition: numeric_state
+        entity_id: sensor.nexus_7_light_sensor
+      sequence:
+      - action: number.set_value
+        data:
+          value: 205
+        target:
+          entity_id: number.nexus_7_screen_brightness
+  mode: restart
+- id: '1793281373867'
+  alias: "\U0001F514Doorbell - Name the Person"
+  description: When Frigate recognises a known face at the doorbell within 90 seconds
+    of a doorbell alert, replace the generic alert with one that names them. Unknown
+    people keep the generic 'Someone's at the front door' alert.
+  triggers:
+  - trigger: mqtt
+    topic: frigate/tracked_object_update
+    value_template: '{{ value_json.type }}:{{ value_json.camera }}'
+    payload: face:doorbell
+    alias: Frigate recognises a face on the doorbell camera
+  conditions:
+  - alias: The face belongs to a known person
+    condition: template
+    value_template: '{{ (trigger.payload_json.name | default('''') | string | lower)
+      not in ['''', ''none'', ''unknown''] }}'
+  - alias: A doorbell alert was sent in the last 90 seconds
+    condition: template
+    value_template: '{{ state_attr(''automation.doorbell_automations'', ''last_triggered'')
+      is not none and (now() - state_attr(''automation.doorbell_automations'', ''last_triggered'')).total_seconds()
+      < 90 }}'
+  actions:
+  - alias: Work out the person's name
+    variables:
+      who: '{{ trigger.payload_json.name | string | replace(''_'', '' '') | title
+        }}'
+  - alias: Replace the generic alert with one naming the person
+    action: notify.all_phones
+    data:
+      message: ' '
+      title: "{{ who }} is at the front door \U0001F464"
+      data:
+        ttl: 0
+        tag: doorbell
+        entity_id: camera.doorbell
+        notification_icon: mdi:doorbell-video
+        activationMode: foreground
+        channel: Doorbell
+        alert_once: true
+        push:
+          interruption-level: passive
+          category: camera
+        actions:
+        - action: URI
+          title: Open
+          uri: /lovelace/camera
+          icon: sfsymbols:camera.viewfinder
+        - action: package
+          title: Package
+          icon: sfsymbols:cube.box
+        - action: be_there
+          title: Will be there
+          icon: sfsymbols:person.crop.circle.badge.checkmark
+        image: /local/cam_snapshot.jpg
+        icon_url: /local/images/emoji/bell.png
+  - alias: Cool down for 30 s so one visit gives one named alert
+    delay:
+      seconds: 30
+  mode: single
+- id: '1793282106838'
+  alias: "\U0001F514Doorbell - Visit Clip"
+  description: When Frigate closes a doorbell visit that triggered a doorbell alert,
+    silently update that alert with a video clip of the visit (and the person's name
+    if recognised). Skips visits that did not trigger an alert (e.g. suppressed by
+    the 2-minute cooldown).
+  triggers:
+  - trigger: mqtt
+    topic: frigate/reviews
+    value_template: '{{ value_json.type }}:{{ value_json.after.camera }}:{{ value_json.after.severity
+      }}'
+    payload: end:doorbell:alert
+    alias: Frigate finishes an alert-level visit on the doorbell camera
+  conditions:
+  - alias: A doorbell alert was sent during this visit
+    condition: template
+    value_template: '{% set t = state_attr(''automation.doorbell_automations'', ''last_triggered'')
+      %}{{ t is not none and t.timestamp() >= (trigger.payload_json.after.start_time
+      | float(0)) - 30 }}'
+  - alias: Frigate has a tracked object to build the clip from
+    condition: template
+    value_template: '{{ (trigger.payload_json.after.data.detections | default([])
+      | count) > 0 }}'
+  - alias: The visit is short enough for a phone clip (Android limit is 50 MB, about
+      80 s)
+    condition: template
+    value_template: '{{ (trigger.payload_json.after.end_time | float(0)) - (trigger.payload_json.after.start_time
+      | float(0)) <= 70 }}'
+  actions:
+  - alias: Give Frigate 10 s to finish writing the clip
+    delay:
+      seconds: 10
+  - alias: Work out the clip and who was seen
+    variables:
+      event_id: '{{ trigger.payload_json.after.data.detections[0] }}'
+      who: '{% set s = trigger.payload_json.after.data.sub_labels | default([]) %}{{
+        (s[0] | string | replace(''_'', '' '') | title) if (s | count) > 0 else ''''
+        }}'
+  - alias: Update the doorbell alert with the video clip
+    action: notify.all_phones
+    data:
+      message: ' '
+      title: "{{ who ~ ' was at the front door \U0001F3A5' if who else 'Front door
+        visit \U0001F3A5' }}"
+      data:
+        ttl: 0
+        tag: doorbell
+        entity_id: camera.doorbell
+        notification_icon: mdi:doorbell-video
+        activationMode: foreground
+        channel: Doorbell
+        alert_once: true
+        push:
+          interruption-level: passive
+          category: camera
+        video: /api/frigate/notifications/{{ event_id }}/clip.mp4
+        actions:
+        - action: URI
+          title: Open
+          uri: /lovelace/camera
+          icon: sfsymbols:camera.viewfinder
+        - action: package
+          title: Package
+          icon: sfsymbols:cube.box
+        - action: be_there
+          title: Will be there
+          icon: sfsymbols:person.crop.circle.badge.checkmark
+        icon_url: /local/images/emoji/bell.png
+  mode: queued
+  max: 5
+- id: '1793282457859'
+  alias: "\U0001F4F9Backyard camera - detection only in daylight"
+  description: The backyard camera looks through a window, so after dark it detects
+    (and even names) people reflected from inside the house. This turns Frigate's
+    person detection off for that camera while the sun is below the horizon and back
+    on in daylight. Recording continues; only detection is paused. It re-applies the
+    right state after a Home Assistant or Frigate restart.
+  triggers:
+  - trigger: sun
+    event: sunset
+    alias: Sunset
+    id: dusk
+  - trigger: sun
+    event: sunrise
+    alias: Sunrise
+    id: dawn
+  - trigger: homeassistant
+    event: start
+    alias: Home Assistant starts
+    id: resync
+  - trigger: state
+    entity_id: switch.backyard_camera_detect
+    from: unavailable
+    alias: Frigate comes back (it forgets switch changes when it restarts)
+    id: resync
+  conditions: []
+  actions:
+  - alias: Wait 10 s so Frigate and MQTT are ready
+    delay:
+      seconds: 10
+  - alias: Detection off after dark, on in daylight
+    choose:
+    - alias: 'After dark: turn the backyard detection off'
+      conditions:
+      - condition: state
+        entity_id: sun.sun
+        state: below_horizon
+      sequence:
+      - action: switch.turn_off
+        target:
+          entity_id: switch.backyard_camera_detect
+    default:
+    - alias: 'Daylight: turn the backyard detection on'
+      action: switch.turn_on
+      target:
+        entity_id: switch.backyard_camera_detect
   mode: restart

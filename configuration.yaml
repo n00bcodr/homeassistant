@@ -11,11 +11,11 @@ homeassistant:
 
 
 logger:
-  default: critical
+  default: warning
   logs:
    homeassistant.components.http: warning
-   custom_components.homewhiz: debug
-   habluetooth: info
+  #  custom_components.homewhiz: info
+  #  habluetooth: info
   #  custom_components.localtuya: debug
   #  custom_components.jellyfin: debug
   #  homeassistant.components.androidtv: debug
@@ -33,9 +33,7 @@ rest_command: !include rest_commands.yaml
 scene: !include scenes.yaml
 script: !include scripts.yaml
 shell_command: !include shell_command.yaml
-sensor: !include sensor.yaml
 template: !include template.yaml
-media_player: !include mediaplayer.yaml
 tts:
   - platform: google_translate
 
@@ -61,8 +59,15 @@ recorder:
       - sensor.f1_*
       - sensor.docker*
       - switch.docker*
-      - button.docker*w
+      - button.docker*
       - device_tracker.smart*
+      - sensor.jellyha_*
+      - media_player.jellyha_*
+      - sensor.*_last_seen
     entities:
       - sun.sun
       - sensor.f1_season_results
+      - sensor.time
+      - sensor.canada_time
+      - sensor.san_francisco_time
+      - sensor.india_time

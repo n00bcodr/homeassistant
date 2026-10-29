@@ -155,12 +155,12 @@
           ) > (as_timestamp(now()) - 30) or is_state('binary_sensor.vibration_vibration', 'on')
         }}
 
-    - unique_id: hacs_updates
-      name: "HACS Updates"
+    - unique_id: marketplace_updates
+      name: "Marketplace Updates"
       device_class: update
       icon: mdi:package-up
-      availability: "{{ states.update | selectattr('state', 'eq', 'on') | selectattr('entity_id', 'in', integration_entities('hacs')) | map(attribute='name') | list | count | int(-1) > -1 }}"
-      state: "{{ states.update | selectattr('state', 'eq', 'on') | selectattr('entity_id', 'in', integration_entities('hacs')) | map(attribute='name') | list | count }}"
+      availability: "{{ states.update | selectattr('state', 'eq', 'on') | selectattr('entity_id', 'in', integration_entities('marketplace')) | map(attribute='name') | list | count | int(-1) > -1 }}"
+      state: "{{ states.update | selectattr('state', 'eq', 'on') | selectattr('entity_id', 'in', integration_entities('marketplace')) | map(attribute='name') | list | count }}"
 
     - unique_id: addon_updates
       name: "Add-on Updates"
@@ -173,8 +173,8 @@
       name: "Other Updates"
       device_class: update
       icon: mdi:package-up
-      availability: "{{ states.update | selectattr('state', 'eq', 'on') | rejectattr('entity_id', 'in', integration_entities('hassio')) | rejectattr('entity_id', 'in', integration_entities('hacs')) | map(attribute='name') | list | count | int(-1) > -1 }}"
-      state: "{{ states.update | selectattr('state', 'eq', 'on') | rejectattr('entity_id', 'in', integration_entities('hassio')) | rejectattr('entity_id', 'in', integration_entities('hacs')) | map(attribute='name') | list | count }}"
+      availability: "{{ states.update | selectattr('state', 'eq', 'on') | rejectattr('entity_id', 'in', integration_entities('hassio')) | rejectattr('entity_id', 'in', integration_entities('marketplace')) | map(attribute='name') | list | count | int(-1) > -1 }}"
+      state: "{{ states.update | selectattr('state', 'eq', 'on') | rejectattr('entity_id', 'in', integration_entities('hassio')) | rejectattr('entity_id', 'in', integration_entities('marketplace')) | map(attribute='name') | list | count }}"
       
       
 - sensor:
@@ -338,7 +338,7 @@
     - name: "Moon Phase"
       unique_id: moon_phase_image
       state: "{{ states.sensor.moon.state | replace ('_', ' ') | title}}"
-      picture: /local/moon_phases/{{ states.sensor.moon.state }}.png
+      picture: /local/images/moon_phases/{{ states.sensor.moon.state }}.png
 
     - name: "Chair Occupancy"
       unique_id: chair_occupancy

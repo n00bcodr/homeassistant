@@ -415,14 +415,14 @@ reload_config_entries:
       entry_id: '{{ config }}'
   description: Reloads configuration by the input of a config ID
   icon: mdi:reload-alert
-install_hacs_updates:
+install_marketplace_updates:
   sequence:
   - target:
       entity_id: '{{ states.update | selectattr(''state'', ''eq'', ''on'') |  selectattr(''entity_id'',
-        ''in'', integration_entities(''hacs'')) |  map(attribute=''entity_id'') |
+        ''in'', integration_entities(''marketplace'')) |  map(attribute=''entity_id'') |
         list }}'
     action: update.install
-  alias: Install HACS Updates
+  alias: Install Marketplace Updates
   description: ''
 install_add_on_updates:
   sequence:
@@ -439,7 +439,7 @@ install_other_updates:
   - target:
       entity_id: '{{ states.update | selectattr(''state'', ''eq'', ''on'') |  rejectattr(''entity_id'',
         ''in'', integration_entities(''hassio'')) |  rejectattr(''entity_id'', ''in'',
-        integration_entities(''hacs'')) | map(attribute=''entity_id'') | list }}'
+        integration_entities(''marketplace'')) | map(attribute=''entity_id'') | list }}'
     action: update.install
   alias: Install Other Updates
   description: ''
@@ -459,7 +459,7 @@ spotcast_phone_dj:
     metadata: {}
     data:
       media_player:
-        device_id: 00d99709e541fd7e7befaa15b0a5cc8f
+        entity_id: media_player.pixel_8_pro_21eb7srfkhj4oefepym2q5cpq_spotcast
   alias: Spotcast Phone DJ
   description: ''
 purge_jellyfin_orphans:

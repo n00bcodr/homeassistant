@@ -1,7 +1,7 @@
 substitutions:
   name: tagreader-2
 packages:
-  adonno.tag_reader: github://adonno/tagreader/tagreader.yaml  
+  tagreader: !include tagreader-fixed.yaml
 
 esphome:
   name: ${name}

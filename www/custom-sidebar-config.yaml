@@ -41,9 +41,12 @@ exceptions:
 
       - item: Tablet
 
-      - item: hacs
+      - item: Marketplace
+        new_item: true
+        href: "/marketplace"
+        icon: mdi:store
         info: >
-          Total : {{ states.update |  selectattr('entity_id', 'in', integration_entities('hacs')) | map(attribute='name') | list | count }}
+          Total : {{ states.update |  selectattr('entity_id', 'in', integration_entities('marketplace')) | map(attribute='name') | list | count }}
 
 
       - item: Media
@@ -83,14 +86,14 @@ exceptions:
 
       - new_item: true
         item: Reboot
-        href: "/developer-tools/yaml"
+        href: "/config/tools/yaml"
         icon: mdi:restart
         bottom: true
 
       - new_item: true
         item: "dev_tools"
         name: "Developer Tools"
-        href: "/config/developer-tools/state"
+        href: "/config/tools/state"
         icon: mdi:hammer
         bottom: true
 
