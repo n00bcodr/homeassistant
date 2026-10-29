@@ -7,6 +7,7 @@ Functions:
 from logging import getLogger
 
 from homeassistant.core import HomeAssistant, ServiceCall
+from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import config_validation as cv
 from homeassistant.util.read_only_dict import ReadOnlyDict
 import voluptuous as vol
@@ -61,7 +62,12 @@ ITEM_TYPE_PRIORITY = (
 )
 
 
-async def async_play_from_search(hass: HomeAssistant, call: ServiceCall):
+# The service resolves account, query, search results and playback
+# targets in one flow, which needs the extra locals.
+async def async_play_from_search(  # pylint: disable=too-many-locals
+    hass: HomeAssistant,
+    call: ServiceCall,
+):
     """Service to start playing media from a search result
 
     Args:
@@ -77,8 +83,8 @@ async def async_play_from_search(hass: HomeAssistant, call: ServiceCall):
     account_id = call.data.get("account")
     extras = call.data.get("data", {})
 
-    # sets the limit according to item type or extras limit. Defaults
-    # to 20
+    # Number of items to retrieve per item type. Defaults to 1 so the
+    # first match is played.
     limit = extras.get("limit", 1)
 
     # get account
@@ -97,6 +103,12 @@ async def async_play_from_search(hass: HomeAssistant, call: ServiceCall):
             call_data.pop(key)
 
     best_candidate = get_best_candidate(search_term, search_result)
+
+    if best_candidate is None:
+        raise ServiceValidationError(
+            f"No search results found for `{search_term}`"
+        )
+
     items = search_result[best_candidate]
 
     context_uri = items[0]["uri"]

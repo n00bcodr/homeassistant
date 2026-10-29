@@ -4,13 +4,10 @@ from logging import getLogger
 
 from homeassistant.components.sensor import (
     SensorStateClass,
-    SensorEntityDescription,
-    EntityCategory,
     SensorEntity,
-    SensorDeviceClass,
 )
 
-from custom_components.spotcast.spotify import SpotifyAccount
+from custom_components.spotcast.coordinator import SpotcastCoordinator
 from custom_components.spotcast.sensor.abstract_entity import SpotcastEntity
 
 LOGGER = getLogger(__name__)
@@ -39,17 +36,19 @@ class SpotcastSensor(SpotcastEntity, SensorEntity):
     UNITS_OF_MEASURE: str = None
     STATE_CLASS: str = SensorStateClass.MEASUREMENT
 
-    def __init__(self, account: SpotifyAccount):
+    def __init__(self, coordinator: SpotcastCoordinator):
         self._attr_state_class = self.STATE_CLASS
-        super().__init__(account)
+        super().__init__(coordinator)
 
+    # HA marks these final in favour of `native_*` equivalents, but the
+    # spotcast entities predate that model and manage state directly.
     @property
-    def unit_of_measurement(self) -> str:
+    def unit_of_measurement(self) -> str:  # pylint: disable=overridden-final-method
         """Returns the units measured by the sensor"""
         return self.UNITS_OF_MEASURE
 
     @property
-    def state(self) -> str | int | float:
+    def state(self) -> str | int | float:  # pylint: disable=overridden-final-method
         """Returns the currently saved state of the sensor"""
         return self._attr_state
 

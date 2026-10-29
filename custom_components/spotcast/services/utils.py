@@ -2,6 +2,7 @@
 
 Functions:
     - entity_from_target_selector
+    - async_play_and_release
 """
 
 from typing import Iterable
@@ -13,17 +14,41 @@ from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import entity_registry as er
 from homeassistant.core import HomeAssistant
 
-from custom_components.spotcast.utils import fuzzy_match
+from custom_components.spotcast.media_player import MediaPlayer
+from custom_components.spotcast.spotify import SpotifyAccount
 from custom_components.spotcast.services.exceptions import (
     TooManyMediaPlayersError,
     AmbiguousDeviceIdError,
     UnmanagedSelectionError,
     DeviceNotFoundError,
 )
-from custom_components.spotcast.services.exceptions import (
-    InvalidCategoryError,
-)
-from custom_components.spotcast.utils import LowRatioError
+
+
+def track_context(value: str) -> str:
+    """Validates the `track_context` play option.
+
+    Accepts `track` (play only the song), `album` (play the song's
+    album), or an album or playlist Spotify URI to play the track inside
+    that specific context.
+
+    Raises:
+        - vol.Invalid: when the value is neither keyword nor a supported
+            album/playlist URI.
+    """
+    if value in ("track", "album"):
+        return value
+
+    if isinstance(value, str) and (
+        value.startswith("spotify:album:")
+        or value.startswith("spotify:playlist:")
+    ):
+        return value
+
+    raise vol.Invalid(
+        "track_context must be 'track', 'album', or a Spotify album or "
+        "playlist URI"
+    )
+
 
 EXTRAS_SCHEMA = vol.Schema({
     vol.Optional("position"): cv.positive_float,
@@ -36,7 +61,7 @@ EXTRAS_SCHEMA = vol.Schema({
     vol.Optional("shuffle"): cv.boolean,
     vol.Optional("limit"): cv.positive_int,
     vol.Optional("random"): cv.boolean,
-    vol.Optional("track_context"): vol.In(["track", "album"]),
+    vol.Optional("track_context"): track_context,
 })
 
 
@@ -50,7 +75,7 @@ def entity_from_target_selector(
 
     count = 0
 
-    for key, value in media_players.items():
+    for value in media_players.values():
         count += len(value)
 
     if count > 1:
@@ -136,16 +161,34 @@ def clean_extras(extras: dict, keep: Iterable) -> dict:
     return result
 
 
-def find_category(categories: dict, category_str: str) -> dict:
+async def async_play_and_release(
+        account: SpotifyAccount,
+        media_player: MediaPlayer,
+        extras: dict,
+        *args,
+        **kwargs,
+):
+    """Starts playback on the media player, then releases the player.
 
+    A cast device is released only once Spotify has the playback, so the
+    receiver app is never left without a sender before then. It is
+    released on failure too, or its socket client reconnects to the
+    device for the life of the process (see #80).
+
+    Args:
+        - account(SpotifyAccount): the account starting the playback
+        - media_player(MediaPlayer): the device to play on
+        - extras(dict): the playback extras of the service call
+        - *args, **kwargs: what to play, passed on to
+            `SpotifyAccount.async_play_media`
+    """
     try:
-        return fuzzy_match(categories, category_str, "name")
-    except LowRatioError:
-        try:
-            return {x["id"]: x for x in categories}[category_str]
-        except KeyError as exc:
-            raise InvalidCategoryError(
-                "Incapable of finding a proper match for category "
-                f"`{category_str}`. No category name match found and not a "
-                "valid ID."
-            ) from exc
+        await account.async_play_media(
+            media_player.id,
+            *args,
+            **kwargs,
+            **extras,
+        )
+        await account.async_apply_extras(media_player.id, extras)
+    finally:
+        media_player.release()

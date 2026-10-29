@@ -18,6 +18,7 @@ from custom_components.spotcast.media_player.exceptions import (
     MediaPlayerNotFoundError,
     UnknownIntegrationError,
     MissingActiveDeviceError,
+    AccountMismatchError,
 )
 from custom_components.spotcast.media_player import (
     MediaPlayer,
@@ -26,7 +27,10 @@ from custom_components.spotcast.media_player import (
     SpotifyAccount,
 )
 
-from custom_components.spotcast.chromecast import SpotifyController
+from custom_components.spotcast.chromecast import (
+    SpotifyController,
+    wait_for_connection,
+)
 
 LOGGER = getLogger(__name__)
 
@@ -186,6 +190,14 @@ async def async_build_from_type(
 
     Returns:
         - MediaPlayer: an object of type media player
+
+    Raises:
+        - AccountMismatchError: raised when a `*_spotcast` entity of
+            another account is targeted. A Spotify Connect device is
+            signed in to a single account, so the requesting account
+            cannot reach it and Spotify would answer 404 (see #76).
+        - UnknownIntegrationError: raised when the entity type is not
+            managed by spotcast
     """
 
     LOGGER.debug("Building Device of type `%s`", type(Entity))
@@ -193,31 +205,62 @@ async def async_build_from_type(
     if isinstance(entity, CastDevice):
         entity: CastDevice
         media_player = Chromecast(
-            entity._cast_info.cast_info,
+            # HA's cast integration keeps CastInfo private with no
+            # public accessor.
+            entity._cast_info.cast_info,  # pylint: disable=protected-access
             zconf=ChromeCastZeroconf.get_zeroconf()
         )
 
-        await hass.async_add_executor_job(media_player.wait)
+        # The socket client must be stopped on any failure, or it keeps
+        # reconnecting to the device for the life of the process (#80).
+        try:
+            await hass.async_add_executor_job(wait_for_connection, media_player)
 
-        spotify_controller = SpotifyController(account)
-        media_player.register_handler(spotify_controller)
-        await account.async_playback_state()
+            spotify_controller = SpotifyController(account)
+            media_player.register_handler(spotify_controller)
+            await account.async_playback_state()
 
-        do_quit = need_to_quit_app(media_player, account)
-        running_spotify = media_player.app_id == spotify_controller.APP_ID
+            do_quit = need_to_quit_app(media_player, account)
+            running_spotify = media_player.app_id == spotify_controller.APP_ID
 
-        if do_quit:
-            media_player.quit_app()
+            if do_quit:
+                media_player.quit_app()
 
-        if not running_spotify or do_quit:
-            await hass.async_add_executor_job(
-                spotify_controller.launch_app,
-                media_player,
-            )
+            if not running_spotify or do_quit:
+                await hass.async_add_executor_job(
+                    spotify_controller.launch_app,
+                    media_player,
+                )
+
+                activated_id = spotify_controller.activated_device_id
+
+                if activated_id is not None and activated_id != media_player.id:
+                    LOGGER.debug(
+                        "Cast device `%s` registered under id `%s`, which "
+                        "differs from the requested id; using it as the "
+                        "playback target",
+                        media_player.name,
+                        activated_id,
+                    )
+                    media_player.id = activated_id
+        except BaseException:
+            media_player.release()
+            raise
 
         return media_player
 
     if isinstance(entity, SpotifyDevice):
+        if entity.account.id != account.id:
+            raise AccountMismatchError(
+                f"`{entity.entity_id}` is the Spotify Connect device of "
+                f"account `{entity.account.name}` and cannot be used by "
+                f"account `{account.name}`. A Spotify Connect device "
+                "stays signed in to one account. To play with account "
+                f"`{account.name}`, target the device's Google Cast "
+                "media player, or one of that account's `*_spotcast` "
+                "entities."
+            )
+
         return entity
 
     raise UnknownIntegrationError(

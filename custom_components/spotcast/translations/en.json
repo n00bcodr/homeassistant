@@ -6,40 +6,54 @@
                     "access_token": "Access Token",
                     "refresh_token": "Refresh Token"
                 },
-                "description": "Please make sure to follow the steps explained [here](https://github.com/fondberg/spotcast/releases/tag/v6.0.0-a0) on how to get your Access & Refresh Tokens."
-            },
-            "internal_api": {
-                "data": {
-                    "sp_dc": "SP DC",
-                    "sp_key": "SP Key"
-                },
-                "description": "Go to [Spotify](https://open.spotify.com) and log in. Then get the `sp_dc` and `sp_key` from the developpper console. See [this tutorial](https://github.com/fondberg/spotcast/blob/dev/docs/config/obtaining_sp_dc_and_sp_key.md) for more information"
+                "description": "Please make sure to follow the steps explained [here]({release_url}) on how to get your Access & Refresh Tokens."
             },
             "pick_implementation": {
-                "title": "Importing Spotcast YAML configuration",
-                "description": "Press OK to complete import."
+                "title": "Application Credentials",
+                "description": "Select the application credentials to use for this account."
             },
             "reauth_confirm": {
-                "title": "[%key:common::config_flow::title::reauth%]",
-                "description": "The Spotcast integratio needs to re-authenticate your account."
+                "title": "Re-authenticate Spotcast",
+                "description": "The Spotcast integration needs to re-authenticate your account."
+            },
+            "desktop_auth": {
+                "title": "Desktop authorization",
+                "description": "Spotcast needs a second authorization using the Spotify desktop application identity. Choose how to complete it.",
+                "menu_options": {
+                    "desktop_api_manual": "Paste the redirect URL (recommended, no extra software)",
+                    "desktop_api_auto": "Use the relay server (automatic redirect)"
+                }
+            },
+            "desktop_api_manual": {
+                "title": "Paste the redirect URL",
+                "description": "1. Open [this authorization link]({authorize_url}) and log in and authorize if asked.\n2. Your browser will then try to open `http://127.0.0.1:8080/login...` and show a connection error. This is expected.\n3. Copy the full address from your browser's address bar and paste it below.",
+                "data": {
+                    "pasted_url": "Redirect URL"
+                }
             },
             "doc_confirm": {
                 "title": "Start Setup",
-                "description": "Please follow the [setup guide](https://github.com/fondberg/spotcast/blob/dev/docs/config/spotcast_configuration.md) before continuing. Confirm when you have started the relay server.",
+                "description": "Please follow the [setup guide]({setup_guide}) before continuing.\n\nAlready entered application credentials and need to change them? See [how to reset them]({credentials_guide}).",
                 "data": {
-                    "confirmed": "I have read the documentation and started the relay server"
+                    "confirmed": "I have read the documentation"
                 }
             }
         },
         "error": {
-            "must_confirm": "You must confirm before proceeding."
+            "must_confirm": "You must confirm before proceeding.",
+            "invalid_url": "That does not look like a valid redirect URL. Copy the full address from your browser's address bar.",
+            "access_denied": "Authorization was denied. Open the link again and allow access.",
+            "missing_code": "The pasted URL does not contain an authorization code. Copy the full address from your browser's address bar.",
+            "invalid_state": "The pasted URL does not match this setup attempt. Restart the setup and try again.",
+            "token_request_failed": "Could not exchange the authorization code with Spotify. Authorization codes are single-use, so open the link again for a fresh one."
         },
         "abort": {
-            "connection_error": "Unable to connect to Spotify using the {account_type} credentials. If you provided your `SP_DC` and `SP_KEY` in the configuration, please note that V6 configuration has changed drastically. Make sure to read the [new installation process](https://github.com/fondberg/spotcast/releases/tag/v6.0.0-a0). For more help, [Open a ticket](https://github.com/fondberg/spotcast/issues/new/choose).",
+            "invalid_credentials": "Spotify rejected the Client ID or Client Secret stored in Home Assistant. Delete them from [Application credentials]({credentials_url}) and start the setup again to enter new ones. See [the guide]({credentials_guide}) for details.",
+            "connection_error": "Unable to connect to Spotify using the {account_type} credentials. If you are upgrading from v5, note that the configuration process changed completely in v6. Make sure to follow the [installation guide]({release_url}). For more help, [open a ticket]({ticket_url}).",
             "already_configured": "This account is already configured in Home Assistant",
             "reauth_account_mismatch": "The account provided does not match the account being reauthenticated",
-            "public_private_accounts_mismatch": "The profile from the OAuth credentials and the desktop credentials are for 2 different accounts. Make sure to provide information from the same account. If you are already logged in to Spotify on your browser. Home Assistant won,t ask you to connect to a different account and will use the currently logged in user.",
-            "reauth_successful": "[%key:common::config_flow::abort::reauth_successful%]"
+            "public_private_accounts_mismatch": "The profile from the OAuth credentials and the desktop credentials are for 2 different accounts. Make sure to provide information from the same account. If you are already logged in to Spotify on your browser, Home Assistant won't ask you to connect to a different account and will use the currently logged-in user.",
+            "reauth_successful": "Re-authentication was successful"
         }
     },
     "options": {
@@ -47,7 +61,16 @@
             "apply_options": {
                 "data": {
                     "set_default": "Set the current account as the default Spotcast account",
-                    "base_refresh_rate": "Base Refresh Rate"
+                    "base_refresh_rate": "Base Refresh Rate",
+                    "stale_device_timeout": "Stale device timeout",
+                    "device_filter_mode": "Device filter mode",
+                    "device_filter_patterns": "Device filter patterns"
+                },
+                "data_description": {
+                    "base_refresh_rate": "How often (in seconds) Spotcast refreshes the account data from Spotify.",
+                    "stale_device_timeout": "Days before an unavailable device and its entity are removed. 0 removes them immediately.",
+                    "device_filter_mode": "Deny ignores devices matching the patterns. Allow only creates entities for matching devices.",
+                    "device_filter_patterns": "Comma-separated device names, case insensitive, wildcards allowed. Example: `*Jam*, Pixel 7 Pro`. Leave empty to keep every device."
                 },
                 "title": "Spotcast - Options"
             }
@@ -57,6 +80,12 @@
         }
     },
     "selector": {
+        "device_filter_mode": {
+            "options": {
+                "deny": "Deny",
+                "allow": "Allow"
+            }
+        },
         "item_type": {
             "options": {
                 "album": "Album",
@@ -103,25 +132,17 @@
                 }
             }
         },
-        "play_category": {
-            "name": "Playlist from Category",
-            "description": "Plays a random playlist from a Browse Category",
+        "unlike_media": {
+            "name": "Unlike Media",
+            "description": "Remove a list of media from your Spotify Library",
             "fields": {
-                "media_player": {
-                    "name": "Target",
-                    "description": "A Single Media Player compatible with Spotcast"
-                },
-                "category": {
-                    "name": "Category",
-                    "description": "A Category name or ID. A fuzzy match is applied on the name, but an ID must be an exact match."
+                "spotify_uris": {
+                    "name": "Spotify URIs",
+                    "description": "A list of media to remove from the Spotify Library"
                 },
                 "account": {
                     "name": "Spotify Account",
-                    "description": "The id of the Spotify account to use. Takes the default account otherwise."
-                },
-                "data": {
-                    "name": "Data",
-                    "description": "Additional modifiers when starting media playback"
+                    "description": "The ID of the Spotify account to use. Takes the default account otherwise."
                 }
             }
         },

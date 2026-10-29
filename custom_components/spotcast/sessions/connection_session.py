@@ -14,10 +14,10 @@ from aiohttp.client_exceptions import ClientResponseError
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
 
-from .retry_supervisor import RetrySupervisor
 from custom_components.spotcast.entry_data import ApiItem, EntryData, TokenData
 from custom_components.spotcast.utils import copy_to_dict
 
+from .retry_supervisor import RetrySupervisor
 from .exceptions import UpstreamServerNotready, TokenRefreshError
 
 LOGGER = getLogger(__name__)
@@ -113,15 +113,21 @@ class ConnectionSession(ABC):
         `expires_in` standard key.
         """
 
-    async def async_ensure_token_valid(self) -> bool:
+    async def async_ensure_token_valid(self, force: bool = False) -> bool:
         """Method that ensures a token is currently valid.
+
+        Args:
+            force(bool, optional): Refreshes the token even if it is not
+                expired yet. Used to recover from an API rejecting a
+                token the session still considers valid. Defaults to
+                False.
 
         Returns:
             bool: Returns `True` if the token was refreshed and `False`
                 if not
         """
         async with self._token_lock:
-            if self.valid_token:
+            if self.valid_token and not force:
                 return False
 
             if not self.supervisor.is_ready:
@@ -139,14 +145,22 @@ class ConnectionSession(ABC):
                 self.supervisor.is_healthy = False
                 self.supervisor.log_message(exc)
                 raise UpstreamServerNotready(
-                    "Server not ready for refresh"
+                    f"Server not ready for refresh: {exc}"
                 ) from exc
             except ClientResponseError as exc:
                 self.supervisor.is_healthy = False
                 if exc.status == 400:
                     LOGGER.error("Unable to refresh desktop token")
                     raise TokenRefreshError(exc) from exc
-                raise exc from exc
+                if exc.status >= 500:
+                    self.supervisor.log_message(
+                        f"{self.SESSION_TYPE} session token endpoint "
+                        f"replied with status {exc.status}"
+                    )
+                    raise UpstreamServerNotready(
+                        f"Token endpoint replied with status {exc.status}"
+                    ) from exc
+                raise
 
             self.supervisor.is_healthy = True
             self.token = api_response

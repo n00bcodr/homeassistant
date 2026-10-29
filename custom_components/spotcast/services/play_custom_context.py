@@ -19,11 +19,13 @@ from custom_components.spotcast.spotify.utils import url_to_uri
 from custom_components.spotcast.media_player.utils import (
     async_media_player_from_id,
     MissingActiveDeviceError,
+    AccountMismatchError,
 )
 
 from custom_components.spotcast.services.utils import (
     EXTRAS_SCHEMA,
-    entity_from_target_selector
+    entity_from_target_selector,
+    async_play_and_release,
 )
 
 LOGGER = getLogger(__name__)
@@ -72,7 +74,7 @@ async def async_play_custom_context(hass: HomeAssistant, call: ServiceCall):
             account,
             entity_id,
         )
-    except MissingActiveDeviceError as exc:
+    except (MissingActiveDeviceError, AccountMismatchError) as exc:
         raise ServiceValidationError(str(exc)) from exc
 
     LOGGER.info(
@@ -84,5 +86,4 @@ async def async_play_custom_context(hass: HomeAssistant, call: ServiceCall):
     if extras.get("random", False):
         extras["offset"] = randint(0, len(tracks)-1)
 
-    await account.async_play_media(media_player.id, uris=tracks, **extras)
-    await account.async_apply_extras(media_player.id, extras)
+    await async_play_and_release(account, media_player, extras, uris=tracks)

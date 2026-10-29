@@ -6,10 +6,16 @@ Classes:
 
 from logging import getLogger
 from typing import Any, TYPE_CHECKING
+from urllib.parse import urlsplit, parse_qs
 
+from base64 import b64encode
+
+from aiohttp import ClientError, ClientSession, ClientTimeout
 from homeassistant.config_entries import CONN_CLASS_CLOUD_POLL
 from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.selector import BooleanSelector
+from homeassistant.helpers.config_entry_oauth2_flow import _decode_jwt
 from homeassistant.components.spotify.config_flow import SpotifyFlowHandler
 from homeassistant.config_entries import (
     ConfigFlowResult,
@@ -26,10 +32,6 @@ from custom_components.spotcast.const import (
     SPOTIFY_TOKEN_URL,
 )
 
-if TYPE_CHECKING:  # pragma: no cover
-    from custom_components.spotcast.entry_data import EntryData
-
-
 from custom_components.spotcast.entry_data import TokenData
 from custom_components.spotcast.spotify import SpotifyAccount
 from custom_components.spotcast.sessions.oauth_pcke_implementation import (
@@ -40,10 +42,116 @@ from .options_flow_handler import (
     SpotcastOptionsFlowHandler,
 )
 
+if TYPE_CHECKING:  # pragma: no cover
+    from custom_components.spotcast.entry_data import EntryData
+
 LOGGER = getLogger(__name__)
 
+_RELEASE_URL = (
+    "https://github.com/Mincka/spotcast/blob/main/docs/config/"
+    "spotcast_configuration.md"
+)
+_TICKET_URL = "https://github.com/Mincka/spotcast/issues/new/choose"
+_SETUP_GUIDE_URL = (
+    "https://github.com/Mincka/spotcast/blob/main/docs/config/"
+    "spotcast_configuration.md"
+)
+_CREDENTIALS_GUIDE_URL = (
+    f"{_SETUP_GUIDE_URL}#changing-or-resetting-the-application-credentials"
+)
+# My Home Assistant redirect that opens the Application Credentials panel
+# of the user's own instance.
+_CREDENTIALS_PANEL_URL = (
+    "https://my.home-assistant.io/redirect/application_credentials/"
+)
+_CREDENTIALS_CHECK_TIMEOUT = ClientTimeout(total=10)
 
-class SpotcastFlowHandler(SpotifyFlowHandler, domain=DOMAIN):
+# The redirect uri registered for the Spotify desktop client. The manual
+# authentication path asks the user to paste the browser URL that lands
+# on it after authorizing.
+_DESKTOP_REDIRECT_URI = "http://127.0.0.1:8080/login"
+
+
+async def async_credentials_rejected(
+    session: ClientSession,
+    client_id: str,
+    client_secret: str,
+) -> bool:
+    """Report whether Spotify rejects an application's client id and
+    secret.
+
+    Home Assistant stores application credentials without checking them,
+    and a wrong pair only surfaces as an error page on Spotify's side
+    once the user has been redirected there, out of reach of the flow.
+    A client-credentials token request lets Spotify judge the pair
+    before the redirect.
+
+    Only a definite `invalid_client` answer counts as a rejection.
+    Anything else (network failure, rate limit, outage, unexpected
+    payload) is reported as not rejected so a Spotify hiccup never
+    blocks the setup.
+
+    Args:
+        - session(ClientSession): the aiohttp session to use
+        - client_id(str): the application's client id
+        - client_secret(str): the application's client secret
+
+    Returns:
+        - bool: True when Spotify explicitly rejected the pair
+    """
+    # Built by hand rather than with aiohttp.BasicAuth, which aiohttp 3.14
+    # deprecates, and without encode_basic_auth, which older aiohttp
+    # releases still shipped by supported Home Assistant versions lack.
+    basic = b64encode(f"{client_id}:{client_secret}".encode()).decode()
+
+    try:
+        async with session.post(
+            SPOTIFY_TOKEN_URL,
+            data={"grant_type": "client_credentials"},
+            headers={"Authorization": f"Basic {basic}"},
+            timeout=_CREDENTIALS_CHECK_TIMEOUT,
+        ) as response:
+            if response.status != 400:
+                LOGGER.debug(
+                    "Application credentials check answered %d",
+                    response.status,
+                )
+                return False
+
+            payload = await response.json(content_type=None)
+    except (ClientError, TimeoutError, ValueError) as exc:
+        LOGGER.debug(
+            "Application credentials check skipped: %s: %s",
+            type(exc).__name__,
+            exc,
+        )
+        return False
+
+    if not isinstance(payload, dict):
+        return False
+
+    return payload.get("error") == "invalid_client"
+
+
+class ManualAuthError(Exception):
+    """Raised when a pasted desktop-authentication URL cannot be used.
+
+    Attributes:
+        error_key(str): the translation key of the error to show on the
+            form.
+    """
+
+    def __init__(self, error_key: str):
+        super().__init__(error_key)
+        self.error_key = error_key
+
+
+# `is_matching` only serves discovery flows (dhcp/zeroconf), which
+# spotcast does not implement.
+class SpotcastFlowHandler(  # pylint: disable=abstract-method
+    SpotifyFlowHandler,
+    domain=DOMAIN,
+):
     """Handler of the Config Flow for Spotcast.
 
     Attributes:
@@ -55,15 +163,12 @@ class SpotcastFlowHandler(SpotifyFlowHandler, domain=DOMAIN):
         - VERSION(int): The major version of the config
         - MINOR_VERSION(int): the minor version of the config
         - CONNECTION_CLASS(str): The type of integration being setup
-        - INTERNAL_API_SCEHMA(vol.Schema): the schema for the
-            internal api setup
 
     Properties:
         - extra_authorize_data(dict[str]): Provides additional
             information required for the OAuth authorisation
 
     Methods:
-        - async_step_internal_api
         - async_oauth_create_entry
         - async_step_reauth_confirm
 
@@ -75,15 +180,6 @@ class SpotcastFlowHandler(SpotifyFlowHandler, domain=DOMAIN):
     VERSION = 2
     MINOR_VERSION = 1
     CONNECTION_CLASS = CONN_CLASS_CLOUD_POLL
-
-    ALLOWED_CONVERT = ["2.*"]
-
-    INTERNAL_API_SCHEMA = vol.Schema(
-        {
-            vol.Required("sp_dc", default=""): cv.string,
-            vol.Required("sp_key", default=""): cv.string,
-        }
-    )
 
     DESKTOP_API_SCHEMA = vol.Schema(
         {
@@ -98,6 +194,12 @@ class SpotcastFlowHandler(SpotifyFlowHandler, domain=DOMAIN):
         }
     )
 
+    MANUAL_AUTH_SCHEMA = vol.Schema(
+        {
+            vol.Required("pasted_url"): cv.string,
+        }
+    )
+
     def __init__(self):
         """Constructor of the Spotcast Config Flow."""
         super().__init__()
@@ -106,19 +208,12 @@ class SpotcastFlowHandler(SpotifyFlowHandler, domain=DOMAIN):
             "version": self.version,
         }
         self._pcke_impl = None
+        self._manual_auth_url = None
 
     @property
     def version(self) -> str:
         """The active configuration version."""
         return f"{self.VERSION}.{self.MINOR_VERSION}"
-
-    @classmethod
-    def can_convert(cls, version: str) -> bool:
-        """Returns True if provided version can be converted to current."""
-        major_blob = f"{version.split('.', maxsplit=1)[0]}.*"
-        return (
-            major_blob in cls.ALLOWED_CONVERT or version in cls.ALLOWED_CONVERT
-        )
 
     @property
     def extra_authorize_data(self) -> dict[str]:
@@ -133,21 +228,72 @@ class SpotcastFlowHandler(SpotifyFlowHandler, domain=DOMAIN):
         return self.async_show_form(
             step_id="doc_confirm",
             data_schema=self.DOCUMENTATION_SCHEMA,
+            description_placeholders=self._doc_confirm_placeholders(),
         )
 
     async def async_step_doc_confirm(
         self,
         user_input: dict[str, Any],
     ) -> ConfigFlowResult:
-        """Entry flow to validate the user read teh documentation."""
+        """Entry flow to validate the user read the documentation."""
         if user_input is None or not user_input.get("confirmed", False):
             return self.async_show_form(
                 step_id="doc_confirm",
                 data_schema=self.DOCUMENTATION_SCHEMA,
                 errors={"confirmed": "must_confirm"},
+                description_placeholders=self._doc_confirm_placeholders(),
             )
 
         return await self.async_step_pick_implementation()
+
+    @staticmethod
+    def _doc_confirm_placeholders() -> dict[str, str]:
+        """The links shown on the first screen of the flow."""
+        return {
+            "setup_guide": _SETUP_GUIDE_URL,
+            "credentials_guide": _CREDENTIALS_GUIDE_URL,
+        }
+
+    async def async_step_auth(
+        self,
+        user_input: dict[str, Any] | None = None,
+    ) -> ConfigFlowResult:
+        """Check the stored application credentials before handing the
+        user to Spotify.
+
+        Home Assistant keeps application credentials outside the config
+        entry and never validates them. With a wrong pair, Spotify shows
+        its own error page after the redirect and the flow never hears
+        back, so the user has no way to learn what went wrong or where
+        to fix it. Both the initial setup and a reauthentication pass
+        through here, so both are covered.
+        """
+        if user_input is None and await self._async_credentials_rejected():
+            return self.async_abort(
+                reason="invalid_credentials",
+                description_placeholders={
+                    "credentials_url": _CREDENTIALS_PANEL_URL,
+                    "credentials_guide": _CREDENTIALS_GUIDE_URL,
+                },
+            )
+
+        return await super().async_step_auth(user_input)
+
+    async def _async_credentials_rejected(self) -> bool:
+        """Ask Spotify whether the selected implementation's client id
+        and secret are valid. Implementations without a local secret
+        are not checked."""
+        client_id = getattr(self.flow_impl, "client_id", None)
+        client_secret = getattr(self.flow_impl, "client_secret", None)
+
+        if not client_id or not client_secret:
+            return False
+
+        return await async_credentials_rejected(
+            async_get_clientsession(self.hass),
+            client_id,
+            client_secret,
+        )
 
     async def async_get_desktop_token(self, external_data: dict) -> TokenData:
         """Retrives a fresh access_token from spotify dekstop app."""
@@ -173,6 +319,117 @@ class SpotcastFlowHandler(SpotifyFlowHandler, domain=DOMAIN):
         """Passes the external steps result to oauth create entry."""
         return await self.async_oauth_create_entry(user_input)
 
+    async def async_step_desktop_auth(
+        self,
+        _user_input: dict[str, Any] | None = None,
+    ) -> ConfigFlowResult:
+        """Lets the user choose how to provide the desktop token."""
+        return self.async_show_menu(
+            step_id="desktop_auth",
+            menu_options=["desktop_api_manual", "desktop_api_auto"],
+        )
+
+    async def async_step_desktop_api_auto(
+        self,
+        _user_input: dict[str, Any] | None = None,
+    ) -> ConfigFlowResult:
+        """Automatic path: a local relay server redirects the browser
+        back to Home Assistant to complete the authorization."""
+        pkce_impl = self._get_pcke_impl()
+        url = await pkce_impl.async_generate_authorize_url(
+            flow_id=self.flow_id
+        )
+
+        LOGGER.debug("External Step - url `%s`", url)
+
+        return self.async_external_step(
+            step_id="desktop_api",
+            url=url,
+            description_placeholders={"release_url": _RELEASE_URL},
+        )
+
+    async def async_step_desktop_api_manual(
+        self,
+        user_input: dict[str, Any] | None = None,
+    ) -> ConfigFlowResult:
+        """Manual path: the user opens the authorization url, then pastes
+        the browser url it redirects to (which fails to load) so Spotcast
+        can exchange the authorization code itself. No relay needed."""
+        if self._manual_auth_url is None:
+            pkce_impl = self._get_pcke_impl()
+            self._manual_auth_url = (
+                await pkce_impl.async_generate_authorize_url(
+                    flow_id=self.flow_id
+                )
+            )
+
+        placeholders = {"authorize_url": self._manual_auth_url}
+
+        if user_input is None:
+            return self.async_show_form(
+                step_id="desktop_api_manual",
+                data_schema=self.MANUAL_AUTH_SCHEMA,
+                description_placeholders=placeholders,
+            )
+
+        try:
+            external_data = self._parse_pasted_redirect(
+                user_input["pasted_url"]
+            )
+        except ManualAuthError as exc:
+            return self.async_show_form(
+                step_id="desktop_api_manual",
+                data_schema=self.MANUAL_AUTH_SCHEMA,
+                description_placeholders=placeholders,
+                errors={"base": exc.error_key},
+            )
+
+        try:
+            self.data["desktop_api"] = {
+                "token": await self.async_get_desktop_token(external_data),
+            }
+        except Exception:  # pylint: disable=W0718
+            LOGGER.exception("Failed to exchange the pasted authorization code")
+            return self.async_show_form(
+                step_id="desktop_api_manual",
+                data_schema=self.MANUAL_AUTH_SCHEMA,
+                description_placeholders=placeholders,
+                errors={"base": "token_request_failed"},
+            )
+
+        return await self.async_oauth_create_entry({})
+
+    def _parse_pasted_redirect(self, pasted_url: str) -> dict:
+        """Parses a pasted redirect url into the OAuth external data.
+
+        Raises:
+            ManualAuthError: when the url is missing, malformed, denied,
+                or carries a state that does not match this flow.
+        """
+        query = parse_qs(urlsplit(pasted_url.strip()).query)
+
+        if not query:
+            raise ManualAuthError("invalid_url")
+
+        if "error" in query:
+            raise ManualAuthError("access_denied")
+
+        code = query.get("code", [None])[0]
+        state = query.get("state", [None])[0]
+
+        if code is None:
+            raise ManualAuthError("missing_code")
+
+        decoded_state = _decode_jwt(self.hass, state) if state else None
+
+        if (
+            decoded_state is None
+            or decoded_state.get("flow_id") != self.flow_id
+        ):
+            raise ManualAuthError("invalid_state")
+
+        return {"code": code, "state": decoded_state}
+
     def _get_pcke_impl(self) -> RelayedOAuth2ImplementationWithPcke:
         """Provide the custom spotcast Pkce oauth implementation."""
         if self._pcke_impl is None:
@@ -196,18 +453,7 @@ class SpotcastFlowHandler(SpotifyFlowHandler, domain=DOMAIN):
             self.data["external_api"] = data
 
         if "desktop_api" not in self.data:
-            pkce_impl = self._get_pcke_impl()
-
-            url = await pkce_impl.async_generate_authorize_url(
-                flow_id=self.flow_id
-            )
-
-            LOGGER.debug("External Step - url `%s`", url)
-
-            return self.async_external_step(
-                step_id="desktop_api",
-                url=url,
-            )
+            return await self.async_step_desktop_auth()
 
         external_api = self.data["external_api"]
 
@@ -223,7 +469,11 @@ class SpotcastFlowHandler(SpotifyFlowHandler, domain=DOMAIN):
         except Exception:  # pylint: disable=W0718
             return self.async_abort(
                 reason="connection_error",
-                description_placeholders={"account_type": "public"},
+                description_placeholders={
+                    "account_type": "public",
+                    "release_url": _RELEASE_URL,
+                    "ticket_url": _TICKET_URL,
+                },
             )
 
         external_api["id"] = current_user["id"]
@@ -260,22 +510,28 @@ class SpotcastFlowHandler(SpotifyFlowHandler, domain=DOMAIN):
     ) -> ConfigFlowResult:
         """Confirm reauth dialog."""
         reauth_entry = self._get_reauth_entry()
+        external_api = reauth_entry.data.get("external_api", {})
 
         if user_input is None:
             return self.async_show_form(
                 step_id="reauth_confirm",
                 description_placeholders={
-                    "account": reauth_entry.data["external_api"]["id"]
+                    "account": external_api.get("id", "unknown account")
                 },
                 errors={},
             )
 
+        # `auth_implementation` may be absent on entries created by older
+        # versions with a different data layout. Falling back to the
+        # implementation picker without a preselected implementation lets the
+        # user recover instead of hitting a config flow 500 error.
+        auth_implementation = external_api.get("auth_implementation")
+
+        if auth_implementation is None:
+            return await self.async_step_pick_implementation()
+
         return await self.async_step_pick_implementation(
-            user_input={
-                "implementation": reauth_entry.data["external_api"][
-                    "auth_implementation"
-                ]
-            }
+            user_input={"implementation": auth_implementation}
         )
 
     @staticmethod

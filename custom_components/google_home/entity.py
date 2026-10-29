@@ -13,7 +13,8 @@ from homeassistant.helpers.update_coordinator import (
 )
 
 from .api import GlocaltokensApiClient
-from .const import DOMAIN, MANUFACTURER
+from .const import DOMAIN, MANUFACTURER, UNANSWERED_UPDATES
+from .exceptions import DeviceRequestFailed
 from .models import GoogleHomeDevice
 from .types import GoogleHomeConfigEntry
 
@@ -24,6 +25,11 @@ class GoogleHomeBaseEntity(
     CoordinatorEntity[DataUpdateCoordinator[list[GoogleHomeDevice]]], ABC
 ):
     """Base entity base for Google Home sensors."""
+
+    # Subclasses name only themselves, and Home Assistant adds the device's
+    # current name. So entities added after the user renames the device in
+    # Home Assistant use its new name, not its Google Home name.
+    _attr_has_entity_name = True
 
     def __init__(
         self,
@@ -43,13 +49,7 @@ class GoogleHomeBaseEntity(
     @property
     @abstractmethod
     def label(self) -> str:
-        """Label to use for name and unique id."""
-
-    @property
-    @override
-    def name(self) -> str:
-        """Return the name of the sensor."""
-        return f"{self.device_name} {self.label}"
+        """Label to use for unique id."""
 
     @property
     @override
@@ -60,16 +60,18 @@ class GoogleHomeBaseEntity(
     @property
     @override
     def available(self) -> bool:
-        """Return whether Google still lists the device."""
-        return super().available and self.get_device() is not None
+        """Return whether Google still lists the device and it answers."""
+        device = self.get_device()
+        return (
+            super().available
+            and device is not None
+            and device.unanswered_updates < UNANSWERED_UPDATES
+        )
 
     @property
     @override
     def device_info(self) -> DeviceInfo | None:
         """Return device info."""
-        # Entity names start with the device name, which Home Assistant strips
-        # when it builds entity IDs from both: sensor.kitchen_alarms, not
-        # sensor.google_home_kitchen_kitchen_alarms.
         return DeviceInfo(
             identifiers={(DOMAIN, self.device_id)},
             name=self.device_name,
@@ -92,9 +94,22 @@ class GoogleHomeBaseEntity(
 
         if device is None:
             _LOGGER.error("Device %s is not found.", self.device_name)
-            return
+            raise DeviceRequestFailed(self.device_name, "request_failed")
 
         await self.client.reboot_google_device(device)
+
+
+class GoogleHomeFeatureEntity(GoogleHomeBaseEntity):
+    """Base entity for alarms, timers and their settings, which some devices don't have."""
+
+    @property
+    @override
+    def available(self) -> bool:
+        """Return whether Google still lists the device, it answers and it has these features."""
+        device = self.get_device()
+        return (
+            super().available and device is not None and not device.alarms_unsupported
+        )
 
 
 def async_add_device_entities(
@@ -118,7 +133,14 @@ def async_add_device_entities(
             device
             for device in coordinator.data
             if device.device_id not in added
-            and (not needs_answer or (device.auth_token and device.available))
+            and (
+                not needs_answer
+                or (
+                    device.auth_token
+                    and device.available
+                    and not device.alarms_unsupported
+                )
+            )
         ]
         if not devices:
             return

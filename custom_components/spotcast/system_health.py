@@ -13,6 +13,7 @@ from custom_components.spotcast import __version__
 from .chromecast import SpotifyController
 from .const import DOMAIN
 from .spotify.account import SpotifyAccount
+from .spotify.rate_limit import RATE_LIMIT_GUARD
 from .sessions import (
     PublicSession,
 )
@@ -21,7 +22,7 @@ LOGGER = getLogger(__name__)
 
 
 @callback
-def async_register(hass: HomeAssistant, register: SystemHealthRegistration):
+def async_register(_hass: HomeAssistant, register: SystemHealthRegistration):
     """Registers the system health callbacks."""
     register.async_register_info(system_health_info)
 
@@ -39,12 +40,22 @@ async def system_health_info(hass: HomeAssistant) -> dict[str]:
 
     health_info["Device Registration Endpoint"] = async_check_can_reach_url(
         hass,
-        SpotifyController.APP_HOSTNAME,
+        f"https://{SpotifyController.APP_HOSTNAME}/",
     )
 
-    for entry in hass.data[DOMAIN].values():
+    if RATE_LIMIT_GUARD.is_limited:
+        health_info["Rate Limit"] = {
+            "type": "failed",
+            "error": f"limited until {RATE_LIMIT_GUARD.resume_time}",
+        }
+    else:
+        health_info["Rate Limit"] = "ok"
+
+    # accounts are numbered instead of named: system health ends up in
+    # public bug reports and must not leak Spotify usernames or ids
+    for index, entry in enumerate(hass.data[DOMAIN].values(), start=1):
         account: SpotifyAccount = entry["account"]
-        base_key = f"{account.id[0].upper()}{account.id[1:]}"
+        base_key = f"Account {index}"
 
         health_status = account.health_status
 

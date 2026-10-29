@@ -5,6 +5,7 @@ https://github.com/leikoilja/ha-google-home
 """
 
 from datetime import timedelta
+from functools import partial
 import logging
 from typing import cast
 
@@ -13,6 +14,7 @@ from glocaltokens.utils.token import is_aas_et
 from homeassistant.components import zeroconf
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.device_registry import DeviceEntry
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
@@ -33,6 +35,7 @@ from .const import (
     STARTUP_MESSAGE,
     UPDATE_INTERVAL,
 )
+from .mdns import async_browse_cast_devices
 from .models import GoogleHomeDevice
 from .types import GoogleHomeConfigEntry
 
@@ -95,12 +98,24 @@ async def async_setup_entry(hass: HomeAssistant, entry: GoogleHomeConfigEntry) -
         hass,
         _LOGGER,
         name=SENSOR,
-        update_method=glocaltokens_client.update_google_devices_information,
+        update_method=partial(async_update_devices, hass, entry, glocaltokens_client),
         update_interval=timedelta(seconds=update_interval),
         config_entry=entry,
     )
+    found_devices = glocaltokens_client.found_devices
+    # Not async_request_refresh(), which drops the request when an update that
+    # started too early to fetch for found devices runs longer than its cooldown
+    found_devices.request_update = coordinator.async_refresh
+    entry.async_on_unload(found_devices.async_stop)
+    # Before the first refresh, so the devices that mDNS already knows are found
+    # before setup fetches Google's list, which then covers them
+    async_browse_cast_devices(hass, entry, zeroconf_instance, found_devices)
 
-    await coordinator.async_config_entry_first_refresh()
+    glocaltokens_client.setting_up = True
+    try:
+        await coordinator.async_config_entry_first_refresh()
+    finally:
+        glocaltokens_client.setting_up = False
 
     hass.data[DOMAIN][entry.entry_id] = {
         DATA_CLIENT: glocaltokens_client,
@@ -118,6 +133,24 @@ async def async_setup_entry(hass: HomeAssistant, entry: GoogleHomeConfigEntry) -
 
     entry.async_on_unload(entry.add_update_listener(async_update_entry))
     return True
+
+
+async def async_update_devices(
+    hass: HomeAssistant, entry: GoogleHomeConfigEntry, client: GlocaltokensApiClient
+) -> list[GoogleHomeDevice]:
+    """Update the devices, and ask to sign in again while Google rejects the master token.
+
+    Without devices, which is always the case at setup, the update fails. Otherwise
+    the devices keep updating, as those whose local tokens Google issued earlier
+    may still answer, and Home Assistant asks to sign in again meanwhile.
+    """
+    devices = await client.update_google_devices_information()
+    if (error := client.sign_in_error) is not None:
+        if not devices:
+            raise ConfigEntryAuthFailed(str(error)) from error
+        # Home Assistant doesn't start another sign-in while one is open
+        entry.async_start_reauth(hass)
+    return devices
 
 
 async def async_name_after_account(
@@ -153,8 +186,8 @@ async def async_remove_config_entry_device(
     Devices that are offline or not on the network stay in the coordinator data,
     so they come back on the next reload and can't be deleted. Nothing can be
     deleted while Google's device list is unknown: the entry isn't loaded, no
-    fetch has succeeded yet, or a device rejected its token and the list hasn't
-    been fetched again.
+    fetch has succeeded yet, or a device rejected its token, got no new token
+    that it accepts, and the list hasn't been fetched again.
     """
     entry_data = hass.data.get(DOMAIN, {}).get(entry.entry_id)
     if entry_data is None or not entry_data[DATA_CLIENT].google_devices_fetched:

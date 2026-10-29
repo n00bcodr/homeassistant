@@ -10,14 +10,12 @@ Functions:
     - async_setup_entry
 """
 from logging import getLogger
-import datetime as dt
 
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.event import async_track_time_interval
 
-from custom_components.spotcast.utils import ensure_default_data
+from custom_components.spotcast.const import DEFAULT_OPTIONS, DOMAIN
 from custom_components.spotcast.media_player.chromecast_player import (
     Chromecast,
 )
@@ -31,7 +29,6 @@ from custom_components.spotcast.media_player.device_manager import (
     DeviceManager
 )
 from custom_components.spotcast.spotify import SpotifyAccount
-from custom_components.spotcast.const import DOMAIN
 
 LOGGER = getLogger(__name__)
 
@@ -45,16 +42,15 @@ async def async_setup_entry(
 
     account = await SpotifyAccount.async_from_config_entry(hass, entry)
     device_manager = DeviceManager(account, async_add_entities)
+    device_manager.apply_device_options(DEFAULT_OPTIONS | entry.options)
 
-    await device_manager.async_update()
-
-    device_listener = async_track_time_interval(
-        hass,
-        device_manager.async_update,
-        dt.timedelta(seconds=30)
+    # register the device manager so the account coordinator drives
+    # its updates
+    entry_data = hass.data.setdefault(DOMAIN, {}).setdefault(
+        entry.entry_id,
+        {},
     )
+    entry_data["device_manager"] = device_manager
 
-    hass = ensure_default_data(hass, entry.entry_id)
-
-    domain_data = hass.data[DOMAIN]
-    domain_data[entry.entry_id]["device_listener"] = device_listener
+    await device_manager.async_initialize()
+    await device_manager.async_update()

@@ -9,7 +9,6 @@ from logging import getLogger
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers import config_validation as cv
 from homeassistant.util.read_only_dict import ReadOnlyDict
-from homeassistant.exceptions import ServiceValidationError
 import voluptuous as vol
 
 
@@ -122,39 +121,29 @@ async def async_rebuild_playback(
         return call_data
 
     current_item = last_playback_state["item"]
-    track_index = 0
 
     # set the offset according to the context type
     if context_type == "album":
+        track_index = 0
         try:
             track_index = await async_track_index(account, current_item["uri"])
             track_index = track_index[1] - 1
         except ValueError:
             pass
+        call_data["data"]["offset"] = track_index
     # change the context to the episode if context is show
     elif context_type == "show":
         call_data["spotify_uri"] = current_item["uri"]
-
-    # all remaining case that rely on fetching a list of items and
-    # finding the current uri in the list
+        call_data["data"]["offset"] = 0
+    # start the context directly at the current track's uri. This avoids
+    # paginating the whole context just to compute a numeric index, which
+    # is what made transfer_playback take up to a minute on large playlists
+    # (see #582).
     elif context_type in ("playlist", "collection"):
-
-        tracks = []
-
-        if context_type == "playlist":
-            tracks = await account.async_get_playlist_tracks(context_uri)
-            tracks = [x["track"]["uri"] for x in tracks]
-        else:
-            tracks = await account.async_liked_songs()
-
-        try:
-            track_index = tracks.index(current_item["uri"])
-        except ValueError:
-            pass
-
-    if context_type == "artist":
+        call_data["data"]["offset"] = current_item["uri"]
+    elif context_type == "artist":
         call_data["data"]["offset"] = None
     else:
-        call_data["data"]["offset"] = track_index
+        call_data["data"]["offset"] = 0
 
     return call_data

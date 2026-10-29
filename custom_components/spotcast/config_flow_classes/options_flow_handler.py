@@ -8,9 +8,14 @@ from logging import getLogger
 from types import MappingProxyType
 
 from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers.selector import (
+    SelectSelector,
+    SelectSelectorConfig,
+    SelectSelectorMode,
+)
 from homeassistant.config_entries import (
     OptionsFlow,
-    FlowResult,
+    ConfigFlowResult,
 )
 import voluptuous as vol
 
@@ -22,25 +27,42 @@ LOGGER = getLogger(__name__)
 DEFAULT_OPTIONS = MappingProxyType({
     "is_default": False,
     "base_refresh_rate": 30,
+    "stale_device_timeout": 7,
+    "device_filter_mode": "deny",
+    "device_filter_patterns": "",
 })
 
 
 class SpotcastOptionsFlowHandler(OptionsFlow):
     """Handles option configuration via the Integration page"""
 
+    _options: dict = None
+
     SCHEMAS = {
         "init": vol.Schema(
             {
                 vol.Required("set_default"): bool,
-                vol.Required("base_refresh_rate"): cv.positive_int,
+                vol.Required("base_refresh_rate"): vol.All(
+                    cv.positive_int,
+                    vol.Range(min=5),
+                ),
+                vol.Required("stale_device_timeout"): cv.positive_int,
+                vol.Required("device_filter_mode"): SelectSelector(
+                    SelectSelectorConfig(
+                        options=["deny", "allow"],
+                        mode=SelectSelectorMode.DROPDOWN,
+                        translation_key="device_filter_mode",
+                    ),
+                ),
+                vol.Optional("device_filter_patterns", default=""): str,
             }
         )
     }
 
     async def async_step_init(
         self,
-        user_input: dict[str] | None = None,
-    ) -> FlowResult:
+        _user_input: dict[str] | None = None,
+    ) -> ConfigFlowResult:
         """Initial Step for the Option Configuration Flow"""
 
         options = copy_to_dict(self.config_entry.options)
@@ -61,7 +83,11 @@ class SpotcastOptionsFlowHandler(OptionsFlow):
         )
 
     def set_default_user(self) -> dict:
-        """Set the current user as default for spotcast"""
+        """Set the current user as default for spotcast.
+
+        The entry update listener applies the change to the loaded
+        accounts when the entries are updated.
+        """
 
         entries = self.hass.config_entries.async_entries(DOMAIN)
         old_default = None
@@ -74,8 +100,6 @@ class SpotcastOptionsFlowHandler(OptionsFlow):
 
             if is_default:
                 old_default = entry.title
-                self.hass.data[DOMAIN][entry.entry_id]["account"]\
-                    .is_default = False
 
             self.hass.config_entries.async_update_entry(
                 entry,
@@ -89,11 +113,12 @@ class SpotcastOptionsFlowHandler(OptionsFlow):
         )
 
         self._options["is_default"] = True
-        self.hass.data[DOMAIN][self.config_entry.entry_id]["account"]\
-            .is_default = True
 
     def set_base_refresh_rate(self, new_refresh_rate: int):
-        """Sets the base refresh rate for the account
+        """Sets the base refresh rate for the account.
+
+        The entry update listener applies the change to the account
+        and its coordinator when the entry is updated.
 
         Args:
             - new_refresh_rate(int): the new refresh rate to set for
@@ -109,22 +134,39 @@ class SpotcastOptionsFlowHandler(OptionsFlow):
             self.config_entry.title,
             new_refresh_rate,
         )
-        entry_id = self.config_entry.entry_id
-        self.hass.data[DOMAIN][entry_id]["account"]\
-            .base_refresh_rate = new_refresh_rate
 
         self._options["base_refresh_rate"] = new_refresh_rate
+
+    def set_device_options(self, user_input: dict):
+        """Sets the device lifecycle and filtering options.
+
+        The entry update listener applies the change to the device
+        manager when the entry is updated.
+
+        Args:
+            - user_input(dict): the options submitted in the flow
+        """
+        self._options["stale_device_timeout"] = (
+            user_input["stale_device_timeout"]
+        )
+        self._options["device_filter_mode"] = (
+            user_input["device_filter_mode"]
+        )
+        self._options["device_filter_patterns"] = (
+            user_input.get("device_filter_patterns", "")
+        )
 
     async def async_step_apply_options(
         self,
         user_input: dict[str]
-    ) -> FlowResult:
+    ) -> ConfigFlowResult:
         """Step to apply the options configured"""
 
         if user_input["set_default"]:
             self.set_default_user()
 
         self.set_base_refresh_rate(user_input["base_refresh_rate"])
+        self.set_device_options(user_input)
 
         self.hass.config_entries.async_update_entry(
             self.config_entry,

@@ -10,7 +10,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from custom_components.spotcast.spotify import SpotifyAccount
+from custom_components.spotcast.const import DOMAIN
+from custom_components.spotcast.coordinator import SpotcastCoordinator
 from custom_components.spotcast.sensor.spotify_devices_sensor import (
     SpotifyDevicesSensor,
 )
@@ -32,6 +33,9 @@ from custom_components.spotcast.sensor.spotify_followers_sensor import (
 from custom_components.spotcast.sensor.spotify_account_type_sensor import (
     SpotifyAccountTypeSensor
 )
+from custom_components.spotcast.sensor.spotify_current_context_sensor import (
+    SpotifyCurrentContextSensor
+)
 
 LOGGER = getLogger(__name__)
 SENSORS = (
@@ -42,7 +46,7 @@ SENSORS = (
     SpotifyProductSensor,
     SpotifyFollowersSensor,
     SpotifyAccountTypeSensor,
-    # *AUDIO_FEATURES_SENSORS,
+    SpotifyCurrentContextSensor,
 )
 
 
@@ -51,8 +55,12 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
+    """Sets up the sensor platform for a Spotcast account."""
 
-    account = await SpotifyAccount.async_from_config_entry(hass, entry)
+    coordinator: SpotcastCoordinator = (
+        hass.data[DOMAIN][entry.entry_id]["coordinator"]
+    )
+    account = coordinator.account
 
     built_sensors = []
 
@@ -64,6 +72,6 @@ async def async_setup_entry(
             account.id
         )
 
-        built_sensors.append(sensor(account))
+        built_sensors.append(sensor(coordinator))
 
-    async_add_entities(built_sensors, False)
+    async_add_entities(built_sensors)

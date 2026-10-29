@@ -17,7 +17,8 @@ from .const import (
     ICON_DO_NOT_DISTURB,
     LABEL_DO_NOT_DISTURB,
 )
-from .entity import GoogleHomeBaseEntity, async_add_device_entities
+from .entity import GoogleHomeFeatureEntity, async_add_device_entities
+from .exceptions import DeviceRequestFailed
 from .models import GoogleHomeDevice
 from .types import GoogleHomeConfigEntry
 
@@ -41,16 +42,17 @@ async def async_setup_entry(
     return True
 
 
-class DoNotDisturbSwitch(GoogleHomeBaseEntity, SwitchEntity):
+class DoNotDisturbSwitch(GoogleHomeFeatureEntity, SwitchEntity):
     """Google Home Do Not Disturb switch."""
 
+    _attr_name = "Do Not Disturb"
     _attr_icon = ICON_DO_NOT_DISTURB
     _attr_entity_category = EntityCategory.CONFIG
 
     @property
     @override
     def label(self) -> str:
-        """Label to use for name and unique id."""
+        """Label to use for unique id."""
         return LABEL_DO_NOT_DISTURB
 
     @property
@@ -69,7 +71,7 @@ class DoNotDisturbSwitch(GoogleHomeBaseEntity, SwitchEntity):
         device = self.get_device()
         if device is None:
             _LOGGER.error("Device %s is not found.", self.device_name)
-            return
+            raise DeviceRequestFailed(self.device_name, "request_failed")
 
         await self.client.update_do_not_disturb(device=device, enable=enable)
         # Other entities show this device's data too

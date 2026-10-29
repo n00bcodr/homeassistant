@@ -8,18 +8,20 @@ Classes:
 from logging import getLogger
 
 from homeassistant.core import ServiceCall, HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 
 from custom_components.spotcast.services.exceptions import (
     UnknownServiceError,
 )
 
 from custom_components.spotcast.services.const import SERVICE_HANDLERS
-from custom_components.spotcast.sensor.abstract_entity import POTENTIAL_ERRORS
+from custom_components.spotcast.coordinator import POTENTIAL_ERRORS
+from custom_components.spotcast.spotify.exceptions import RateLimitedError
 
 LOGGER = getLogger(__name__)
 
 
-class ServiceHandler:
+class ServiceHandler:  # pylint: disable=too-few-public-methods
     """Handler for Service call that redirect service calls with added
     arguments
 
@@ -59,5 +61,10 @@ class ServiceHandler:
 
         try:
             await handler(self.hass, call)
+        except RateLimitedError as exc:
+            raise HomeAssistantError(
+                "Spotify is rate limiting this client id. Try again in "
+                f"{exc.seconds_remaining} s (after {exc.resume_time})"
+            ) from exc
         except POTENTIAL_ERRORS as exc:
             LOGGER.error(exc)
