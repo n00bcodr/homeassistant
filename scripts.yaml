@@ -105,7 +105,7 @@ bed_routine_script:
       data:
         notification_icon: mdi:bed-clock
         tag: bed
-        icon_url: https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/apple/325/bed_1f6cf-fe0f.png?raw=true
+        icon_url: /local/images/notifications/bed.png
         color: blue
         actions:
         - action: '{{ action_yes }}'
@@ -419,8 +419,8 @@ install_marketplace_updates:
   sequence:
   - target:
       entity_id: '{{ states.update | selectattr(''state'', ''eq'', ''on'') |  selectattr(''entity_id'',
-        ''in'', integration_entities(''marketplace'')) |  map(attribute=''entity_id'') |
-        list }}'
+        ''in'', integration_entities(''marketplace'')) |  map(attribute=''entity_id'')
+        | list }}'
     action: update.install
   alias: Install Marketplace Updates
   description: ''
@@ -439,7 +439,8 @@ install_other_updates:
   - target:
       entity_id: '{{ states.update | selectattr(''state'', ''eq'', ''on'') |  rejectattr(''entity_id'',
         ''in'', integration_entities(''hassio'')) |  rejectattr(''entity_id'', ''in'',
-        integration_entities(''marketplace'')) | map(attribute=''entity_id'') | list }}'
+        integration_entities(''marketplace'')) | map(attribute=''entity_id'') | list
+        }}'
     action: update.install
   alias: Install Other Updates
   description: ''
@@ -462,14 +463,6 @@ spotcast_phone_dj:
         entity_id: media_player.pixel_8_pro_21eb7srfkhj4oefepym2q5cpq_spotcast
   alias: Spotcast Phone DJ
   description: ''
-purge_jellyfin_orphans:
-  sequence:
-  - action: jellyfin.purge_devices
-    metadata: {}
-    data: {}
-  alias: Purge Jellyfin Orphans
-  description: ''
-  icon: cbi:jellyfin
 jellyha_play_on_android_tv_wholphin:
   alias: 'JellyHA: Play on Android TV (Wholphin)'
   description: Plays the selected movie or episode on Android TV (Wholphin) via Android

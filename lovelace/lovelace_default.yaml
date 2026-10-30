@@ -238,14 +238,21 @@ views:
         navigation_path: /lovelace/living-room?anchor=doorbell
       type: custom:room-tile
     - badge:
-        color: '[[[ if(is(''input_boolean.bin'',''on'')) return ''green''; const b=a(''sensor.black_bin'',''next_collection''),l=a(''sensor.blue_bin'',''next_collection'');
+        color: '[[[ if((is(''input_boolean.bin'',''on'')&&Math.min(a(''sensor.black_bin'',''next_collection''),a(''sensor.blue_bin'',''next_collection''))<=1))
+          return ''green''; const b=a(''sensor.black_bin'',''next_collection''),l=a(''sensor.blue_bin'',''next_collection'');
           const n=Math.min(b,l); return n>5?''green'':n>2?''yellow'':''red''; ]]]'
         left: 95
-        text: '[[[ if(is(''input_boolean.bin'',''on'')) return ''✔''; const b=a(''sensor.black_bin'',''next_collection''),l=a(''sensor.blue_bin'',''next_collection'');
+        text: '[[[ if((is(''input_boolean.bin'',''on'')&&Math.min(a(''sensor.black_bin'',''next_collection''),a(''sensor.blue_bin'',''next_collection''))<=1))
+          return ''✔''; const b=a(''sensor.black_bin'',''next_collection''),l=a(''sensor.blue_bin'',''next_collection'');
           return (b==null||l==null)?'''':String(Math.min(b,l)); ]]]'
         top: 85
       buttons:
-      - entity: sensor.blue_bin
+      - badge:
+          color: '[[[ const n=a(''sensor.blue_bin'',''next_collection''); return n>5?''green'':n>2?''yellow'':''red'';
+            ]]]'
+          icon: '[[[ const n=a(''sensor.blue_bin'',''next_collection''); return n==null?'''':n>9?''mdi:numeric-9-plus'':''mdi:numeric-''+n;
+            ]]]'
+        entity: sensor.blue_bin
         hold_action:
           action: more-info
         picture: /local/images/bins/blue_bin.png
@@ -253,7 +260,12 @@ views:
         size: 50
         tap_action:
           action: more-info
-      - entity: sensor.black_bin
+      - badge:
+          color: '[[[ const n=a(''sensor.black_bin'',''next_collection''); return
+            n>5?''green'':n>2?''yellow'':''red''; ]]]'
+          icon: '[[[ const n=a(''sensor.black_bin'',''next_collection''); return n==null?'''':n>9?''mdi:numeric-9-plus'':''mdi:numeric-''+n;
+            ]]]'
+        entity: sensor.black_bin
         hold_action:
           action: more-info
         picture: /local/images/bins/black_bin.png
@@ -261,25 +273,11 @@ views:
         size: 55
         tap_action:
           action: more-info
-      - badge:
-          color: '[[[ return is(''input_boolean.bin'',''on'')?''green'':''red''; ]]]'
-          icon: '[[[ const b=a(''sensor.black_bin'',''next_collection''),l=a(''sensor.blue_bin'',''next_collection'');
-            if(b<=2||l<=2) return is(''input_boolean.bin'',''on'')?''mdi:check'':''mdi:arrow-down'';
-            return ''''; ]]]'
-        color: '[[[ if(!is(''input_boolean.bin'',''on'')) return ''disabled''; if(a(''sensor.black_bin'',''next_collection'')<=1)
-          return ''black''; if(a(''sensor.blue_bin'',''next_collection'')<=1) return
-          ''blue''; return ''disabled''; ]]]'
-        double_tap_action:
-          action: toggle
-        entity: input_boolean.bin
-        hold_action:
-          action: more-info
-        icon: '[[[ return is(''input_boolean.bin'',''on'')?''fas:trash-can-arrow-up'':''mdi:delete-off-outline'';
-          ]]]'
-        size: 40
-        tap_action:
-          action: none
       color: disabled
+      double_tap_action:
+        action: toggle
+        entity: input_boolean.bin
+      extras: []
       grid_options:
         columns: 6
         rows: auto
@@ -287,13 +285,15 @@ views:
         action: none
       icon: ''
       name: '[[[ const b=a(''sensor.black_bin'',''next_collection''),l=a(''sensor.blue_bin'',''next_collection'');
-        return (b&&l)?(b<l?''Black Bin'':''Blue Bin''):''Bin Collection''; ]]]'
+        return (b!=null&&l!=null)?(b<l?''Black Bin'':''Blue Bin''):''Bin Collection'';
+        ]]]'
       picture: '[[[ const b=a(''sensor.black_bin'',''next_collection''),l=a(''sensor.blue_bin'',''next_collection'');
-        return (b&&l)?(b<l?''/local/images/bins/black_bin.png'':''/local/images/bins/blue_bin.png''):''/local/images/bins/black_bin.png'';
+        return (b!=null&&l!=null)?(b<l?''/local/images/bins/black_bin.png'':''/local/images/bins/blue_bin.png''):''/local/images/bins/black_bin.png'';
         ]]]'
       picture_style: filter:brightness(1) contrast(3)
       secondary: '[[[ const b=a(''sensor.black_bin'',''next_collection''),l=a(''sensor.blue_bin'',''next_collection'');
-        return (b&&l)?''on ''+(b<l?s(''sensor.black_bin''):s(''sensor.blue_bin'')):''Check
+        if((is(''input_boolean.bin'',''on'')&&Math.min(a(''sensor.black_bin'',''next_collection''),a(''sensor.blue_bin'',''next_collection''))<=1))
+        return ''Bin is outside''; return (b!=null&&l!=null)?''on ''+(b<l?s(''sensor.black_bin''):s(''sensor.blue_bin'')):''Check
         schedule''; ]]]'
       shape_left: -30
       shape_top: 62
@@ -1074,12 +1074,22 @@ views:
           target: {}
         type: entity
         use_entity_picture: true
-      - entity: sensor.sleep
+      - content: '{% set m = (states(''sensor.google_fit_thanuj_usp_gmail_com_sleep'')
+          | float(0) / 60) | round | int %}{{ m // 60 }}h {{ ''%02d'' | format(m %
+          60) }}m'
+        entity: sensor.google_fit_thanuj_usp_gmail_com_sleep
+        icon: mdi:power-sleep
         icon_color: indigo
         tap_action:
           action: navigate
           navigation_path: '#sleep'
-        type: entity
+        type: template
+      - icon: catppuccin:django
+        tap_action:
+          action: perform-action
+          perform_action: spotcast.play_dj
+          target: {}
+        type: action
       type: custom:mushroom-chips-card
     conditions:
     - condition: screen
@@ -2000,16 +2010,9 @@ views:
           - template: app_launcher
             type: custom:button-card
             variables:
-              app_name: Netflix
-              card_color: black
-              icon_width: 80%
-              target_remote: remote.google_tv_remote
-          - template: app_launcher
-            type: custom:button-card
-            variables:
+              app_icon: wholphin-cube
               app_name: Wholphin
-              card_color: '#22263f'
-              icon_width: 50%
+              icon_width: 36%
               target_remote: remote.google_tv_remote
           - template: app_launcher
             type: custom:button-card
@@ -2045,13 +2048,6 @@ views:
           - template: app_launcher
             type: custom:button-card
             variables:
-              app_name: Aha
-              card_color: white
-              icon_width: 50%
-              target_remote: remote.google_tv_remote
-          - template: app_launcher
-            type: custom:button-card
-            variables:
               app_name: Zee5
               icon_width: 80%
               target_remote: remote.google_tv_remote
@@ -2060,13 +2056,6 @@ views:
             variables:
               app_name: Spotify
               icon_width: 90%
-              target_remote: remote.google_tv_remote
-          - template: app_launcher
-            type: custom:button-card
-            variables:
-              app_name: Sony LIV
-              card_color: black
-              icon_width: 30%
               target_remote: remote.google_tv_remote
           - template: app_launcher
             type: custom:button-card
@@ -2085,11 +2074,17 @@ views:
           square: false
           type: grid
         - custom_actions:
-          - icon: mdi:circle-medium
+          - icon: ''
+            label: OK
             name: center
-            styles: ":host {\n  --icon-color: var(--primary-color);\n  --size: 44px;\n\
-              \  width: 76px;\n  height: 76px;\n  margin: 0;\n  padding: 0;\n  border-radius:\
+            styles: ":host {\n  --icon-color: var(--primary-text-color);\n  width:\
+              \ 76px;\n  height: 76px;\n  margin: 0;\n  padding: 0;\n  border-radius:\
               \ 50%;\n  background: rgba(255,255,255,0.10);\n  border: 1px solid rgba(255,255,255,0.14);\n\
+              \  position: relative;\n}\n.icon {\n  display: none !important;\n}\n\
+              .label {\n  position: absolute !important;\n  inset: 0;\n  width: 100%\
+              \ !important;\n  height: 100% !important;\n  display: flex !important;\n\
+              \  align-items: center;\n  justify-content: center;\n  line-height:\
+              \ 1;\n  font-size: 18px;\n  font-weight: 600;\n  color: var(--primary-text-color);\n\
               }"
             tap_action:
               action: key
@@ -2102,7 +2097,11 @@ views:
             styles: ":host {\n  --icon-color: var(--secondary-text-color);\n  --size:\
               \ 34px;\n  width: 64px;\n  height: 64px;\n  margin: 0;\n  padding: 0;\n\
               \  border-radius: 50%;\n  background: rgba(255,255,255,0.05);\n  border:\
-              \ 1px solid rgba(255,255,255,0.08);\n}"
+              \ 1px solid rgba(255,255,255,0.08);\n}\n.label {\n  display: none !important;\n\
+              }\n.icon {\n  position: absolute !important;\n  inset: 0;\n  width:\
+              \ 100% !important;\n  height: 100% !important;\n  aspect-ratio: auto\
+              \ !important;\n  display: flex !important;\n  align-items: center;\n\
+              \  justify-content: center;\n}"
             tap_action:
               action: key
               key: DPAD_UP
@@ -2114,7 +2113,11 @@ views:
             styles: ":host {\n  --icon-color: var(--secondary-text-color);\n  --size:\
               \ 34px;\n  width: 64px;\n  height: 64px;\n  margin: 0;\n  padding: 0;\n\
               \  border-radius: 50%;\n  background: rgba(255,255,255,0.05);\n  border:\
-              \ 1px solid rgba(255,255,255,0.08);\n}"
+              \ 1px solid rgba(255,255,255,0.08);\n}\n.label {\n  display: none !important;\n\
+              }\n.icon {\n  position: absolute !important;\n  inset: 0;\n  width:\
+              \ 100% !important;\n  height: 100% !important;\n  aspect-ratio: auto\
+              \ !important;\n  display: flex !important;\n  align-items: center;\n\
+              \  justify-content: center;\n}"
             tap_action:
               action: key
               key: DPAD_DOWN
@@ -2126,7 +2129,11 @@ views:
             styles: ":host {\n  --icon-color: var(--secondary-text-color);\n  --size:\
               \ 34px;\n  width: 64px;\n  height: 64px;\n  margin: 0;\n  padding: 0;\n\
               \  border-radius: 50%;\n  background: rgba(255,255,255,0.05);\n  border:\
-              \ 1px solid rgba(255,255,255,0.08);\n}"
+              \ 1px solid rgba(255,255,255,0.08);\n}\n.label {\n  display: none !important;\n\
+              }\n.icon {\n  position: absolute !important;\n  inset: 0;\n  width:\
+              \ 100% !important;\n  height: 100% !important;\n  aspect-ratio: auto\
+              \ !important;\n  display: flex !important;\n  align-items: center;\n\
+              \  justify-content: center;\n}"
             tap_action:
               action: key
               key: DPAD_LEFT
@@ -2138,7 +2145,11 @@ views:
             styles: ":host {\n  --icon-color: var(--secondary-text-color);\n  --size:\
               \ 34px;\n  width: 64px;\n  height: 64px;\n  margin: 0;\n  padding: 0;\n\
               \  border-radius: 50%;\n  background: rgba(255,255,255,0.05);\n  border:\
-              \ 1px solid rgba(255,255,255,0.08);\n}"
+              \ 1px solid rgba(255,255,255,0.08);\n}\n.label {\n  display: none !important;\n\
+              }\n.icon {\n  position: absolute !important;\n  inset: 0;\n  width:\
+              \ 100% !important;\n  height: 100% !important;\n  aspect-ratio: auto\
+              \ !important;\n  display: flex !important;\n  align-items: center;\n\
+              \  justify-content: center;\n}"
             tap_action:
               action: key
               key: DPAD_RIGHT
@@ -2185,8 +2196,12 @@ views:
     view_layout:
       column: 3
   - back_open: true
-    bg_blur: 0
+    backdrop_blur: '20'
+    bg_blur: 20
+    bg_color: var(--card-background-color)
+    bg_opacity: 95
     button_type: name
+    card_layout: normal
     card_type: pop-up
     cards:
     - cards:
@@ -2240,22 +2255,30 @@ views:
         type: custom:mushroom-legacy-template-card
       type: custom:stack-in-card
     close_on_click: true
+    full_width_on_mobile: false
     hash: '#sleepsounds'
+    hide_backdrop: false
     margin: 18px
     margin_top_mobile: 00px
+    popup_mode: centered
     scrolling_effect: false
+    shadow_opacity: '80'
     show_header: false
     show_icon: false
     show_name: false
-    styles: ".bubble-pop-up-background {\n    height: 0px !important;\n}"
     sub_button:
       bottom: []
       main: []
     type: custom:bubble-card
     width_desktop: 800px
+    with_bottom_offset: true
   - back_open: true
-    bg_blur: 0
+    backdrop_blur: '20'
+    bg_blur: 20
+    bg_color: var(--card-background-color)
+    bg_opacity: 95
     button_type: name
+    card_layout: normal
     card_type: pop-up
     cards:
     - 12hr_format: true
@@ -2301,19 +2324,28 @@ views:
       use_default: true
       use_entity: false
     close_on_click: true
+    full_width_on_mobile: false
     hash: '#moon'
     hide_backdrop: false
     margin: 18px
+    margin_top_mobile: 00px
+    popup_mode: centered
+    scrolling_effect: false
+    shadow_opacity: '80'
     show_header: false
-    styles: ".bubble-pop-up-background {\n    height: 0px !important;\n}"
     sub_button:
       bottom: []
       main: []
     type: custom:bubble-card
     width_desktop: 800px
+    with_bottom_offset: true
   - back_open: true
-    bg_blur: 0
+    backdrop_blur: '20'
+    bg_blur: 20
+    bg_color: var(--card-background-color)
+    bg_opacity: 95
     button_type: name
+    card_layout: normal
     card_type: pop-up
     cards:
     - current: true
@@ -2333,22 +2365,30 @@ views:
       number_of_forecasts: '7'
       type: custom:weather-card
     close_on_click: true
+    full_width_on_mobile: false
     hash: '#weather'
+    hide_backdrop: false
     margin: 18px
     margin_top_mobile: 00px
+    popup_mode: centered
     scrolling_effect: false
+    shadow_opacity: '80'
     show_header: false
     show_icon: false
     show_name: false
-    styles: ".bubble-pop-up-background {\n    height: 0px !important;\n}"
     sub_button:
       bottom: []
       main: []
     type: custom:bubble-card
     width_desktop: 800px
+    with_bottom_offset: true
   - back_open: true
-    bg_blur: '90'
+    backdrop_blur: '20'
+    bg_blur: 20
+    bg_color: var(--card-background-color)
+    bg_opacity: 95
     button_type: name
+    card_layout: normal
     card_type: pop-up
     cards:
     - cards:
@@ -2525,60 +2565,110 @@ views:
         type: entities
       type: vertical-stack
     close_on_click: false
+    full_width_on_mobile: false
     hash: '#phone'
+    hide_backdrop: false
     icon: mdi:google
+    margin: 18px
+    margin_top_mobile: 00px
     name: Phone Controls
+    popup_mode: centered
+    scrolling_effect: false
+    shadow_opacity: '80'
     show_header: true
-    styles: ".bubble-pop-up-background {\n    height: 0px !important;\n}"
     sub_button:
       bottom: []
       main: []
     type: custom:bubble-card
     width_desktop: 800px
+    with_bottom_offset: true
   - back_open: true
-    bg_blur: 0
+    backdrop_blur: '20'
+    bg_blur: 20
+    bg_color: var(--card-background-color)
+    bg_opacity: 95
     button_type: name
+    card_layout: normal
     card_type: pop-up
     cards:
-    - content: "<hr>\n<h3>\U0001F4A4Total Sleep: {{ ((states.sensor.sleep.state |\
-        \ float) // 1) | int }} hours, {{ ((states.sensor.sleep.state | float % 1)\
-        \ * 60) | round(0) }} minutes \U0001F6CC</h3>\n\n**{{ (((states.sensor.light_sleep.state\
-        \ | float) + (states.sensor.deep_sleep.state | float) + (states.sensor.rem_sleep.state\
-        \ | float)) // 1) | int }} hours, {{ ((((states.sensor.light_sleep.state |\
-        \ float) + (states.sensor.deep_sleep.state | float) + (states.sensor.rem_sleep.state\
-        \ | float)) % 1) * 60) | round(0) }} minutes**\n\n  - \U0001F4F1 **Time to\
-        \ sleep:**\n    \U0001F552 {% if ((states.sensor.awake_time.state | float)\
-        \ // 1) | int > 0 %}{{ ((states.sensor.awake_time.state | float) // 1) | int\
-        \ }} hours, {% endif %}{{ ((states.sensor.awake_time.state | float % 1) *\
-        \ 60) | round(0) }} minutes\n    \n  - \U0001F315 **Light Sleep:**\n    \U0001F552\
-        \ {% if ((states.sensor.light_sleep.state | float) // 1) | int > 0 %}{{ ((states.sensor.light_sleep.state\
-        \ | float) // 1) | int }} hours, {% endif %}{{ ((states.sensor.light_sleep.state\
-        \ | float % 1) * 60) | round(0) }} minutes\n\n  - \U0001F311 **Deep Sleep:**\n\
-            \U0001F552 {% if ((states.sensor.deep_sleep.state | float) // 1) | int\
-        \ > 0 %}{{ ((states.sensor.deep_sleep.state | float) // 1) | int }} hours,\
-        \ {% endif %}{{ ((states.sensor.deep_sleep.state | float % 1) * 60) | round(0)\
-        \ }} minutes\n\n  - \U0001F300 **REM Sleep:**\n    \U0001F552 {% if ((states.sensor.rem_sleep.state\
-        \ | float) // 1) | int > 0 %}{{ ((states.sensor.rem_sleep.state | float) //\
-        \ 1) | int }} hours, {% endif %}{{ ((states.sensor.rem_sleep.state | float\
-        \ % 1) * 60) | round(0) }} minutes\n"
-      title: 🌙 Last Night's Sleep Summary
-      type: markdown
-      view_layout:
-        column: 1
+    - hold_action:
+        action: none
+      label: "[[[\nconst g = 'sensor.google_fit_thanuj_usp_gmail_com_';\nconst n =\
+        \ (id) => { const s = states[id]; const v = s ? parseFloat(s.state) : NaN;\
+        \ return isNaN(v) ? 0 : v; };\nconst f = (h) => { const m = Math.round(h *\
+        \ 60); return Math.floor(m / 60) + 'h ' + String(m % 60).padStart(2, '0')\
+        \ + 'm'; };\nconst asleep = n(g + 'sleep') / 3600, awake = n(g + 'awake_time')\
+        \ / 3600;\nconst stages = [\n  ['Light', n(g + 'light_sleep') / 3600, '#8FA8FF'],\n\
+        \  ['Deep', n(g + 'deep_sleep') / 3600, '#4B5BD6'],\n  ['REM', n(g + 'rem_sleep')\
+        \ / 3600, '#B57BFF'],\n  ['Awake', awake, '#F5A524'],\n];\nconst total = stages.reduce((a,\
+        \ s) => a + s[1], 0) || 1;\nconst stageBar = stages.map(s => `<div style=\"\
+        width:${s[1] / total * 100}%;background:${s[2]}\"></div>`).join('');\nconst\
+        \ legend = stages.map(s => `<div style=\"text-align:center\"><div style=\"\
+        font-size:12px;opacity:.7\"><span style=\"display:inline-block;width:8px;height:8px;border-radius:50%;background:${s[2]};margin-right:4px\"\
+        ></span>${s[0]}</div><div style=\"font-weight:600;font-size:14px\">${f(s[1])}</div></div>`).join('');\n\
+        const src = [\n  ['Google Fit', asleep, awake],\n  ['Fitbit', n('sensor.pavanthanuj_sleep_minutes_asleep'),\
+        \ n('sensor.pavanthanuj_sleep_minutes_awake')],\n  ['Google Health', n('sensor.pavan_thanuj_time_asleep')\
+        \ / 60, n('sensor.pavan_thanuj_time_awake') / 60],\n];\nconst max = Math.max(...src.map(s\
+        \ => s[1] + s[2]), 1);\nconst rows = src.map(s => `<div style=\"margin-top:10px\"\
+        ><div style=\"display:flex;justify-content:space-between;font-size:13px\"\
+        ><span style=\"font-weight:600\">${s[0]}</span><span style=\"opacity:.8\"\
+        >${f(s[1])} asleep &middot; ${f(s[2])} awake</span></div><div style=\"display:flex;height:10px;margin-top:4px;gap:2px;width:100%\"\
+        ><div style=\"width:${s[1] / max * 100}%;background:#7C83FD;border-radius:5px\"\
+        ></div><div style=\"width:${s[2] / max * 100}%;background:#F5A524;border-radius:5px\"\
+        ></div></div></div>`).join('');\nreturn `<div style=\"text-align:left;padding:4px\
+        \ 6px\">\n<div style=\"font-size:13px;opacity:.7\">Last night</div>\n<div\
+        \ style=\"font-size:32px;font-weight:700;line-height:1.2\">${f(asleep)} <span\
+        \ style=\"font-size:14px;font-weight:400;opacity:.7\">asleep</span></div>\n\
+        <div style=\"font-size:15px;color:#F5A524;margin-bottom:12px\">${f(awake)}\
+        \ awake</div>\n<div style=\"display:flex;height:16px;border-radius:8px;overflow:hidden;gap:2px\"\
+        >${stageBar}</div>\n<div style=\"display:flex;justify-content:space-around;margin-top:10px\"\
+        >${legend}</div>\n<div style=\"margin-top:18px;font-size:13px;opacity:.7\"\
+        >Compare sources</div>\n${rows}\n</div>`;\n]]]"
+      show_icon: false
+      show_label: true
+      show_name: false
+      styles:
+        card:
+        - padding: 14px
+        - height: auto
+        grid:
+        - grid-template-areas: '"l"'
+        - grid-template-columns: 1fr
+        label:
+        - justify-self: stretch
+        - width: 100%
+        - white-space: normal
+      tap_action:
+        action: none
+      triggers_update:
+      - sensor.google_fit_thanuj_usp_gmail_com_sleep
+      - sensor.google_fit_thanuj_usp_gmail_com_awake_time
+      - sensor.google_fit_thanuj_usp_gmail_com_light_sleep
+      - sensor.google_fit_thanuj_usp_gmail_com_deep_sleep
+      - sensor.google_fit_thanuj_usp_gmail_com_rem_sleep
+      - sensor.pavanthanuj_sleep_minutes_asleep
+      - sensor.pavanthanuj_sleep_minutes_awake
+      - sensor.pavan_thanuj_time_asleep
+      - sensor.pavan_thanuj_time_awake
+      type: custom:button-card
     close_on_click: true
+    full_width_on_mobile: false
     hash: '#sleep'
+    hide_backdrop: false
     margin: 18px
     margin_top_mobile: 00px
+    popup_mode: centered
     scrolling_effect: false
+    shadow_opacity: '80'
     show_header: false
     show_icon: false
     show_name: false
-    styles: ".bubble-pop-up-background {\n    height: 0px !important;\n}"
     sub_button:
       bottom: []
       main: []
     type: custom:bubble-card
     width_desktop: 800px
+    with_bottom_offset: true
   - cards:
     - collapsible_controls: true
       double_tap_action:
@@ -2686,22 +2776,31 @@ views:
     view_layout:
       column: 2
   - back_open: true
-    bg_blur: '40'
+    backdrop_blur: '20'
+    bg_blur: 20
+    bg_color: var(--card-background-color)
+    bg_opacity: 95
     button_type: name
+    card_layout: normal
     card_type: pop-up
     cards:
     - type: custom:horizon-card
     close_on_click: true
+    full_width_on_mobile: false
     hash: '#sun'
     hide_backdrop: false
     margin: 18px
+    margin_top_mobile: 00px
+    popup_mode: centered
+    scrolling_effect: false
+    shadow_opacity: '80'
     show_header: false
-    styles: ".bubble-pop-up-background {\n    height: 0px !important;\n}"
     sub_button:
       bottom: []
       main: []
     type: custom:bubble-card
     width_desktop: 800px
+    with_bottom_offset: true
   icon: mdi:castle
   layout:
     max_cols: 3
@@ -3584,15 +3683,9 @@ views:
             - template: app_launcher
               type: custom:button-card
               variables:
-                app_name: Netflix
-                card_color: black
-                icon_width: 80%
-                target_remote: remote.google_tv_streamer_remote
-            - template: app_launcher
-              type: custom:button-card
-              variables:
+                app_icon: wholphin-cube
                 app_name: Wholphin
-                icon_width: 50%
+                icon_width: 36%
                 target_remote: remote.google_tv_streamer_remote
             - template: app_launcher
               type: custom:button-card
@@ -3628,13 +3721,6 @@ views:
             - template: app_launcher
               type: custom:button-card
               variables:
-                app_name: Aha
-                card_color: white
-                icon_width: 50%
-                target_remote: remote.google_tv_streamer_remote
-            - template: app_launcher
-              type: custom:button-card
-              variables:
                 app_name: Zee5
                 icon_width: 80%
                 target_remote: remote.google_tv_streamer_remote
@@ -3643,13 +3729,6 @@ views:
               variables:
                 app_name: Spotify
                 icon_width: 90%
-                target_remote: remote.google_tv_streamer_remote
-            - template: app_launcher
-              type: custom:button-card
-              variables:
-                app_name: Sony LIV
-                card_color: black
-                icon_width: 30%
                 target_remote: remote.google_tv_streamer_remote
             - template: app_launcher
               type: custom:button-card
@@ -3668,12 +3747,18 @@ views:
             square: false
             type: grid
           - custom_actions:
-            - icon: mdi:circle-medium
+            - icon: ''
+              label: OK
               name: center
-              styles: ":host {\n  --icon-color: var(--primary-color);\n  --size: 44px;\n\
-                \  width: 76px;\n  height: 76px;\n  margin: 0;\n  padding: 0;\n  border-radius:\
+              styles: ":host {\n  --icon-color: var(--primary-text-color);\n  width:\
+                \ 76px;\n  height: 76px;\n  margin: 0;\n  padding: 0;\n  border-radius:\
                 \ 50%;\n  background: rgba(255,255,255,0.10);\n  border: 1px solid\
-                \ rgba(255,255,255,0.14);\n}"
+                \ rgba(255,255,255,0.14);\n  position: relative;\n}\n.icon {\n  display:\
+                \ none !important;\n}\n.label {\n  position: absolute !important;\n\
+                \  inset: 0;\n  width: 100% !important;\n  height: 100% !important;\n\
+                \  display: flex !important;\n  align-items: center;\n  justify-content:\
+                \ center;\n  line-height: 1;\n  font-size: 18px;\n  font-weight: 600;\n\
+                \  color: var(--primary-text-color);\n}"
               tap_action:
                 action: key
                 key: DPAD_CENTER
@@ -3685,7 +3770,11 @@ views:
               styles: ":host {\n  --icon-color: var(--secondary-text-color);\n  --size:\
                 \ 34px;\n  width: 64px;\n  height: 64px;\n  margin: 0;\n  padding:\
                 \ 0;\n  border-radius: 50%;\n  background: rgba(255,255,255,0.05);\n\
-                \  border: 1px solid rgba(255,255,255,0.08);\n}"
+                \  border: 1px solid rgba(255,255,255,0.08);\n}\n.label {\n  display:\
+                \ none !important;\n}\n.icon {\n  position: absolute !important;\n\
+                \  inset: 0;\n  width: 100% !important;\n  height: 100% !important;\n\
+                \  aspect-ratio: auto !important;\n  display: flex !important;\n \
+                \ align-items: center;\n  justify-content: center;\n}"
               tap_action:
                 action: key
                 key: DPAD_UP
@@ -3697,7 +3786,11 @@ views:
               styles: ":host {\n  --icon-color: var(--secondary-text-color);\n  --size:\
                 \ 34px;\n  width: 64px;\n  height: 64px;\n  margin: 0;\n  padding:\
                 \ 0;\n  border-radius: 50%;\n  background: rgba(255,255,255,0.05);\n\
-                \  border: 1px solid rgba(255,255,255,0.08);\n}"
+                \  border: 1px solid rgba(255,255,255,0.08);\n}\n.label {\n  display:\
+                \ none !important;\n}\n.icon {\n  position: absolute !important;\n\
+                \  inset: 0;\n  width: 100% !important;\n  height: 100% !important;\n\
+                \  aspect-ratio: auto !important;\n  display: flex !important;\n \
+                \ align-items: center;\n  justify-content: center;\n}"
               tap_action:
                 action: key
                 key: DPAD_DOWN
@@ -3709,7 +3802,11 @@ views:
               styles: ":host {\n  --icon-color: var(--secondary-text-color);\n  --size:\
                 \ 34px;\n  width: 64px;\n  height: 64px;\n  margin: 0;\n  padding:\
                 \ 0;\n  border-radius: 50%;\n  background: rgba(255,255,255,0.05);\n\
-                \  border: 1px solid rgba(255,255,255,0.08);\n}"
+                \  border: 1px solid rgba(255,255,255,0.08);\n}\n.label {\n  display:\
+                \ none !important;\n}\n.icon {\n  position: absolute !important;\n\
+                \  inset: 0;\n  width: 100% !important;\n  height: 100% !important;\n\
+                \  aspect-ratio: auto !important;\n  display: flex !important;\n \
+                \ align-items: center;\n  justify-content: center;\n}"
               tap_action:
                 action: key
                 key: DPAD_LEFT
@@ -3721,7 +3818,11 @@ views:
               styles: ":host {\n  --icon-color: var(--secondary-text-color);\n  --size:\
                 \ 34px;\n  width: 64px;\n  height: 64px;\n  margin: 0;\n  padding:\
                 \ 0;\n  border-radius: 50%;\n  background: rgba(255,255,255,0.05);\n\
-                \  border: 1px solid rgba(255,255,255,0.08);\n}"
+                \  border: 1px solid rgba(255,255,255,0.08);\n}\n.label {\n  display:\
+                \ none !important;\n}\n.icon {\n  position: absolute !important;\n\
+                \  inset: 0;\n  width: 100% !important;\n  height: 100% !important;\n\
+                \  aspect-ratio: auto !important;\n  display: flex !important;\n \
+                \ align-items: center;\n  justify-content: center;\n}"
               tap_action:
                 action: key
                 key: DPAD_RIGHT
@@ -3955,31 +4056,6 @@ views:
       - camera_entity: camera.backyard_camera
         live_provider: auto
       type: custom:advanced-camera-card
-    - card:
-        caption_format: '[AGO]'
-        card_mod:
-          style: "ha-card {\n  background: none;\n  border-radius: 0px;\n}\n.resource-menu\
-            \ {\n  height: 135px;\n}\n"
-        entities:
-        - camera.doorbell
-        - sensor.doorbell_images
-        - caption_format: '[AGO]'
-          file_name_date_begins: 12
-          file_name_format: YYYYMMDDHHmmss
-          include_images: true
-          path: media-source://media_source/local/Doorbell/
-          recursive: true
-        file_name_format: YYYY-MM-DD_HH-mm-SS
-        maximum_files: 30
-        menu_alignment: Bottom
-        parsed_date_sort: true
-        show_zoom: true
-        type: custom:gallery-card
-      conditions:
-      - condition: user
-        users:
-        - 3bfda48930b040d882b7d5cf1566573a
-      type: conditional
     type: vertical-stack
     view_layout:
       column: 3
@@ -4017,8 +4093,8 @@ views:
           entity: input_boolean.bin
           hold_action:
             action: more-info
-          icon: "{% if is_state(config.entity, 'on') %}\n  fas:trash-can-arrow-up\n\
-            {% else %}\n  fas:trash-can\n{% endif %}"
+          icon: "{% if is_state(config.entity, 'on') %}\n  mdi:delete-restore\n{%\
+            \ else %}\n  mdi:trash-can\n{% endif %}"
           icon_color: "{% if is_state(config.entity, 'on') %}\n  {% if state_attr(\"\
             sensor.black_bin\", \"next_collection\") <= 1 %}black{% elif state_attr(\"\
             sensor.blue_bin\", \"next_collection\") <= 1 %}blue{% else %}disabled{%\
@@ -4530,10 +4606,10 @@ views:
         primary: Refresh Libraries
         secondary: ''
         tap_action:
-          action: call-service
-          perform_action: button.press
-          target:
-            entity_id: button.skynet_hq_rescan_libraries
+          action: perform-action
+          data: {}
+          perform_action: jellyha.refresh_library
+          target: {}
         type: custom:mushroom-legacy-template-card
       - card:
           type: entities
@@ -4555,6 +4631,8 @@ views:
             options: {}
           - options: {}
             state: idle
+          - integration: 95ea4a3348f054d27a955bca6a34de51
+            options: {}
           include:
           - name: /[Jj]elly/
             options: {}
@@ -4566,91 +4644,6 @@ views:
           reverse: false
         type: custom:auto-entities
       type: vertical-stack
-    - columns: 3
-      double_tap_action: call-service
-      double_tap_service: script.jellyha_play_on_android_tv_wholphin
-      enable_browser_player: false
-      enable_custom_play_actions: true
-      entity: sensor.jellyha_library
-      grid_options:
-        columns: 24
-        rows: auto
-      items_per_page: 6
-      layout: list
-      max_pages: 5
-      media_type: both
-      metadata_position: below
-      modal_play_actions: []
-      show_date_added: true
-      show_search: true
-      status_filter: all
-      title: Recently Added
-      tv_content: series
-      type: custom:jellyha-library-card
-      use_series_image: true
-    column_span: 3
-    type: grid
-  - cards:
-    - cards:
-      - entity: input_select.speakers_spotify
-        fill_container: false
-        icon_color: green
-        layout: horizontal
-        secondary_info: none
-        type: custom:mushroom-select-card
-      - cards:
-        - badge_icon: ''
-          entity: input_select.speakers_spotify
-          fill_container: true
-          icon: "{%if (states.input_select.speakers_spotify.state == 'Friday') %}\n\
-            \    {{ \"m3o:nest-audio\" }}\n{%elif  (states.input_select.speakers_spotify.state\
-            \ == 'Nest Mini') %}\n    {{ \"m3o:nest-mini\" }}\n{%elif  (states.input_select.speakers_spotify.state\
-            \ == 'Kitchen Speaker') %}\n    {{ \"m3of:nest-mini\" }}\n{%elif  (states.input_select.speakers_spotify.state\
-            \ == 'THEATEROFDREAMS')  %}\n    {{ \"mdi:microsoft-windows\" }}\n{%elif\
-            \  (states.input_select.speakers_spotify.state == \"Pavan's Nest Hub\"\
-            )  %}\n    {{ \"cbi:nest-hub\" }}\n{%elif  (states.input_select.speakers_spotify.state\
-            \ == \"Bathroom Speaker\")  %}\n    {{ \"cbi:google-home\" }}\n{% endif\
-            \ %}"
-          icon_color: "{%if (states.input_select.speakers_spotify.state == 'Friday')\
-            \ %}\n    {{ \"pink\" }}\n{%elif  (states.input_select.speakers_spotify.state\
-            \ == 'Nest Mini') %}\n    {{ \"white\" }}\n{%elif  (states.input_select.speakers_spotify.state\
-            \ == 'Kitchen Speaker') %}\n    {{ \"red\" }}\n{%elif  (states.input_select.speakers_spotify.state\
-            \ == 'THEATEROFDREAMS')  %}\n    {{ \"blue\" }}\n{%elif  (states.input_select.speakers_spotify.state\
-            \ == \"Pavan's Nest Hub\")  %}\n    {{ \"pink\" }}\n{%elif  (states.input_select.speakers_spotify.state\
-            \ == \"Bathroom Speaker\")  %}\n    {{ \"white\" }}\n{% endif %}"
-          layout: horizontal
-          picture: ''
-          primary: '{{states.input_select.speakers_spotify.state}}'
-          secondary: ''
-          tap_action:
-            action: call-service
-            data: {}
-            service: script.spotify_start
-            target: {}
-          type: custom:mushroom-legacy-template-card
-        - fill_container: true
-          icon: mdi:play
-          icon_color: amber
-          layout: vertical
-          primary: ''
-          secondary: ''
-          tap_action:
-            action: perform-action
-            data:
-              skip_condition: true
-            perform_action: automation.trigger
-            target:
-              entity_id: automation.spotify_selected_device_force_playback
-          type: custom:mushroom-legacy-template-card
-        columns: 2
-        square: false
-        type: grid
-      type: vertical-stack
-      view_layout:
-        column: 1
-    - entities:
-      - input_text.text_spotify
-      type: entities
     - cards:
       - content: '# 🪼 JellyHA Dashboard
 
@@ -4771,6 +4764,91 @@ views:
           '
         type: markdown
       type: vertical-stack
+    column_span: 2
+    type: grid
+  - cards:
+    - cards:
+      - entity: input_select.speakers_spotify
+        fill_container: false
+        icon_color: green
+        layout: horizontal
+        secondary_info: none
+        type: custom:mushroom-select-card
+      - cards:
+        - badge_icon: ''
+          entity: input_select.speakers_spotify
+          fill_container: true
+          icon: "{%if (states.input_select.speakers_spotify.state == 'Friday') %}\n\
+            \    {{ \"m3o:nest-audio\" }}\n{%elif  (states.input_select.speakers_spotify.state\
+            \ == 'Nest Mini') %}\n    {{ \"m3o:nest-mini\" }}\n{%elif  (states.input_select.speakers_spotify.state\
+            \ == 'Kitchen Speaker') %}\n    {{ \"m3of:nest-mini\" }}\n{%elif  (states.input_select.speakers_spotify.state\
+            \ == 'THEATEROFDREAMS')  %}\n    {{ \"mdi:microsoft-windows\" }}\n{%elif\
+            \  (states.input_select.speakers_spotify.state == \"Pavan's Nest Hub\"\
+            )  %}\n    {{ \"cbi:nest-hub\" }}\n{%elif  (states.input_select.speakers_spotify.state\
+            \ == \"Bathroom Speaker\")  %}\n    {{ \"cbi:google-home\" }}\n{% endif\
+            \ %}"
+          icon_color: "{%if (states.input_select.speakers_spotify.state == 'Friday')\
+            \ %}\n    {{ \"pink\" }}\n{%elif  (states.input_select.speakers_spotify.state\
+            \ == 'Nest Mini') %}\n    {{ \"white\" }}\n{%elif  (states.input_select.speakers_spotify.state\
+            \ == 'Kitchen Speaker') %}\n    {{ \"red\" }}\n{%elif  (states.input_select.speakers_spotify.state\
+            \ == 'THEATEROFDREAMS')  %}\n    {{ \"blue\" }}\n{%elif  (states.input_select.speakers_spotify.state\
+            \ == \"Pavan's Nest Hub\")  %}\n    {{ \"pink\" }}\n{%elif  (states.input_select.speakers_spotify.state\
+            \ == \"Bathroom Speaker\")  %}\n    {{ \"white\" }}\n{% endif %}"
+          layout: horizontal
+          picture: ''
+          primary: '{{states.input_select.speakers_spotify.state}}'
+          secondary: ''
+          tap_action:
+            action: call-service
+            data: {}
+            service: script.spotify_start
+            target: {}
+          type: custom:mushroom-legacy-template-card
+        - fill_container: true
+          icon: mdi:play
+          icon_color: amber
+          layout: vertical
+          primary: ''
+          secondary: ''
+          tap_action:
+            action: perform-action
+            data:
+              skip_condition: true
+            perform_action: automation.trigger
+            target:
+              entity_id: automation.spotify_selected_device_force_playback
+          type: custom:mushroom-legacy-template-card
+        columns: 2
+        square: false
+        type: grid
+      type: vertical-stack
+      view_layout:
+        column: 1
+    - entities:
+      - input_text.text_spotify
+      type: entities
+    - columns: 3
+      double_tap_action: call-service
+      double_tap_service: script.jellyha_play_on_android_tv_wholphin
+      enable_browser_player: false
+      enable_custom_play_actions: true
+      entity: sensor.jellyha_library
+      grid_options:
+        columns: 36
+        rows: auto
+      items_per_page: 6
+      layout: list
+      max_pages: 5
+      media_type: both
+      metadata_position: below
+      modal_play_actions: []
+      show_date_added: true
+      show_search: true
+      status_filter: all
+      title: Recently Added
+      tv_content: series
+      type: custom:jellyha-library-card
+      use_series_image: true
     - card:
         show_header_toggle: false
         state_color: true
@@ -4790,6 +4868,7 @@ views:
         method: last_changed
         reverse: true
       type: custom:auto-entities
+    column_span: 2
     type: grid
   type: sections
   visible:
@@ -4982,7 +5061,7 @@ views:
         tap_action:
           action: perform-action
           data:
-            id: sensor.sleep
+            id: sensor.google_fit_thanuj_usp_gmail_com_sleep
           perform_action: script.reload_config_entries
           target: {}
         type: template
@@ -5300,43 +5379,50 @@ views:
           action: navigate
           navigation_path: /hassio/ingress/cebe7a76_hassio_google_drive_backup
         type: custom:mushroom-legacy-template-card
-      - entities:
-        - card_mod:
-            style: "ha-card {\n  background: none;\n  border: 0;\n  box-shadow: none;\n\
-              \  overflow: auto;\n  padding-top: 5px;\n  font-size: 15px;\n}\n"
-          card_type: custom:flex-table-card
-          columns:
-          - data: backups
-            modify: x.name
-            name: Name
-          - data: backups
-            modify: x.state
-            name: State
-          - data: backups
-            modify: x.size
-            name: Size
-          css:
-            table+: 'border-collapse: collapse;'
-          entities:
-            include: sensor.backup_state
-          sort_by: backups
-          type: custom:hui-element
-        head:
-          double_tap_action:
-            action: navigate
-            navigation_path: /config/backup/backups
-          entity: sensor.backup_state
-          fill_container: false
-          icon: mdi:home-assistant
-          icon_color: blue
-          multiline_secondary: false
-          primary: '{{states.sensor.backup_state.attributes.size_in_home_assistant}}'
-          secondary: Homeassistant Local Backup Size
-          tap_action:
-            action: none
-          type: custom:mushroom-legacy-template-card
-        padding: 0
-        type: custom:fold-entity-row
+      - card_mod:
+          style: 'ha-card { background: none; box-shadow: none; border: none; } #states
+            { padding: 0 !important; }'
+        entities:
+        - entities:
+          - card_mod:
+              style: "ha-card {\n  background: none;\n  border: 0;\n  box-shadow:\
+                \ none;\n  overflow: auto;\n  padding-top: 5px;\n  font-size: 15px;\n\
+                }\n"
+            card_type: custom:flex-table-card
+            columns:
+            - data: backups
+              modify: x.name
+              name: Name
+            - data: backups
+              modify: x.state
+              name: State
+            - data: backups
+              modify: x.size
+              name: Size
+            css:
+              table+: 'border-collapse: collapse;'
+            entities:
+              include: sensor.backup_state
+            sort_by: backups
+            type: custom:hui-element
+          head:
+            double_tap_action:
+              action: navigate
+              navigation_path: /config/backup/backups
+            entity: sensor.backup_state
+            fill_container: false
+            icon: mdi:home-assistant
+            icon_color: blue
+            multiline_secondary: false
+            primary: '{{states.sensor.backup_state.attributes.size_in_home_assistant}}'
+            secondary: Homeassistant Local Backup Size
+            tap_action:
+              action: none
+            type: custom:mushroom-legacy-template-card
+          padding: 0
+          type: custom:fold-entity-row
+        show_header_toggle: false
+        type: entities
       - cards:
         - card_mod:
             style: 'ha-card { border-radius: 8px;background: none;box-shadow: none;--ha-card-border-width:
@@ -5682,7 +5768,24 @@ views:
             action: none
           type: template
         type: custom:mushroom-chips-card
-      - card:
+      - card_mod:
+          style: 'ha-card { background: none; box-shadow: none; border: none; } #states
+            { padding: 0 !important; }'
+        entities:
+        - entities:
+          - card:
+              card_mod:
+                style: 'ha-card { background: none; box-shadow: none; border: none;
+                  } #states { padding: 0 !important; }'
+              show_header_toggle: false
+              type: entities
+            filter:
+              include:
+              - domain: switch
+                entity_id: '*docker*'
+            sort:
+              method: state
+            type: custom:auto-entities
           head:
             icon: mdi:docker
             icon_color: blue
@@ -5694,13 +5797,8 @@ views:
             type: custom:mushroom-legacy-template-card
           padding: 1
           type: custom:fold-entity-row
-        filter:
-          include:
-          - domain: switch
-            entity_id: '*docker*'
-        sort:
-          method: state
-        type: custom:auto-entities
+        show_header_toggle: false
+        type: entities
       type: vertical-stack
     type: grid
     visibility:
@@ -5744,22 +5842,21 @@ views:
             tap_action: none
             type: custom:template-entity-row
           - entity: input_text.git_commit_message
-            extend_paper_buttons_row:
-              buttons:
-              - icon: mdi:close
-                tap_action:
-                  action: call-service
-                  service: input_text.set_value
-                  service_data:
-                    value: ‎
-                  target:
-                    entity_id: input_text.git_commit_message
-              - icon: fas:paste
-                tap_action:
-                  action: call-service
-                  service: script.git_commit_copy
-              position: right
             name: Commit Message
+          - buttons:
+            - icon: mdi:close
+              tap_action:
+                action: call-service
+                service: input_text.set_value
+                service_data:
+                  value: ‎
+                target:
+                  entity_id: input_text.git_commit_message
+            - icon: fas:paste
+              tap_action:
+                action: call-service
+                service: script.git_commit_copy
+            type: custom:paper-buttons-row
           - type: section
           type: entities
         - alignment: center
@@ -6847,8 +6944,12 @@ views:
     type: grid
   - cards:
     - back_open: true
-      bg_blur: 0
+      backdrop_blur: '20'
+      bg_blur: 20
+      bg_color: var(--card-background-color)
+      bg_opacity: 95
       button_type: name
+      card_layout: normal
       card_type: pop-up
       cards:
       - cards:
@@ -6935,17 +7036,23 @@ views:
                 \ border-bottom: 1px solid #181818 !important;\n}\n.leaflet-pane.leaflet-tile-pane\
                 \ {\n  filter: invert(0.95) grayscale(0.95) contrast(95%);\n}\n"
         type: custom:vertical-stack-in-card
+      full_width_on_mobile: false
       hash: '#pavan'
+      hide_backdrop: false
       margin: 18px
       margin_top_mobile: 00px
       modules:
       - default
+      popup_mode: centered
+      scrolling_effect: false
+      shadow_opacity: '80'
       show_header: false
       sub_button:
         bottom: []
         main: []
       type: custom:bubble-card
       width_desktop: 800px
+      with_bottom_offset: true
     type: grid
   type: sections
   visible:
@@ -8114,35 +8221,42 @@ views:
               }\n.secondary {\n  font-size: 1em !important;\n  position: relative;\n\
               \  top: -50px;\n  left: -165px;\n  overflow: visible !important;\n}\n"
         double_tap_action:
-          action: none
+          action: perform-action
+          perform_action: input_boolean.toggle
+          target:
+            entity_id: input_boolean.bin
         hold_action:
-          action: none
+          action: more-info
+          entity: input_boolean.bin
         icon: none
         layout: horizontal
         picture: "{% set black_next = state_attr('sensor.black_bin', 'next_collection')\
           \ %} {% set blue_next = state_attr('sensor.blue_bin', 'next_collection')\
-          \ %} {% if black_next and blue_next %}\n  {% if black_next < blue_next %}/local/images/bins/black_bin.png{%\
-          \ else %}/local/images/bins/blue_bin.png{% endif %}\n{% else %}\n  /local/images/bins/black_bin.png\n\
-          {% endif %}"
+          \ %} {% if black_next is not none and blue_next is not none %}\n  {% if\
+          \ black_next < blue_next %}/local/images/bins/black_bin.png{% else %}/local/images/bins/blue_bin.png{%\
+          \ endif %}\n{% else %}\n  /local/images/bins/black_bin.png\n{% endif %}"
         primary: "{% set black_next = state_attr('sensor.black_bin', 'next_collection')\
           \ %} {% set blue_next = state_attr('sensor.blue_bin', 'next_collection')\
-          \ %} {% if black_next and blue_next %}\n  {% if black_next < blue_next %}Black\
-          \ Bin{% else %}Blue Bin{% endif %}\n{% else %}\n  Bin Collection\n{% endif\
-          \ %}\n"
-        secondary: "{% set black_next = state_attr('sensor.black_bin', 'next_collection')\
+          \ %} {% if black_next is not none and blue_next is not none %}\n  {% if\
+          \ black_next < blue_next %}Black Bin{% else %}Blue Bin{% endif %}\n{% else\
+          \ %}\n  Bin Collection\n{% endif %}\n"
+        secondary: "{% if is_state('input_boolean.bin', 'on') %}Bin is outside{% else\
+          \ %}{% set black_next = state_attr('sensor.black_bin', 'next_collection')\
           \ %} {% set blue_next = state_attr('sensor.blue_bin', 'next_collection')\
-          \ %} {% if black_next and blue_next %}\n  {% if black_next < blue_next %}\n\
-          \    on {{ states('sensor.black_bin') }}\n  {% else %}\n    on {{ states('sensor.blue_bin')\
-          \ }}\n  {% endif %}\n{% else %}\n  Check schedule\n{% endif %}\n"
+          \ %} {% if black_next is not none and blue_next is not none %}\n  {% if\
+          \ black_next < blue_next %}\n    on {{ states('sensor.black_bin') }}\n \
+          \ {% else %}\n    on {{ states('sensor.blue_bin') }}\n  {% endif %}\n{%\
+          \ else %}\n  Check schedule\n{% endif %}\n{% endif %}"
         tap_action:
           action: navigate
           navigation_path: /lovelace/living-room?anchor=bins
         type: custom:mushroom-legacy-template-card
       - card_mod:
           style:
-            .: "ha-card {\n  width: px;\n  margin-left: 65%;\n  top: -180px;\n  background:\
-              \ none;\n  filter: brightness(1) contrast(3)\n\n}\n:host {\n  --mush-icon-size:\
-              \ 50px;\n  perspective: 900px;\n}\n"
+            .: "ha-card {\n  width: 80px;\n  display: flex;\n  justify-content: center;\n\
+              \  margin-left: 65%;\n  top: -180px;\n  background: none;\n  filter:\
+              \ brightness(1) contrast(3)\n\n}\n:host {\n  --mush-icon-size: 50px;\n\
+              \  perspective: 900px;\n}\n"
         entity: sensor.blue_bin
         hold_action:
           action: more-info
@@ -8152,42 +8266,16 @@ views:
         type: custom:mushroom-legacy-template-card
       - card_mod:
           style:
-            .: "ha-card {\n  width: px;\n  margin-left: 65%;\n  top: -180px;\n  background:\
-              \ none;\n  filter: brightness(2) contrast(3)\n}\n:host {\n  --mush-icon-size:\
-              \ 55px;\n  perspective: 900px;\n}\n"
+            .: "ha-card {\n  width: 80px;\n  display: flex;\n  justify-content: center;\n\
+              \  margin-left: 65%;\n  top: -180px;\n  background: none;\n  filter:\
+              \ brightness(2) contrast(3)\n}\n:host {\n  --mush-icon-size: 50px;\n\
+              \  perspective: 900px;\n}\n"
         entity: sensor.black_bin
         hold_action:
           action: more-info
         picture: /local/images/bins/black_bin.png
         tap_action:
           action: more-info
-        type: custom:mushroom-legacy-template-card
-      - badge_color: "{% if is_state(config.entity, 'on') %}\n  green\n{% else %}\n\
-          \  red\n{% endif %}"
-        badge_icon: "{% if state_attr(\"sensor.black_bin\", \"next_collection\") <=\
-          \ 2 or state_attr(\"sensor.blue_bin\", \"next_collection\") <= 2 %}\n  {%\
-          \ if is_state(config.entity, 'on') %}\n    mdi:check\n  {% else %}\n   \
-          \ mdi:arrow-down\n  {% endif %}\n{% endif %}"
-        card_mod:
-          style:
-            .: "ha-card {\n  width: px;\n  margin-left: 65%;\n  top: -180px;\n  background:\
-              \ none;\n}\n:host {\n  --mush-icon-size: 40px;\n  perspective: 900px;\n\
-              }\nha-card:active {\n  transform: rotateX(25deg);\n  transform-origin:\
-              \ center bottom;\n  transition: 0s;\n}\n"
-        double_tap_action:
-          action: toggle
-        entity: input_boolean.bin
-        hold_action:
-          action: more-info
-        icon: "{% if is_state(config.entity, 'on') %}\n  fas:trash-can-arrow-up\n\
-          {% else %}\n  mdi:delete-off-outline\n{% endif %}"
-        icon_color: "{% if is_state(config.entity, 'on') %}\n  {% if state_attr(\"\
-          sensor.black_bin\", \"next_collection\") <= 1 %}black{% elif state_attr(\"\
-          sensor.blue_bin\", \"next_collection\") <= 1 %}blue{% else %}disabled{%\
-          \ endif %}\n{% else %}\n  disabled\n{% endif %}"
-        picture: ''
-        tap_action:
-          action: none
         type: custom:mushroom-legacy-template-card
       grid_options:
         columns: 6

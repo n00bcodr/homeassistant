@@ -16,7 +16,7 @@
   ha-card-border-color: "rgba(255,255,255,0.07)"
   ha-card-background: "linear-gradient(145deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01))"
   ha-card-box-shadow: "0 8px 30px rgba(0,0,0,0.45)"
-  ha-card-backdrop-filter: "blur(18px) saturate(140%)"
+  ha-card-backdrop-filter: "none"
   lovelace-background: "radial-gradient(1200px 600px at 10% -10%, rgba(150,90,255,0.22), transparent 60%), radial-gradient(900px 600px at 100% 0%, rgba(230,80,200,0.18), transparent 55%), radial-gradient(900px 700px at 50% 110%, rgba(60,120,255,0.14), transparent 60%), #0d0b16"
   ha-dialog-surface-background: "rgba(23,19,37,1)"
   # Dim and blur the page behind dialogs
@@ -28,6 +28,11 @@
   sidebar-text-color: "#9aa6bd"
   sidebar-selected-background-color: "rgba(183,148,246,0.14)"
   sidebar-divider-color: "rgba(255,255,255,0.06)"
+  app-header-edit-background-color: "color-mix(in srgb, var(--primary-color) 16%, rgba(11,15,23,0.88))"
+  app-header-edit-text-color: "var(--primary-text-color)"
+  app-header-backdrop-filter: "blur(18px) saturate(140%)"
+  app-header-border-bottom: "1px solid rgba(255,255,255,0.07)"
+  app-header-selection-bar-color: "var(--primary-color)"
   # # Fonts
   primary-font-family: "Ubuntu, sans-serif"
   paper-font-common-base_-_font-family: "var(--primary-font-family)"
@@ -120,22 +125,22 @@
 
   # Cards nested inside stack-in-card cards lose their own border/background
   card-mod-card: |
-    :host-context(vertical-stack-in-card) ha-card:not([style*="solid 0.5px"]),
-    :host-context(stack-in-card) ha-card:not([style*="solid 0.5px"]) {
+    :host-context(vertical-stack-in-card) ha-card:not([style*="solid 0.5px"]):not([style*="0.5px solid"]):not([style*="position: absolute"][style*="background-color"]),
+    :host-context(stack-in-card) ha-card:not([style*="solid 0.5px"]):not([style*="0.5px solid"]):not([style*="position: absolute"][style*="background-color"]) {
       background: none !important;
       border: none !important;
       box-shadow: none !important;
       backdrop-filter: none !important;
     }
-    :host(vertical-stack-in-card) ha-card:not([style*="solid 0.5px"]):not([data-x]),
-    :host(stack-in-card) ha-card:not([style*="solid 0.5px"]):not([data-x]) {
+    :host(vertical-stack-in-card) ha-card:not([style*="solid 0.5px"]):not([style*="0.5px solid"]):not([style*="position: absolute"][style*="background-color"]):not([data-x]),
+    :host(stack-in-card) ha-card:not([style*="solid 0.5px"]):not([style*="0.5px solid"]):not([style*="position: absolute"][style*="background-color"]):not([data-x]) {
       background: linear-gradient(145deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01)) !important;
       border: 1px solid rgba(255,255,255,0.07) !important;
       box-shadow: 0 8px 30px rgba(0,0,0,0.45) !important;
-      backdrop-filter: blur(18px) saturate(140%) !important;
+      backdrop-filter: none !important;
     }
-    :host-context(vertical-stack-in-card) ha-card[style*="solid 0.5px"],
-    :host-context(stack-in-card) ha-card[style*="solid 0.5px"] {
+    :host-context(vertical-stack-in-card) ha-card:is([style*="solid 0.5px"], [style*="0.5px solid"], [style*="position: absolute"][style*="background-color"]),
+    :host-context(stack-in-card) ha-card:is([style*="solid 0.5px"], [style*="0.5px solid"], [style*="position: absolute"][style*="background-color"]) {
       border: 1px solid rgba(255,255,255,0.16) !important;
       border-radius: 14px !important;
     }
@@ -315,7 +320,7 @@
   ha-card-border-color: "rgba(255,255,255,0.07)"
   ha-card-background: "linear-gradient(145deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01))"
   ha-card-box-shadow: "0 8px 30px rgba(0,0,0,0.45)"
-  ha-card-backdrop-filter: "blur(18px) saturate(140%)"
+  ha-card-backdrop-filter: "none"
   lovelace-background: "radial-gradient(1200px 600px at 10% -10%, rgba(0,200,140,0.22), transparent 60%), radial-gradient(900px 600px at 100% 0%, rgba(0,170,200,0.18), transparent 55%), radial-gradient(900px 700px at 50% 110%, rgba(80,200,80,0.14), transparent 60%), #0a1210"
   ha-dialog-surface-background: "rgba(16,28,25,1)"
   # Dim and blur the page behind dialogs
@@ -327,6 +332,11 @@
   sidebar-text-color: "#9aa6bd"
   sidebar-selected-background-color: "rgba(110,231,183,0.14)"
   sidebar-divider-color: "rgba(255,255,255,0.06)"
+  app-header-edit-background-color: "color-mix(in srgb, var(--primary-color) 16%, rgba(11,15,23,0.88))"
+  app-header-edit-text-color: "var(--primary-text-color)"
+  app-header-backdrop-filter: "blur(18px) saturate(140%)"
+  app-header-border-bottom: "1px solid rgba(255,255,255,0.07)"
+  app-header-selection-bar-color: "var(--primary-color)"
   # # Fonts
   primary-font-family: "Ubuntu, sans-serif"
   paper-font-common-base_-_font-family: "var(--primary-font-family)"
@@ -419,22 +429,22 @@
 
   # Cards nested inside stack-in-card cards lose their own border/background
   card-mod-card: |
-    :host-context(vertical-stack-in-card) ha-card:not([style*="solid 0.5px"]),
-    :host-context(stack-in-card) ha-card:not([style*="solid 0.5px"]) {
+    :host-context(vertical-stack-in-card) ha-card:not([style*="solid 0.5px"]):not([style*="0.5px solid"]):not([style*="position: absolute"][style*="background-color"]),
+    :host-context(stack-in-card) ha-card:not([style*="solid 0.5px"]):not([style*="0.5px solid"]):not([style*="position: absolute"][style*="background-color"]) {
       background: none !important;
       border: none !important;
       box-shadow: none !important;
       backdrop-filter: none !important;
     }
-    :host(vertical-stack-in-card) ha-card:not([style*="solid 0.5px"]):not([data-x]),
-    :host(stack-in-card) ha-card:not([style*="solid 0.5px"]):not([data-x]) {
+    :host(vertical-stack-in-card) ha-card:not([style*="solid 0.5px"]):not([style*="0.5px solid"]):not([style*="position: absolute"][style*="background-color"]):not([data-x]),
+    :host(stack-in-card) ha-card:not([style*="solid 0.5px"]):not([style*="0.5px solid"]):not([style*="position: absolute"][style*="background-color"]):not([data-x]) {
       background: linear-gradient(145deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01)) !important;
       border: 1px solid rgba(255,255,255,0.07) !important;
       box-shadow: 0 8px 30px rgba(0,0,0,0.45) !important;
-      backdrop-filter: blur(18px) saturate(140%) !important;
+      backdrop-filter: none !important;
     }
-    :host-context(vertical-stack-in-card) ha-card[style*="solid 0.5px"],
-    :host-context(stack-in-card) ha-card[style*="solid 0.5px"] {
+    :host-context(vertical-stack-in-card) ha-card:is([style*="solid 0.5px"], [style*="0.5px solid"], [style*="position: absolute"][style*="background-color"]),
+    :host-context(stack-in-card) ha-card:is([style*="solid 0.5px"], [style*="0.5px solid"], [style*="position: absolute"][style*="background-color"]) {
       border: 1px solid rgba(255,255,255,0.16) !important;
       border-radius: 14px !important;
     }
@@ -614,7 +624,7 @@
   ha-card-border-color: "rgba(255,255,255,0.07)"
   ha-card-background: "linear-gradient(145deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01))"
   ha-card-box-shadow: "0 8px 30px rgba(0,0,0,0.45)"
-  ha-card-backdrop-filter: "blur(18px) saturate(140%)"
+  ha-card-backdrop-filter: "none"
   lovelace-background: "radial-gradient(1200px 600px at 10% -10%, rgba(255,170,0,0.22), transparent 60%), radial-gradient(900px 600px at 100% 0%, rgba(255,100,60,0.18), transparent 55%), radial-gradient(900px 700px at 50% 110%, rgba(255,200,80,0.14), transparent 60%), #120f0a"
   ha-dialog-surface-background: "rgba(29,24,16,1)"
   # Dim and blur the page behind dialogs
@@ -626,6 +636,11 @@
   sidebar-text-color: "#9aa6bd"
   sidebar-selected-background-color: "rgba(252,214,99,0.14)"
   sidebar-divider-color: "rgba(255,255,255,0.06)"
+  app-header-edit-background-color: "color-mix(in srgb, var(--primary-color) 16%, rgba(11,15,23,0.88))"
+  app-header-edit-text-color: "var(--primary-text-color)"
+  app-header-backdrop-filter: "blur(18px) saturate(140%)"
+  app-header-border-bottom: "1px solid rgba(255,255,255,0.07)"
+  app-header-selection-bar-color: "var(--primary-color)"
   # # Fonts
   primary-font-family: "Ubuntu, sans-serif"
   paper-font-common-base_-_font-family: "var(--primary-font-family)"
@@ -718,22 +733,22 @@
 
   # Cards nested inside stack-in-card cards lose their own border/background
   card-mod-card: |
-    :host-context(vertical-stack-in-card) ha-card:not([style*="solid 0.5px"]),
-    :host-context(stack-in-card) ha-card:not([style*="solid 0.5px"]) {
+    :host-context(vertical-stack-in-card) ha-card:not([style*="solid 0.5px"]):not([style*="0.5px solid"]):not([style*="position: absolute"][style*="background-color"]),
+    :host-context(stack-in-card) ha-card:not([style*="solid 0.5px"]):not([style*="0.5px solid"]):not([style*="position: absolute"][style*="background-color"]) {
       background: none !important;
       border: none !important;
       box-shadow: none !important;
       backdrop-filter: none !important;
     }
-    :host(vertical-stack-in-card) ha-card:not([style*="solid 0.5px"]):not([data-x]),
-    :host(stack-in-card) ha-card:not([style*="solid 0.5px"]):not([data-x]) {
+    :host(vertical-stack-in-card) ha-card:not([style*="solid 0.5px"]):not([style*="0.5px solid"]):not([style*="position: absolute"][style*="background-color"]):not([data-x]),
+    :host(stack-in-card) ha-card:not([style*="solid 0.5px"]):not([style*="0.5px solid"]):not([style*="position: absolute"][style*="background-color"]):not([data-x]) {
       background: linear-gradient(145deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01)) !important;
       border: 1px solid rgba(255,255,255,0.07) !important;
       box-shadow: 0 8px 30px rgba(0,0,0,0.45) !important;
-      backdrop-filter: blur(18px) saturate(140%) !important;
+      backdrop-filter: none !important;
     }
-    :host-context(vertical-stack-in-card) ha-card[style*="solid 0.5px"],
-    :host-context(stack-in-card) ha-card[style*="solid 0.5px"] {
+    :host-context(vertical-stack-in-card) ha-card:is([style*="solid 0.5px"], [style*="0.5px solid"], [style*="position: absolute"][style*="background-color"]),
+    :host-context(stack-in-card) ha-card:is([style*="solid 0.5px"], [style*="0.5px solid"], [style*="position: absolute"][style*="background-color"]) {
       border: 1px solid rgba(255,255,255,0.16) !important;
       border-radius: 14px !important;
     }
@@ -913,7 +928,7 @@
   ha-card-border-color: "rgba(255,255,255,0.07)"
   ha-card-background: "linear-gradient(145deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01))"
   ha-card-box-shadow: "0 8px 30px rgba(0,0,0,0.45)"
-  ha-card-backdrop-filter: "blur(18px) saturate(140%)"
+  ha-card-backdrop-filter: "none"
   lovelace-background: "radial-gradient(1200px 600px at 10% -10%, rgba(240,80,150,0.22), transparent 60%), radial-gradient(900px 600px at 100% 0%, rgba(170,80,240,0.18), transparent 55%), radial-gradient(900px 700px at 50% 110%, rgba(255,140,90,0.14), transparent 60%), #140b11"
   ha-dialog-surface-background: "rgba(33,19,32,1)"
   # Dim and blur the page behind dialogs
@@ -925,6 +940,11 @@
   sidebar-text-color: "#9aa6bd"
   sidebar-selected-background-color: "rgba(249,168,212,0.14)"
   sidebar-divider-color: "rgba(255,255,255,0.06)"
+  app-header-edit-background-color: "color-mix(in srgb, var(--primary-color) 16%, rgba(11,15,23,0.88))"
+  app-header-edit-text-color: "var(--primary-text-color)"
+  app-header-backdrop-filter: "blur(18px) saturate(140%)"
+  app-header-border-bottom: "1px solid rgba(255,255,255,0.07)"
+  app-header-selection-bar-color: "var(--primary-color)"
   # # Fonts
   primary-font-family: "Ubuntu, sans-serif"
   paper-font-common-base_-_font-family: "var(--primary-font-family)"
@@ -1017,22 +1037,22 @@
 
   # Cards nested inside stack-in-card cards lose their own border/background
   card-mod-card: |
-    :host-context(vertical-stack-in-card) ha-card:not([style*="solid 0.5px"]),
-    :host-context(stack-in-card) ha-card:not([style*="solid 0.5px"]) {
+    :host-context(vertical-stack-in-card) ha-card:not([style*="solid 0.5px"]):not([style*="0.5px solid"]):not([style*="position: absolute"][style*="background-color"]),
+    :host-context(stack-in-card) ha-card:not([style*="solid 0.5px"]):not([style*="0.5px solid"]):not([style*="position: absolute"][style*="background-color"]) {
       background: none !important;
       border: none !important;
       box-shadow: none !important;
       backdrop-filter: none !important;
     }
-    :host(vertical-stack-in-card) ha-card:not([style*="solid 0.5px"]):not([data-x]),
-    :host(stack-in-card) ha-card:not([style*="solid 0.5px"]):not([data-x]) {
+    :host(vertical-stack-in-card) ha-card:not([style*="solid 0.5px"]):not([style*="0.5px solid"]):not([style*="position: absolute"][style*="background-color"]):not([data-x]),
+    :host(stack-in-card) ha-card:not([style*="solid 0.5px"]):not([style*="0.5px solid"]):not([style*="position: absolute"][style*="background-color"]):not([data-x]) {
       background: linear-gradient(145deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01)) !important;
       border: 1px solid rgba(255,255,255,0.07) !important;
       box-shadow: 0 8px 30px rgba(0,0,0,0.45) !important;
-      backdrop-filter: blur(18px) saturate(140%) !important;
+      backdrop-filter: none !important;
     }
-    :host-context(vertical-stack-in-card) ha-card[style*="solid 0.5px"],
-    :host-context(stack-in-card) ha-card[style*="solid 0.5px"] {
+    :host-context(vertical-stack-in-card) ha-card:is([style*="solid 0.5px"], [style*="0.5px solid"], [style*="position: absolute"][style*="background-color"]),
+    :host-context(stack-in-card) ha-card:is([style*="solid 0.5px"], [style*="0.5px solid"], [style*="position: absolute"][style*="background-color"]) {
       border: 1px solid rgba(255,255,255,0.16) !important;
       border-radius: 14px !important;
     }
@@ -1212,7 +1232,7 @@
   ha-card-border-color: "rgba(255,255,255,0.07)"
   ha-card-background: "linear-gradient(145deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01))"
   ha-card-box-shadow: "0 8px 30px rgba(0,0,0,0.45)"
-  ha-card-backdrop-filter: "blur(18px) saturate(140%)"
+  ha-card-backdrop-filter: "none"
   lovelace-background: "radial-gradient(1200px 600px at 10% -10%, rgba(200,200,210,0.22), transparent 60%), radial-gradient(900px 600px at 100% 0%, rgba(120,130,150,0.18), transparent 55%), radial-gradient(900px 700px at 50% 110%, rgba(90,90,110,0.14), transparent 60%), #0b0b0c"
   ha-dialog-surface-background: "rgba(21,21,22,1)"
   # Dim and blur the page behind dialogs
@@ -1224,6 +1244,11 @@
   sidebar-text-color: "#9aa6bd"
   sidebar-selected-background-color: "rgba(229,231,235,0.14)"
   sidebar-divider-color: "rgba(255,255,255,0.06)"
+  app-header-edit-background-color: "color-mix(in srgb, var(--primary-color) 16%, rgba(11,15,23,0.88))"
+  app-header-edit-text-color: "var(--primary-text-color)"
+  app-header-backdrop-filter: "blur(18px) saturate(140%)"
+  app-header-border-bottom: "1px solid rgba(255,255,255,0.07)"
+  app-header-selection-bar-color: "var(--primary-color)"
   # # Fonts
   primary-font-family: "Ubuntu, sans-serif"
   paper-font-common-base_-_font-family: "var(--primary-font-family)"
@@ -1316,22 +1341,22 @@
 
   # Cards nested inside stack-in-card cards lose their own border/background
   card-mod-card: |
-    :host-context(vertical-stack-in-card) ha-card:not([style*="solid 0.5px"]),
-    :host-context(stack-in-card) ha-card:not([style*="solid 0.5px"]) {
+    :host-context(vertical-stack-in-card) ha-card:not([style*="solid 0.5px"]):not([style*="0.5px solid"]):not([style*="position: absolute"][style*="background-color"]),
+    :host-context(stack-in-card) ha-card:not([style*="solid 0.5px"]):not([style*="0.5px solid"]):not([style*="position: absolute"][style*="background-color"]) {
       background: none !important;
       border: none !important;
       box-shadow: none !important;
       backdrop-filter: none !important;
     }
-    :host(vertical-stack-in-card) ha-card:not([style*="solid 0.5px"]):not([data-x]),
-    :host(stack-in-card) ha-card:not([style*="solid 0.5px"]):not([data-x]) {
+    :host(vertical-stack-in-card) ha-card:not([style*="solid 0.5px"]):not([style*="0.5px solid"]):not([style*="position: absolute"][style*="background-color"]):not([data-x]),
+    :host(stack-in-card) ha-card:not([style*="solid 0.5px"]):not([style*="0.5px solid"]):not([style*="position: absolute"][style*="background-color"]):not([data-x]) {
       background: linear-gradient(145deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01)) !important;
       border: 1px solid rgba(255,255,255,0.07) !important;
       box-shadow: 0 8px 30px rgba(0,0,0,0.45) !important;
-      backdrop-filter: blur(18px) saturate(140%) !important;
+      backdrop-filter: none !important;
     }
-    :host-context(vertical-stack-in-card) ha-card[style*="solid 0.5px"],
-    :host-context(stack-in-card) ha-card[style*="solid 0.5px"] {
+    :host-context(vertical-stack-in-card) ha-card:is([style*="solid 0.5px"], [style*="0.5px solid"], [style*="position: absolute"][style*="background-color"]),
+    :host-context(stack-in-card) ha-card:is([style*="solid 0.5px"], [style*="0.5px solid"], [style*="position: absolute"][style*="background-color"]) {
       border: 1px solid rgba(255,255,255,0.16) !important;
       border-radius: 14px !important;
     }
