@@ -15,7 +15,7 @@ from homeassistant.const import (
     ATTR_NAME,
 )
 
-VERSION = "3.3.8"
+VERSION = "3.3.9"
 
 DOMAIN = "scheduler"
 
@@ -46,6 +46,9 @@ REPEAT_TYPE_SINGLE = "single"
 REPEAT_TYPE_PAUSE = "pause"
 
 EVENT = "scheduler_updated"
+EVENT_SCHEDULE_TRIGGERED = "scheduler_triggered"
+
+ATTR_SOURCE = "source"
 
 SERVICE_REMOVE = "remove"
 SERVICE_EDIT = "edit"
@@ -53,6 +56,7 @@ SERVICE_ADD = "add"
 SERVICE_COPY = "copy"
 SERVICE_DISABLE_ALL = "disable_all"
 SERVICE_ENABLE_ALL = "enable_all"
+SERVICE_RELOAD_STORAGE = "reload_storage"
 
 OffsetTimePattern = re.compile(r"^([a-z]+)([-|\+]{1})([0-9:]+)$")
 DatePattern = re.compile(r"^[0-9]+\-[0-9]+\-[0-9]+$")

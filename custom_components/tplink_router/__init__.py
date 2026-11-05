@@ -9,6 +9,7 @@ from homeassistant.const import (
 from datetime import datetime
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.exceptions import ConfigEntryNotReady
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 from .const import (
@@ -31,7 +32,7 @@ from .const import (
 )
 import logging
 from .coordinator import TPLinkRouterCoordinator, collect_mesh_nodes, supports_led_control
-from .utils import validate_ipv4_address, validate_mac_address
+from .utils import validate_ipv4_address, validate_mac_address, is_retryable_error
 from homeassistant.helpers import device_registry
 
 
@@ -236,6 +237,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             TPLinkRouterCoordinator.request, client, callback
         )
     except Exception as error:
+        if is_retryable_error(error):
+            raise ConfigEntryNotReady(
+                f"TPLink Router setup failed for {host}: {error}"
+            ) from error
         _LOGGER.error(
             "TPLink Router setup failed for %s: %s",
             host,
@@ -308,34 +313,51 @@ async def async_reload_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> 
     await hass.config_entries.async_reload(config_entry.entry_id)
 
 
-def register_services(hass: HomeAssistant, coord: TPLinkRouterCoordinator) -> None:
-    dr = device_registry.async_get(hass)
+def get_coordinator_for_device(
+    hass: HomeAssistant,
+    device_id: str | None,
+    method_name: str,
+) -> TPLinkRouterCoordinator | None:
+    """Return the loaded coordinator that owns ``device_id`` for a service call.
 
-    def _get_coordinator(service: ServiceCall, method_name: str) -> TPLinkRouterCoordinator | None:
-        device = dr.async_get(service.data.get("device"))
-        if device is None:
-            _LOGGER.error('TplinkRouter Integration Exception - device was not found')
-            return None
-        domain_data = hass.data.get(DOMAIN, {})
-        for key in device.config_entries:
-            entry = hass.config_entries.async_get_entry(key)
-            if not entry or entry.domain != DOMAIN:
-                continue
-            coordinator = domain_data.get(key)
-            if coordinator is None or not hasattr(coordinator.router, method_name):
-                continue
-            if method_name in ("add_ipv4_reservation", "delete_ipv4_reservation") and not getattr(
-                coordinator, "support_dhcp_reservations", True
-            ):
-                continue
-            return coordinator
-
-        _LOGGER.error('TplinkRouter Integration Exception - This device does not support %s', method_name)
+    Uses the config-entry-scoped device-registry helper instead of the deprecated
+    ``DeviceEntry.config_entries`` multi-entry set.
+    """
+    if not device_id:
+        _LOGGER.error('TplinkRouter Integration Exception - device was not found')
         return None
 
+    _device, entry = device_registry.async_get_device_and_config_entry_for_domain(
+        hass, device_id, domain=DOMAIN
+    )
+    if entry is None:
+        _LOGGER.error('TplinkRouter Integration Exception - device was not found')
+        return None
+
+    coordinator = hass.data.get(DOMAIN, {}).get(entry.entry_id)
+    if coordinator is None or not hasattr(coordinator.router, method_name):
+        _LOGGER.error(
+            'TplinkRouter Integration Exception - This device does not support %s',
+            method_name,
+        )
+        return None
+    if method_name in ("add_ipv4_reservation", "delete_ipv4_reservation") and not getattr(
+        coordinator, "support_dhcp_reservations", True
+    ):
+        _LOGGER.error(
+            'TplinkRouter Integration Exception - This device does not support %s',
+            method_name,
+        )
+        return None
+    return coordinator
+
+
+def register_services(hass: HomeAssistant, coord: TPLinkRouterCoordinator) -> None:
     if hasattr(coord.router, "send_sms") and coord.lte_status is not None:
         async def send_sms_service(service: ServiceCall) -> None:
-            coordinator = _get_coordinator(service, "send_sms")
+            coordinator = get_coordinator_for_device(
+                hass, service.data.get("device"), "send_sms"
+            )
             if coordinator is None:
                 return
             await coordinator.send_sms(
@@ -348,7 +370,9 @@ def register_services(hass: HomeAssistant, coord: TPLinkRouterCoordinator) -> No
 
     if coord.support_dhcp_reservations and hasattr(coord.router, "add_ipv4_reservation"):
         async def add_reservation_service(service: ServiceCall) -> None:
-            coordinator = _get_coordinator(service, "add_ipv4_reservation")
+            coordinator = get_coordinator_for_device(
+                hass, service.data.get("device"), "add_ipv4_reservation"
+            )
             if coordinator is None:
                 return
             await coordinator.add_ipv4_reservation(
@@ -368,7 +392,9 @@ def register_services(hass: HomeAssistant, coord: TPLinkRouterCoordinator) -> No
 
     if coord.support_dhcp_reservations and hasattr(coord.router, "delete_ipv4_reservation"):
         async def delete_reservation_service(service: ServiceCall) -> None:
-            coordinator = _get_coordinator(service, "delete_ipv4_reservation")
+            coordinator = get_coordinator_for_device(
+                hass, service.data.get("device"), "delete_ipv4_reservation"
+            )
             if coordinator is None:
                 return
             await coordinator.delete_ipv4_reservation(service.data["mac"])
