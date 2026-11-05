@@ -1,6 +1,8 @@
 dentemperature:
   speech:
-    text: It is currently {{ states.sensor.den_temperature.state }} degrees in Den.
+    text: >
+      {% set t = states('sensor.den_temperature') %}
+      {{ 'It is currently ' ~ (t | float | round(1)) ~ ' degrees in Den.' if is_number(t) else "I can't read the Den temperature right now." }}
     type: plain
 work:
   speech:
@@ -12,24 +14,268 @@ work:
       entity_id:
         - switch.workstation
         - light.shapes
+stopwork:
+  speech:
+    text: Nice work. Powering down.
+    type: plain
+  action:
+    action: homeassistant.turn_off
+    data:
+      entity_id:
+        - switch.workstation
+        - light.shapes
 internetspeed:
   speech:
-    text: Current Internet Speed is {{states.sensor.speedtest_download.state}} Mbps
+    text: >
+      {% set s = states('sensor.speedtest_download') %}
+      {{ 'Current Internet Speed is ' ~ (s | float | round(0) | int) ~ ' Mbps' if is_number(s) else "I don't have a speed test result right now." }}
 kettle:
   speech:
-    text: Sure!
+    text: Sure, boiling the kettle.
     type: plain
   action:
     action: homeassistant.turn_on
     data:
       entity_id:
         - switch.kettle
+kettleoff:
+  speech:
+    text: Kettle off.
+    type: plain
+  action:
+    action: homeassistant.turn_off
+    data:
+      entity_id:
+        - switch.kettle
 radarr:
   speech:
-    text: Sure, adding the movie {{ trigger.slots.title }} to Radarr! 🎬
+    text: Sure, adding the movie {{ title }} to Radarr! 🎬
     type: plain
   action:
     action: hassarr.add_radarr_movie
     data:
       title: >
-        {{ trigger.slots.title }}
+        {{ title }}
+sonarr:
+  speech:
+    text: Sure, adding the show {{ title }} to Sonarr! 📺
+    type: plain
+  action:
+    action: hassarr.add_sonarr_tv_show
+    data:
+      title: >
+        {{ title }}
+goodnight:
+  speech:
+    text: Goodnight! Turning everything off.
+    type: plain
+  action:
+    action: homeassistant.turn_off
+    data:
+      entity_id:
+        - light.light
+        - light.shapes
+        - light.chandelier
+        - light.led_strip
+        - light.living_room_lamp
+        - light.kitchen_light
+        - light.hallway_chandelier
+        - light.string_lights
+        - switch.workstation
+moviemode:
+  speech:
+    text: Movie time. Dimming the room.
+    type: plain
+  action:
+    - action: homeassistant.turn_off
+      data:
+        entity_id:
+          - light.chandelier
+          - light.living_room_lamp
+    - action: homeassistant.turn_on
+      data:
+        entity_id:
+          - light.led_strip
+          - media_player.google_tv_streamer
+leaving:
+  speech:
+    text: Okay, turning things off. See you later!
+    type: plain
+  action:
+    action: homeassistant.turn_off
+    data:
+      entity_id:
+        - light.light
+        - light.shapes
+        - light.chandelier
+        - light.led_strip
+        - light.living_room_lamp
+        - light.kitchen_light
+        - light.hallway_chandelier
+        - light.string_lights
+        - switch.workstation
+        - switch.kettle
+arriving:
+  speech:
+    text: Welcome home!
+    type: plain
+  action:
+    action: homeassistant.turn_on
+    data:
+      entity_id:
+        - light.hallway_chandelier
+        - light.living_room_lamp
+sounds:
+  speech:
+    text: >
+      {% set s = (sound | default('white noise')) | lower %}
+      {{ 'Playing ' ~ s ~ ' sounds.' if s in ['ocean','forest','river','thunderstorm','thunder','night'] else 'Playing white noise.' if 'white' in s else "I don't have " ~ s ~ " sounds." }}
+    type: plain
+  action:
+    - choose:
+        - conditions: "{{ 'ocean' in (sound | default('') | lower) }}"
+          sequence:
+            - action: script.play_ocean_sounds
+        - conditions: "{{ 'forest' in (sound | default('') | lower) }}"
+          sequence:
+            - action: script.play_forest_sounds
+        - conditions: "{{ 'river' in (sound | default('') | lower) }}"
+          sequence:
+            - action: script.play_river_sounds
+        - conditions: "{{ 'thunder' in (sound | default('') | lower) }}"
+          sequence:
+            - action: script.play_thunderstorm_sounds
+        - conditions: "{{ 'night' in (sound | default('') | lower) }}"
+          sequence:
+            - action: script.play_night_sounds
+      default:
+        - action: script.play_white_noise
+nextbin:
+  speech:
+    text: >
+      {% set bd = state_attr('sensor.black_bin','next_collection') | int(99) %}
+      {% set ld = state_attr('sensor.blue_bin','next_collection') | int(99) %}
+      {% macro when(d) %}{{ 'today' if d == 0 else 'tomorrow' if d == 1 else 'in ' ~ d ~ ' days' }}{% endmacro %}
+      {% if bd == 99 and ld == 99 %}I can't read the bin dates right now.
+      {% else %}{{ 'The black bin goes out first, ' ~ when(bd) ~ ' on ' ~ states('sensor.black_bin') ~ '. The blue bin is ' ~ when(ld) ~ ', on ' ~ states('sensor.blue_bin') ~ '.' if bd <= ld else 'The blue bin goes out first, ' ~ when(ld) ~ ' on ' ~ states('sensor.blue_bin') ~ '. The black bin is ' ~ when(bd) ~ ', on ' ~ states('sensor.black_bin') ~ '.' }}{% endif %}
+    type: plain
+nextrace:
+  speech:
+    text: >
+      {% set r = states('sensor.f1_race_f1_next_race') %}
+      {{ 'The next race is the ' ~ state_attr('sensor.f1_race_f1_next_race','race_name') ~ ', on ' ~ (as_timestamp(r) | timestamp_custom('%A %-d %B at %H:%M')) ~ '.' if r not in ['unknown','unavailable'] else "I don't have the next race right now." }}
+    type: plain
+nextqualifying:
+  speech:
+    text: >
+      {% set q = state_attr('sensor.f1_race_f1_next_race','qualifying_start_utc') %}
+      {{ 'Qualifying for the ' ~ state_attr('sensor.f1_race_f1_next_race','race_name') ~ ' is on ' ~ (as_timestamp(q) | timestamp_custom('%A %-d %B at %H:%M')) ~ '.' if q not in [none, 'None'] else "I don't have the qualifying time right now." }}
+    type: plain
+doorcheck:
+  speech:
+    text: >
+      {% set open = ['binary_sensor.den_door_contact','binary_sensor.back_door_contact'] | select('is_state','on') | map('state_attr','friendly_name') | list %}
+      {{ 'Yes, all the doors are closed.' if not open else 'Not quite: ' ~ (open | join(' and ')) ~ (' is' if open | count == 1 else ' are') ~ ' open.' }}
+    type: plain
+whoatdoor:
+  speech:
+    text: >
+      {{ 'Yes, someone is at the front door.' if is_state('binary_sensor.doorbell_person','on') else 'No, nobody is at the front door.' }}
+    type: plain
+roomtemperature:
+  speech:
+    text: >
+      {% set rooms = {'den':'sensor.den_temperature','living room':'sensor.living_room_temperature','kitchen':'sensor.kitchen_temperature_and_humidity_temperature','outside':'sensor.hygrometer_temperature','outdoors':'sensor.hygrometer_temperature','backyard':'sensor.hygrometer_temperature','garden':'sensor.hygrometer_temperature'} %}
+      {% set room = (room | lower | trim) %}
+      {% set e = rooms.get(room) %}
+      {% if e and is_number(states(e)) %}It is currently {{ states(e) | float | round(1) }} degrees {{ 'outside' if e == 'sensor.hygrometer_temperature' else 'in the ' ~ room }}.{% else %}I don't have a temperature for {{ room }}.{% endif %}
+    type: plain
+shoppinglist:
+  action:
+    - action: todo.get_items
+      target:
+        entity_id: todo.shopping_list
+      data:
+        status: needs_action
+      response_variable: items
+    - stop: done
+      response_variable: items
+  speech:
+    text: >
+      {% set l = action_response['todo.shopping_list']['items'] | map(attribute='summary') | list %}
+      {{ 'Your shopping list is empty.' if not l else 'You have ' ~ (l | count) ~ ' item' ~ ('s' if l | count != 1 else '') ~ ': ' ~ (l | join(', ')) ~ '.' }}
+    type: plain
+vacuumstart:
+  speech:
+    text: Starting the vacuum.
+    type: plain
+  action:
+    action: vacuum.start
+    target:
+      entity_id: vacuum.robovac
+vacuumhome:
+  speech:
+    text: Sending the vacuum home.
+    type: plain
+  action:
+    action: vacuum.return_to_base
+    target:
+      entity_id: vacuum.robovac
+tvoff:
+  speech:
+    text: Turning the TV off.
+    type: plain
+  action:
+    action: media_player.turn_off
+    target:
+      entity_id:
+        - media_player.google_tv_streamer
+        - media_player.google_tv
+tvon:
+  speech:
+    text: Turning the TV on.
+    type: plain
+  action:
+    action: media_player.turn_on
+    target:
+      entity_id: media_player.google_tv_streamer
+joke:
+  speech:
+    text: Here's one for you.
+    type: plain
+  action:
+    action: script.google_tell_me_a_joke
+weathernow:
+  speech:
+    text: >
+      {% set w = states('weather.home') %}
+      {% if w in ['unavailable','unknown'] %}I can't read the weather right now.{% else %}It is {{ w | replace('-', ' ') }} outside, {{ state_attr('weather.home','temperature') | round(0) }} degrees with {{ state_attr('weather.home','humidity') | round(0) }} percent humidity and wind at {{ state_attr('weather.home','wind_speed') | round(0) }}.{% endif %}
+    type: plain
+temperaturenow:
+  speech:
+    text: >
+      {% set o = states('sensor.hygrometer_temperature') %}
+      {% set d = states('sensor.den_temperature') %}
+      {% set l = states('sensor.living_room_temperature') %}
+      {% if is_number(o) %}It is {{ o | float | round(1) }} degrees outside{% else %}I can't read the outside temperature{% endif %}{% if is_number(d) %}, {{ d | float | round(1) }} in the den{% endif %}{% if is_number(l) %} and {{ l | float | round(1) }} in the living room{% endif %}.
+    type: plain
+washstatus:
+  speech:
+    text: >
+      {% set s = states('sensor.washing_machine_state') %}
+      {% if s in ['unavailable','unknown'] %}I can't read the washing machine right now.
+      {% elif s | lower in ['idle','off','standby','finished','done','complete','completed'] %}The washing machine is {{ s | lower }}.
+      {% else %}The washing machine is on {{ s | lower }}.{% endif %}
+    type: plain
+washfinish:
+  speech:
+    text: >
+      {% set st = states('sensor.washing_machine_state') %}
+      {% set end = states('sensor.bob_programme_end_time') | as_datetime %}
+      {% set rem = states('sensor.bob_remaining') %}
+      {% if st in ['Off','Idle'] %}The washing machine isn't running.
+      {% elif st == 'Cycle Complete' %}The wash cycle has already finished.
+      {% elif end is not none and end > now() %}{% set m = ((end - now()).total_seconds() / 60) | round(0) | int %}The wash finishes at {{ end | as_local | as_timestamp | timestamp_custom('%-I:%M %p') }}, in about {{ m }} minute{{ 's' if m != 1 }}.
+      {% elif is_number(rem) %}About {{ (rem | float * 60) | round(0) | int }} minutes left.
+      {% else %}It is {{ st | lower }}, but I don't have an end time.{% endif %}
+    type: plain

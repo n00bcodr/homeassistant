@@ -1,13 +1,17 @@
 intents:
   dentemperature:
-    - What is the temperature in Den[?]
-    - den temperature
+    - What is the temperature in [the] Den[?]
+    - "[what is] [the] den temperature"
     - home temperature
   work:
     - let's get to work
     - Jarvis, let's get to work
     - let's start working
     - work
+  stopwork:
+    - (stop|finish|done) working
+    - I'm done [working] [for the day]
+    - work is over
   internetspeed:
     - how fast is [the] internet[?]
     - what is [the] [current] internet speed[?]
@@ -15,5 +19,55 @@ intents:
     - let's make a cup of tea
     - boil [some] water [for me]
     - kettle
-  radarr:
-    - (Download|Add) [movie] {title} [on|to]  [radarr|radar][.]
+  kettleoff:
+    - (cancel|stop) [the] kettle
+    - never mind [the] (kettle|tea)
+  goodnight:
+    - "good night"
+    - "goodnight"
+    - "bed time"
+    - "I'm going to bed"
+  moviemode:
+    - "movie (mode|time)"
+    - "let's watch a movie"
+  leaving:
+    - "I'm (leaving|heading out)"
+    - "leaving the house"
+  arriving:
+    - "I'm home"
+    - "I'm back"
+  nextbin:
+    - "(which|what|when is the next) bin [is] [next|due]"
+    - "when is the bin [day|collection]"
+    - "when do the bins go out"
+  nextrace:
+    - "when is the next (F1|formula one|formula 1) race"
+    - "when is the next race"
+    - "when is the (F1|formula one|formula 1) race"
+  nextqualifying:
+    - "when is (F1|formula one|formula 1) qualifying"
+    - "when is qualifying"
+  doorcheck:
+    - "(are|is) the (doors|door) (closed|shut|open)"
+    - "(did I|have I) (close|shut) the (doors|door)"
+  whoatdoor:
+    - "is (anyone|someone|anybody) at the door"
+    - "who is at the door"
+  shoppinglist:
+    - "(what is|what's) on [the|my] shopping list"
+    - "read [out] [the|my] shopping list"
+  vacuumstart:
+    - "clean the house"
+    - "start cleaning"
+  vacuumhome:
+    - "send [the] (vacuum|robovac|robot) (home|back|to (its )?dock)"
+    - "stop cleaning"
+  tvoff:
+    - "(turn|switch) [the] tv off"
+    - "(turn|switch) off [the] tv"
+  tvon:
+    - "(turn|switch) [the] tv on"
+    - "(turn|switch) on [the] tv"
+  joke:
+    - "tell me a joke"
+    - "make me laugh"

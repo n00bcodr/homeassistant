@@ -1,45 +1,50 @@
+# Shared look, taken from the glass themes (themes/glass*.yaml)
+extendable_configs:
+  glass:
+    title: "SkyNet HQ"
+    subtitle: "Home Assistant"
+    divider_color: var(--sidebar-divider-color)
+    menu_background: transparent
+    sidebar_border_color: var(--sidebar-divider-color)
+    sidebar_background: var(--sidebar-background-color)
+    icon_color: var(--sidebar-icon-color)
+    text_color: var(--sidebar-text-color)
+    icon_color_selected: var(--sidebar-selected-icon-color, var(--primary-color))
+    text_color_selected: var(--sidebar-selected-text-color, var(--primary-color))
+    notification_color: var(--primary-color)
+    notification_text_color: var(--primary-background-color)
+
+# An exception replaces the root config, so hide_all has to be set inside each one.
+# Everything not listed with `hide: false` (or created with `new_item`) is hidden.
 exceptions:
   - is_admin: false
-    title: "SkyNet HQ"
-    subtitle: "Home Assistant"
-    divider_color: var(--divider-color)
-    menu_background: transparent
-    sidebar_border_color: var(--divider-color)
-    sidebar_background: var(--sidebar-background-color)
+    extend_from: glass
+    hide_all: true
+    sidebar_editable: false
     order:
       - item: Overview
-      - item: Media
+        hide: false
       - item: Settings
+        hide: false
         bottom: true
-      - item: map
-        hide: true
-      - item: Browser Mod
-        hide: true
-      - item: Tablet
-        hide: true
-      - item: Calendar
-        hide: true
-      - item: Logbook
-        hide: true
-      - item: History
-        hide: true
-      - item: Shopping List
-        hide: true
-      - item: To-do lists
-        hide: true
+      - item: Notifications
+        hide: false
+        bottom: true
+      - item: /profile
+        match: href
+        hide: false
+        bottom: true
 
   - is_admin: true
+    extend_from: glass
+    hide_all: true
     sidebar_editable: true
-    title: "SkyNet HQ"
-    subtitle: "Home Assistant"
-    divider_color: var(--divider-color)
-    menu_background: transparent
-    sidebar_border_color: var(--divider-color)
-    sidebar_background: var(--sidebar-background-color)
     order:
       - item: Overview
+        hide: false
 
       - item: Tablet
+        hide: false
 
       - item: Marketplace
         new_item: true
@@ -47,11 +52,11 @@ exceptions:
         icon: mdi:store
         info: >
           Total : {{ states.update |  selectattr('entity_id', 'in', integration_entities('marketplace')) | map(attribute='name') | list | count }}
+        notification: >
+          {{ states.update | selectattr('entity_id', 'in', integration_entities('marketplace')) | selectattr('state', 'eq', 'on') | list | count or '' }}
 
-
-      - item: Media
-
-      - item: Calendar
+      - item: Logbook
+        hide: false
 
       - new_item: true
         item: Automations
@@ -59,6 +64,9 @@ exceptions:
         icon: mdi:robot-confused-outline
         info: |
           Total {{ states.automation | list | count }} | active {{ states.automation | selectattr('state', 'eq', 'on') | list | count }}
+
+      - item: Frigate
+        hide: false
 
       # - new_item: true
       #   item: Tags
@@ -75,11 +83,11 @@ exceptions:
       - new_item: true
         item: Integrations
         href: "/config/integrations"
-        icon: mdi:cogs
+        icon: mdi:devices
         bottom: true
 
       - new_item: true
-        item: Addons
+        item: Apps
         href: "/config/apps"
         icon: mdi:puzzle
         bottom: true
@@ -97,6 +105,10 @@ exceptions:
         icon: mdi:hammer
         bottom: true
 
+      - item: Settings
+        hide: false
+        bottom: true
+
       - new_item: true
         item: info
         name: '[[[ return "Core " + state_attr("update.home_assistant_core_update", "installed_version") ]]]'
@@ -105,16 +117,12 @@ exceptions:
         icon: mdi:information-outline
         bottom: true
         divider: true
-        divider_color: >
-          {{states.sensor.pixel8pro_accent_color.state}}
+        divider_color: var(--sidebar-divider-color)
 
-    ##################
-    ## Hidden Items ##
-    ##################
-
-      - item: map
-        hide: true
-      - item: History
-        hide: true
-      - item: To-do lists
-        hide: true
+      - item: Notifications
+        hide: false
+        bottom: true
+      - item: /profile
+        match: href
+        hide: false
+        bottom: true

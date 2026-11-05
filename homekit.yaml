@@ -12,6 +12,7 @@
       - sensor.living_room_humidity
       - sensor.den_temperature
       - sensor.den_humidity
+      - sensor.porch_motion_illuminance
       - sensor.hygrometer_temperature
       - sensor.hygrometer_humidity
       - sensor.kitchen_temperature_and_humidity_humidity
@@ -23,7 +24,6 @@
       - light.light
       - light.lamp
       - light.guest_bed_light
-      - light.guest_light
       - light.hallway_chandelier
       - light.kitchen_light
       - light.backyard_lights
@@ -146,6 +146,13 @@
       name: Hallway Chandelier
 
     media_player.google_tv:
+      feature_list:
+        - feature: on_off
+        - feature: play_pause
+        - feature: play_stop
+        - feature: toggle_mute
+
+    media_player.google_tv_streamer:
       feature_list:
         - feature: on_off
         - feature: play_pause

@@ -30,20 +30,20 @@ const RE = /^\s*\[\[\[([\s\S]*)\]\]\]\s*$/;
 const WASH = 'polygon(0 0,0 100%,35% 100%,36% 74%,31% 43%,61% 40%,71% 69%,62% 78%,36% 73%,35% 100%,100% 100%,100% 0)';
 const CSS = `
 :host{display:block}
-ha-card{position:relative;height:200px;overflow:hidden;box-sizing:border-box;border:2px dashed var(--ha-card-border-color,var(--divider-color));--ts:21px;--st:72px;--sl:-28px;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
-.t{position:absolute;left:14px;top:16px;font-size:var(--ts);font-weight:500;line-height:1.2;color:var(--primary-text-color);white-space:nowrap}
-.u{position:absolute;left:14px;top:calc(20px + var(--ts)*1.2 + var(--so,-3px));font-size:var(--us,14px);line-height:18px;color:var(--primary-text-color);white-space:nowrap}
-.u ha-icon{display:inline-flex;--mdc-icon-size:calc(var(--us,14px)*1.25);vertical-align:middle;margin:0;color:var(--secondary-text-color)}
+ha-card{position:relative;height:200px;overflow:hidden;box-sizing:border-box;container-type:inline-size;border:2px dashed var(--ha-card-border-color,var(--divider-color));--ts:21px;--st:72px;--sl:-28px;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+.t{position:absolute;left:14px;top:16px;font-size:min(var(--ts),11.4cqw);font-weight:500;line-height:1.2;color:var(--primary-text-color);white-space:nowrap}
+.u{position:absolute;left:14px;top:calc(20px + min(var(--ts),11.4cqw)*1.2 + var(--so,-3px));font-size:min(var(--us,14px),7.6cqw);line-height:18px;color:var(--primary-text-color);white-space:nowrap}
+.u ha-icon{display:inline-flex;--mdc-icon-size:calc(min(var(--us,14px),7.6cqw)*1.25);vertical-align:middle;margin:0;color:var(--secondary-text-color)}
 .bar{position:absolute;left:14px;top:52px;width:62%;height:14px;border-radius:10px;background:rgba(var(--bc),.2);overflow:hidden;display:none}
 .bar i{display:block;height:100%;background:rgb(var(--bc));border-radius:10px;transition:width 1s linear}
-.sh{position:absolute;left:var(--sl);top:var(--st);width:160px;height:160px;border-radius:50%;background:rgba(var(--c),.2);display:flex;align-items:center;justify-content:center}
-.sh ha-icon{--mdc-icon-size:110px;color:rgb(var(--c));display:flex}
+.sh{--sh:min(160px,72cqw);position:absolute;left:var(--sl);top:var(--st);width:var(--sh);height:var(--sh);border-radius:50%;background:rgba(var(--c),.2);display:flex;align-items:center;justify-content:center}
+.sh ha-icon{--mdc-icon-size:calc(var(--sh)*.6875);color:rgb(var(--c));display:flex}
 .sh img,.b img{display:none;width:100%;height:100%;object-fit:cover;border-radius:50%}
 .mb{position:absolute;display:none;width:30px;height:30px;border-radius:50%;align-items:center;justify-content:center;color:#000;font-size:18px;font-weight:bolder}
 .x{position:absolute;left:calc(40% + 12px)}
 .x b{display:block;font-size:20px;font-weight:500;color:var(--primary-text-color)}
 .x span{display:block;font-size:13px;color:var(--secondary-text-color)}
-.b{position:absolute;width:var(--z);height:var(--z);cursor:pointer;perspective:900px}
+.b{--z:min(var(--zz),18.5cqw);right:min(22px,5cqw);position:absolute;width:var(--z);height:var(--z);cursor:pointer;perspective:900px}
 .b .s{width:100%;height:100%;border-radius:50%;background:rgba(var(--c),.2);display:flex;align-items:center;justify-content:center;transform-origin:center bottom}
 .b:active .s{transform:rotateX(25deg)}
 .b ha-icon{--mdc-icon-size:calc(var(--z)*.667);color:rgb(var(--c));display:flex}
@@ -165,7 +165,7 @@ class RoomTile extends HTMLElement {
     let y = 8;
     r.querySelectorAll('.b').forEach((el, i) => {
       const b = bs[i], z = b.size || (bs.length > 3 ? 36 : 45);
-      el.style.cssText = 'top:' + (b.top !== undefined ? b.top : y) + 'px;right:22px;--z:' + z + 'px';
+      el.style.cssText = 'top:' + (b.top !== undefined ? b.top : y) + 'px;--zz:' + z + 'px';
       y += z + (bs.length > 3 ? 14 : 20);
       if (b.picture !== undefined) el.classList.add('pic');
       this._bind(el, { tap_action: b.tap_action || { action: 'toggle' }, hold_action: b.hold_action || { action: 'more-info' }, double_tap_action: b.double_tap_action }, b.entity);
@@ -238,7 +238,7 @@ class RoomTile extends HTMLElement {
       set(s, 'p', E(b.shape_animation, o) || '', (e, v) => { e.className = 's' + (v ? ' p-' + v : ''); });
       const bb = el.lastChild, bgi = b.badge ? E(b.badge.icon, o) : '';
       set(bb, 'i', bgi || '', (e, v) => { e.style.display = v ? 'flex' : 'none'; if (v) e.firstChild.setAttribute('icon', v); });
-      set(bb, 'c', rgb(b.badge ? E(b.badge.color, o) : ''), (e, v) => e.style.setProperty('--bc', v));
+      set(bb, 'c', rgb(b.badge ? E(b.badge.color, o) : ''), (e, v) => { e.style.setProperty('--bc', v); const n = String(v).split(',').map(Number); e.firstChild.style.color = n.length === 3 && (0.299 * n[0] + 0.587 * n[1] + 0.114 * n[2]) > 170 ? '#111' : ''; });
     });
     this._sn = new Map([...this._d].map(k => [k, h.states[k]]));
   }

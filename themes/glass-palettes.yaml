@@ -34,7 +34,7 @@
   app-header-border-bottom: "1px solid rgba(255,255,255,0.07)"
   app-header-selection-bar-color: "var(--primary-color)"
   # # Fonts
-  primary-font-family: "Ubuntu, sans-serif"
+  primary-font-family: "Quicksand, sans-serif"
   paper-font-common-base_-_font-family: "var(--primary-font-family)"
   paper-font-common-code_-_font-family: "var(--primary-font-family)"
   paper-font-body1_-_font-family: "var(--primary-font-family)"
@@ -338,7 +338,7 @@
   app-header-border-bottom: "1px solid rgba(255,255,255,0.07)"
   app-header-selection-bar-color: "var(--primary-color)"
   # # Fonts
-  primary-font-family: "Ubuntu, sans-serif"
+  primary-font-family: "Quicksand, sans-serif"
   paper-font-common-base_-_font-family: "var(--primary-font-family)"
   paper-font-common-code_-_font-family: "var(--primary-font-family)"
   paper-font-body1_-_font-family: "var(--primary-font-family)"
@@ -642,7 +642,7 @@
   app-header-border-bottom: "1px solid rgba(255,255,255,0.07)"
   app-header-selection-bar-color: "var(--primary-color)"
   # # Fonts
-  primary-font-family: "Ubuntu, sans-serif"
+  primary-font-family: "Quicksand, sans-serif"
   paper-font-common-base_-_font-family: "var(--primary-font-family)"
   paper-font-common-code_-_font-family: "var(--primary-font-family)"
   paper-font-body1_-_font-family: "var(--primary-font-family)"
@@ -946,7 +946,7 @@
   app-header-border-bottom: "1px solid rgba(255,255,255,0.07)"
   app-header-selection-bar-color: "var(--primary-color)"
   # # Fonts
-  primary-font-family: "Ubuntu, sans-serif"
+  primary-font-family: "Quicksand, sans-serif"
   paper-font-common-base_-_font-family: "var(--primary-font-family)"
   paper-font-common-code_-_font-family: "var(--primary-font-family)"
   paper-font-body1_-_font-family: "var(--primary-font-family)"
@@ -1238,7 +1238,9 @@
   # Dim and blur the page behind dialogs
   mdc-dialog-scrim-color: "rgba(0,0,0,0.5)"
   ha-dialog-scrim-backdrop-filter: "blur(10px)"
-  sidebar-background-color: "rgba(11,11,12,0.6)"
+  sidebar-background-color: "transparent"
+  glass-chrome: "floating"
+  ha-panel-toolbar-background: "rgba(255,255,255,0.03)"
   sidebar-menu-button-background-color: transparent
   sidebar-icon-color: "#9aa6bd"
   sidebar-text-color: "#9aa6bd"
@@ -1250,7 +1252,7 @@
   app-header-border-bottom: "1px solid rgba(255,255,255,0.07)"
   app-header-selection-bar-color: "var(--primary-color)"
   # # Fonts
-  primary-font-family: "Ubuntu, sans-serif"
+  primary-font-family: "Quicksand, sans-serif"
   paper-font-common-base_-_font-family: "var(--primary-font-family)"
   paper-font-common-code_-_font-family: "var(--primary-font-family)"
   paper-font-body1_-_font-family: "var(--primary-font-family)"
