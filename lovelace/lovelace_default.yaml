@@ -88,7 +88,8 @@ views:
   header:
     badges_position: bottom
     card:
-      name: Pat
+      name: '[[[ const n = (hass.user && hass.user.name) || ''''; return n.indexOf(''Pavan'')
+        === 0 ? ''Pat'' : n.split('' '')[0]; ]]]'
       show_icon: true
       show_message: true
       type: custom:greeting-card
@@ -128,6 +129,38 @@ views:
         action: navigate
         navigation_path: /lovelace/den
       type: custom:room-tile
+      visibility:
+      - condition: user
+        users:
+        - 74f7e2ffd3594037b1a2fc4de82d9fea
+        - 714d34245b7d49a1ac5378907e9fa5bd
+    - buttons:
+      - entity: light.bed_lamp
+        icon: mdi:lightbulb-group
+      - entity: light.bed_lamp_1
+        icon: mdi:lamp
+      - entity: light.bed_lamp_2
+        icon: mdi:lamp
+      color: '[[[ return (is(''light.bed_lamp_1'',''on'')||is(''light.bed_lamp_2'',''on'')||is(''light.bed_lamp'',''on''))?''pink'':''disabled'';
+        ]]]'
+      grid_options:
+        columns: 6
+        rows: auto
+      hold_action:
+        action: none
+      icon: mdi:face-woman
+      name: My Room
+      secondary: '[[[ const n=[''light.bed_lamp_1'',''light.bed_lamp_2''].filter(e=>is(e,''on'')).length;
+        if(is(''light.bed_lamp'',''on'')&&!n) return ''Lamp on''; return n ? n+(n>1?''
+        lamps on'':'' lamp on'') : ''Lights off''; ]]]'
+      tap_action:
+        action: navigate
+        navigation_path: /lovelace/hilary
+      type: custom:room-tile
+      visibility:
+      - condition: user
+        users:
+        - 96bee73da18e43568e741fe2b7950fe0
     - buttons:
       - entity: light.living_room_lamp
         icon: mdi:lamp
@@ -245,7 +278,7 @@ views:
         text: '[[[ if((is(''input_boolean.bin'',''on'')&&Math.min(a(''sensor.black_bin'',''next_collection''),a(''sensor.blue_bin'',''next_collection''))<=1))
           return ''✔''; const b=a(''sensor.black_bin'',''next_collection''),l=a(''sensor.blue_bin'',''next_collection'');
           return (b==null||l==null)?'''':String(Math.min(b,l)); ]]]'
-        top: 85
+        top: 66
       buttons:
       - badge:
           color: '[[[ const n=a(''sensor.blue_bin'',''next_collection''); return n>5?''green'':n>2?''yellow'':''red'';
@@ -345,6 +378,65 @@ views:
         action: navigate
         navigation_path: /lovelace/utilities
       type: custom:room-tile
+      visibility:
+      - condition: state
+        entity: input_boolean.washer_new_ui
+        state: 'off'
+    - animation: '[[[ const m={running:''washing'',washing:''washing'',door_locked:''washing'',spinning:''spinning'',rinsing:''rinsing'',drying:''drying'',cycle_complete:''pulse''};
+        return m[s(''sensor.bob_machine_status'')]||''''; ]]]'
+      badge:
+        color: red
+        text: '[[[ return (is(''binary_sensor.bob_door_is_open'',''on'')||is(''binary_sensor.bob_no_water'',''on'')||is(''binary_sensor.bob_safety'',''on''))
+          ? ''!'' : ''''; ]]]'
+      card_mod:
+        style: ".x {\n  left: auto !important;\n  right: 16px;\n  text-align: right;\n\
+          }\n"
+      color: '[[[ const m={idle:''blue-grey'',starting:''blue'',delayed_start:''amber'',running:''cyan'',washing:''cyan'',door_locked:''cyan'',add_laundry:''cyan'',spinning:''purple'',rinsing:''blue'',drying:''deep-orange'',paused:''orange'',cycle_complete:''green''};
+        return m[s(''sensor.bob_machine_status'')]||''disabled''; ]]]'
+      extras:
+      - entity: sensor.bob_programme_end_time
+        label: '[[[ return s(''sensor.bob_machine_status'')===''delayed_start'' ?
+          ''Starts'' : ''Done at''; ]]]'
+        show: '[[[ const ms=s(''sensor.bob_machine_status''); if([''cycle_complete'',''off'',''idle'',''unavailable''].includes(ms))
+          return false; const t=s(ms===''delayed_start''?''sensor.bob_delay_start_time'':''sensor.bob_programme_end_time'');
+          return !!t && t!==''unknown'' && t!==''unavailable''; ]]]'
+        top: 70
+        value: '[[[ const t=s(s(''sensor.bob_machine_status'')===''delayed_start''?''sensor.bob_delay_start_time'':''sensor.bob_programme_end_time'');
+          if(!t||t===''unknown''||t===''unavailable'') return ''''; return new Date(t).toLocaleTimeString(''en-US'',
+          {hour12:true, hour:''numeric'',minute:''2-digit''}); ]]]'
+      - entity: sensor.bob_remaining
+        label: Remaining
+        show: '[[[ return s(''sensor.bob_remaining'')!==''unavailable'' && ![''cycle_complete'',''off'',''unavailable''].includes(s(''sensor.bob_machine_status''));
+          ]]]'
+        top: 122
+        value: '[[[ let m=parseFloat(s(''sensor.bob_remaining'')); if(isNaN(m)) return
+          ''''; const u=a(''sensor.bob_remaining'',''unit_of_measurement''); m=Math.round(u===''h''?m*60:u===''s''?m/60:m);
+          const h=Math.floor(m/60), r=m%60; return h ? h+''h''+(r?'' ''+r+''m'':'''')
+          : r+''m''; ]]]'
+      grid_options:
+        columns: 6
+        rows: auto
+      icon: '[[[ const m={off:''mdi:washing-machine-off'',idle:''mdi:washing-machine'',delayed_start:''phu:rooms-laundry-room'',starting:''mdi:washing-machine'',running:''mdi:washing-machine'',washing:''mdi:washing-machine'',rinsing:''mdi:dishwasher'',spinning:''fas:spinner'',drying:''mdi:tumble-dryer'',paused:''mdi:pause-box-outline'',door_locked:''mdi:washing-machine'',add_laundry:''mdi:washing-machine'',cycle_complete:''mdi:check-circle-outline'',unavailable:''mdi:washing-machine-alert''};
+        return m[s(''sensor.bob_machine_status'')]||''mdi:washing-machine-alert'';
+        ]]]'
+      name: Washing Machine
+      picture: '[[[ const m={running:''washing'',washing:''washing'',door_locked:''washing'',add_laundry:''washing'',rinsing:''rinsing'',spinning:''spinning'',drying:''drying'',cycle_complete:''cycle_complete'',paused:''paused'',delayed_start:''delayed_start''};
+        const f=m[s(''sensor.bob_machine_status'')]; return f ? ''/local/images/washer/''+f+''.svg?v=1''
+        : ''''; ]]]'
+      picture_style: object-fit:contain
+      secondary: '[[[ const m={off:''Off'',idle:''Idle'',delayed_start:''Delayed Start'',starting:''Starting'',running:''Washing'',washing:''Washing'',rinsing:''Rinsing'',spinning:''Spinning'',drying:''Drying'',paused:''Paused'',door_locked:''Washing'',add_laundry:''Washing'',cycle_complete:''Cycle
+        Complete'',unavailable:''Status Unknown''}; const st=m[s(''sensor.bob_machine_status'')]||''Status
+        Unknown''; const p=s(''sensor.bob_programme''); if([''off'',''idle'',''unavailable''].includes(s(''sensor.bob_machine_status''))||!p||p===''unknown''||p===''unavailable'')
+        return st; const n=p.replace(''program_'','''').replace(/_/g,'' ''); return
+        st+'' · ''+n.charAt(0).toUpperCase()+n.slice(1); ]]]'
+      tap_action:
+        action: navigate
+        navigation_path: /lovelace/utilities
+      type: custom:room-tile
+      visibility:
+      - condition: state
+        entity: input_boolean.washer_new_ui
+        state: 'on'
     - buttons:
       - animation: '[[[ return is(''switch.boiler'',''on'')?''boil'':''''; ]]]'
         color: '[[[ return is(''switch.boiler'',''on'')?''red'':''disabled''; ]]]'
@@ -389,6 +481,50 @@ views:
         color: red
         entity: timer.heating
       type: custom:room-tile
+      visibility:
+      - condition: user
+        users:
+        - 74f7e2ffd3594037b1a2fc4de82d9fea
+        - 714d34245b7d49a1ac5378907e9fa5bd
+    - buttons:
+      - animation: '[[[ return is(''switch.boiler'',''on'')?''boil'':''''; ]]]'
+        color: '[[[ return is(''switch.boiler'',''on'')?''red'':''disabled''; ]]]'
+        entity: switch.boiler
+        icon: '[[[ return is(''switch.boiler'',''on'')?''mdi:water-boiler'':''mdi:water-boiler-off'';
+          ]]]'
+        shape_animation: '[[[ return is(''switch.boiler'',''on'')?''ping'':''''; ]]]'
+      card_mod:
+        style: ".bar {\n  height: 6px !important;\n  top: 56px !important;\n  border-radius:\
+          \ 6px !important;\n}\n"
+      color: '[[[ return is(''switch.heating'',''on'')?''red'':''disabled''; ]]]'
+      grid_options:
+        columns: 6
+        rows: auto
+      hold_action:
+        action: none
+      icon: '[[[ return is(''switch.heating'',''on'')?''mdi:radiator'':''mdi:radiator-off'';
+        ]]]'
+      name: Heating
+      picture: '[[[ return is(''switch.heating'',''on'') ? ''/local/images/status/heating-on.svg?v=1''
+        : ''''; ]]]'
+      picture_style: object-fit:contain
+      secondary: '[[[ const w=o(''switch.heating''); return w?''Turned ''+w.state+''
+        at ''+new Date(w.last_changed).toLocaleTimeString(''en-IE'',{hour:''numeric'',minute:''2-digit'',hour12:true}).toUpperCase():'''';
+        ]]]'
+      secondary_size: 12
+      tap_action:
+        action: call-service
+        service: switch.toggle
+        service_data:
+          entity_id: switch.heating
+      timer:
+        color: red
+        entity: timer.heating
+      type: custom:room-tile
+      visibility:
+      - condition: user
+        users:
+        - 96bee73da18e43568e741fe2b7950fe0
     - buttons:
       - entity: light.guest_light
         icon: mdi:globe-light
@@ -504,9 +640,10 @@ views:
             hold_action:
               action: none
             icon: mdi:harddisk
-            primary: '[[[ const v=s(''sensor.system_monitor_disk_use''); return (v!==''unavailable''?v:''N/A'')+''
-              GB''; ]]]'
-            secondary: Hard Disk
+            primary: '[[[ const v=s(''sensor.system_monitor_disk_use''); const g=parseFloat(v);
+              if(isNaN(g)) return ''N/A''; return g>=1000 ? (g/1000).toFixed(g>=10000?1:2)+''
+              TB'' : v+'' GB''; ]]]'
+            secondary: Internal
             tap_action:
               action: more-info
           - color: '[[[ const v=parseFloat(s(''sensor.system_monitor_disk_usage_media_1tb_ssd''));
@@ -517,7 +654,8 @@ views:
               action: none
             icon: cbi:seagate-ssd-m2
             primary: '[[[ const v=s(''sensor.system_monitor_disk_use_media_1tb_ssd'');
-              return (v!==''unavailable''?v:''N/A'')+'' GB''; ]]]'
+              const g=parseFloat(v); if(isNaN(g)) return ''N/A''; return g>=1000 ?
+              (g/1000).toFixed(g>=10000?1:2)+'' TB'' : v+'' GB''; ]]]'
             secondary: 1 TB SSD
             tap_action:
               action: more-info
@@ -529,7 +667,8 @@ views:
               action: none
             icon: cbi:seagate-ssd
             primary: '[[[ const v=s(''sensor.system_monitor_disk_use_media_5tb'');
-              return (v!==''unavailable''?v:''N/A'')+'' GB''; ]]]'
+              const g=parseFloat(v); if(isNaN(g)) return ''N/A''; return g>=1000 ?
+              (g/1000).toFixed(g>=10000?1:2)+'' TB'' : v+'' GB''; ]]]'
             secondary: 5TB
             tap_action:
               action: more-info
@@ -541,7 +680,8 @@ views:
               action: none
             icon: cbi:seagate-ssd
             primary: '[[[ const v=s(''sensor.system_monitor_disk_use_media_20tb'');
-              return (v!==''unavailable''?v:''N/A'')+'' GB''; ]]]'
+              const g=parseFloat(v); if(isNaN(g)) return ''N/A''; return g>=1000 ?
+              (g/1000).toFixed(g>=10000?1:2)+'' TB'' : v+'' GB''; ]]]'
             secondary: 20 TB
             tap_action:
               action: more-info
@@ -615,7 +755,7 @@ views:
         icon: mdi:arrow-up-bold-hexagon-outline
         tap_action:
           action: more-info
-      color: '[[[ if([''marketplace_updates'',''other_updates'',''addon_updates'',''remotehaaddon_updates'',''remotehahacs_updates'',''remotehaother_updates''].some(k=>is(''binary_sensor.''+k,''on'')))
+      color: '[[[ if([''marketplace_updates'',''other_updates'',''addon_updates'',''india_addon_updates'',''india_hacs_updates'',''india_other_updates''].some(k=>is(''binary_sensor.''+k,''on'')))
         return ''red''; if(is(''update.home_assistant_supervisor_update'',''on'')||is(''update.home_assistant_core_update'',''on''))
         return ''blue''; return ''disabled''; ]]]'
       grid_options:
@@ -625,7 +765,7 @@ views:
         action: none
       icon: mdi:package-up
       name: Updates
-      picture: '[[[ if([''marketplace_updates'',''other_updates'',''addon_updates'',''remotehaaddon_updates'',''remotehahacs_updates'',''remotehaother_updates''].some(k=>is(''binary_sensor.''+k,''on'')))
+      picture: '[[[ if([''marketplace_updates'',''other_updates'',''addon_updates'',''india_addon_updates'',''india_hacs_updates'',''india_other_updates''].some(k=>is(''binary_sensor.''+k,''on'')))
         return ''/local/images/status/updates-red.svg?v=1''; if(is(''update.home_assistant_supervisor_update'',''on'')||is(''update.home_assistant_core_update'',''on''))
         return ''/local/images/status/updates-blue.svg?v=1''; return ''''; ]]]'
       picture_style: object-fit:contain
@@ -633,11 +773,13 @@ views:
       secondary: '[[[ const u=Object.values(hass.states).filter(x=>x.entity_id.startsWith(''update.'')&&x.state===''on'');const
         p=x=>(hass.entities&&hass.entities[x.entity_id]||{}).platform;const ex=[''update.home_assistant_core_update'',''update.home_assistant_supervisor_update''];const
         mkt=u.filter(x=>p(x)===''marketplace'').length;const add=u.filter(x=>p(x)===''hassio''&&!ex.includes(x.entity_id)).length;const
-        oth=u.filter(x=>p(x)!==''marketplace''&&p(x)!==''hassio'').length;const sup=is(''update.home_assistant_supervisor_update'',''on''),core=is(''update.home_assistant_core_update'',''on'');
-        s(''binary_sensor.all_updates''); if(mkt+add+oth===0&&!sup&&!core) return
-        ''No updates available''; return (sup?''Supervisor Update! '':'''')+(core?''Core
+        oth=u.filter(x=>p(x)!==''marketplace''&&p(x)!==''hassio'').length;const ind=[[''Marketplace'',''hacs''],[''Add-ons'',''addon''],[''Other'',''other'']].filter(x=>is(''binary_sensor.india_''+x[1]+''_updates'',''on'')).map(x=>x[0]);const
+        sup=is(''update.home_assistant_supervisor_update'',''on''),core=is(''update.home_assistant_core_update'',''on'');
+        s(''binary_sensor.all_updates''); if(mkt+add+oth===0&&!sup&&!core&&!ind.length)
+        return ''No updates available''; return (sup?''Supervisor Update! '':'''')+(core?''Core
         Update! '':'''')+(mkt?''Marketplace: ''+mkt+'' '':'''')+(add?''Addons: ''+add+''
-        '':'''')+(oth?''Other: ''+oth:''''); ]]]'
+        '':'''')+(oth?''Other: ''+oth+'' '':'''')+(ind.length?''India: ''+ind.join('',
+        ''):''''); ]]]'
       tap_action:
         action: navigate
         navigation_path: /lovelace/updates
@@ -685,44 +827,146 @@ views:
       tap_action:
         action: more-info
       type: custom:room-tile
-    - actions:
-        tap_action:
-          action: navigate
-          navigation_path: /lovelace/f1-live
+    - accessibility:
+        announce: true
+        high_contrast: false
+        motion: system
+        signals: shape
+      appearance:
+        accent: '#e10600'
+        accent_mode: style
+        accent_team: ''
+        density: compact
+        flags: true
+        font: auto
+        full_names: false
+        logo_size: normal
+        logo_style: auto
+        logos: true
+        mode: auto
+        numbers: tabular
+        palette: {}
+        show_header: false
+        style: ha
+        surface: style
+        team_colors: true
+        tyre_style: ring
       card_mod:
-        style: "ha-card h2{\n  font-size: 18px;\n  color: white !important;\n  gap:\
-          \ 0px !important;\n  text-align: center;\n  display: grid;\n  justify-items:\
-          \ center;\n}\ntr:nth-child(2n) {\n  background: none !important;\n  color:\
-          \ white;\n}\ntd {\n  padding: 0px !important;\n}\nha-card {\n  font-size:\
-          \ 9px;\n  height: 200px !important;\n  border-style: dashed;\n  border-width:\
-          \ 2px;\n}\n:host {\n  height: 200px !important;\n}\n"
-      card_type: countdown
-      countdown_type:
-      - qualifying
-      - sprint
-      - race
-      - sprint_qualifying
-      date_locale: ie
-      f1_font: true
+        style:
+          .: "ha-card {\n  height: 200px !important;\n  box-sizing: border-box;\n\
+            \  overflow: hidden;\n  border: 2px dashed var(--ha-card-border-color,\
+            \ var(--divider-color)) !important;\n  display: flex;\n  flex-direction:\
+            \ column;\n  --f1-card-padding: 12px;\n}\n.modules {\n  gap: 12px !important;\n\
+            \  flex: 1;\n  align-items: stretch !important;\n}\n{% set ns = namespace(n=none,\
+            \ t=none) %}\n{% for name, key in [('Sprint Qualifying','sprint_qualifying_start_utc'),('Sprint','sprint_start_utc'),('Qualifying','qualifying_start_utc'),('the\
+            \ Race','race_start_utc')] %}\n{% set v = state_attr('sensor.f1_race_f1_next_race',\
+            \ key) %}\n{% if v %}{% set d = as_datetime(v) %}{% if d > now() and (ns.t\
+            \ is none or d < ns.t) %}{% set ns.n = name %}{% set ns.t = d %}{% endif\
+            \ %}{% endif %}\n{% endfor %}\n{% if ns.t %}{% set s = (ns.t - now()).total_seconds()\
+            \ | int %}{% set txt = ((s // 86400) ~ 'd ' if s >= 86400 else '') ~ ((s\
+            \ % 86400) // 3600) ~ 'h ' ~ ((s % 3600) // 60) ~ 'm until ' ~ ns.n %}{%\
+            \ else %}{% set txt = '' %}{% endif %}\nha-card::after {\n  content: \"\
+            {{ txt }}\";\n  position: absolute;\n  left: 0;\n  width: 50%;\n  bottom:\
+            \ 40px;\n  text-align: center;\n  font-size: 1.7rem;\n  font-weight: 800;\n\
+            \  line-height: 1.1;\n  color: var(--primary-text-color);\n}\n@media (max-width:\
+            \ 700px) {\n  ha-card::after {\n    width: 100%;\n    font-size: 1.5rem;\n\
+            \    bottom: 38px;\n  }\n  .modules > f1-module-view:nth-child(2) {\n\
+            \    display: none !important;\n  }\n}\n"
+          f1-module-view$: ":host { display: flex; flex-direction: column; justify-content:\
+            \ center; }\n.overview { gap: 6px !important; justify-items: center; text-align:\
+            \ center; margin-bottom: 16px; }\n.metric { text-align: center; }\n.metric\
+            \ small { margin-bottom: 1px; font-size: .75em; }\n.metric.hero strong\
+            \ { font-size: 1.5rem; }\n.metric.hero:has(.flag:not([hidden])) > small\
+            \ { margin-inline-start: 0 !important; }\n.metric-value { justify-content:\
+            \ center; }\n.schedule li { padding: 5px 0 !important; flex-wrap: nowrap\
+            \ !important; align-items: center; }\n.schedule .provenance { display:\
+            \ none; }\n.schedule time { font-size: 1.05em; }\n.schedule-copy strong\
+            \ { font-size: 1.1em; }\n@media (max-width: 700px) {\n  .metric.hero strong\
+            \ { font-size: 1.3rem; }\n}\n"
+      columns: 2
+      context:
+        driver: ''
+        group: ''
+        scope: local
+        selection:
+          mode: follow
+          source: auto
+        share:
+        - focus
+        show_focus_control: false
+        show_freeze_control: false
+        spoilers: inherit
+        team: ''
+        viewing_controls: false
+      f1_entry_id: ''
       grid_options:
         columns: full
         rows: 200px
-      hide_tracklayout: true
-      image_clickable: false
-      only_show_date: false
-      show_flag: false
-      show_lastyears_result: false
-      show_raceinfo: false
-      show_weather: false
-      type: custom:formulaone-card
-      visibility:
-      - condition: state
-        entity: sensor.f1_race_f1_next_race
-        state_not: unknown
+      layout: columns
+      modules:
+      - column_span: 1
+        driver: ''
+        enabled: true
+        fields:
+        - meeting
+        focus_mode: inherit
+        id: overview-1
+        options:
+          layout_mode: compact
+        selection:
+          mode: inherit
+        show_header: false
+        show_table_header: true
+        team: ''
+        title: ''
+        type: overview
+        unavailable: explain
+        visibility: []
+        when:
+        - before
+        - active
+        - finished
+        - unknown
+      - column_span: 1
+        driver: ''
+        enabled: true
+        fields:
+        - schedule
+        focus_mode: inherit
+        id: calendar-1
+        options:
+          details: []
+          next: none
+          past: hide
+          range: weekend
+          sessions:
+          - practice_1
+          - practice_2
+          - practice_3
+          - qualifying
+          - sprint_qualifying
+          - sprint
+          - race
+          show_track_time: false
+          timezone: home
+        selection:
+          mode: inherit
+        show_header: false
+        show_table_header: true
+        team: ''
+        title: ''
+        type: calendar
+        unavailable: explain
+        visibility: []
+        when:
+        - before
+        - active
+        - finished
+        - unknown
+      title: ''
+      type: custom:f1-sensor-card
+      version: 3
     - card:
-        grid_options:
-          columns: 2
-          rows: 200px
         parameters:
           pagination:
             clickable: true
@@ -791,115 +1035,31 @@ views:
         - domain: media_player
           integration: spotify
           options:
-            artwork: material
-            card_mod:
-              style: ".entity__info {\n  max-width: 100% !important;\n  top: -80px;\n\
-                \  flex-direction: column-reverse !important;\n\n  }\n.entity__info__name\
-                \ {\n    font-size: 16px !important;\n    font-family: Ubuntu;\n \
-                \ }\n.entity__info__media {\n    font-size: 18px !important;\n   \
-                \ font-weight: bold;\n    font-family: Ubuntu;\n  }\n.entity__icon\
-                \ {\n    top: -80px !important;\n    color: #1DB954 !important;\n\
-                \  }\n:host {\n  --mini-media-player-background-opacity: 1;\n  --mini-media-player-progress-height:\
-                \ 10px;\n  --mini-media-player-name-font-weight: 800;\n  --mini-media-player-scale:1.1;\n\
-                \  }\n  @media screen and (max-width: 600px) {\n    :host {\n    \
-                \  --mini-media-player-scale: 1.2;\n    }\n  }\nha-card {\n    border:\
-                \ 0px !important;\n    box-shadow: none !important;\n    height: 200px\
-                \ !important;\n    --mdc-icon-size: 40px  !important;\n  }\n"
-            entities:
-            - this.entity_id
-            info: scroll
-            sound_mode: icon
-            source: icon
-            toggle_power: true
-            type: custom:mini-media-player
-            volume_stateless: true
+            dj: true
+            entity: this.entity_id
+            icon: mdi:spotify
+            type: custom:glass-media-card
         - domain: media_player
           integration: cast
           options:
-            artwork: material
-            card_mod:
-              style: ".entity__info {\n  max-width: 100% !important;\n  top: -80px;\n\
-                \  flex-direction: column-reverse !important;\n\n  }\n.entity__info__name\
-                \ {\n    font-size: 16px !important;\n    font-family: Ubuntu;\n \
-                \ }\n.entity__info__media {\n    font-size: 18px !important;\n   \
-                \ font-weight: bold;\n    font-family: Ubuntu;\n  }\n.entity__icon\
-                \ {\n    top: -80px !important;\n  }\n:host {\n  --mini-media-player-background-opacity:\
-                \ 1;\n  --mini-media-player-progress-height: 10px;\n  --mini-media-player-name-font-weight:\
-                \ 800;\n  --mini-media-player-scale:1.1;\n  }\n  @media screen and\
-                \ (max-width: 600px) {\n    :host {\n      --mini-media-player-scale:\
-                \ 1.2;\n    }\n  }\nha-card {\n    border: 0px !important;\n    box-shadow:\
-                \ none !important;\n    height: 200px !important;\n    --mdc-icon-size:\
-                \ 40px  !important;\n  }\n"
-            entities:
-            - this.entity_id
-            grid_options:
-              columns: 12
-              rows: 200px
+            entity: this.entity_id
             icon: mdi:cast-audio
-            info: scroll
-            sound_mode: icon
-            source: icon
-            toggle_power: true
-            type: custom:mini-media-player
-            volume_stateless: true
+            type: custom:glass-media-card
         - domain: media_player
           integration: androidtv
           options:
-            artwork: material
-            card_mod:
-              style: ".entity__info {\n  max-width: 100% !important;\n  top: -80px;\n\
-                \  flex-direction: column-reverse !important;\n\n  }\n.entity__info__name\
-                \ {\n    font-size: 16px !important;\n    font-family: Ubuntu;\n \
-                \ }\n.entity__info__media {\n    font-size: 18px !important;\n   \
-                \ font-weight: bold;\n    font-family: Ubuntu;\n  }\n.entity__icon\
-                \ {\n    top: -80px !important;\n  }\n:host {\n  --mini-media-player-background-opacity:\
-                \ 1;\n  --mini-media-player-progress-height: 10px;\n  --mini-media-player-name-font-weight:\
-                \ 800;\n  --mini-media-player-scale:1.1;\n  }\n  @media screen and\
-                \ (max-width: 600px) {\n    :host {\n      --mini-media-player-scale:\
-                \ 1.2;\n    }\n  }\nha-card {\n    border: 0px !important;\n    box-shadow:\
-                \ none !important;\n    height: 200px !important;\n    --mdc-icon-size:\
-                \ 40px  !important;\n  }\n"
-            entities:
-            - this.entity_id
-            grid_options:
-              columns: 12
-              rows: 200px
+            entity: this.entity_id
             icon: mdi:google
-            info: scroll
-            sound_mode: icon
-            source: icon
-            toggle_power: true
-            type: custom:mini-media-player
-            volume_stateless: true
+            type: custom:glass-media-card
         - domain: media_player
           integration: androidtv_remote
           options:
-            artwork: material
-            card_mod:
-              style: ".entity__info {\n  max-width: 100% !important;\n  top: -80px;\n\
-                \  flex-direction: column-reverse !important;\n\n  }\n.entity__info__name\
-                \ {\n    font-size: 16px !important;\n    font-family: Ubuntu;\n \
-                \ }\n.entity__info__media {\n    font-size: 18px !important;\n   \
-                \ font-weight: bold;\n    font-family: Ubuntu;\n  }\n.entity__icon\
-                \ {\n    top: -80px !important;\n  }\n:host {\n  --mini-media-player-background-opacity:\
-                \ 1;\n  --mini-media-player-progress-height: 10px;\n  --mini-media-player-name-font-weight:\
-                \ 800;\n  --mini-media-player-scale:1.1;\n  }\n  @media screen and\
-                \ (max-width: 600px) {\n    :host {\n      --mini-media-player-scale:\
-                \ 1.2;\n    }\n  }\nha-card {\n    border: 0px !important;\n    box-shadow:\
-                \ none !important;\n    height: 200px !important;\n    --mdc-icon-size:\
-                \ 40px  !important;\n  }\n"
-            entities:
-            - this.entity_id
-            grid_options:
-              columns: 12
-              rows: 200px
+            entity: this.entity_id
             icon: mdi:google
-            info: scroll
-            sound_mode: icon
-            source: icon
-            toggle_power: true
-            type: custom:mini-media-player
-            volume_stateless: true
+            type: custom:glass-media-card
+      grid_options:
+        columns: 18
+        rows: auto
       show_empty: false
       sort:
         method: state
@@ -907,7 +1067,9 @@ views:
       type: custom:auto-entities
       visibility:
       - condition: user
-        users: []
+        users:
+        - 74f7e2ffd3594037b1a2fc4de82d9fea
+        - 714d34245b7d49a1ac5378907e9fa5bd
     - card:
         grid_options:
           columns: 2
@@ -936,31 +1098,40 @@ views:
                 \ 'user_name') and t.device == state_attr(config.entity, 'device_name')\
                 \ %}\n    {% set ns.s = t %}\n  {% endif %}\n{% endfor %}\n{% set\
                 \ r = (ns.s.reasons or []) if ns.s else [] %}\nha-card {\n  position:\
-                \ relative;\n}\nha-card::after {\n  content: \"{{ ('\U0001F504 Transcoding'\
+                \ relative;\n}\nha-card::after {\n  content: \"{{ ('<-> Transcoding'\
                 \ ~ (' · ' ~ (r | map('regex_replace', '([a-z])([A-Z])', '\\\\1 \\\
                 \\2') | join(', ')) if r else '')) if ns.s else '▶ Direct Play' }}\"\
-                ;\n  position: absolute;\n  top: 125px;\n  left: 200px;\n  max-width:\
+                ;\n  position: absolute;\n  top: 55px;\n  right: 20px;\n  max-width:\
                 \ 65%;\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow:\
-                \ ellipsis;\n  font-size: 10px;\n  font-family: Ubuntu;\n  font-weight:\
-                \ 700;\n  padding: 2px 8px;\n  border-radius: 8px;\n  background:\
-                \ {{ '#c0392b' if ns.s else '#27ae60' }};\n  color: white;\n  opacity:\
-                \ 0.9;\n  z-index: 10;\n}\n"
+                \ ellipsis;\n  font-size: 10px;\n  font-weight: 700;\n  padding: 2px\
+                \ 8px;\n  border-radius: 8px;\n  background: {{ '#c0392b' if ns.s\
+                \ else '#27ae60' }};\n  color: white;\n  opacity: 0.9;\n  z-index:\
+                \ 10;\n}\n@media (max-width: 700px) {\n  ha-card::after {\n    top:\
+                \ 22px;\n    right: 104px;\n    bottom: auto;\n    left: auto;\n \
+                \   max-width: 40%;\n    font-size: 9px;\n    padding: 2px 6px;\n\
+                \  }\n}\n"
             entity: this.entity_id
             idle_backdrop_cycle: true
             idle_cycle_interval: 20
             show_background: true
             show_runtime: false
             show_subtitle: true
+            show_time: true
             type: custom:jellyha-now-playing-card
             use_series_image: true
       grid_options:
-        columns: 16
+        columns: 18
         rows: auto
       show_empty: false
       sort:
         method: last_changed
         reverse: true
       type: custom:auto-entities
+      visibility:
+      - condition: user
+        users:
+        - 74f7e2ffd3594037b1a2fc4de82d9fea
+        - 714d34245b7d49a1ac5378907e9fa5bd
     column_span: 4
     type: grid
   top_margin: false
@@ -968,6 +1139,7 @@ views:
   visible:
   - user: 74f7e2ffd3594037b1a2fc4de82d9fea
   - user: 714d34245b7d49a1ac5378907e9fa5bd
+  - user: 96bee73da18e43568e741fe2b7950fe0
 - cards:
   - card:
       alignment: center
@@ -2871,7 +3043,7 @@ views:
   path: hilary
   type: custom:vertical-layout
   visible:
-  - user: 74f7e2ffd3594037b1a2fc4de82d9fea
+  - user: 96bee73da18e43568e741fe2b7950fe0
 - cards:
   - anchor_id: home
     offset: -50
@@ -4052,7 +4224,13 @@ views:
       type: custom:mushroom-chips-card
     - cameras:
       - camera_entity: camera.doorbell
-        live_provider: auto
+        go2rtc:
+          modes:
+          - webrtc
+          - mse
+          - mp4
+          stream: doorbell
+        live_provider: go2rtc
       - camera_entity: camera.backyard_camera
         live_provider: auto
       type: custom:advanced-camera-card
@@ -4230,25 +4408,25 @@ views:
   path: living-room
   type: custom:vertical-layout
 - cards:
-  - caption_format: '[AGO]'
-    entities:
-    - camera.doorbell_fluent
-    - sensor.doorbell_images
-    - caption_format: '[AGO]'
-      file_name_date_begins: 12
-      file_name_format: YYYYMMDDHHmmss
-      include_images: false
-      path: media-source://media_source/local/Doorbell/
-      preview_video_at: 5
-      recursive: true
-      slideshow_video_end: true
-    file_name_format: YYYY-MM-DD_HH-mm-SS
-    maximum_files: 20
-    menu_alignment: Responsive
-    parsed_date_sort: true
-    show_reload: true
-    show_zoom: true
-    type: custom:gallery-card
+  - cameras:
+    - camera_entity: camera.doorbell
+      go2rtc:
+        modes:
+        - webrtc
+        - mse
+        - mp4
+        stream: doorbell
+      live_provider: go2rtc
+      title: Doorbell
+    - camera_entity: camera.backyard_camera
+      live_provider: auto
+      title: Backyard
+    menu:
+      position: bottom
+      style: outside
+    type: custom:advanced-camera-card
+    view:
+      default: live
   icon: mdi:doorbell-video
   path: camera
   subview: true
@@ -4277,7 +4455,7 @@ views:
         entity_id: sensor.bob_duration
     type: custom:mushroom-template-badge
   cards: []
-  dense_section_placement: true
+  dense_section_placement: false
   header:
     badges_position: bottom
     card:
@@ -4287,7 +4465,7 @@ views:
     layout: responsive
   icon: mdi:washing-machine
   layout: {}
-  max_columns: 2
+  max_columns: 4
   path: utilities
   sections:
   - cards:
@@ -4318,7 +4496,7 @@ views:
         primary_info: state
         secondary_info: name
         tap_action:
-          action: more-info
+          action: none
         type: custom:mushroom-entity-card
       - cards:
         - card_mod:
@@ -4467,6 +4645,345 @@ views:
         columns: full
         rows: auto
       type: vertical-stack
+    - card_mod:
+        style:
+          .: 'ha-card { border: 1px solid rgb(var(--rgb-red)); }
+
+            ha-state-icon { animation: w-blink 1.2s ease-in-out infinite; }
+
+            @keyframes w-blink { 50% { opacity: 0.3; } }
+
+            '
+      double_tap_action:
+        action: none
+      entity: binary_sensor.bob_door_is_open
+      fill_container: true
+      grid_options:
+        columns: full
+      hold_action:
+        action: none
+      icon: mdi:alert-circle
+      icon_color: red
+      layout: horizontal
+      primary: Check the washer
+      secondary: '{% set w = [] %}{% if is_state(''binary_sensor.bob_door_is_open'',''on'')
+        %}{% set w = w + [''Door is open''] %}{% endif %}{% if is_state(''binary_sensor.bob_no_water'',''on'')
+        %}{% set w = w + [''No water''] %}{% endif %}{% if is_state(''binary_sensor.bob_safety'',''on'')
+        %}{% set w = w + [''Safety fault''] %}{% endif %}{{ w | join('' · '') }}'
+      tap_action:
+        action: none
+      type: custom:mushroom-template-card
+      visibility:
+      - condition: state
+        entity: input_boolean.washer_new_ui
+        state: 'on'
+      - condition: or
+        conditions:
+        - condition: state
+          entity: binary_sensor.bob_door_is_open
+          state: 'on'
+        - condition: state
+          entity: binary_sensor.bob_no_water
+          state: 'on'
+        - condition: state
+          entity: binary_sensor.bob_safety
+          state: 'on'
+    - card_mod:
+        style:
+          .: '{% set ms = states(''sensor.bob_machine_status'') %}{% set d = states(''sensor.bob_duration'')
+            | float(0) %}{% set r = states(''sensor.bob_remaining'') | float(0) %}{%
+            set pct = ([0, [100, ((1 - r / d) * 100) | round(0)] | min] | max) if
+            d > 0 else 0 %}ha-card { position: relative; overflow: hidden; }
+
+            ha-card::after { content: ''''; position: absolute; left: 0; bottom: 0;
+            height: 6px; border-radius: 0 3px 3px 0; width: {{ pct }}%; background:
+            var(--primary-color); transition: width 1s linear; display: {{ ''block''
+            if ms in [''running'',''washing'',''door_locked'',''add_laundry'',''rinsing'',''spinning'',''drying'',''paused'',''starting'']
+            and d > 0 else ''none'' }}; }
+
+            ha-state-icon {
+
+            {% if ms in [''running'',''washing'',''door_locked'',''add_laundry'']
+            %} animation: w-shake 400ms ease-in-out infinite;
+
+            {% elif ms == ''spinning'' %} animation: w-spin 1.2s linear infinite;
+
+            {% elif ms == ''rinsing'' %} animation: w-bounce 1.5s ease-in-out infinite;
+
+            {% elif ms == ''drying'' %} animation: w-shake 600ms ease-in-out infinite;
+
+            {% elif ms == ''cycle_complete'' %} animation: w-pulse 2s ease-in-out
+            infinite;
+
+            {% endif %}
+
+            }
+
+            @keyframes w-shake { 0%,100% { transform: translate(0,0) rotate(0); }
+            25% { transform: translate(0.4px,-0.4px) rotate(-4deg); } 75% { transform:
+            translate(-0.4px,0.4px) rotate(4deg); } }
+
+            @keyframes w-spin { to { transform: rotate(360deg); } }
+
+            @keyframes w-bounce { 0%,100% { transform: translateY(0); } 50% { transform:
+            translateY(-1.5px) rotate(5deg); } }
+
+            @keyframes w-pulse { 50% { transform: scale(1.2); } }
+
+            '
+          mushroom-shape-icon$: '.shape { position: relative; }
+
+            '
+      double_tap_action:
+        action: none
+      entity: sensor.washing_machine_state
+      fill_container: true
+      grid_options:
+        columns: full
+        rows: 2
+      hold_action:
+        action: none
+      icon_color: '{% set m = {''idle'':''blue-grey'',''starting'':''blue'',''delayed_start'':''amber'',''running'':''cyan'',''washing'':''cyan'',''door_locked'':''cyan'',''add_laundry'':''cyan'',''spinning'':''purple'',''rinsing'':''blue'',''drying'':''deep-orange'',''paused'':''orange'',''cycle_complete'':''green''}
+        %}{{ m.get(states(''sensor.bob_machine_status''), ''disabled'') }}'
+      layout: horizontal
+      primary: '{% if states(''sensor.washing_machine_state'') in [''Off'',''Idle'']
+        or states(''sensor.bob_programme'') in [''unknown'',''unavailable''] %}{{
+        states(''sensor.washing_machine_state'') }}{% else %}{{ states(''sensor.bob_programme'')
+        | replace(''program_'','''') | replace(''_'','' '') | title }}{% endif %}'
+      secondary: '{% set ms = states(''sensor.bob_machine_status'') %}{% set e = states(''sensor.bob_programme_end_time'')
+        %}{% set ds = states(''sensor.bob_delay_start_time'') %}{% set d = states(''sensor.bob_duration'')
+        | float(0) %}{% set r = states(''sensor.bob_remaining'') | float(0) %}{% set
+        m = (r * 60) | round(0) | int %}{% set pct = ([0, [100, ((1 - r / d) * 100)
+        | round(0)] | min] | max) | int if d > 0 else 0 %}{% if ms == ''delayed_start''
+        and ds not in [''unknown'',''unavailable''] %}Starts {{ ds | as_datetime |
+        as_local | as_timestamp | timestamp_custom(''%-I:%M %p'') }}{% elif ms ==
+        ''cycle_complete'' %}Finished - empty the drum{% elif ms in [''off'',''idle'',''unavailable'']
+        %}Not running{% elif e not in [''unknown'',''unavailable''] %}Done {{ e |
+        as_datetime | as_local | as_timestamp | timestamp_custom(''%-I:%M %p'') }}
+        · {{ (m // 60) ~ ''h '' if m >= 60 else '''' }}{{ m % 60 }}m left · {{ pct
+        }}%{% else %}{{ states(''sensor.washing_machine_state'') }}{% endif %}'
+      tap_action:
+        action: none
+      type: custom:mushroom-template-card
+      visibility:
+      - condition: state
+        entity: input_boolean.washer_new_ui
+        state: 'on'
+    - alignment: center
+      chips:
+      - content: '{{ states(''sensor.bob_programme'') | replace(''program_'','''')
+          | replace(''_'','' '') | title }}'
+        double_tap_action:
+          action: none
+        hold_action:
+          action: none
+        icon: mdi:format-list-bulleted
+        icon_color: indigo
+        tap_action:
+          action: none
+        type: template
+      - content: '{{ states(''sensor.bob_temperature'') | replace(''temperature_'','''')
+          }}°'
+        double_tap_action:
+          action: none
+        hold_action:
+          action: none
+        icon: mdi:thermometer-water
+        icon_color: red
+        tap_action:
+          action: none
+        type: template
+      - content: '{{ states(''sensor.bob_spin'') | replace(''spin_'','''') }} rpm'
+        double_tap_action:
+          action: none
+        hold_action:
+          action: none
+        icon: mdi:rotate-3d-variant
+        icon_color: purple
+        tap_action:
+          action: none
+        type: template
+      - chip:
+          content: '{{ ''Fast+'' if states(''sensor.bob_fast'').endswith(''plus'')
+            else ''Fast'' }}'
+          double_tap_action:
+            action: none
+          hold_action:
+            action: none
+          icon: mdi:fast-forward
+          icon_color: amber
+          tap_action:
+            action: none
+          type: template
+        conditions:
+        - entity: sensor.bob_fast
+          state_not: fast_plus_off
+        type: conditional
+      - chip:
+          content: Dry {{ states('sensor.bob_drying') | replace('dry_','') | title
+            }}
+          double_tap_action:
+            action: none
+          hold_action:
+            action: none
+          icon: mdi:tumble-dryer
+          icon_color: deep-orange
+          tap_action:
+            action: none
+          type: template
+        conditions:
+        - entity: sensor.bob_drying
+          state_not: dry_off
+        type: conditional
+      - chip:
+          content: '{{ states(''sensor.bob_rinse_count'') }} rinses'
+          double_tap_action:
+            action: none
+          hold_action:
+            action: none
+          icon: mdi:water-sync
+          icon_color: blue
+          tap_action:
+            action: none
+          type: template
+        conditions:
+        - entity: sensor.bob_rinse_count
+          state_not: '0'
+        type: conditional
+      - chip:
+          content: Prewash
+          double_tap_action:
+            action: none
+          hold_action:
+            action: none
+          icon: mdi:water-plus
+          icon_color: teal
+          tap_action:
+            action: none
+          type: template
+        conditions:
+        - entity: switch.bob_prewash
+          state: 'on'
+        type: conditional
+      - chip:
+          content: Extra rinse
+          double_tap_action:
+            action: none
+          hold_action:
+            action: none
+          icon: mdi:water-sync
+          icon_color: teal
+          tap_action:
+            action: none
+          type: template
+        conditions:
+        - entity: switch.bob_extra_rinse
+          state: 'on'
+        type: conditional
+      - chip:
+          content: Steam
+          double_tap_action:
+            action: none
+          hold_action:
+            action: none
+          icon: mdi:weather-fog
+          icon_color: teal
+          tap_action:
+            action: none
+          type: template
+        conditions:
+        - entity: switch.bob_steam
+          state: 'on'
+        type: conditional
+      - chip:
+          content: Extra water
+          double_tap_action:
+            action: none
+          hold_action:
+            action: none
+          icon: mdi:water-plus-outline
+          icon_color: teal
+          tap_action:
+            action: none
+          type: template
+        conditions:
+        - entity: switch.bob_extra_water
+          state: 'on'
+        type: conditional
+      - chip:
+          content: Soaking
+          double_tap_action:
+            action: none
+          hold_action:
+            action: none
+          icon: mdi:cup-water
+          icon_color: teal
+          tap_action:
+            action: none
+          type: template
+        conditions:
+        - entity: switch.bob_soaking
+          state: 'on'
+        type: conditional
+      - chip:
+          content: Night mode
+          double_tap_action:
+            action: none
+          hold_action:
+            action: none
+          icon: mdi:weather-night
+          icon_color: teal
+          tap_action:
+            action: none
+          type: template
+        conditions:
+        - entity: switch.bob_night_mode
+          state: 'on'
+        type: conditional
+      - chip:
+          content: Anti-crease
+          double_tap_action:
+            action: none
+          hold_action:
+            action: none
+          icon: mdi:tshirt-crew
+          icon_color: teal
+          tap_action:
+            action: none
+          type: template
+        conditions:
+        - entity: switch.bob_anticrease
+          state: 'on'
+        type: conditional
+      - chip:
+          content: Smart anti-crease
+          double_tap_action:
+            action: none
+          hold_action:
+            action: none
+          icon: mdi:tshirt-crew-outline
+          icon_color: teal
+          tap_action:
+            action: none
+          type: template
+        conditions:
+        - entity: switch.bob_smart_anti_crease
+          state: 'on'
+        type: conditional
+      grid_options:
+        columns: full
+      type: custom:mushroom-chips-card
+      visibility:
+      - condition: state
+        entity: input_boolean.washer_new_ui
+        state: 'on'
+      - condition: state
+        entity: sensor.bob_programme
+        state_not: unavailable
+      - condition: state
+        entity: sensor.bob_programme
+        state_not: unknown
+    column_span: 2
     type: grid
   - cards:
     - cards:
@@ -4484,12 +5001,18 @@ views:
               mushroom-shape-icon$: '.shape { position: relative; }
 
                 '
+          double_tap_action:
+            action: none
           entity: sensor.bob_duration
+          hold_action:
+            action: none
           icon: mdi:timer-play
           icon_color: deep-orange
           name: Duration
           primary_info: state
           secondary_info: name
+          tap_action:
+            action: none
           type: custom:mushroom-entity-card
         - card_mod:
             style:
@@ -4504,14 +5027,20 @@ views:
               mushroom-shape-icon$: '.shape { position: relative; }
 
                 '
+          double_tap_action:
+            action: none
           entity: sensor.bob_remaining
           fill_container: true
+          hold_action:
+            action: none
           icon: mdi:timer-refresh
           icon_color: purple
           layout: horizontal
           name: Remaining
           primary_info: state
           secondary_info: name
+          tap_action:
+            action: none
           type: custom:mushroom-entity-card
         columns: 2
         square: false
@@ -4522,36 +5051,54 @@ views:
               mushroom-shape-icon$: '.shape { position: relative; }
 
                 '
+          double_tap_action:
+            action: none
           entity: sensor.bob_programme
+          hold_action:
+            action: none
           icon: mdi:format-list-bulleted
           icon_color: indigo
           name: Programme
           primary_info: state
           secondary_info: name
+          tap_action:
+            action: none
           type: custom:mushroom-entity-card
         - card_mod:
             style:
               mushroom-shape-icon$: '.shape { position: relative; }
 
                 '
+          double_tap_action:
+            action: none
           entity: sensor.bob_temperature
+          hold_action:
+            action: none
           icon: mdi:thermometer-water
           icon_color: red
           name: Temp
           primary_info: state
           secondary_info: name
+          tap_action:
+            action: none
           type: custom:mushroom-entity-card
         - card_mod:
             style:
               mushroom-shape-icon$: '.shape { position: relative; }
 
                 '
+          double_tap_action:
+            action: none
           entity: sensor.bob_spin
+          hold_action:
+            action: none
           icon: mdi:rotate-3d-variant
           icon_color: purple
           name: Spin
           primary_info: state
           secondary_info: name
+          tap_action:
+            action: none
           type: custom:mushroom-entity-card
         type: horizontal-stack
       - cards:
@@ -4560,32 +5107,100 @@ views:
               mushroom-shape-icon$: '.shape { position: relative; }
 
                 '
+          double_tap_action:
+            action: none
           entity: sensor.bob_programme_end_time
+          hold_action:
+            action: none
           icon: mdi:clock-end
           icon_color: teal
           name: Ends At
           primary_info: state
           secondary_info: name
+          tap_action:
+            action: none
           type: custom:mushroom-entity-card
-        - entity: sensor.bob_delay_start_time
+        - double_tap_action:
+            action: none
+          entity: sensor.bob_delay_start_time
+          hold_action:
+            action: none
           icon: mdi:clock-start
           icon_color: amber
           name: Delay Start
           primary_info: state
           secondary_info: name
+          tap_action:
+            action: none
           type: custom:mushroom-entity-card
-        - entity: sensor.bob_start_delay
+        - double_tap_action:
+            action: none
+          entity: sensor.bob_start_delay
+          hold_action:
+            action: none
           icon: mdi:timer-sand
           icon_color: orange
           name: Start Delay
           primary_info: state
           secondary_info: name
+          tap_action:
+            action: none
           type: custom:mushroom-entity-card
         type: horizontal-stack
       grid_options:
         columns: full
         rows: auto
       type: vertical-stack
+      visibility:
+      - condition: state
+        entity: input_boolean.washer_new_ui
+        state: 'off'
+    - entities:
+      - entities:
+        - select.bob_programme
+        - select.bob_temperature
+        - select.bob_spin
+        - select.bob_rinse_count
+        - select.bob_fast
+        - select.bob_drying
+        - select.bob_custom_duration_level
+        head:
+          label: Cycle
+          type: section
+        open: false
+        type: custom:fold-entity-row
+      - entities:
+        - switch.bob_prewash
+        - switch.bob_extra_rinse
+        - switch.bob_steam
+        - switch.bob_extra_water
+        - switch.bob_soaking
+        - switch.bob_night_mode
+        - switch.bob_anticrease
+        - switch.bob_smart_anti_crease
+        head:
+          label: Options
+          type: section
+        open: false
+        type: custom:fold-entity-row
+      - entities:
+        - number.kitchen_bob_start_delay
+        - select.bob_button_volume
+        - binary_sensor.bob_remote_control
+        head:
+          label: Machine
+          type: section
+        open: false
+        type: custom:fold-entity-row
+      title: Remote control settings
+      type: entities
+      visibility:
+      - condition: state
+        entity: input_boolean.washer_new_ui
+        state: 'on'
+      - condition: state
+        entity: binary_sensor.bob_remote_control
+        state: 'on'
     type: grid
   type: sections
 - cards: []
@@ -5442,7 +6057,9 @@ views:
             \ value >= 51 and value <= 70.99 %}\n  orange\n{% elif value >= 71.00\
             \ and value <= 100 %}\n  red\n{% endif %}"
           multiline_secondary: true
-          primary: '{{states(''sensor.system_monitor_disk_use_media_1tb_ssd'')}} GB'
+          primary: '{% set g = states(''sensor.system_monitor_disk_use_media_1tb_ssd'')
+            | float(none) %}{% if g is none %}N/A{% elif g >= 1000 %}{{ (g / 1000)
+            | round(1 if g >= 10000 else 2) }} TB{% else %}{{ g }} GB{% endif %}'
           secondary: 1 TB SSD
           tap_action:
             action: more-info
@@ -5495,7 +6112,9 @@ views:
             \ value >= 51 and value <= 70.99 %}\n  orange\n{% elif value >= 71.00\
             \ and value <= 100 %}\n  red\n{% endif %}"
           multiline_secondary: true
-          primary: '{{states(''sensor.system_monitor_disk_use_media_5tb'')}} GB'
+          primary: '{% set g = states(''sensor.system_monitor_disk_use_media_5tb'')
+            | float(none) %}{% if g is none %}N/A{% elif g >= 1000 %}{{ (g / 1000)
+            | round(1 if g >= 10000 else 2) }} TB{% else %}{{ g }} GB{% endif %}'
           secondary: 5TB
           tap_action:
             action: more-info
@@ -5548,7 +6167,9 @@ views:
             \ value >= 51 and value <= 70.99 %}\n  orange\n{% elif value >= 71.00\
             \ and value <= 100 %}\n  red\n{% endif %}"
           multiline_secondary: true
-          primary: '{{states(''sensor.system_monitor_disk_use_media_20tb'')}} GB'
+          primary: '{% set g = states(''sensor.system_monitor_disk_use_media_20tb'')
+            | float(none) %}{% if g is none %}N/A{% elif g >= 1000 %}{{ (g / 1000)
+            | round(1 if g >= 10000 else 2) }} TB{% else %}{{ g }} GB{% endif %}'
           secondary: 20TB
           tap_action:
             action: more-info
@@ -6561,6 +7182,12 @@ views:
       icon_color: red
       secondary_info: none
       type: custom:mushroom-number-card
+    - display_mode: buttons
+      entity: counter.cr2025_batteries
+      fill_container: true
+      icon_color: orange
+      secondary_info: none
+      type: custom:mushroom-number-card
     - options:
         defaultTabIndex: 0
       styles:
@@ -7343,11 +7970,13 @@ views:
   path: f1-live
   sections:
   - cards:
-    - formation_start_entity: binary_sensor.f1_session_f1_formation_start
+    - font_style: wide
+      formation_start_entity: binary_sensor.f1_session_f1_formation_start
       grid_options:
         columns: full
         rows: auto
       lap_count_entity: sensor.f1_session_f1_race_lap_count
+      layout_mode: auto
       next_race_entity: sensor.f1_race_f1_next_race
       overtake_mode_entity: binary_sensor.f1_session_f1_overtake_mode
       session_entity: sensor.f1_session_f1_current_session
@@ -7364,7 +7993,7 @@ views:
       track_status_entity: sensor.f1_session_f1_track_status
       type: custom:f1-live-session-card
       weather_entity: sensor.f1_session_f1_track_weather
-    - display_mode: list
+    - display_mode: latest
       entity: sensor.f1_officials_f1_race_control
       font_style: balanced
       grid_options:
@@ -7538,6 +8167,336 @@ views:
     type: grid
   title: F1 Live
   type: sections
+- dense_section_placement: true
+  icon: mdi:flag-checkered
+  max_columns: 4
+  path: f1-live-new
+  sections:
+  - cards:
+    - appearance:
+        font: f1
+        logo_style: color
+        mode: dark
+      grid_options:
+        columns: full
+        rows: auto
+      layout: stack
+      modules:
+      - fields:
+        - session
+        - session_status
+        - lap_progress
+        - track_status
+        - session_time_elapsed
+        - session_time_remaining
+        options: {}
+        type: overview
+      - options:
+          content: track_conditions
+        type: weather
+      title: Live Session
+      type: custom:f1-sensor-card
+    - appearance:
+        font: f1
+        logo_style: color
+        mode: dark
+      grid_options:
+        columns: full
+        rows: auto
+      layout: stack
+      modules:
+      - options:
+          hide_blue_flags: true
+          hide_track_limits: false
+          list_max_height: 600
+          min_display_time: 0
+          presentation: list
+          show_clear_button: true
+          show_fia_logo: true
+        type: race_control
+      title: Race Control
+      type: custom:f1-sensor-card
+    - appearance:
+        font: f1
+        logo_style: color
+        mode: dark
+      grid_options:
+        columns: full
+        rows: auto
+      layout: stack
+      modules:
+      - options:
+          content: investigations
+          presentation: table
+        type: incidents
+      title: Investigations & Penalties
+      type: custom:f1-sensor-card
+    - accessibility:
+        announce: true
+        high_contrast: false
+        motion: system
+        signals: shape
+      appearance:
+        accent: '#e10600'
+        accent_mode: style
+        accent_team: ''
+        density: compact
+        flags: true
+        font: f1
+        full_names: true
+        logo_size: small
+        logo_style: color
+        logos: true
+        mode: auto
+        numbers: tabular
+        palette: {}
+        show_header: true
+        style: f1
+        surface: style
+        team_colors: true
+        tyre_style: ring
+      columns: 2
+      context:
+        driver: ''
+        group: ''
+        scope: local
+        selection:
+          mode: follow
+          source: auto
+        share:
+        - focus
+        show_focus_control: true
+        show_freeze_control: true
+        spoilers: inherit
+        team: ''
+        viewing_controls: false
+      f1_entry_id: ''
+      layout: stack
+      modules:
+      - column_span: 1
+        driver: ''
+        enabled: true
+        fields:
+        - result_position
+        - driver
+        - points
+        - team
+        - wins
+        focus_mode: inherit
+        id: standings-1
+        options:
+          competitors: drivers
+          direction: asc
+          driver_image_type: headshot
+          rows: 30
+          show_availability_notice: true
+          show_mode_badge: true
+          sort: result_position
+          spoiler_placeholder: ''
+        selection:
+          mode: inherit
+        show_header: true
+        show_table_header: true
+        team: ''
+        title: ''
+        type: standings
+        unavailable: explain
+        visibility: []
+        when:
+        - before
+        - active
+        - finished
+        - unknown
+      title: Championship Prediction Drivers
+      type: custom:f1-sensor-card
+      version: 3
+    - appearance:
+        font: f1
+        logo_style: color
+        mode: dark
+      layout: stack
+      modules:
+      - fields:
+        - result_position
+        - team
+        - points
+        - predicted_position
+        - predicted_points
+        - points_change
+        options:
+          competitors: teams
+        type: standings
+      title: Championship Prediction Teams
+      type: custom:f1-sensor-card
+    column_span: 2
+    type: grid
+  - cards:
+    - appearance:
+        font: f1
+        logo_style: color
+        mode: dark
+      layout: stack
+      modules:
+      - fields:
+        - position
+        - driver
+        - status
+        - interval
+        - last_lap
+        - best_lap
+        - lap_delta
+        options:
+          history: 5
+          show_gap_toggle: true
+        type: timing
+      title: Driver Lap Times
+      type: custom:f1-sensor-card
+    - appearance:
+        font: f1
+        logo_style: color
+        mode: dark
+      layout: stack
+      modules:
+      - options:
+          content: track_limits_summary
+          presentation: table
+        type: incidents
+      title: Track Limits
+      type: custom:f1-sensor-card
+    - accessibility:
+        announce: true
+        high_contrast: false
+        motion: system
+        signals: shape
+      appearance:
+        accent: '#e10600'
+        accent_mode: style
+        accent_team: ''
+        density: comfortable
+        flags: true
+        font: f1
+        full_names: false
+        logo_size: normal
+        logo_style: color
+        logos: true
+        mode: dark
+        numbers: tabular
+        palette: {}
+        show_header: true
+        style: f1
+        surface: style
+        team_colors: true
+        tyre_style: ring
+      columns: 2
+      context:
+        driver: ''
+        group: ''
+        scope: local
+        selection:
+          mode: follow
+          source: auto
+        share:
+        - focus
+        show_focus_control: true
+        show_freeze_control: true
+        spoilers: inherit
+        team: ''
+        viewing_controls: false
+      f1_entry_id: ''
+      layout: stack
+      modules:
+      - column_span: 1
+        driver: ''
+        enabled: true
+        fields:
+        - tyre
+        - compound_laps
+        - new_sets
+        - compound_best
+        - compound_gap
+        - total_stints
+        - best_runs
+        focus_mode: inherit
+        id: tyres-1
+        options:
+          best_times_limit: 3
+          compounds: []
+          content: statistics
+          direction: asc
+          rows: 30
+          show_compound_name: true
+          sort: position
+        selection:
+          mode: inherit
+        show_header: true
+        show_table_header: true
+        team: ''
+        title: ''
+        type: tyres
+        unavailable: hide
+        visibility: []
+        when:
+        - before
+        - active
+        - finished
+        - unknown
+      title: Tyres Statistics
+      type: custom:f1-sensor-card
+      version: 3
+    type: grid
+  - cards:
+    - appearance:
+        font: f1
+        logo_style: color
+        mode: dark
+      layout: stack
+      modules:
+      - fields:
+        - position
+        - driver
+        - status
+        - interval
+        - last_lap
+        - best_lap
+        - tyre
+        - tyre_age
+        options:
+          show_gap_toggle: true
+        type: timing
+      - options: {}
+        type: pit_stops
+      title: Race Lap
+      type: custom:f1-sensor-card
+    - appearance:
+        font: f1
+        logo_style: color
+        mode: dark
+      layout: stack
+      modules:
+      - options: {}
+        type: pit_stops
+      - options: {}
+        type: tyres
+      title: Pit Stops & Tyres
+      type: custom:f1-sensor-card
+    - appearance:
+        font: f1
+        logo_style: color
+        mode: dark
+      layout: tabs
+      modules:
+      - options: {}
+        type: results
+      - options: {}
+        type: archive
+      title: Results
+      type: custom:f1-sensor-card
+    type: grid
+  title: F1 Live (new)
+  type: sections
+  visible:
+  - user: 74f7e2ffd3594037b1a2fc4de82d9fea
+  - user: 714d34245b7d49a1ac5378907e9fa5bd
 - cards: []
   icon: mdi:package-up
   max_columns: 2
@@ -7666,6 +8625,117 @@ views:
       type: custom:auto-entities
     type: grid
   - cards:
+    - heading: India
+      heading_style: title
+      icon: m3o:nest-remote-comfort-sensor
+      type: heading
+      visibility:
+      - condition: or
+        conditions:
+        - condition: state
+          entity: binary_sensor.india_hacs_updates
+          state: 'on'
+        - condition: state
+          entity: binary_sensor.india_addon_updates
+          state: 'on'
+        - condition: state
+          entity: binary_sensor.india_other_updates
+          state: 'on'
+    - color: indigo
+      entity: binary_sensor.india_hacs_updates
+      grid_options:
+        columns: 12
+        rows: 1
+      hide_state: true
+      name: Update All | India Marketplace
+      show_entity_picture: false
+      tap_action:
+        action: perform-action
+        perform_action: script.turn_on
+        target:
+          entity_id: script.india_install_hacs_updates
+      type: tile
+      vertical: false
+      visibility:
+      - condition: state
+        entity: binary_sensor.india_hacs_updates
+        state: 'on'
+    - content: '{% for n in state_attr(''binary_sensor.india_hacs_updates'', ''updates'')
+        or [] %}- {{ n }}
+
+        {% endfor %}'
+      grid_options:
+        columns: 12
+        rows: auto
+      type: markdown
+      visibility:
+      - condition: state
+        entity: binary_sensor.india_hacs_updates
+        state: 'on'
+    - color: pink
+      entity: binary_sensor.india_addon_updates
+      grid_options:
+        columns: 12
+        rows: 1
+      hide_state: true
+      name: Update All | India Add-ons
+      show_entity_picture: false
+      tap_action:
+        action: perform-action
+        perform_action: script.turn_on
+        target:
+          entity_id: script.india_install_add_on_updates
+      type: tile
+      vertical: false
+      visibility:
+      - condition: state
+        entity: binary_sensor.india_addon_updates
+        state: 'on'
+    - content: '{% for n in state_attr(''binary_sensor.india_addon_updates'', ''updates'')
+        or [] %}- {{ n }}
+
+        {% endfor %}'
+      grid_options:
+        columns: 12
+        rows: auto
+      type: markdown
+      visibility:
+      - condition: state
+        entity: binary_sensor.india_addon_updates
+        state: 'on'
+    - color: cyan
+      entity: binary_sensor.india_other_updates
+      grid_options:
+        columns: 12
+        rows: 1
+      hide_state: true
+      name: Update All | India Other
+      show_entity_picture: false
+      tap_action:
+        action: perform-action
+        perform_action: script.turn_on
+        target:
+          entity_id: script.india_install_other_updates
+      type: tile
+      vertical: false
+      visibility:
+      - condition: state
+        entity: binary_sensor.india_other_updates
+        state: 'on'
+    - content: '{% for n in state_attr(''binary_sensor.india_other_updates'', ''updates'')
+        or [] %}- {{ n }}
+
+        {% endfor %}'
+      grid_options:
+        columns: 12
+        rows: auto
+      type: markdown
+      visibility:
+      - condition: state
+        entity: binary_sensor.india_other_updates
+        state: 'on'
+    type: grid
+  - cards:
     - card:
         show_header_toggle: false
         state_color: true
@@ -7680,6 +8750,12 @@ views:
         - entity_id: binary_sensor.addon_updates
           options: {}
         - entity_id: binary_sensor.other_updates
+          options: {}
+        - entity_id: binary_sensor.india_hacs_updates
+          options: {}
+        - entity_id: binary_sensor.india_addon_updates
+          options: {}
+        - entity_id: binary_sensor.india_other_updates
           options: {}
         include:
         - attributes:
@@ -9518,6 +10594,15 @@ views:
     type: grid
   title: Test
   top_margin: false
+  type: sections
+  visible:
+  - user: 74f7e2ffd3594037b1a2fc4de82d9fea
+  - user: 714d34245b7d49a1ac5378907e9fa5bd
+- path: test
+  sections:
+  - cards: []
+    type: grid
+  title: test
   type: sections
   visible:
   - user: 74f7e2ffd3594037b1a2fc4de82d9fea
