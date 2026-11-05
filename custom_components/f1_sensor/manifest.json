@@ -16,5 +16,5 @@
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/Nicxe/f1_sensor/issues",
   "requirements": [],
-  "version": "6.1.0"
+  "version": "6.2.0"
 }

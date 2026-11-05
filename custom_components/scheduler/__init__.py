@@ -16,7 +16,10 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant, asyncio, CoreState, callback
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.helpers.entity_registry import async_get as get_entity_registry
+from homeassistant.helpers.entity_registry import (
+    EVENT_ENTITY_REGISTRY_UPDATED,
+    async_get as get_entity_registry,
+)
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.helpers.dispatcher import (
     async_dispatcher_send,
@@ -28,7 +31,7 @@ from homeassistant.helpers.event import (
 )
 
 from . import const
-from .store import async_get_registry
+from .store import async_get_registry, replace_entity_id
 from .websockets import async_register_websockets
 
 _LOGGER = logging.getLogger(__name__)
@@ -64,6 +67,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     await hass.config_entries.async_forward_entry_setups(entry, [PLATFORM])
 
     await async_register_websockets(hass)
+
+    entry.async_on_unload(
+        hass.bus.async_listen(
+            EVENT_ENTITY_REGISTRY_UPDATED, coordinator.async_handle_entity_id_change
+        )
+    )
 
     @callback
     def service_create_schedule(service):
@@ -171,16 +180,24 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         async_service_enable_all
     )
 
-    return True
+    async def async_service_reload_storage(service):
+        """Reload scheduler storage from disk."""
+        await coordinator.async_reload_storage()
 
+    hass.services.async_register(
+        const.DOMAIN,
+        const.SERVICE_RELOAD_STORAGE,
+        async_service_reload_storage
+    )
+
+    return True
 
 async def async_migrate_entry(hass, config_entry: ConfigEntry):
     """Migrate old entry."""
     _LOGGER.debug("Migrating from version %s", config_entry.version)
 
     if config_entry.version == 1:
-        config_entry.version = 2
-        config_entry.data = {"migrate_entities": True}
+        hass.config_entries.async_update_entry(config_entry, version=2)
 
     return True
 
@@ -192,6 +209,8 @@ async def async_unload_entry(hass, entry):
             *[hass.config_entries.async_forward_entry_unload(entry, PLATFORM)]
         )
     )
+    if not unload_ok:
+        return False
     coordinator = hass.data[const.DOMAIN]["coordinator"]
     await coordinator.async_unload()
     return unload_ok
@@ -281,6 +300,19 @@ class SchedulerCoordinator(DataUpdateCoordinator):
         if res:
             self.async_assign_tags_to_schedule(res.schedule_id, tags)
             async_dispatcher_send(self.hass, const.EVENT_ITEM_CREATED, res)
+
+    @callback
+    def async_handle_entity_id_change(self, event):
+        """update the schedules that refer to an entity whose entity ID was changed"""
+        if event.data["action"] != "update" or "old_entity_id" not in event.data:
+            return
+        old_entity_id = event.data["old_entity_id"]
+        new_entity_id = event.data["entity_id"]
+
+        for schedule_id, schedule in self.store.async_get_schedules().items():
+            timeslots = schedule[const.ATTR_TIMESLOTS]
+            if replace_entity_id(timeslots, old_entity_id, new_entity_id):
+                self.async_edit_schedule(schedule_id, {const.ATTR_TIMESLOTS: timeslots})
 
     @callback
     def async_edit_schedule(self, schedule_id: str, data: dict):
@@ -444,3 +476,27 @@ class SchedulerCoordinator(DataUpdateCoordinator):
         """disables all schedules"""
         for schedule in self.hass.data[const.DOMAIN]["schedules"].values():
             await schedule.async_turn_off()
+
+    async def async_reload_storage(self):
+        """Reload scheduler storage from disk."""
+        _LOGGER.info("Reloading scheduler storage from disk")
+
+        # Clear existing schedules to prevent duplicates
+        entity_registry = get_entity_registry(self.hass)
+        existing_schedules = list(self.hass.data[const.DOMAIN]["schedules"].keys())
+        for schedule_id in existing_schedules:
+            entity = self.hass.data[const.DOMAIN]["schedules"][schedule_id]
+            entity_registry.async_remove(entity.entity_id)
+            self.hass.data[const.DOMAIN]["schedules"].pop(schedule_id, None)
+            async_dispatcher_send(self.hass, const.EVENT_ITEM_REMOVED, schedule_id)
+
+        # Reload storage data
+        await self.store.async_load()
+
+        # Recreate entities from reloaded data
+        for entry in self.store.schedules.values():
+            async_dispatcher_send(self.hass, const.EVENT_ITEM_CREATED, entry)
+
+        _LOGGER.info("Scheduler storage reloaded successfully")
+        # Notify listeners that storage has been reloaded
+        async_dispatcher_send(self.hass, const.EVENT_STARTED)

@@ -1,6 +1,9 @@
 {
   "domain": "battery_notes",
   "name": "Battery Notes",
+  "categories": [
+    "helpers"
+  ],
   "codeowners": [
     "@andrew-codechimp"
   ],
@@ -9,5 +12,5 @@
   "integration_type": "service",
   "iot_class": "calculated",
   "issue_tracker": "https://github.com/andrew-codechimp/ha-battery-notes/issues",
-  "version": "3.7.2"
+  "version": "3.8.1"
 }

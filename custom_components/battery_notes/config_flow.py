@@ -70,7 +70,7 @@ _LOGGER = logging.getLogger(__name__)
 
 DOCUMENTATION_URL = "https://andrew-codechimp.github.io/HA-Battery-Notes/"
 
-CONFIG_VERSION = 4
+CONFIG_VERSION = 5
 
 OPTIONS_SCHEMA = vol.Schema(
     {
@@ -488,7 +488,6 @@ class BatteryNotesFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 title=INTEGRATION_NAME, data={}, options=options
             )
 
-        self._set_confirm_only()
         return self.async_show_form(
             step_id="user",
             description_placeholders={"documentation_url": DOCUMENTATION_URL},
