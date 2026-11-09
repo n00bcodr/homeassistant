@@ -9,13 +9,13 @@
           "master_token": "Hlavní token"
         },
         "menu_option_descriptions": {
-          "browser": "Přihlaste se ke Googlu v prohlížeči na počítači a poté vložte soubor cookie. Funguje pro většinu účtů.",
+          "browser": "Přihlaste se ke Googlu v prohlížeči na počítači a poté vložte soubor cookie.",
           "master_token": "Vložte hlavní token, který již máte."
         }
       },
       "browser": {
         "title": "Přihlášení přes prohlížeč",
-        "description": "1. Na počítači otevřete {embedded_setup_url} v anonymním okně prohlížeče a přihlaste se. Po potvrzení souhlasu se stránka může stále načítat; to je v pořádku.\n2. Otevřete vývojářské nástroje prohlížeče a najděte soubory cookie pro `accounts.google.com`.\n3. Zkopírujte hodnotu souboru cookie `oauth_token` a ihned ji vložte níže. Její platnost vyprší během několika minut a lze ji použít pouze jednou.\n\nPodrobný návod: {browser_docs_url}\n\nPokud chcete zvolit jiný způsob přihlášení, zavřete toto okno a přidejte integraci znovu.",
+        "description": "1. Na počítači otevřete {embedded_setup_url} v anonymním okně prohlížeče a přihlaste se. Po potvrzení souhlasu se stránka může stále načítat; to je v pořádku.\n2. Otevřete vývojářské nástroje prohlížeče a najděte soubory cookie pro `accounts.google.com`.\n3. Zkopírujte hodnotu souboru cookie `oauth_token` a ihned ji vložte níže. Její platnost může rychle vypršet a lze ji použít pouze jednou.\n\nPodrobný návod: {browser_docs_url}\n\nPokud chcete zvolit jiný způsob přihlášení, zavřete toto okno a přidejte integraci znovu.",
         "data": {
           "oauth_token": "Soubor cookie oauth_token"
         },
@@ -33,6 +33,16 @@
           "master_token": "Začíná na aas_et/"
         }
       },
+      "homes": {
+        "title": "Výběr domácností",
+        "description": "Váš účet Google je členem několika domácností. Vyberte domácnosti, jejichž reproduktory a displeje chcete přidat. Později to můžete změnit ve volbách integrace: na stránce integrace vyberte **Nastavit**.",
+        "data": {
+          "homes": "Domácnosti"
+        },
+        "data_description": {
+          "homes": "Označte alespoň jednu domácnost. Přidají se také reproduktory a displeje z domácností, jejichž členem se váš účet stane později."
+        }
+      },
       "reauth": {
         "title": "Opětovné přihlášení",
         "description": "Google už nepřijímá přihlašovací údaje uložené pro {name}. Znovu se přihlaste ke stejnému účtu Google: vaše zařízení, entity a automatizace zůstanou beze změny. Dokud to neuděláte, mohou entity vašich zařízení zobrazovat zastaralé hodnoty nebo být nedostupné.",
@@ -41,13 +51,13 @@
           "master_token": "Hlavní token"
         },
         "menu_option_descriptions": {
-          "browser": "Přihlaste se ke Googlu v prohlížeči na počítači a poté vložte soubor cookie. Funguje pro většinu účtů.",
+          "browser": "Přihlaste se ke Googlu v prohlížeči na počítači a poté vložte soubor cookie.",
           "master_token": "Vložte hlavní token, který již máte."
         }
       },
       "reauth_browser": {
         "title": "Přihlášení přes prohlížeč",
-        "description": "1. Na počítači otevřete {embedded_setup_url} v anonymním okně prohlížeče a přihlaste se ke stejnému účtu Google. Po potvrzení souhlasu se stránka může stále načítat; to je v pořádku.\n2. Otevřete vývojářské nástroje prohlížeče a najděte soubory cookie pro `accounts.google.com`.\n3. Zkopírujte hodnotu souboru cookie `oauth_token` a ihned ji vložte níže. Její platnost vyprší během několika minut a lze ji použít pouze jednou.\n\nPodrobný návod: {browser_docs_url}",
+        "description": "1. Na počítači otevřete {embedded_setup_url} v anonymním okně prohlížeče a přihlaste se ke stejnému účtu Google. Po potvrzení souhlasu se stránka může stále načítat; to je v pořádku.\n2. Otevřete vývojářské nástroje prohlížeče a najděte soubory cookie pro `accounts.google.com`.\n3. Zkopírujte hodnotu souboru cookie `oauth_token` a ihned ji vložte níže. Její platnost může rychle vypršet a lze ji použít pouze jednou.\n\nPodrobný návod: {browser_docs_url}",
         "data": {
           "oauth_token": "Soubor cookie oauth_token"
         },
@@ -67,19 +77,82 @@
       }
     },
     "error": {
-      "oauth-token-invalid": "Google soubor cookie nepřijal. Získejte nový a ihned ho vložte: jeho platnost vyprší během několika minut a lze ho použít pouze jednou. Zkopírujte celou hodnotu začínající na oauth2_4/.",
+      "oauth-token-invalid": "Google přihlášení nepřijal. Získejte nový soubor cookie a ihned ho vložte: jeho platnost může rychle vypršet a lze ho použít pouze jednou. Zkopírujte celou hodnotu začínající na oauth2_4/.",
       "master-token-invalid": "Google hlavní token nepřijal. Zkontrolujte, že jste ho zkopírovali správně. Pokud dříve fungoval, například dokud jste nezměnili heslo k účtu Google, Google ho už nepřijímá: použijte místo toho přihlášení přes prohlížeč.",
       "google-rejected": "Google přihlášení nepřijal. Podrobnosti najdete v protokolech Home Assistanta.",
       "google-unreachable": "Nepodařilo se spojit s Googlem. Zkontrolujte, zda je Home Assistant připojen k internetu, a zkuste to znovu.",
       "google-busy": "Google je přetížený nebo omezuje přihlašování. Počkejte několik minut a pak se znovu přihlaste.",
       "oauth-token-format": "Toto není soubor cookie oauth_token. Jeho hodnota začíná na oauth2_4/.",
-      "master-token-format": "Hlavní token začíná na aas_et/ a má 223 znaků. Zkopírujte celý token.",
-      "other-account": "Přihlásili jste se k jinému účtu Google, proto se nic nezměnilo. Přihlaste se k účtu, který tato integrace používá. Pokud chcete místo toho používat ten druhý účet, integraci smažte a přidejte ji znovu."
+      "master-token-format": "Hlavní token začíná na aas_et/ a má {token_length} znaků. Zkopírujte celý token.",
+      "other-account": "Přihlásili jste se k jinému účtu Google, proto se nic nezměnilo. Přihlaste se k účtu, který tato integrace používá. Pokud chcete místo toho používat ten druhý účet, integraci smažte a přidejte ji znovu.",
+      "no-home-selected": "Vyberte alespoň jednu domácnost."
+    },
+    "abort": {
+      "no-home": "Google uvádí, že tento účet není členem žádné domácnosti, takže nejsou žádné reproduktory ani displeje k přidání. V aplikaci Google Home pozvěte tento účet do domácnosti, ve které jsou vaše zařízení, pozvánku přijměte a pak přidejte integraci znovu. Účet Google Workspace pozvat nelze, proto místo něj přidejte integraci s účtem Gmail, který je členem domácnosti. Podrobnosti najdete na {docs_url}."
+    }
+  },
+  "entity": {
+    "button": {
+      "reboot": {
+        "name": "Restartovat"
+      }
+    },
+    "number": {
+      "alarm_volume": {
+        "name": "Hlasitost budíku"
+      }
+    },
+    "sensor": {
+      "alarms": {
+        "name": "Budíky"
+      },
+      "device": {
+        "name": "Zařízení"
+      },
+      "timers": {
+        "name": "Časovače"
+      },
+      "wifi_network": {
+        "name": "Síť Wi-Fi"
+      }
+    },
+    "switch": {
+      "do_not_disturb": {
+        "name": "Nerušit"
+      }
+    },
+    "event": {
+      "alarm_events": {
+        "name": "Události budíků",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "ringing": "Zvoní",
+              "snoozed": "Odloženo",
+              "stopped": "Zastaveno"
+            }
+          }
+        }
+      },
+      "timer_events": {
+        "name": "Události časovačů",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "ringing": "Zvoní",
+              "stopped": "Zastaveno"
+            }
+          }
+        }
+      }
     }
   },
   "exceptions": {
     "alarms_and_timers_not_fetched": {
       "message": "Nepodařilo se načíst aktuální budíky a časovače ze zařízení {device}, proto z něj nebylo nic smazáno. Zkontrolujte, zda je zařízení online, a zkuste to znovu později."
+    },
+    "alarms_and_timers_not_fetched_token_rejected_polling_off": {
+      "message": "Nepodařilo se načíst aktuální budíky a časovače ze zařízení {device}, proto z něj nebylo nic smazáno. Zařízení odmítlo svůj token. Dotazování na změny je vypnuté, takže integrace sama znovu nežádá Google o nový token: spusťte akci „Aktualizovat stav zařízení“ a pak to zkuste znovu."
     },
     "alarms_and_timers_not_fetched_from_devices": {
       "message": "Nepodařilo se načíst aktuální budíky a časovače z následujících zařízení, proto z nich nebylo nic smazáno: {devices}. Zkontrolujte, zda jsou zařízení online, a zkuste to znovu později."
@@ -87,8 +160,14 @@
     "alarms_and_timers_not_deleted": {
       "message": "Zařízení {device} nepotvrdilo smazání budíků nebo časovačů, takže mohou být stále nastavené. Zkontrolujte, zda je zařízení online, a zkuste to znovu později."
     },
+    "alarms_and_timers_not_deleted_token_rejected_polling_off": {
+      "message": "Zařízení {device} nepotvrdilo smazání budíků nebo časovačů, takže mohou být stále nastavené. Zařízení odmítlo svůj token. Dotazování na změny je vypnuté, takže integrace sama znovu nežádá Google o nový token: spusťte akci „Aktualizovat stav zařízení“ a pak to zkuste znovu."
+    },
     "alarms_and_timers_not_deleted_from_devices": {
       "message": "Nepodařilo se smazat budíky nebo časovače z následujících zařízení nebo potvrdit jejich smazání: {devices}. Zkontrolujte, zda jsou zařízení online, a zkuste to znovu později."
+    },
+    "alarms_and_timers_not_deleted_from_devices_token_rejected_polling_off": {
+      "message": "Nepodařilo se smazat budíky nebo časovače z následujících zařízení nebo potvrdit jejich smazání: {devices}. Alespoň jedno z nich odmítlo svůj token. Dotazování na změny je vypnuté, takže integrace sama znovu nežádá Google o nový token: spusťte akci „Aktualizovat stav zařízení“, zkontrolujte, zda jsou zařízení online, a pak to zkuste znovu."
     },
     "invalid_alarm_id": {
       "message": "„{alarm_id}“ není ID budíku. Zkopírujte ID začínající na alarm/ z atributu alarms senzoru budíků daného zařízení."
@@ -109,7 +188,10 @@
       "message": "Zařízení {device} nepotvrdilo, že akci provedlo: neodpovědělo včas nebo byla jeho odpověď přerušena. Zkontrolujte, zda je zařízení online, a zkuste to znovu."
     },
     "device_token_rejected": {
-      "message": "Zařízení {device} odmítlo svůj token a získání nového od Googlu nepomohlo. Integrace bude dál žádat Google o nový, takže to zkuste znovu později."
+      "message": "Zařízení {device} odmítlo svůj token. Integrace bude dál žádat Google o nový, takže to zkuste znovu později."
+    },
+    "device_token_rejected_polling_off": {
+      "message": "Zařízení {device} odmítlo svůj token. Dotazování na změny je vypnuté, takže integrace sama znovu nežádá Google o nový token: spusťte akci „Aktualizovat stav zařízení“ a pak to zkuste znovu."
     },
     "device_not_ready": {
       "message": "Zařízení {device} odpovědělo „nenalezeno“. Možná se ještě spouští, takže to zkuste znovu později, nebo to možná nepodporuje."
@@ -119,22 +201,131 @@
     },
     "devices_not_rebooted": {
       "message": "Následující zařízení nepotvrdila, že se restartují: {devices}. Zkontrolujte, zda jsou zařízení online, a zkuste to znovu později."
+    },
+    "sign_in_rejected": {
+      "message": "Google přihlášení nepřijal ({reason}). Přihlaste se znovu."
+    }
+  },
+  "issues": {
+    "polling_disabled": {
+      "title": "Dotazování na změny je vypnuté",
+      "fix_flow": {
+        "step": {
+          "init": {
+            "title": "Dotazování na změny je vypnuté",
+            "description": "Volba **Povolit dotazování na změny** je v systémových volbách integrace vypnutá, takže integrace vaše zařízení sama nekontroluje. Budíky, časovače a další entity se aktualizují, jen když o to požádáte, například akcí **Aktualizovat stav zařízení**. Co dál funguje, najdete na {docs_url}.\n\nKdyž dotazování znovu zapnete, integrace se znovu načte a pak bude zařízení kontrolovat v nastaveném intervalu aktualizace. Pokud ho necháte vypnuté, tato oprava zůstane skrytá, dokud dotazování nezapnete a znovu nevypnete.",
+            "menu_options": {
+              "turn_on": "Znovu zapnout dotazování",
+              "keep_off": "Nechat dotazování vypnuté a skrýt tuto opravu"
+            }
+          }
+        },
+        "abort": {
+          "polling_kept_off": "Dotazování zůstává vypnuté a tato oprava je skrytá."
+        }
+      }
+    },
+    "invalid_update_interval": {
+      "title": "Uložený interval aktualizace je kratší než {min_interval} s",
+      "fix_flow": {
+        "step": {
+          "init": {
+            "title": "Uložený interval aktualizace je kratší než {min_interval} s",
+            "description": "Interval aktualizace uložený ve volbách integrace je {interval} s, což je méně než minimum {min_interval} s. Integrace proto používá výchozí hodnotu a kontroluje vaše zařízení v intervalu {default_interval} s.\n\nPokud jste uložili 0, abyste tyto pravidelné kontroly zastavili, vypněte místo toho dotazování. Na rozdíl od 0 vypnuté dotazování zastaví i vyhledávání zařízení Bluetooth a přidávání nových zařízení, která najde mDNS. Podrobnosti najdete na {docs_url}.\n\nPokud chcete použít jiný interval, otevřete [integraci Google Home]({integration_url}), vyberte **Nastavit**, zadejte ho a pak vyberte **Odeslat**.",
+            "menu_options": {
+              "use_default": "Použít výchozí hodnotu {default_interval} s",
+              "turn_off_polling": "Místo toho vypnout dotazování"
+            }
+          }
+        }
+      }
+    },
+    "homes_deselected": {
+      "title": "Není vybrána žádná domácnost vašeho účtu Google",
+      "description": "Váš účet Google je členem jen domácností, které jste odznačili ve volbách integrace, takže integrace jejich reproduktory a displeje nepřidává. Pokud chcete přidat zařízení některé domácnosti, otevřete [integraci Google Home]({integration_url}), vyberte **Nastavit**, v části **Domácnosti** označte danou domácnost a pak vyberte **Odeslat**.\n\nPokud chcete tyto domácnosti nechat odznačené, vyberte **Ignorovat**."
+    },
+    "no_home": {
+      "title": "Google pro váš účet neuvádí žádnou domácnost",
+      "description": "Google uvádí, že účet, ke kterému se integrace přihlásila, není členem žádné domácnosti, takže nejsou žádné reproduktory ani displeje k přidání. V aplikaci Google Home pozvěte tento účet do domácnosti, ve které jsou vaše zařízení, a pozvánku přijměte. Pak znovu načtěte [integraci Google Home]({integration_url}): vyberte **⋮** > **Nově načíst**.\n\nPokud si integraci ponecháváte záměrně, například během stěhování, vyberte **Ignorovat**. Pokud ji už nepotřebujete, můžete ji na stejné stránce smazat."
+    }
+  },
+  "config_subentries": {
+    "bluetooth_device": {
+      "entry_type": "Zařízení Bluetooth",
+      "initiate_flow": {
+        "user": "Sledovat zařízení Bluetooth"
+      },
+      "step": {
+        "user": {
+          "title": "Sledovat zařízení Bluetooth",
+          "description": "Zadejte IRK telefonu nebo MAC adresu zařízení, jehož adresa se nikdy nemění, například některých hodinek a lokalizačních štítků. Telefony mění adresu každých několik minut, proto je sledujte podle IRK. Jak IRK najít, se dozvíte na {docs_url}.",
+          "data": {
+            "name": "Název",
+            "irk_or_mac": "IRK nebo MAC adresa",
+            "additional_departure_delay": "Dodatečné zpoždění odchodu"
+          },
+          "data_description": {
+            "name": "Název sledovače, například Alexův telefon.",
+            "irk_or_mac": "Identity Resolving Key telefonu jako {irk_hex_length} šestnáctkových číslic nebo v base64, nebo MAC adresa, například AA:BB:CC:DD:EE:FF.",
+            "additional_departure_delay": "Dodatečná doba po běžném {presence_window}sekundovém intervalu přítomnosti, než se stav změní z „Doma“ na „Pryč“. Běžné načasování nepřidává žádné zpoždění. Delší zpoždění oddálí i rozpoznání skutečného odchodu. Pokud skenování nedokáže potvrdit nepřítomnost, sledovač může být nedostupný."
+          }
+        },
+        "reconfigure": {
+          "title": "Nastavení zařízení Bluetooth",
+          "description": "Změňte dodatečné zpoždění odchodu tohoto sledovače.",
+          "data": {
+            "additional_departure_delay": "Dodatečné zpoždění odchodu"
+          },
+          "data_description": {
+            "additional_departure_delay": "Dodatečná doba po běžném {presence_window}sekundovém intervalu přítomnosti, než se stav změní z „Doma“ na „Pryč“. Běžné načasování nepřidává žádné zpoždění. Delší zpoždění oddálí i rozpoznání skutečného odchodu. Pokud skenování nedokáže potvrdit nepřítomnost, sledovač může být nedostupný."
+          }
+        }
+      },
+      "error": {
+        "name-empty": "Zadejte název.",
+        "irk-or-mac": "Zadejte IRK nebo MAC adresu.",
+        "irk-invalid": "Toto není IRK. Zadejte {irk_bytes} bajtů jako {irk_hex_length} šestnáctkových číslic nebo v base64.",
+        "mac-invalid": "Toto není MAC adresa. Zadejte šest dvojic šestnáctkových číslic oddělených dvojtečkami nebo pomlčkami, například AA:BB:CC:DD:EE:FF.",
+        "already-tracked": "Toto zařízení se už sleduje.",
+        "departure-delay-invalid": "Vyberte jedno z uvedených zpoždění odchodu."
+      },
+      "abort": {
+        "bluetooth-tracking-off": "Sledování přes Bluetooth je vypnuté. Nejprve ho zapněte ve volbách integrace: na stránce integrace vyberte „Nastavit“.",
+        "device-removed": "Toto zařízení Bluetooth bylo odebráno. Chcete-li ho sledovat, znovu ho přidejte."
+      }
     }
   },
   "options": {
     "step": {
       "init": {
         "data": {
-          "update_interval": "Změňte interval aktualizace. Pokud zařízení neodpovídají včas, zvyšte tuto hodnotu. Výchozí hodnota: {default_interval} (sekund).",
-          "known_hosts": "Známí hostitelé"
+          "update_interval": "Interval aktualizace (v sekundách)",
+          "known_hosts": "Známí hostitelé",
+          "homes": "Domácnosti"
         },
         "data_description": {
-          "known_hosts": "IP adresy reproduktorů a displejů, které integrace nedokáže sama najít, například protože jsou v jiné síti nebo VLAN."
+          "update_interval": "Pokud vaše zařízení často neodpovídají včas, zvyšte tuto hodnotu. Výchozí hodnota: {default_interval} sekund.",
+          "known_hosts": "IP adresy reproduktorů a displejů, které integrace nedokáže sama najít, například protože jsou v jiné síti nebo VLAN.",
+          "homes": "Reproduktory a displeje z domácností, které odznačíte, se nepřidají. Když domácnost odznačíte, její zařízení a jejich entity se z Home Assistanta odeberou, takže automatizace, skripty a ovládací panely, které je používají, přestanou fungovat. Pokud domácnost znovu označíte, zařízení se vrátí s názvy a oblastmi, které jste jim dali."
+        },
+        "sections": {
+          "bluetooth": {
+            "name": "Bluetooth",
+            "data": {
+              "bluetooth_tracking": "Sledování přes Bluetooth",
+              "bluetooth_excluded_speakers": "Reproduktory nepoužívané ke sledování přes Bluetooth"
+            },
+            "data_description": {
+              "bluetooth_tracking": "Pomocí reproduktorů zjistíte, zda je váš telefon nebo jiná zařízení Bluetooth doma. Po zapnutí vyberte na stránce integrace „Sledovat zařízení Bluetooth“ pro každé zařízení, které chcete sledovat. Dokud je sledování vypnuté, integrace reproduktorům neposílá žádné požadavky Bluetooth.",
+              "bluetooth_excluded_speakers": "Reproduktory, které nevyhledávají zařízení Bluetooth. Přidejte reproduktor, který je odpojený nebo mimo provoz."
+            }
+          }
         }
       }
     },
     "error": {
-      "known-host-not-ip": "Zadejte pouze IP adresy, například 192.168.1.20."
+      "known-host-not-ip": "Zadejte pouze IP adresy, například 192.168.1.20.",
+      "no-home-selected": "Vyberte alespoň jednu domácnost."
     }
   },
   "services": {
@@ -201,6 +392,29 @@
     "refresh_devices": {
       "description": "Aktualizuje stav všech zařízení Google Home.",
       "name": "Aktualizovat stav zařízení"
+    }
+  },
+  "system_health": {
+    "info": {
+      "can_reach_sign_in": "Dostupnost přihlašovacího serveru Googlu",
+      "can_reach_device_list": "Dostupnost serveru se seznamem zařízení Googlu",
+      "device_list": "Seznam zařízení Googlu",
+      "retry_not_before": "Další pokus nejdříve",
+      "polling": "Dotazování na změny",
+      "bluetooth_tracking": "Sledování přes Bluetooth",
+      "devices_listed": "Zařízení v seznamu Googlu",
+      "devices_not_answering": "Zařízení, která neodpovídají"
+    }
+  },
+  "selector": {
+    "departure_delay": {
+      "options": {
+        "0": "0 sekund (běžné načasování)",
+        "30": "30 sekund",
+        "60": "60 sekund",
+        "90": "90 sekund",
+        "120": "120 sekund"
+      }
     }
   }
 }

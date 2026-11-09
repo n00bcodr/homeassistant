@@ -1,115 +1,94 @@
-"""Sample API Client."""
+"""The requests to each device that use its token, and the polling built on them."""
 
-# The module is due to be split into smaller ones
-# pylint: disable=too-many-lines
-
-import asyncio
+from contextlib import suppress
+from datetime import timedelta
 from http import HTTPStatus
-import ipaddress
 import json
 import logging
 from time import monotonic
-from typing import Literal, cast
+from typing import Literal
 
 from aiohttp import (
     ClientConnectionError,
     ClientError,
     ClientPayloadError,
     ClientResponse,
-    ClientSession,
     ClientTimeout,
 )
 from aiohttp.client_exceptions import ClientConnectorError, ContentTypeError
-from glocaltokens.client import Device, GLocalAuthenticationTokens
-from glocaltokens.exceptions import AuthenticationError, GLocalTokensError
-from glocaltokens.utils.token import is_aas_et
-from requests.exceptions import HTTPError, RequestException
-from zeroconf import Zeroconf
 
-from homeassistant.core import HomeAssistant
+from homeassistant.util import dt as dt_util
 
+from .account import GoogleAccountClient, TokenWait, first_update_after
 from .const import (
     API_ENDPOINT_ALARM_DELETE,
     API_ENDPOINT_ALARM_VOLUME,
     API_ENDPOINT_ALARMS,
+    API_ENDPOINT_BUILD_INFO,
     API_ENDPOINT_DO_NOT_DISTURB,
-    API_ENDPOINT_EUREKA_INFO,
     API_ENDPOINT_REBOOT,
-    FETCH_DEVICES_INTERVAL,
-    FETCH_RETRY_DELAYS,
+    API_ENDPOINT_UPDATE_INFO,
+    FIRMWARE_CHECK_INTERVAL,
     HEADER_CAST_LOCAL_AUTH,
     HEADER_CONTENT_TYPE,
-    JSON_ALARM,
     JSON_ALARM_VOLUME,
     JSON_NOTIFICATIONS_ENABLED,
-    JSON_TIMER,
     PORT,
     SUPPORT_CHECK_DELAY,
     TIMEOUT,
+)
+from .device_info import (
+    async_get_device_info,
+    async_get_info_status,
+    create_url,
+    lacks_assistant,
 )
 from .exceptions import (
     AlarmsAndTimersNotDeleted,
     AlarmsAndTimersNotFetched,
     DeviceRequestFailed,
-    InvalidMasterToken,
     RequestFailure,
 )
-from .mdns import FoundDevices
-from .models import GoogleHomeDevice
-from .types import AlarmJsonDict, JsonDict, TimerJsonDict
+from .models import GoogleHomeDevice, is_number
+from .observations import observe_poll
+from .types import JsonDict
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
+# The fields of a device's build info that are kept: its versions and release channel
+BUILD_INFO_FIELDS = (
+    "cast_build_revision",
+    "system_build_number",
+    "release_track",
+    "preview_channel_state",
+)
 
-def lacks_assistant(info: dict[str, object] | None) -> bool:
-    """Return whether a device's info lists its features without Google Assistant.
 
-    Google and Nest speakers and displays report assistant_supported as true. A
-    Chromecast Audio leaves it out of its list, so a missing key counts as no, as
-    does false. No list, an empty one, or any other value says nothing either way.
+def log_failure(
+    device: GoogleHomeDevice,
+    polling: bool,
+    failure: str,
+    message: str,
+    *args: object,
+    exc_info: bool = False,
+) -> None:
+    """Log a failed request to the device as an error, or for debugging if its updates already did.
+
+    An update logs each type of failure once, until an update of the device works,
+    and the others for debugging, and its failure marks the running update as
+    failed. An action logs every failure.
     """
-    device_info = info.get("device_info") if info else None
-    capabilities = (
-        device_info.get("capabilities") if isinstance(device_info, dict) else None
-    )
-    if not isinstance(capabilities, dict) or not capabilities:
-        return False
-    # Only the JSON false: 0, null or "false" isn't a clear answer
-    return capabilities.get("assistant_supported", False) is False
-
-
-class FetchBackoff:
-    """When Google's device list may be fetched again after fetches fail.
-
-    Each fetch counts as failed from its start until Google answers. After a failure,
-    the next fetch waits at least the next of FETCH_RETRY_DELAYS from that start, longer
-    for each failure in a row, and a fetch that works starts over. Times are monotonic
-    seconds.
-    """
-
-    def __init__(self) -> None:
-        """Start with no failures."""
-        self._failures = 0
-        self._retry_at = 0.0
-
-    def fetch_started(self, now: float) -> None:
-        """Count a fetch that starts now as failed, until fetch_worked() says otherwise."""
-        delay = FETCH_RETRY_DELAYS[min(self._failures, len(FETCH_RETRY_DELAYS) - 1)]
-        self._retry_at = now + delay
-        self._failures += 1
-
-    def fetch_worked(self) -> None:
-        """Forget the failures once Google answers."""
-        self._failures = 0
-        self._retry_at = 0.0
-
-    def waiting(self, now: float) -> bool:
-        """Return whether it's too soon after a failed fetch to fetch again."""
-        return now < self._retry_at
+    if polling:
+        device.update_failed = True
+        if failure in device.logged_failures:
+            _LOGGER.debug(message, *args, exc_info=exc_info)
+            return
+        device.logged_failures.add(failure)
+    _LOGGER.error(message, *args, exc_info=exc_info)
 
 
 def answer_failure(
-    device: GoogleHomeDevice, response: ClientResponse
+    device: GoogleHomeDevice, response: ClientResponse, *, polling: bool
 ) -> RequestFailure:
     """Log an answer other than 200 from the device, and return why it failed."""
     if response.status == HTTPStatus.UNAUTHORIZED:
@@ -128,7 +107,10 @@ def answer_failure(
             device.hardware,
         )
         return "not_ready"
-    _LOGGER.error(
+    log_failure(
+        device,
+        polling,
+        f"HTTP {response.status}",
         "Failed to access %s, API returned %d: %s",
         device.name,
         response.status,
@@ -137,388 +119,23 @@ def answer_failure(
     return "request_failed"
 
 
-class GlocaltokensApiClient:
+class GlocaltokensApiClient(GoogleAccountClient):
     """API client."""
 
-    def __init__(
-        self,
-        hass: HomeAssistant,
-        session: ClientSession,
-        *,
-        username: str | None = None,
-        password: str | None = None,
-        master_token: str | None = None,
-        oauth_token: str | None = None,
-        android_id: str | None = None,
-        zeroconf_instance: Zeroconf | None = None,
-        known_hosts: list[str] | None = None,
-    ):
-        """Sample API Client."""
-        self.hass = hass
-        self._username = username
-        self._password = password
-        self._session = session
-        self._android_id = android_id
-        self._client = GLocalAuthenticationTokens(
-            username=username,
-            password=password,
-            master_token=master_token,
-            oauth_token=oauth_token,
-            android_id=android_id,
-        )
-        self.google_devices: list[GoogleHomeDevice] = []
-        # Whether google_devices is the list of the last successful fetch, which can
-        # be empty. It isn't until a fetch succeeds, or once a device rejects its
-        # token and gets no new token that it accepts.
-        self.google_devices_fetched = False
-        # Why Google last rejected the master token, until a fetch succeeds
-        self.sign_in_error: AuthenticationError | None = None
-        # Whether setup's first update is running. If Google rejects the master token
-        # then, setup fails with Google's reason, which Home Assistant logs.
-        self.setting_up = False
-        self.zeroconf_instance = zeroconf_instance
-        self.known_hosts = known_hosts or []
-        # Setup fetches the list straight after creating the client
-        self.next_scheduled_fetch = monotonic() + FETCH_DEVICES_INTERVAL
-        # The Cast devices that mDNS finds between fetches
-        self.found_devices = FoundDevices(self)
-        # Google's list is fetched one at a time, and at most once per update:
-        # fetches that ended, and how many had ended when the current update started
-        self._fetch_lock = asyncio.Lock()
-        self._fetches = 0
-        self._fetches_before_update = 0
-        # Devices found at a known host in the current update. Their info answered 200
-        # then, so they aren't asked for it again in that update.
-        self._found_at_known_host: set[str] = set()
-        # While the list is unknown, a fetch after a failed one waits a while
-        self._fetch_backoff = FetchBackoff()
-        # Devices found to have no alarms, timers and settings. They aren't asked for
-        # them again until the integration is loaded again, even if Google's list
-        # drops them and later lists them again.
-        self.unsupported_device_ids: set[str] = set()
+    async def update_device(
+        self, device: GoogleHomeDevice, *, found_at_known_host: bool = False
+    ) -> bool:
+        """Ask a device on Google's list for its alarms, timers and settings, if it can be.
 
-    async def async_get_master_token(self) -> str:
-        """Get master API token."""
-
-        def _get_master_token() -> str:
-            return self._client.get_master_token()
-
-        try:
-            master_token = await self.hass.async_add_executor_job(_get_master_token)
-        except AuthenticationError as error:
-            raise InvalidMasterToken(str(error)) from error
-        if not is_aas_et(master_token):
-            raise InvalidMasterToken("Google gave a master token in an unknown format")
-        return master_token
-
-    async def async_get_access_token(self) -> str:
-        """Get access token using master token."""
-
-        def _get_access_token() -> str:
-            return self._client.get_access_token()
-
-        try:
-            return await self.hass.async_add_executor_job(_get_access_token)
-        except AuthenticationError as error:
-            raise InvalidMasterToken(str(error)) from error
-
-    async def async_get_email(self) -> str | None:
-        """Return the verified email address of the signed-in account, if Google gives it."""
-
-        def _get_email() -> str | None:
-            return self._client.get_email()
-
-        try:
-            return await self.hass.async_add_executor_job(_get_email)
-        except RequestException, AuthenticationError:
-            _LOGGER.debug("Failed to get the account's email address", exc_info=True)
-            return None
-
-    async def get_google_devices(
-        self, *, refetch: bool = False
-    ) -> list[GoogleHomeDevice]:
-        """Get google device authentication tokens.
-
-        Note this method will fetch necessary access tokens if missing.
+        With found_at_known_host, the device was just found at a known host, which
+        answered with its info. Return whether the device was asked, which sets
+        whether it's reachable. An update of a device without an address can't ask
+        it: it counts toward the updates without an address, not toward those the
+        device didn't answer.
         """
-
-        if not self.google_devices_fetched or refetch:
-            await self._async_fetch_devices(self._fetches_before_update)
-        return self.google_devices
-
-    async def _async_fetch_devices(self, fetches: int) -> None:
-        """Fetch Google's device list, unless a fetch has ended since there were `fetches`.
-
-        A caller that waits while another fetch runs uses that fetch's devices and
-        tokens rather than asking Google again. While the list is unknown, nothing
-        fetches it until the backoff after a failed fetch has passed: neither the
-        update nor a device that rejects its token. With a known list, a rejected
-        token still gets a fetch straight away.
-        """
-        async with self._fetch_lock:
-            if self._fetches != fetches:
-                return
-            if not self.google_devices_fetched and self._fetch_backoff.waiting(
-                monotonic()
-            ):
-                _LOGGER.debug("Waiting to fetch Google's device list after it failed")
-                return
-            try:
-                await self._async_get_devices_from_google()
-            finally:
-                self._fetches += 1
-
-    async def _async_get_devices_from_google(self) -> None:
-        """Ask Google for the device list, and update the devices from it."""
-        started = monotonic()
-        # Whether this works or not, the next scheduled fetch waits a full interval
-        self.next_scheduled_fetch = started + FETCH_DEVICES_INTERVAL
-        self._fetch_backoff.fetch_started(started)
-        fetched_for = self.found_devices.fetch_started()
-
-        def _get_google_devices() -> list[Device]:
-            return self._client.get_google_devices(
-                zeroconf_instance=self.zeroconf_instance,
-                force_homegraph_reload=True,
-            )
-
-        try:
-            google_devices = await self.hass.async_add_executor_job(_get_google_devices)
-        # Google rejected the master token, gave no home graph, or answered with
-        # a 5xx or 429, which glocaltokens raises as HTTPError
-        except (GLocalTokensError, HTTPError) as error:
-            log = _LOGGER.error
-            # Only signing in again helps when Google rejects the master token.
-            # Other errors say nothing about it, so an earlier rejection stays.
-            if isinstance(error, AuthenticationError):
-                self.sign_in_error = error
-                # Setup then fails with Google's reason, which Home Assistant logs
-                if self.setting_up:
-                    log = _LOGGER.debug
-            log("Failed to fetch Google's device list: %s", error)
-            # Keep the devices of an earlier fetch rather than drop them
-            return
-        self._fetch_backoff.fetch_worked()
-        self.sign_in_error = None
-        self.google_devices_fetched = True
-        known_devices = {device.device_id: device for device in self.google_devices}
-        self.google_devices = []
-        for google_device in google_devices:
-            device = GoogleHomeDevice(
-                device_id=google_device.device_id,
-                name=google_device.device_name,
-                auth_token=google_device.local_auth_token,
-                ip_address=google_device.ip_address,
-                hardware=google_device.hardware,
-                cloud_device_id=google_device.cloud_device_id,
-            )
-            # Prefer an address that mDNS reported while this fetch ran over the fetch's
-            # scan, and the scan over an earlier report.
-            # ponytail: a report during the fetch wins even if the scan read a newer
-            # address, until the next report or fetch
-            found_device = self.found_devices.get(device.cloud_device_id)
-            if found_device and found_device.reported_at > started:
-                device.ip_address = found_device.address
-            # Keep a known device's alarms, timers and settings, so a device
-            # that doesn't answer this update doesn't lose them
-            if known_device := known_devices.get(device.device_id):
-                known_device.name = device.name
-                known_device.auth_token = device.auth_token
-                # mDNS can miss a device that it found before: keep its address
-                known_device.ip_address = device.ip_address or known_device.ip_address
-                known_device.hardware = device.hardware
-                known_device.cloud_device_id = device.cloud_device_id
-                device = known_device
-            else:
-                device.alarms_unsupported = (
-                    device.device_id in self.unsupported_device_ids
-                )
-                # The scan missed a device that mDNS reported before it was listed
-                if not device.ip_address and found_device:
-                    device.ip_address = found_device.address
-            self.google_devices.append(device)
-        self.found_devices.fetch_worked(fetched_for)
-        # Known hosts are only asked when mDNS left a device without an address
-        if self.known_hosts and any(
-            not device.ip_address and device.cloud_device_id
-            for device in self.google_devices
-        ):
-            await self.async_use_known_hosts()
-
-    async def async_fetch_devices_when_due(self) -> None:
-        """Fetch Google's device list again when it may have changed.
-
-        Every 20 minutes, however often the devices are updated, to find devices
-        added in or removed from the Google Home app, and the address of a device
-        that was offline at setup. Also soon after mDNS finds a Cast device that the
-        list doesn't have.
-        """
-        # Until the list is known, updates fetch it anyway, as often as the backoff
-        # after failed fetches allows
-        if not self.google_devices_fetched:
-            return
-        now = monotonic()
-        if now >= self.next_scheduled_fetch:
-            _LOGGER.debug("Fetching Google's device list again")
-        elif (due := self.found_devices.fetch_due()) is not None and now >= due:
-            _LOGGER.debug("Fetching Google's device list for devices that mDNS found")
-            self.found_devices.last_fetch = now
-        else:
-            return
-        try:
-            await self.get_google_devices(refetch=True)
-        except RequestException:
-            _LOGGER.debug("Failed to fetch Google's device list", exc_info=True)
-
-    async def async_use_known_hosts(self) -> None:
-        """Give devices that mDNS didn't find the address of the known host they're at.
-
-        Hosts are matched by the ID that Google and the device itself report. In a
-        speaker pair, only the leading speaker reports the pair's ID; the other
-        reports its own, which Google doesn't list, so it's never used.
-        """
-        # A host that mDNS already gave to a device can't fill in another one
-        found = {
-            ipaddress.ip_address(device.ip_address)
-            for device in self.google_devices
-            if device.ip_address
-        }
-        hosts = [
-            host for host in self.known_hosts if ipaddress.ip_address(host) not in found
-        ]
-        cloud_device_ids = await asyncio.gather(
-            *(self._async_get_cloud_device_id(host) for host in hosts)
-        )
-        hosts_by_id: dict[str, str] = {}
-        for host, cloud_device_id in zip(hosts, cloud_device_ids, strict=True):
-            if cloud_device_id is not None:
-                # As with mDNS, the first host that reports a device is used
-                hosts_by_id.setdefault(cloud_device_id, host)
-        for device in self.google_devices:
-            if device.ip_address or not device.cloud_device_id:
-                continue
-            if known_host := hosts_by_id.get(device.cloud_device_id):
-                _LOGGER.debug("Found %s at known host %s", device.name, known_host)
-                device.ip_address = known_host
-                self._found_at_known_host.add(device.device_id)
-
-    async def _async_get_device_info(
-        self, host: str, device: GoogleHomeDevice | None = None
-    ) -> dict[str, object] | None:
-        """Return what the device at this host reports about itself.
-
-        Return None if it answers with something else, such as an error page.
-        Raise TimeoutError or ClientError if it doesn't answer. With a device, set
-        whether it's reachable: whether a 200 came, with its whole body.
-        """
-        url = self.create_url(host, PORT, API_ENDPOINT_EUREKA_INFO)
-        reachable = False
-        try:
-            async with self._session.get(
-                url, timeout=ClientTimeout(total=TIMEOUT)
-            ) as response:
-                # A device that is starting can answer 404, and an error page
-                # isn't its info
-                if response.status != HTTPStatus.OK:
-                    _LOGGER.debug(
-                        "%s answered %d when asked for its info", host, response.status
-                    )
-                    return None
-                try:
-                    info = await response.json()
-                # An answer that isn't JSON, though it has come whole
-                except ContentTypeError, ValueError:
-                    _LOGGER.debug(
-                        "%s answered, but not with its info", host, exc_info=True
-                    )
-                    info = None
-                reachable = True
-        finally:
-            if device is not None:
-                device.reachable = reachable
-        return info if isinstance(info, dict) else None
-
-    async def _async_get_info_status(self, device: GoogleHomeDevice) -> int | None:
-        """Return the status of the device's answer when asked for its info, without its token.
-
-        A 200 counts once its body has come, another status as soon as it comes, and
-        isn't undone if the answer then breaks off. Return None if no answer comes, for
-        example when the session rejects a redirect. Redirects aren't followed. The
-        session itself may try once more after a lost connection.
-        """
-        assert device.ip_address is not None
-        url = self.create_url(device.ip_address, PORT, API_ENDPOINT_EUREKA_INFO)
-        status: int | None = None
-        try:
-            async with self._session.get(
-                url, timeout=ClientTimeout(total=TIMEOUT), allow_redirects=False
-            ) as response:
-                if response.status != HTTPStatus.OK:
-                    status = response.status
-                else:
-                    await response.read()
-                    status = HTTPStatus.OK
-        except ClientError, TimeoutError:
-            if status is None:
-                _LOGGER.debug(
-                    "%s didn't answer when asked for its info",
-                    device.name,
-                    exc_info=True,
-                )
-        return status
-
-    async def _async_get_cloud_device_id(self, host: str) -> str | None:
-        """Return Google's ID of the device at a known host."""
-        try:
-            info = await self._async_get_device_info(host)
-        except ClientError, TimeoutError:
-            _LOGGER.debug("%s didn't answer with its info", host, exc_info=True)
-            return None
-        if info is None:
-            return None
-        device_info = info.get("device_info")
-        cloud_device_id = (
-            device_info.get("cloud_device_id")
-            if isinstance(device_info, dict)
-            else None
-        )
-        if not isinstance(cloud_device_id, str) or not cloud_device_id:
-            _LOGGER.debug("Known host %s didn't report a device ID", host)
-            return None
-        _LOGGER.debug("Known host %s is %s", host, info.get("name"))
-        return cloud_device_id.lower()
-
-    async def get_android_id(self) -> str:
-        """Generate random android_id."""
-
-        def _get_android_id() -> str:
-            return self._client.get_android_id()
-
-        return await self.hass.async_add_executor_job(_get_android_id)
-
-    @staticmethod
-    def create_url(ip_address: str, port: int, api_endpoint: str) -> str:
-        """Create url to endpoint.
-
-        Note: port argument is unused because all request must be done to 8443.
-        """
-        if isinstance(ipaddress.ip_address(ip_address), ipaddress.IPv6Address):
-            ip_address = f"[{ip_address}]"
-        return f"https://{ip_address}:{port}/{api_endpoint}"
-
-    async def update_google_devices_information(self) -> list[GoogleHomeDevice]:
-        """Retrieve devices from glocaltokens and fetches alarm/timer data from each of the device."""
-
-        # From here until the next update, whatever asks for Google's list gets it
-        # at most once: on schedule, when it's unknown, or for a rejected token
-        self._fetches_before_update = self._fetches
-        self._found_at_known_host.clear()
-        await self.async_fetch_devices_when_due()
-        devices = await self.get_google_devices()
-
         # Gives the user a warning if the device is offline
-        for device in devices:
-            if not device.ip_address and device.available:
+        if not device.ip_address:
+            if device.available:
                 device.available = False
                 _LOGGER.debug(
                     (
@@ -529,20 +146,23 @@ class GlocaltokensApiClient:
                     ),
                     device.name,
                 )
-
-        await asyncio.gather(
-            *[
-                self.collect_data_from_endpoints(device)
-                for device in devices
-                if device.ip_address
-                and (device.auth_token or device.alarms_unsupported)
-            ]
+            device.addressless_updates += 1
+            return False
+        if not device.auth_token and not device.alarms_unsupported:
+            return False
+        device.update_failed = False
+        await self.collect_data_from_endpoints(
+            device, found_at_known_host=found_at_known_host
         )
-
-        return devices
+        # It answered, and none of its requests failed: alarms and settings, or its
+        # info if it has no alarms
+        if device.logged_failures and device.reachable and not device.update_failed:
+            _LOGGER.info("Updating %s works again", device.name)
+            device.logged_failures.clear()
+        return True
 
     async def collect_data_from_endpoints(
-        self, device: GoogleHomeDevice
+        self, device: GoogleHomeDevice, *, found_at_known_host: bool = False
     ) -> GoogleHomeDevice:
         """Collect data from different endpoints.
 
@@ -555,12 +175,11 @@ class GlocaltokensApiClient:
         the check for alarms asks for its info, or the device was just found at a known
         host, that answer counts, so it isn't asked again.
         """
-        found_at_known_host = device.device_id in self._found_at_known_host
         if device.alarms_unsupported:
             status = (
                 HTTPStatus.OK
                 if found_at_known_host
-                else await self._async_get_info_status(device)
+                else await async_get_info_status(self._session, device)
             )
             device.reachable = status == HTTPStatus.OK
             device.count_answer(status)
@@ -584,7 +203,7 @@ class GlocaltokensApiClient:
             return device
         if not device.reachable and not asked_info:
             device.reachable = found_at_known_host or (
-                await self._async_get_info_status(device) == HTTPStatus.OK
+                await async_get_info_status(self._session, device) == HTTPStatus.OK
             )
         if not answered:
             return device
@@ -624,7 +243,7 @@ class GlocaltokensApiClient:
         # also when it doesn't answer
         device.support_check_at = now + SUPPORT_CHECK_DELAY
         assert device.ip_address is not None
-        info = await self._async_get_device_info(device.ip_address, device)
+        info = await async_get_device_info(self._session, device.ip_address, device)
         if not lacks_assistant(info):
             _LOGGER.debug(
                 "%s still answers 404 for alarms, but its info doesn't show that it "
@@ -649,13 +268,88 @@ class GlocaltokensApiClient:
         self.unsupported_device_ids.add(device.device_id)
         return True
 
+    async def update_firmware(self, device: GoogleHomeDevice) -> None:
+        """Ask a device for its firmware when due, after update_device has asked it.
+
+        Only a device that update_device found reachable, so one that didn't answer
+        at this update gets no more requests. A check is due at most every
+        FIRMWARE_CHECK_INTERVAL, counted from the start of the last one, so a device
+        that fails isn't asked again until then. Its build info has its versions,
+        and its info without params whether an update is waiting; neither needs a
+        token. A device that doesn't answer the first isn't asked the second. Only
+        the version and release channel fields, the flag, the Wi-Fi network and
+        signal strength, and estimated boot time are kept. A field that its info
+        leaves out is unknown; an answer other than its info keeps what it said before.
+        """
+        now = monotonic()
+        if not device.reachable or (
+            device.firmware_checked_at is not None
+            and now < device.firmware_checked_at + FIRMWARE_CHECK_INTERVAL
+        ):
+            return
+        device.firmware_checked_at = now
+        assert device.ip_address is not None
+        try:
+            info = await async_get_device_info(
+                self._session, device.ip_address, endpoint=API_ENDPOINT_BUILD_INFO
+            )
+            if info is not None:
+                build_info = info.get("build_info")
+                device.build_info = (
+                    {
+                        field: build_info[field]
+                        for field in BUILD_INFO_FIELDS
+                        if field in build_info
+                    }
+                    if isinstance(build_info, dict)
+                    else None
+                )
+            info = await async_get_device_info(
+                self._session, device.ip_address, endpoint=API_ENDPOINT_UPDATE_INFO
+            )
+        except ClientError, TimeoutError:
+            _LOGGER.debug(
+                "%s didn't answer when asked for its firmware. Will check again in %d "
+                "minutes.",
+                device.name,
+                FIRMWARE_CHECK_INTERVAL // 60,
+                exc_info=True,
+            )
+            return
+        if info is not None:
+            uptime = info.get("uptime")
+            device.booted_at = None
+            if isinstance(uptime, int | float) and is_number(uptime) and uptime >= 0:
+                # Either the duration or the resulting date can be too large.
+                with suppress(OverflowError):
+                    device.booted_at = dt_util.utcnow() - timedelta(seconds=uptime)
+            has_update = info.get("has_update")
+            # Only the JSON true or false
+            device.has_update = has_update if isinstance(has_update, bool) else None
+            ssid = info.get("ssid")
+            device.wifi_ssid = ssid if isinstance(ssid, str) and ssid else None
+            signal = info.get("signal_level")
+            # A JSON number, but not true or false, which Python counts as numbers
+            device.wifi_signal = (
+                signal
+                if isinstance(signal, int | float) and not isinstance(signal, bool)
+                else None
+            )
+        _LOGGER.debug(
+            "%s has firmware %s, update waiting: %s",
+            device.name,
+            device.sw_version,
+            device.has_update,
+        )
+
     async def update_alarms_and_timers(
         self, device: GoogleHomeDevice, *, polling: bool = True
     ) -> GoogleHomeDevice:
         """Fetch timers and alarms from google device.
 
         Unless polling, raise if they can't be fetched, so an action doesn't
-        work from the alarms and timers of the last update.
+        work from the alarms and timers of the last update. A reply that can't be
+        read replaces neither, and an update doesn't count it as having got them.
         """
         try:
             response = await self.request(
@@ -665,27 +359,42 @@ class GlocaltokensApiClient:
                 polling=polling,
             )
         except DeviceRequestFailed as error:
+            raise AlarmsAndTimersNotFetched(device.name, error) from error
+        # Only an action's: an update's request logs it
+        except (json.JSONDecodeError, UnicodeDecodeError) as error:
+            _LOGGER.error(
+                "%s sent a reply that isn't valid JSON: %s", device.name, error
+            )
             raise AlarmsAndTimersNotFetched(device.name) from error
 
-        if response is not None and JSON_TIMER in response and JSON_ALARM in response:
-            device.set_timers(cast(list[TimerJsonDict], response[JSON_TIMER]))
-            device.set_alarms(cast(list[AlarmJsonDict], response[JSON_ALARM]))
+        # An update's request that failed: request() logged it and marked the update
+        # as failed, which it wasn't before, as this is the update's first request.
+        # Any other None is a reply of JSON null or an empty body.
+        if response is None and polling and device.update_failed:
+            return device
+        device.alarms_reply = response
+        if isinstance(response, dict) and device.set_alarms_and_timers(response):
+            if polling:
+                device.polled_snapshots += 1
+                device.poll_observation = observe_poll(device)
             _LOGGER.debug(
                 "Successfully retrieved alarms and timers from %s. Response: %s",
                 device.name,
                 response,
             )
             return device
-        if response is not None:
-            _LOGGER.error(
-                (
-                    "Failed to parse fetched alarms and timers for device %s - "
-                    "API returned unknown json structure. "
-                    "Received = %s"
-                ),
-                device.name,
-                response,
-            )
+        log_failure(
+            device,
+            polling,
+            "unknown alarms reply",
+            (
+                "Failed to parse fetched alarms and timers for device %s - "
+                "API returned unknown json structure. "
+                "Received = %s"
+            ),
+            device.name,
+            response,
+        )
         if not polling:
             raise AlarmsAndTimersNotFetched(device.name)
         return device
@@ -727,7 +436,7 @@ class GlocaltokensApiClient:
             )
             raise AlarmsAndTimersNotDeleted(device.name) from error
         except DeviceRequestFailed as error:
-            raise AlarmsAndTimersNotDeleted(device.name) from error
+            raise AlarmsAndTimersNotDeleted(device.name, error) from error
 
         # Only this reply is known to confirm a delete
         if isinstance(response, dict) and response.get("success") is True:
@@ -771,128 +480,145 @@ class GlocaltokensApiClient:
             device.name,
         )
 
-    async def update_do_not_disturb(
-        self, device: GoogleHomeDevice, enable: bool | None = None
-    ) -> GoogleHomeDevice:
-        """Get or set the do not disturb setting on a Google Home device.
-
-        Raise DeviceRequestFailed if setting it fails.
-        """
-
-        data = None
-        polling = False
-
-        if enable is not None:
-            # Setting is inverted on device
-            data = {JSON_NOTIFICATIONS_ENABLED: not enable}
-            _LOGGER.debug(
-                "Setting Do Not Disturb setting to %s on Google Home device %s",
-                enable,
-                device.name,
-            )
-        else:
-            polling = True
-            _LOGGER.debug(
-                "Getting Do Not Disturb setting from Google Home device %s",
-                device.name,
-            )
-
+    async def update_do_not_disturb(self, device: GoogleHomeDevice) -> GoogleHomeDevice:
+        """Get the Do Not Disturb setting from a Google Home device."""
+        _LOGGER.debug(
+            "Getting Do Not Disturb setting from Google Home device %s",
+            device.name,
+        )
         response = await self.request(
             method="POST",
             endpoint=API_ENDPOINT_DO_NOT_DISTURB,
             device=device,
-            data=data,
-            polling=polling,
+            polling=True,
         )
-        if response is not None:
-            if JSON_NOTIFICATIONS_ENABLED in response:
-                enabled = not bool(response[JSON_NOTIFICATIONS_ENABLED])
-                _LOGGER.debug(
-                    "Received Do Not Disturb setting from Google Home device %s"
-                    " - Enabled: %s",
-                    device.name,
-                    enabled,
-                )
-
-                device.set_do_not_disturb(enabled)
-            else:
-                _LOGGER.debug(
-                    (
-                        "Unexpected response from Google Home device '%s' "
-                        "when fetching DND status - %s"
-                    ),
-                    device.name,
-                    response,
-                )
-
+        self._store_do_not_disturb(device, response)
         return device
 
-    async def update_alarm_volume(
-        self, device: GoogleHomeDevice, volume: int | None = None
-    ) -> GoogleHomeDevice:
-        """Get or set the alarm volume setting on a Google Home device.
+    async def set_do_not_disturb(self, device: GoogleHomeDevice, enable: bool) -> None:
+        """Set the Do Not Disturb setting on a Google Home device.
 
         Raise DeviceRequestFailed if setting it fails.
         """
-
-        data: JsonDict | None = None
-        polling = False
-
-        if volume is not None:
+        _LOGGER.debug(
+            "Setting Do Not Disturb setting to %s on Google Home device %s",
+            enable,
+            device.name,
+        )
+        response = await self.request(
+            method="POST",
+            endpoint=API_ENDPOINT_DO_NOT_DISTURB,
+            device=device,
             # Setting is inverted on device
-            volume_float = volume / 100
-            data = {JSON_ALARM_VOLUME: volume_float}
+            data={JSON_NOTIFICATIONS_ENABLED: not enable},
+        )
+        self._store_do_not_disturb(device, response)
+
+    @staticmethod
+    def _store_do_not_disturb(
+        device: GoogleHomeDevice, response: JsonDict | None
+    ) -> None:
+        """Store the Do Not Disturb setting that the device answered with, if any."""
+        if response is None:
+            return
+        if JSON_NOTIFICATIONS_ENABLED in response:
+            enabled = not bool(response[JSON_NOTIFICATIONS_ENABLED])
             _LOGGER.debug(
-                "Setting alarm volume to %d(float=%f) on Google Home device %s",
-                volume,
-                volume_float,
+                "Received Do Not Disturb setting from Google Home device %s"
+                " - Enabled: %s",
                 device.name,
+                enabled,
             )
+            device.do_not_disturb = enabled
         else:
-            polling = True
             _LOGGER.debug(
-                "Getting alarm volume from Google Home device %s",
+                (
+                    "Unexpected response from Google Home device '%s' "
+                    "when fetching DND status - %s"
+                ),
                 device.name,
+                response,
             )
 
+    async def update_alarm_volume(self, device: GoogleHomeDevice) -> GoogleHomeDevice:
+        """Get the alarm volume setting from a Google Home device."""
+        _LOGGER.debug(
+            "Getting alarm volume from Google Home device %s",
+            device.name,
+        )
         response = await self.request(
             method="POST",
             endpoint=API_ENDPOINT_ALARM_VOLUME,
             device=device,
-            data=data,
-            polling=polling,
+            polling=True,
         )
-        if response:
-            if JSON_ALARM_VOLUME in response:
-                if polling:
-                    volume_raw = str(response[JSON_ALARM_VOLUME])
-                    volume = round(float(volume_raw) * 100)
-                    _LOGGER.debug(
-                        "Received alarm volume from Google Home device %s"
-                        " - Volume: %d(raw=%s)",
-                        device.name,
-                        volume,
-                        volume_raw,
-                    )
-                else:
-                    assert volume is not None
-                    _LOGGER.debug(
-                        "Successfully set alarm volume to %d on Google Home device %s",
-                        volume,
-                        device.name,
-                    )
-                device.set_alarm_volume(volume)
-            else:
-                _LOGGER.debug(
-                    (
-                        "Unexpected response from Google Home device '%s' "
-                        "when fetching alarm volume setting - %s"
-                    ),
+        if response and JSON_ALARM_VOLUME in response:
+            volume_raw = str(response[JSON_ALARM_VOLUME])
+            try:
+                volume = round(float(volume_raw) * 100)
+            # Not a number, such as "loud": keep the volume it had
+            except ValueError, OverflowError:
+                log_failure(
+                    device,
+                    True,
+                    "invalid alarm volume",
+                    "%s sent an alarm volume that isn't a number: %s",
                     device.name,
-                    response,
+                    volume_raw,
                 )
-
+                return device
+            device.alarm_volume = volume
+            _LOGGER.debug(
+                "Received alarm volume from Google Home device %s - Volume: %d(raw=%s)",
+                device.name,
+                device.alarm_volume,
+                volume_raw,
+            )
+        elif response:
+            self._log_unexpected_volume_answer(device, response)
         return device
+
+    async def set_alarm_volume(self, device: GoogleHomeDevice, volume: int) -> None:
+        """Set the alarm volume setting on a Google Home device.
+
+        Raise DeviceRequestFailed if setting it fails.
+        """
+        volume_float = volume / 100
+        _LOGGER.debug(
+            "Setting alarm volume to %d(float=%f) on Google Home device %s",
+            volume,
+            volume_float,
+            device.name,
+        )
+        response = await self.request(
+            method="POST",
+            endpoint=API_ENDPOINT_ALARM_VOLUME,
+            device=device,
+            data={JSON_ALARM_VOLUME: volume_float},
+        )
+        if response and JSON_ALARM_VOLUME in response:
+            _LOGGER.debug(
+                "Successfully set alarm volume to %d on Google Home device %s",
+                volume,
+                device.name,
+            )
+            device.alarm_volume = volume
+        elif response:
+            self._log_unexpected_volume_answer(device, response)
+
+    @staticmethod
+    def _log_unexpected_volume_answer(
+        device: GoogleHomeDevice, response: JsonDict
+    ) -> None:
+        """Log an answer about the alarm volume that doesn't have it."""
+        _LOGGER.debug(
+            (
+                "Unexpected response from Google Home device '%s' "
+                "when fetching alarm volume setting - %s"
+            ),
+            device.name,
+            response,
+        )
 
     async def request(
         self,
@@ -907,9 +633,10 @@ class GlocaltokensApiClient:
         """Shared request method.
 
         Unless polling, raise DeviceRequestFailed when the device doesn't answer
-        200 or its answer can't be read. An update only logs it, and gets None.
-        Without read_reply, the 200 is the whole answer: the rest isn't read, and
-        {} is returned.
+        200 or its answer can't be read, and JSONDecodeError or UnicodeDecodeError
+        when it answers 200 with a reply that isn't valid JSON. An update only logs
+        it, and gets None. Without read_reply, the 200 is the whole answer: the rest
+        isn't read, and {} is returned.
         """
         try:
             return await self._send(
@@ -917,8 +644,22 @@ class GlocaltokensApiClient:
             )
         except DeviceRequestFailed:
             if polling:
+                device.update_failed = True
                 return None
             raise
+        except (json.JSONDecodeError, UnicodeDecodeError) as error:
+            if not polling:
+                raise
+            log_failure(
+                device,
+                polling,
+                "invalid JSON",
+                "%s sent a reply to %s that isn't valid JSON: %s",
+                device.name,
+                endpoint,
+                error,
+            )
+            return None
 
     async def _send(
         self,
@@ -948,7 +689,7 @@ class GlocaltokensApiClient:
             _LOGGER.warning("Device %s doesn't have an auth token!", device.name)
             raise DeviceRequestFailed(device.name, "request_failed")
 
-        url = self.create_url(device.ip_address, PORT, endpoint)
+        url = create_url(device.ip_address, PORT, endpoint)
 
         headers: dict[str, str] = {
             HEADER_CAST_LOCAL_AUTH: token,
@@ -972,15 +713,11 @@ class GlocaltokensApiClient:
             ) as response:
                 status = response.status
                 if response.status == HTTPStatus.OK:
-                    try:
-                        # Without read_reply, what comes after the status, or
-                        # doesn't, can't undo it
-                        resp = await response.json() if read_reply else {}
-                    except ContentTypeError:
-                        resp = {}
-                    device.available = True
+                    resp = await self._read_answer(
+                        response, device, endpoint, polling, read_reply=read_reply
+                    )
                 else:
-                    failure = answer_failure(device, response)
+                    failure = answer_failure(device, response, polling=polling)
             # Only once the answer has been read, if it's read: a 200 whose body
             # times out or is cut off isn't an answer
             device.statuses[endpoint, polling] = status
@@ -994,9 +731,13 @@ class GlocaltokensApiClient:
             raise DeviceRequestFailed(device.name, "offline") from error
         except ClientError as error:
             # Make sure that we log the exception from the client if one occurred.
-            _LOGGER.exception(
+            log_failure(
+                device,
+                polling,
+                type(error).__name__,
                 "Request from %s device error",
                 device.name,
+                exc_info=True,
             )
             device.available = False
             # A connection that closed or an answer that was cut off: the device
@@ -1029,17 +770,94 @@ class GlocaltokensApiClient:
                 )
             self._mark_token_rejected(device, polling=polling)
         if failure is not None:
-            raise DeviceRequestFailed(device.name, failure)
+            raise DeviceRequestFailed(
+                device.name, failure, polling_off=self.polling_off
+            )
         return resp
 
+    async def _read_answer(
+        self,
+        response: ClientResponse,
+        device: GoogleHomeDevice,
+        endpoint: str,
+        polling: bool,
+        *,
+        read_reply: bool,
+    ) -> JsonDict | None:
+        """Return the reply of the device's 200, and make the device available once it's read.
+
+        Without read_reply, what comes after the status, or doesn't, can't undo it, and
+        {} is returned, as for a reply that isn't JSON. Raise JSONDecodeError or
+        UnicodeDecodeError for one that says it is but isn't valid, which still counts
+        as an answer.
+        """
+        # It accepts its token, so its next rejection fetches straight away
+        self._token_waits.pop(device.device_id, None)
+        try:
+            reply = await response.json() if read_reply else {}
+        except ContentTypeError:
+            reply = {}
+        except json.JSONDecodeError, UnicodeDecodeError:
+            device.available = True
+            device.statuses[endpoint, polling] = response.status
+            raise
+        device.available = True
+        return reply
+
     def _mark_token_rejected(self, device: GoogleHomeDevice, *, polling: bool) -> None:
-        """Mark a device that rejected its token, with no new one to try."""
-        if polling:
+        """Mark a device that rejected its token, with no new one to try.
+
+        While polling is on, a device that rejects the token from a fetch that worked
+        waits before its rejection fetches Google's list again: the next of
+        FETCH_RETRY_DELAYS from the start of that fetch, longer for each later fetch
+        that starts once the wait is over and whose token it rejects, until it accepts
+        a token. Once it has rejected the tokens from two fetches in a row, the first
+        update it fails logs an error, and the others log for debugging: right after a
+        device restarts, Google may still give its old token for a short while.
+
+        After a fetch that failed, or while polling is off, the list is fetched again
+        at the next update or, after a failed fetch, at the first update once the
+        backoff has passed. Keep the devices meanwhile, so the fetch keeps their data,
+        and the others still update if Google can't be reached.
+        """
+        device.available = False
+        wait: TokenWait | None = None
+        if self.polling_off or self._fetch_backoff.failing:
+            self.google_devices_fetched = False
+        else:
+            wait = self._token_waits.setdefault(device.device_id, TokenWait())
+            if wait.counts(self._last_fetch_started):
+                wait.fetch_started(self._last_fetch_started)
+        if polling and wait is not None:
+            message = (
+                "%s rejected the token that Google gave it. Google is asked for a new "
+                "one at %s"
+            )
+            when = first_update_after(wait.wait_left(monotonic()))
+            if wait.repeated:
+                log_failure(
+                    device,
+                    polling,
+                    "token_rejected",
+                    f"{message}; further rejections are logged at debug level until "
+                    "it accepts one",
+                    device.name,
+                    when,
+                )
+            else:
+                _LOGGER.debug(message, device.name, when)
+        elif polling:
             _LOGGER.debug(
                 (
                     "Failed to fetch data from %s due to invalid token. "
                     "Will refresh the token and try again."
                 ),
+                device.name,
+            )
+        elif self.polling_off:
+            _LOGGER.warning(
+                "Failed to send the request to %s due to invalid token. "
+                "Polling is off: run Refresh devices, then try again.",
                 device.name,
             )
         else:
@@ -1048,26 +866,25 @@ class GlocaltokensApiClient:
                 "Token will be refreshed, please try again later.",
                 device.name,
             )
-        # Fetch Google's list, with new tokens, at the next update or, after a failed
-        # fetch, at the first update once the backoff has passed. Keep the devices
-        # meanwhile, so the fetch keeps their data, and the others still update if
-        # Google can't be reached.
-        self.google_devices_fetched = False
-        device.available = False
 
     async def _async_get_new_token(
         self, device: GoogleHomeDevice, rejected_token: str
     ) -> bool:
         """Return whether a device that rejected its token has a new one now.
 
-        If no fetch since the request was sent has brought one, fetch Google's list.
+        If no fetch since the request was sent has brought one, fetch Google's list,
+        unless the device waits after rejecting the token from a fetch that worked.
         Only one fetch runs from one update to the next, so once it has, the device
         waits for the next update. While the list is unknown, it also waits for the
         backoff after a failed fetch.
         """
-        if device.auth_token == rejected_token:
+        wait = self._token_waits.get(device.device_id)
+        if device.auth_token == rejected_token and not (
+            wait is not None and wait.waiting(monotonic())
+        ):
             try:
                 await self._async_fetch_devices(self._fetches_before_update)
-            except RequestException:
+            # Google can't be reached at setup
+            except ClientError, TimeoutError:
                 _LOGGER.debug("Failed to fetch Google's device list", exc_info=True)
         return device.auth_token != rejected_token

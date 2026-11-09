@@ -9,13 +9,13 @@
           "master_token": "Token maestro"
         },
         "menu_option_descriptions": {
-          "browser": "Inicia sesión en Google en un navegador de ordenador y después pega una cookie. Funciona con la mayoría de las cuentas.",
+          "browser": "Inicia sesión en Google en un navegador de ordenador y después pega una cookie.",
           "master_token": "Pega un token maestro que ya tengas."
         }
       },
       "browser": {
         "title": "Inicio de sesión en el navegador",
-        "description": "1. En un ordenador, abre {embedded_setup_url} en una ventana de navegación privada e inicia sesión. Después de aceptar, puede que la página siga cargando; es normal.\n2. Abre las herramientas para desarrolladores del navegador y busca las cookies de `accounts.google.com`.\n3. Copia el valor de la cookie `oauth_token` y pégalo abajo enseguida. Caduca en pocos minutos y solo funciona una vez.\n\nInstrucciones paso a paso (en inglés): {browser_docs_url}\n\nPara elegir otra forma de iniciar sesión, cierra esta ventana y vuelve a añadir la integración.",
+        "description": "1. En un ordenador, abre {embedded_setup_url} en una ventana de navegación privada e inicia sesión. Después de aceptar, puede que la página siga cargando; es normal.\n2. Abre las herramientas para desarrolladores del navegador y busca las cookies de `accounts.google.com`.\n3. Copia el valor de la cookie `oauth_token` y pégalo abajo enseguida. Puede caducar rápidamente y solo funciona una vez.\n\nInstrucciones paso a paso (en inglés): {browser_docs_url}\n\nPara elegir otra forma de iniciar sesión, cierra esta ventana y vuelve a añadir la integración.",
         "data": {
           "oauth_token": "Cookie oauth_token"
         },
@@ -33,6 +33,16 @@
           "master_token": "Empieza por aas_et/"
         }
       },
+      "homes": {
+        "title": "Elegir casas",
+        "description": "Tu cuenta de Google es miembro de varias casas. Elige las casas cuyos altavoces y pantallas quieres añadir. Puedes cambiarlo más adelante en las opciones de la integración: selecciona **Configurar** en la página de la integración.",
+        "data": {
+          "homes": "Casas"
+        },
+        "data_description": {
+          "homes": "Marca al menos una casa. También se añaden los altavoces y pantallas de las casas a las que tu cuenta se una más adelante."
+        }
+      },
       "reauth": {
         "title": "Volver a iniciar sesión",
         "description": "Google ya no acepta los datos de inicio de sesión guardados para {name}. Vuelve a iniciar sesión en la misma cuenta de Google: tus dispositivos, entidades y automatizaciones se mantienen como están. Hasta que lo hagas, las entidades de tus dispositivos pueden mostrar valores desactualizados o no estar disponibles.",
@@ -41,13 +51,13 @@
           "master_token": "Token maestro"
         },
         "menu_option_descriptions": {
-          "browser": "Inicia sesión en Google en un navegador de ordenador y después pega una cookie. Funciona con la mayoría de las cuentas.",
+          "browser": "Inicia sesión en Google en un navegador de ordenador y después pega una cookie.",
           "master_token": "Pega un token maestro que ya tengas."
         }
       },
       "reauth_browser": {
         "title": "Inicio de sesión en el navegador",
-        "description": "1. En un ordenador, abre {embedded_setup_url} en una ventana de navegación privada e inicia sesión en la misma cuenta de Google. Después de aceptar, puede que la página siga cargando; es normal.\n2. Abre las herramientas para desarrolladores del navegador y busca las cookies de `accounts.google.com`.\n3. Copia el valor de la cookie `oauth_token` y pégalo abajo enseguida. Caduca en pocos minutos y solo funciona una vez.\n\nInstrucciones paso a paso (en inglés): {browser_docs_url}",
+        "description": "1. En un ordenador, abre {embedded_setup_url} en una ventana de navegación privada e inicia sesión en la misma cuenta de Google. Después de aceptar, puede que la página siga cargando; es normal.\n2. Abre las herramientas para desarrolladores del navegador y busca las cookies de `accounts.google.com`.\n3. Copia el valor de la cookie `oauth_token` y pégalo abajo enseguida. Puede caducar rápidamente y solo funciona una vez.\n\nInstrucciones paso a paso (en inglés): {browser_docs_url}",
         "data": {
           "oauth_token": "Cookie oauth_token"
         },
@@ -67,19 +77,82 @@
       }
     },
     "error": {
-      "oauth-token-invalid": "Google no ha aceptado la cookie. Consigue una nueva y pégala enseguida: caduca en pocos minutos y solo funciona una vez. Copia el valor completo, que empieza por oauth2_4/.",
+      "oauth-token-invalid": "Google no ha aceptado el inicio de sesión. Consigue una cookie nueva y pégala enseguida: puede caducar rápidamente y solo funciona una vez. Copia el valor completo, que empieza por oauth2_4/.",
       "master-token-invalid": "Google no ha aceptado el token maestro. Comprueba que lo has copiado correctamente. Si antes funcionaba, por ejemplo hasta que cambiaste tu contraseña de Google, Google ya no lo acepta: usa en su lugar el inicio de sesión en el navegador.",
       "google-rejected": "Google no ha aceptado el inicio de sesión. Para ver los detalles, consulta los registros de Home Assistant.",
       "google-unreachable": "No se ha podido conectar con Google. Comprueba que Home Assistant esté conectado a Internet y vuelve a intentarlo.",
       "google-busy": "Google está ocupado o está limitando los inicios de sesión. Espera unos minutos y vuelve a iniciar sesión.",
       "oauth-token-format": "Esta no es la cookie oauth_token. Su valor empieza por oauth2_4/.",
-      "master-token-format": "Un token maestro empieza por aas_et/ y tiene 223 caracteres. Copia el token completo.",
-      "other-account": "Has iniciado sesión en otra cuenta de Google, por lo que no se ha cambiado nada. Inicia sesión con la cuenta que usa esta integración. Para usar esa otra cuenta, elimina la integración y vuelve a añadirla."
+      "master-token-format": "Un token maestro empieza por aas_et/ y tiene {token_length} caracteres. Copia el token completo.",
+      "other-account": "Has iniciado sesión en otra cuenta de Google, por lo que no se ha cambiado nada. Inicia sesión con la cuenta que usa esta integración. Para usar esa otra cuenta, elimina la integración y vuelve a añadirla.",
+      "no-home-selected": "Elige al menos una casa."
+    },
+    "abort": {
+      "no-home": "Google indica que esta cuenta no es miembro de ninguna casa, así que no hay altavoces ni pantallas que añadir. En la aplicación Google Home, invita a la cuenta a la casa en la que están tus dispositivos, acepta la invitación y vuelve a añadir la integración. Una cuenta de Google Workspace no se puede invitar, así que añade la integración con una cuenta de Gmail que sea miembro de la casa. Para más información, consulta {docs_url}."
+    }
+  },
+  "entity": {
+    "button": {
+      "reboot": {
+        "name": "Reiniciar"
+      }
+    },
+    "number": {
+      "alarm_volume": {
+        "name": "Volumen de alarma"
+      }
+    },
+    "sensor": {
+      "alarms": {
+        "name": "Alarmas"
+      },
+      "device": {
+        "name": "Dispositivo"
+      },
+      "timers": {
+        "name": "Temporizadores"
+      },
+      "wifi_network": {
+        "name": "Red Wi-Fi"
+      }
+    },
+    "switch": {
+      "do_not_disturb": {
+        "name": "No molestar"
+      }
+    },
+    "event": {
+      "alarm_events": {
+        "name": "Eventos de alarmas",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "ringing": "Sonando",
+              "snoozed": "Pospuesta",
+              "stopped": "Detenida"
+            }
+          }
+        }
+      },
+      "timer_events": {
+        "name": "Eventos de temporizadores",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "ringing": "Sonando",
+              "stopped": "Detenido"
+            }
+          }
+        }
+      }
     }
   },
   "exceptions": {
     "alarms_and_timers_not_fetched": {
       "message": "No se han podido obtener las alarmas y los temporizadores actuales de {device}, por lo que no se ha eliminado nada de ese dispositivo. Comprueba que esté en línea y vuelve a intentarlo más tarde."
+    },
+    "alarms_and_timers_not_fetched_token_rejected_polling_off": {
+      "message": "No se han podido obtener las alarmas y los temporizadores actuales de {device}, por lo que no se ha eliminado nada de ese dispositivo. El dispositivo ha rechazado su token. El sondeo de cambios está deshabilitado, así que la integración no vuelve a pedir uno a Google por sí misma: ejecuta la acción «Actualizar dispositivos» y vuelve a intentarlo."
     },
     "alarms_and_timers_not_fetched_from_devices": {
       "message": "No se han podido obtener las alarmas y los temporizadores actuales de estos dispositivos, por lo que no se ha eliminado nada de ellos: {devices}. Comprueba que estén en línea y vuelve a intentarlo más tarde."
@@ -87,8 +160,14 @@
     "alarms_and_timers_not_deleted": {
       "message": "{device} no ha confirmado la eliminación de las alarmas o los temporizadores, por lo que podrían seguir configurados. Comprueba que esté en línea y vuelve a intentarlo más tarde."
     },
+    "alarms_and_timers_not_deleted_token_rejected_polling_off": {
+      "message": "{device} no ha confirmado la eliminación de las alarmas o los temporizadores, por lo que podrían seguir configurados. El dispositivo ha rechazado su token. El sondeo de cambios está deshabilitado, así que la integración no vuelve a pedir uno a Google por sí misma: ejecuta la acción «Actualizar dispositivos» y vuelve a intentarlo."
+    },
     "alarms_and_timers_not_deleted_from_devices": {
       "message": "No se han podido eliminar las alarmas o los temporizadores de estos dispositivos, o confirmar que se hayan eliminado: {devices}. Comprueba que estén en línea y vuelve a intentarlo más tarde."
+    },
+    "alarms_and_timers_not_deleted_from_devices_token_rejected_polling_off": {
+      "message": "No se han podido eliminar las alarmas o los temporizadores de estos dispositivos, o confirmar que se hayan eliminado: {devices}. Al menos uno de ellos ha rechazado su token. El sondeo de cambios está deshabilitado, así que la integración no vuelve a pedir uno a Google por sí misma: ejecuta la acción «Actualizar dispositivos», comprueba que los dispositivos estén en línea y vuelve a intentarlo."
     },
     "invalid_alarm_id": {
       "message": "«{alarm_id}» no es un ID de alarma. Copia el ID, que empieza por alarm/, del atributo alarms del sensor de alarmas del dispositivo."
@@ -109,7 +188,10 @@
       "message": "{device} no ha confirmado que lo haya hecho: no ha respondido a tiempo o su respuesta se ha cortado. Comprueba que esté en línea y vuelve a intentarlo."
     },
     "device_token_rejected": {
-      "message": "{device} ha rechazado su token y obtener uno nuevo de Google no ha servido de nada. La integración sigue pidiendo uno nuevo a Google, así que vuelve a intentarlo más tarde."
+      "message": "{device} ha rechazado su token. La integración sigue pidiendo uno nuevo a Google, así que vuelve a intentarlo más tarde."
+    },
+    "device_token_rejected_polling_off": {
+      "message": "{device} ha rechazado su token. El sondeo de cambios está deshabilitado, así que la integración no vuelve a pedir uno a Google por sí misma: ejecuta la acción «Actualizar dispositivos» y vuelve a intentarlo."
     },
     "device_not_ready": {
       "message": "{device} ha respondido «no encontrado». Puede que aún se esté iniciando, así que vuelve a intentarlo más tarde, o que no admita esta acción."
@@ -119,22 +201,131 @@
     },
     "devices_not_rebooted": {
       "message": "Estos dispositivos no han confirmado que se vayan a reiniciar: {devices}. Comprueba que estén en línea y vuelve a intentarlo más tarde."
+    },
+    "sign_in_rejected": {
+      "message": "Google no ha aceptado el inicio de sesión ({reason}). Vuelve a iniciar sesión."
+    }
+  },
+  "issues": {
+    "polling_disabled": {
+      "title": "El sondeo de cambios está deshabilitado",
+      "fix_flow": {
+        "step": {
+          "init": {
+            "title": "El sondeo de cambios está deshabilitado",
+            "description": "La opción **Habilitar el sondeo de cambios** está deshabilitada en las opciones del sistema de la integración, así que la integración no consulta tus dispositivos por sí misma. Las alarmas, los temporizadores y las demás entidades solo se actualizan cuando lo pides, por ejemplo con la acción **Actualizar dispositivos**. Para saber qué sigue funcionando, consulta {docs_url} (en inglés).\n\nSi vuelves a habilitar el sondeo, la integración se recarga y después consulta tus dispositivos según su intervalo de actualización. Si lo mantienes deshabilitado, esta reparación se oculta hasta que habilites el sondeo y lo vuelvas a deshabilitar.",
+            "menu_options": {
+              "turn_on": "Volver a habilitar el sondeo",
+              "keep_off": "Mantener el sondeo deshabilitado y ocultar esta reparación"
+            }
+          }
+        },
+        "abort": {
+          "polling_kept_off": "El sondeo sigue deshabilitado y esta reparación se ha ocultado."
+        }
+      }
+    },
+    "invalid_update_interval": {
+      "title": "El intervalo de actualización guardado es inferior a {min_interval} s",
+      "fix_flow": {
+        "step": {
+          "init": {
+            "title": "El intervalo de actualización guardado es inferior a {min_interval} s",
+            "description": "El intervalo de actualización guardado en las opciones de la integración es de {interval} s, por debajo del mínimo de {min_interval} s. La integración usa en su lugar el valor por defecto y consulta tus dispositivos cada {default_interval} s.\n\nSi guardaste 0 para detener estas consultas periódicas, deshabilita el sondeo en su lugar. A diferencia de 0, deshabilitar el sondeo también detiene la búsqueda de dispositivos Bluetooth y la adición de los dispositivos nuevos que encuentra mDNS. Para más detalles, consulta {docs_url} (en inglés).\n\nPara usar otro intervalo, abre la [integración Google Home]({integration_url}), selecciona **Configurar**, introdúcelo y luego selecciona **Enviar**.",
+            "menu_options": {
+              "use_default": "Usar el valor por defecto de {default_interval} s",
+              "turn_off_polling": "Deshabilitar el sondeo en su lugar"
+            }
+          }
+        }
+      }
+    },
+    "homes_deselected": {
+      "title": "No hay ninguna casa de tu cuenta de Google seleccionada",
+      "description": "Tu cuenta de Google solo es miembro de casas que desmarcaste en las opciones de la integración, así que la integración no añade sus altavoces ni sus pantallas. Para añadir los dispositivos de una casa, abre la [integración Google Home]({integration_url}), selecciona **Configurar**, marca la casa en **Casas** y luego selecciona **Enviar**.\n\nSi quieres mantener estas casas desmarcadas, selecciona **Ignorar**."
+    },
+    "no_home": {
+      "title": "Google no indica ninguna casa para tu cuenta",
+      "description": "Google indica que la cuenta con la que la integración inició sesión no es miembro de ninguna casa, así que no hay altavoces ni pantallas que añadir. En la aplicación Google Home, invita a esta cuenta a la casa en la que están tus dispositivos y acepta la invitación. Después, recarga la [integración Google Home]({integration_url}): selecciona **⋮** > **Recargar**.\n\nSi mantienes la integración a propósito, por ejemplo mientras te mudas, selecciona **Ignorar**. Si ya no la necesitas, puedes eliminarla en la misma página."
+    }
+  },
+  "config_subentries": {
+    "bluetooth_device": {
+      "entry_type": "Dispositivo Bluetooth",
+      "initiate_flow": {
+        "user": "Rastrear un dispositivo Bluetooth"
+      },
+      "step": {
+        "user": {
+          "title": "Rastrear un dispositivo Bluetooth",
+          "description": "Introduce la IRK de un teléfono o la dirección MAC de un dispositivo cuya dirección nunca cambia, como algunos relojes y etiquetas localizadoras. Los teléfonos cambian de dirección cada pocos minutos, así que rastréalos por su IRK. Para saber cómo encontrar la IRK, consulta {docs_url}.",
+          "data": {
+            "name": "Nombre",
+            "irk_or_mac": "IRK o dirección MAC",
+            "additional_departure_delay": "Retardo adicional de salida"
+          },
+          "data_description": {
+            "name": "Nombre del rastreador, por ejemplo Teléfono de Alex.",
+            "irk_or_mac": "La Identity Resolving Key (clave de resolución de identidad) de un teléfono, como {irk_hex_length} dígitos hexadecimales o en base64, o una dirección MAC como AA:BB:CC:DD:EE:FF.",
+            "additional_departure_delay": "Tiempo adicional después del período normal de presencia de {presence_window} segundos antes de pasar de «En casa» a «Fuera». Los tiempos normales no añaden ningún retardo. Un retardo mayor también retrasa la detección de una salida real. Si los escaneos no pueden confirmar la ausencia, el rastreador puede pasar a no disponible."
+          }
+        },
+        "reconfigure": {
+          "title": "Configuración del dispositivo Bluetooth",
+          "description": "Cambia el retardo adicional de salida de este rastreador.",
+          "data": {
+            "additional_departure_delay": "Retardo adicional de salida"
+          },
+          "data_description": {
+            "additional_departure_delay": "Tiempo adicional después del período normal de presencia de {presence_window} segundos antes de pasar de «En casa» a «Fuera». Los tiempos normales no añaden ningún retardo. Un retardo mayor también retrasa la detección de una salida real. Si los escaneos no pueden confirmar la ausencia, el rastreador puede pasar a no disponible."
+          }
+        }
+      },
+      "error": {
+        "name-empty": "Introduce un nombre.",
+        "irk-or-mac": "Introduce una IRK o una dirección MAC.",
+        "irk-invalid": "Esto no es una IRK. Introduce {irk_bytes} bytes como {irk_hex_length} dígitos hexadecimales o en base64.",
+        "mac-invalid": "Esto no es una dirección MAC. Introduce seis pares de dígitos hexadecimales separados por dos puntos o guiones, por ejemplo AA:BB:CC:DD:EE:FF.",
+        "already-tracked": "Este dispositivo ya se está rastreando.",
+        "departure-delay-invalid": "Elige uno de los retardos de salida de la lista."
+      },
+      "abort": {
+        "bluetooth-tracking-off": "El seguimiento por Bluetooth está desactivado. Actívalo primero en las opciones de la integración: selecciona «Configurar» en la página de la integración.",
+        "device-removed": "Este dispositivo Bluetooth se ha eliminado. Añádelo de nuevo para rastrearlo."
+      }
     }
   },
   "options": {
     "step": {
       "init": {
         "data": {
-          "update_interval": "Cambia el intervalo de actualización. Auméntalo si los dispositivos suelen agotar el tiempo de espera. Valor por defecto: {default_interval} (segundos)",
-          "known_hosts": "Hosts conocidos"
+          "update_interval": "Intervalo de actualización (segundos)",
+          "known_hosts": "Hosts conocidos",
+          "homes": "Casas"
         },
         "data_description": {
-          "known_hosts": "Direcciones IP de altavoces y pantallas que la integración no puede encontrar por sí misma, por ejemplo porque están en otra red o VLAN."
+          "update_interval": "Auméntalo si tus dispositivos a menudo no responden a tiempo. Valor por defecto: {default_interval} segundos.",
+          "known_hosts": "Direcciones IP de altavoces y pantallas que la integración no puede encontrar por sí misma, por ejemplo porque están en otra red o VLAN.",
+          "homes": "Los altavoces y pantallas de las casas que desmarques no se añaden. Al desmarcar una casa, sus dispositivos y las entidades de estos se eliminan de Home Assistant, por lo que las automatizaciones, los scripts y los paneles de control que los usan dejan de funcionar. Vuelve a marcar la casa para añadirlos de nuevo con los nombres y las áreas que les diste."
+        },
+        "sections": {
+          "bluetooth": {
+            "name": "Bluetooth",
+            "data": {
+              "bluetooth_tracking": "Seguimiento por Bluetooth",
+              "bluetooth_excluded_speakers": "Altavoces no usados para el seguimiento por Bluetooth"
+            },
+            "data_description": {
+              "bluetooth_tracking": "Usa tus altavoces para saber si tu teléfono u otros dispositivos Bluetooth están en casa. Después de activarlo, selecciona «Rastrear un dispositivo Bluetooth» en la página de la integración para cada dispositivo que quieras rastrear. Mientras esté desactivado, la integración no envía ninguna solicitud Bluetooth a tus altavoces.",
+              "bluetooth_excluded_speakers": "Altavoces que no buscan dispositivos Bluetooth. Añade un altavoz que esté desenchufado o fuera de servicio."
+            }
+          }
         }
       }
     },
     "error": {
-      "known-host-not-ip": "Introduce solo direcciones IP, como 192.168.1.20."
+      "known-host-not-ip": "Introduce solo direcciones IP, como 192.168.1.20.",
+      "no-home-selected": "Elige al menos una casa."
     }
   },
   "services": {
@@ -201,6 +392,29 @@
     "refresh_devices": {
       "description": "Actualizar el estado de todos los dispositivos Google Home.",
       "name": "Actualizar dispositivos"
+    }
+  },
+  "system_health": {
+    "info": {
+      "can_reach_sign_in": "Acceso al servidor de inicio de sesión de Google",
+      "can_reach_device_list": "Acceso al servidor de la lista de dispositivos de Google",
+      "device_list": "Lista de dispositivos de Google",
+      "retry_not_before": "Reintento no antes de",
+      "polling": "Sondeo de cambios",
+      "bluetooth_tracking": "Seguimiento por Bluetooth",
+      "devices_listed": "Dispositivos en la lista de Google",
+      "devices_not_answering": "Dispositivos que no responden"
+    }
+  },
+  "selector": {
+    "departure_delay": {
+      "options": {
+        "0": "0 segundos (tiempos normales)",
+        "30": "30 segundos",
+        "60": "60 segundos",
+        "90": "90 segundos",
+        "120": "120 segundos"
+      }
     }
   }
 }

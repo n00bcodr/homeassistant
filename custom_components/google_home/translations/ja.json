@@ -9,13 +9,13 @@
           "master_token": "マスタートークン"
         },
         "menu_option_descriptions": {
-          "browser": "パソコンのブラウザで Google にログインし、Cookie を貼り付けます。ほとんどのアカウントで利用できます。",
+          "browser": "パソコンのブラウザで Google にログインし、Cookie を貼り付けます。",
           "master_token": "取得済みのマスタートークンを貼り付けます。"
         }
       },
       "browser": {
         "title": "ブラウザでログイン",
-        "description": "1. パソコンのブラウザでプライベート ウィンドウ（シークレット ウィンドウなど）を開き、{embedded_setup_url} にアクセスしてログインします。同意した後もページの読み込みが続く場合がありますが、問題ありません。\n2. ブラウザの開発者ツールを開き、`accounts.google.com` の Cookie を探します。\n3. `oauth_token` Cookie の値をコピーして、すぐに下の欄に貼り付けてください。数分以内に有効期限が切れ、1 回しか使用できません。\n\n詳しい手順: {browser_docs_url}\n\n別のログイン方法を選ぶには、このウィンドウを閉じて統合を追加し直してください。",
+        "description": "1. パソコンのブラウザでプライベート ウィンドウ（シークレット ウィンドウなど）を開き、{embedded_setup_url} にアクセスしてログインします。同意した後もページの読み込みが続く場合がありますが、問題ありません。\n2. ブラウザの開発者ツールを開き、`accounts.google.com` の Cookie を探します。\n3. `oauth_token` Cookie の値をコピーして、すぐに下の欄に貼り付けてください。すぐに有効期限が切れることがあり、1 回しか使用できません。\n\n詳しい手順: {browser_docs_url}\n\n別のログイン方法を選ぶには、このウィンドウを閉じて統合を追加し直してください。",
         "data": {
           "oauth_token": "oauth_token Cookie"
         },
@@ -33,6 +33,16 @@
           "master_token": "aas_et/ で始まります"
         }
       },
+      "homes": {
+        "title": "家を選択",
+        "description": "お使いの Google アカウントは複数の家のメンバーです。どの家のスピーカーとディスプレイを追加するかを選択してください。この設定は後で統合のオプションから変更できます。統合のページで「**設定**」を選択します。",
+        "data": {
+          "homes": "家"
+        },
+        "data_description": {
+          "homes": "家を 1 つ以上選択してください。お使いのアカウントが今後メンバーになる家のスピーカーとディスプレイも追加されます。"
+        }
+      },
       "reauth": {
         "title": "再度ログイン",
         "description": "Google が {name} の保存済みログイン情報を受け付けなくなりました。同じ Google アカウントにもう一度ログインしてください。デバイス、エンティティ、オートメーションはそのまま残ります。ログインし直すまで、デバイスのエンティティに古い値が表示されたり、エンティティが利用できなくなったりすることがあります。",
@@ -41,13 +51,13 @@
           "master_token": "マスタートークン"
         },
         "menu_option_descriptions": {
-          "browser": "パソコンのブラウザで Google にログインし、Cookie を貼り付けます。ほとんどのアカウントで利用できます。",
+          "browser": "パソコンのブラウザで Google にログインし、Cookie を貼り付けます。",
           "master_token": "取得済みのマスタートークンを貼り付けます。"
         }
       },
       "reauth_browser": {
         "title": "ブラウザでログイン",
-        "description": "1. パソコンのブラウザでプライベート ウィンドウ（シークレット ウィンドウなど）を開き、{embedded_setup_url} にアクセスして同じ Google アカウントにログインします。同意した後もページの読み込みが続く場合がありますが、問題ありません。\n2. ブラウザの開発者ツールを開き、`accounts.google.com` の Cookie を探します。\n3. `oauth_token` Cookie の値をコピーして、すぐに下の欄に貼り付けてください。数分以内に有効期限が切れ、1 回しか使用できません。\n\n詳しい手順: {browser_docs_url}",
+        "description": "1. パソコンのブラウザでプライベート ウィンドウ（シークレット ウィンドウなど）を開き、{embedded_setup_url} にアクセスして同じ Google アカウントにログインします。同意した後もページの読み込みが続く場合がありますが、問題ありません。\n2. ブラウザの開発者ツールを開き、`accounts.google.com` の Cookie を探します。\n3. `oauth_token` Cookie の値をコピーして、すぐに下の欄に貼り付けてください。すぐに有効期限が切れることがあり、1 回しか使用できません。\n\n詳しい手順: {browser_docs_url}",
         "data": {
           "oauth_token": "oauth_token Cookie"
         },
@@ -67,19 +77,82 @@
       }
     },
     "error": {
-      "oauth-token-invalid": "Google が Cookie を受け付けませんでした。新しい Cookie を取得し、すぐに貼り付けてください。数分以内に有効期限が切れ、1 回しか使用できません。oauth2_4/ で始まる値をすべてコピーしてください。",
+      "oauth-token-invalid": "Google がログインを受け付けませんでした。新しい Cookie を取得し、すぐに貼り付けてください。すぐに有効期限が切れることがあり、1 回しか使用できません。oauth2_4/ で始まる値をすべてコピーしてください。",
       "master-token-invalid": "Google がマスタートークンを受け付けませんでした。正しくコピーしたか確認してください。以前は使えていた場合（たとえば Google のパスワードを変更するまで）、Google はこのトークンを受け付けなくなっています。代わりに「ブラウザでログイン」を使用してください。",
       "google-rejected": "Google がログインを受け付けませんでした。詳細は Home Assistant のログを確認してください。",
       "google-unreachable": "Google に接続できませんでした。Home Assistant がインターネットに接続されていることを確認してから、もう一度お試しください。",
       "google-busy": "Google が混雑しているか、ログインを制限しています。数分待ってから、再度ログインしてください。",
       "oauth-token-format": "これは oauth_token Cookie ではありません。値は oauth2_4/ で始まります。",
-      "master-token-format": "マスタートークンは aas_et/ で始まる 223 文字の文字列です。トークン全体をコピーしてください。",
-      "other-account": "別の Google アカウントでログインしたため、何も変更されていません。この統合で使用しているアカウントでログインしてください。代わりに今回ログインしたアカウントを使用するには、統合を削除して追加し直してください。"
+      "master-token-format": "マスタートークンは aas_et/ で始まる {token_length} 文字の文字列です。トークン全体をコピーしてください。",
+      "other-account": "別の Google アカウントでログインしたため、何も変更されていません。この統合で使用しているアカウントでログインしてください。代わりに今回ログインしたアカウントを使用するには、統合を削除して追加し直してください。",
+      "no-home-selected": "家を 1 つ以上選択してください。"
+    },
+    "abort": {
+      "no-home": "Google によると、このアカウントはどの家のメンバーでもないため、追加できるスピーカーやディスプレイはありません。Google Home アプリで、デバイスがある家にこのアカウントを招待して招待を承諾し、統合を追加し直してください。Google Workspace アカウントは招待できないため、代わりに家のメンバーである Gmail アカウントで統合を追加してください。詳しくは {docs_url} をご覧ください。"
+    }
+  },
+  "entity": {
+    "button": {
+      "reboot": {
+        "name": "再起動"
+      }
+    },
+    "number": {
+      "alarm_volume": {
+        "name": "アラーム音量"
+      }
+    },
+    "sensor": {
+      "alarms": {
+        "name": "アラーム"
+      },
+      "device": {
+        "name": "デバイス"
+      },
+      "timers": {
+        "name": "タイマー"
+      },
+      "wifi_network": {
+        "name": "Wi-Fi ネットワーク"
+      }
+    },
+    "switch": {
+      "do_not_disturb": {
+        "name": "サイレント モード"
+      }
+    },
+    "event": {
+      "alarm_events": {
+        "name": "アラームのイベント",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "ringing": "鳴動中",
+              "snoozed": "スヌーズ中",
+              "stopped": "停止"
+            }
+          }
+        }
+      },
+      "timer_events": {
+        "name": "タイマーのイベント",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "ringing": "鳴動中",
+              "stopped": "停止"
+            }
+          }
+        }
+      }
     }
   },
   "exceptions": {
     "alarms_and_timers_not_fetched": {
       "message": "{device} から現在のアラームとタイマーを取得できなかったため、このデバイスからは何も削除されませんでした。デバイスがオンラインであることを確認し、しばらくしてからもう一度お試しください。"
+    },
+    "alarms_and_timers_not_fetched_token_rejected_polling_off": {
+      "message": "{device} から現在のアラームとタイマーを取得できなかったため、このデバイスからは何も削除されませんでした。デバイスがトークンを拒否しました。変更のポーリングが無効になっているため、統合が自動的に Google へ再度要求することはありません。「デバイスを更新」アクションを実行してから、もう一度お試しください。"
     },
     "alarms_and_timers_not_fetched_from_devices": {
       "message": "次のデバイスから現在のアラームとタイマーを取得できなかったため、これらのデバイスからは何も削除されませんでした: {devices}。これらのデバイスがオンラインであることを確認し、しばらくしてからもう一度お試しください。"
@@ -87,8 +160,14 @@
     "alarms_and_timers_not_deleted": {
       "message": "{device} からアラームまたはタイマーの削除を確認する応答がなかったため、まだ設定されている可能性があります。デバイスがオンラインであることを確認し、しばらくしてからもう一度お試しください。"
     },
+    "alarms_and_timers_not_deleted_token_rejected_polling_off": {
+      "message": "{device} からアラームまたはタイマーの削除を確認する応答がなかったため、まだ設定されている可能性があります。デバイスがトークンを拒否しました。変更のポーリングが無効になっているため、統合が自動的に Google へ再度要求することはありません。「デバイスを更新」アクションを実行してから、もう一度お試しください。"
+    },
     "alarms_and_timers_not_deleted_from_devices": {
       "message": "次のデバイスでアラームまたはタイマーを削除できなかったか、削除されたことを確認できませんでした: {devices}。これらのデバイスがオンラインであることを確認し、しばらくしてからもう一度お試しください。"
+    },
+    "alarms_and_timers_not_deleted_from_devices_token_rejected_polling_off": {
+      "message": "次のデバイスでアラームまたはタイマーを削除できなかったか、削除されたことを確認できませんでした: {devices}。そのうち少なくとも 1 台がトークンを拒否しました。変更のポーリングが無効になっているため、統合が自動的に Google へ再度要求することはありません。「デバイスを更新」アクションを実行し、これらのデバイスがオンラインであることを確認してから、もう一度お試しください。"
     },
     "invalid_alarm_id": {
       "message": "「{alarm_id}」はアラーム ID ではありません。デバイスのアラームセンサーの alarms 属性から、alarm/ で始まる ID をコピーしてください。"
@@ -109,7 +188,10 @@
       "message": "{device} から操作を実行したという確認が得られませんでした。応答が間に合わなかったか、途中で途切れました。デバイスがオンラインであることを確認し、もう一度お試しください。"
     },
     "device_token_rejected": {
-      "message": "{device} がトークンを拒否し、Google から新しいトークンの取得を試みても解決しませんでした。統合が引き続き Google に新しいトークンを要求するので、しばらくしてからもう一度お試しください。"
+      "message": "{device} がトークンを拒否しました。統合が引き続き Google に新しいトークンを要求するので、しばらくしてからもう一度お試しください。"
+    },
+    "device_token_rejected_polling_off": {
+      "message": "{device} がトークンを拒否しました。変更のポーリングが無効になっているため、統合が自動的に Google へ再度要求することはありません。「デバイスを更新」アクションを実行してから、もう一度お試しください。"
     },
     "device_not_ready": {
       "message": "{device} から「見つかりません」という応答がありました。まだ起動中の可能性があるので、しばらくしてからもう一度お試しください。この操作に対応していない可能性もあります。"
@@ -119,22 +201,131 @@
     },
     "devices_not_rebooted": {
       "message": "次のデバイスから再起動するという確認が得られませんでした: {devices}。これらのデバイスがオンラインであることを確認し、しばらくしてからもう一度お試しください。"
+    },
+    "sign_in_rejected": {
+      "message": "Google がログインを受け付けませんでした（{reason}）。再度ログインしてください。"
+    }
+  },
+  "issues": {
+    "polling_disabled": {
+      "title": "変更のポーリングが無効になっています",
+      "fix_flow": {
+        "step": {
+          "init": {
+            "title": "変更のポーリングが無効になっています",
+            "description": "統合のシステムオプションで「**変更のポーリングを有効にする**」がオフになっているため、この統合はデバイスを自動的に確認しません。アラーム、タイマー、その他のエンティティは、「**デバイスを更新**」アクションなどで要求したときにのみ更新されます。引き続き使える機能については、{docs_url} をご覧ください。\n\nポーリングを再び有効にすると、統合が再読み込みされ、その後は更新間隔ごとにデバイスを確認します。無効のままにすると、ポーリングを一度有効にしてから再び無効にするまで、この修復は非表示になります。",
+            "menu_options": {
+              "turn_on": "ポーリングを再び有効にする",
+              "keep_off": "ポーリングを無効のままにして、この修復を非表示にする"
+            }
+          }
+        },
+        "abort": {
+          "polling_kept_off": "ポーリングは無効のままです。この修復は非表示になりました。"
+        }
+      }
+    },
+    "invalid_update_interval": {
+      "title": "保存されている更新間隔が {min_interval} 秒未満です",
+      "fix_flow": {
+        "step": {
+          "init": {
+            "title": "保存されている更新間隔が {min_interval} 秒未満です",
+            "description": "統合のオプションに保存されている更新間隔は {interval} 秒で、最小値の {min_interval} 秒を下回っています。統合は代わりに既定値を使い、{default_interval} 秒ごとにデバイスを確認します。\n\nこの定期的な確認を止めるために 0 を保存した場合は、代わりにポーリングを無効にしてください。0 とは異なり、Bluetooth デバイスのスキャンと、mDNS で見つかった新しいデバイスの追加も停止します。詳しくは {docs_url} をご覧ください。\n\n別の間隔を使うには、[Google Home 統合]({integration_url})を開いて「**設定**」を選択し、間隔を入力してから「**送信**」を選択します。",
+            "menu_options": {
+              "use_default": "既定値の {default_interval} 秒を使う",
+              "turn_off_polling": "代わりにポーリングを無効にする"
+            }
+          }
+        }
+      }
+    },
+    "homes_deselected": {
+      "title": "Google アカウントのどの家も選択されていません",
+      "description": "お使いの Google アカウントは、統合のオプションで選択を解除した家にしか参加していないため、統合はそれらの家のスピーカーとディスプレイを追加しません。家のデバイスを追加するには、[Google Home 統合]({integration_url})を開いて「**設定**」を選択し、「**家**」でその家を選択してから「**送信**」を選択します。\n\nこれらの家の選択を解除したままにする場合は、「**無視**」を選択してください。"
+    },
+    "no_home": {
+      "title": "Google からアカウントの家が報告されていません",
+      "description": "Google によると、統合がログインしているアカウントはどの家のメンバーでもないため、追加できるスピーカーやディスプレイはありません。Google Home アプリで、デバイスがある家にこのアカウントを招待し、招待を承諾してください。その後、[Google Home 統合]({integration_url})を再読み込みします。「**⋮**」>「**再読込**」を選択してください。\n\n引っ越し中など、意図的に統合を残しておく場合は、「**無視**」を選択してください。不要になった場合は、同じページで統合を削除できます。"
+    }
+  },
+  "config_subentries": {
+    "bluetooth_device": {
+      "entry_type": "Bluetooth デバイス",
+      "initiate_flow": {
+        "user": "Bluetooth デバイスを追跡"
+      },
+      "step": {
+        "user": {
+          "title": "Bluetooth デバイスを追跡",
+          "description": "スマートフォンの IRK、またはアドレスが変わらないデバイス (一部の腕時計やタグなど) の MAC アドレスを入力してください。スマートフォンは数分ごとにアドレスを変えるため、IRK で追跡してください。IRK の確認方法は {docs_url} を参照してください。",
+          "data": {
+            "name": "名前",
+            "irk_or_mac": "IRK または MAC アドレス",
+            "additional_departure_delay": "外出判定の追加遅延"
+          },
+          "data_description": {
+            "name": "トラッカーの名前。例: アレックスのスマートフォン",
+            "irk_or_mac": "スマートフォンの Identity Resolving Key (16 進数 {irk_hex_length} 桁または base64)、または AA:BB:CC:DD:EE:FF のような MAC アドレス。",
+            "additional_departure_delay": "通常の{presence_window}秒間の在宅判定時間が過ぎてから、状態を「在宅」から「不在」に変えるまでの追加時間です。通常の判定時間では遅延は追加されません。長くすると、実際に外出した際の判定も遅くなります。スキャンで不在を確認できない場合、トラッカーは「切断」になることがあります。"
+          }
+        },
+        "reconfigure": {
+          "title": "Bluetooth デバイスの設定",
+          "description": "このトラッカーの外出判定の追加遅延を変更します。",
+          "data": {
+            "additional_departure_delay": "外出判定の追加遅延"
+          },
+          "data_description": {
+            "additional_departure_delay": "通常の{presence_window}秒間の在宅判定時間が過ぎてから、状態を「在宅」から「不在」に変えるまでの追加時間です。通常の判定時間では遅延は追加されません。長くすると、実際に外出した際の判定も遅くなります。スキャンで不在を確認できない場合、トラッカーは「切断」になることがあります。"
+          }
+        }
+      },
+      "error": {
+        "name-empty": "名前を入力してください。",
+        "irk-or-mac": "IRK または MAC アドレスを入力してください。",
+        "irk-invalid": "IRK ではありません。{irk_bytes} バイトを16進数 {irk_hex_length} 桁または base64 で入力してください。",
+        "mac-invalid": "MAC アドレスではありません。AA:BB:CC:DD:EE:FF のように、16 進数 2 桁の組 6 つをコロンまたはハイフンで区切って入力してください。",
+        "already-tracked": "このデバイスはすでに追跡されています。",
+        "departure-delay-invalid": "一覧にある外出判定の遅延時間から選択してください。"
+      },
+      "abort": {
+        "bluetooth-tracking-off": "Bluetooth トラッキングがオフです。まず統合のオプションでオンにしてください。統合のページで「設定」を選択します。",
+        "device-removed": "この Bluetooth デバイスは削除されました。追跡するには、もう一度追加してください。"
+      }
     }
   },
   "options": {
     "step": {
       "init": {
         "data": {
-          "update_interval": "更新間隔を変更します。デバイスの応答が間に合わない場合は、この値を増やしてください。既定値: {default_interval} 秒。",
-          "known_hosts": "既知のホスト"
+          "update_interval": "更新間隔（秒）",
+          "known_hosts": "既知のホスト",
+          "homes": "家"
         },
         "data_description": {
-          "known_hosts": "別のネットワークや VLAN にあるなどの理由で、この統合が自動検出できないスピーカーやディスプレイの IP アドレス。"
+          "update_interval": "デバイスの応答が間に合わないことが多い場合は、この値を増やしてください。既定値: {default_interval} 秒。",
+          "known_hosts": "別のネットワークや VLAN にあるなどの理由で、この統合が自動検出できないスピーカーやディスプレイの IP アドレス。",
+          "homes": "選択を解除した家のスピーカーとディスプレイは追加されません。家の選択を解除すると、その家のデバイスとそのエンティティが Home Assistant から削除されるため、それらを使用しているオートメーション、スクリプト、ダッシュボードは動作しなくなります。その家をもう一度選択すると、設定した名前とエリアのままデバイスが再び追加されます。"
+        },
+        "sections": {
+          "bluetooth": {
+            "name": "Bluetooth",
+            "data": {
+              "bluetooth_tracking": "Bluetooth トラッキング",
+              "bluetooth_excluded_speakers": "Bluetooth トラッキングに使用しないスピーカー"
+            },
+            "data_description": {
+              "bluetooth_tracking": "スピーカーを使って、スマートフォンやその他の Bluetooth デバイスが在宅かどうかを判定します。オンにしたら、追跡するデバイスごとに統合のページで「Bluetooth デバイスを追跡」を選択してください。オフの間、この統合はスピーカーに Bluetooth のリクエストを送信しません。",
+              "bluetooth_excluded_speakers": "Bluetooth デバイスをスキャンしないスピーカー。電源が抜かれているスピーカーや使用していないスピーカーを追加してください。"
+            }
+          }
         }
       }
     },
     "error": {
-      "known-host-not-ip": "192.168.1.20 などの IP アドレスのみを入力してください。"
+      "known-host-not-ip": "192.168.1.20 などの IP アドレスのみを入力してください。",
+      "no-home-selected": "家を 1 つ以上選択してください。"
     }
   },
   "services": {
@@ -201,6 +392,29 @@
     "refresh_devices": {
       "description": "すべての Google Home デバイスの状態を更新します。",
       "name": "デバイスを更新"
+    }
+  },
+  "system_health": {
+    "info": {
+      "can_reach_sign_in": "Google ログインサーバーへのアクセス",
+      "can_reach_device_list": "Google デバイスリストサーバーへのアクセス",
+      "device_list": "Google のデバイスリスト",
+      "retry_not_before": "最も早い再試行時刻",
+      "polling": "変更のポーリング",
+      "bluetooth_tracking": "Bluetooth トラッキング",
+      "devices_listed": "Google のリストにあるデバイス",
+      "devices_not_answering": "応答しないデバイス"
+    }
+  },
+  "selector": {
+    "departure_delay": {
+      "options": {
+        "0": "0秒（通常の判定時間）",
+        "30": "30秒",
+        "60": "60秒",
+        "90": "90秒",
+        "120": "120秒"
+      }
     }
   }
 }

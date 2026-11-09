@@ -9,13 +9,13 @@
           "master_token": "Master token"
         },
         "menu_option_descriptions": {
-          "browser": "Sign in to Google in a desktop browser, then paste a cookie. Works for most accounts.",
+          "browser": "Sign in to Google in a desktop browser, then paste a cookie.",
           "master_token": "Paste a master token you already have."
         }
       },
       "browser": {
         "title": "Browser sign-in",
-        "description": "1. On a computer, open {embedded_setup_url} in a private browser window and sign in. After you accept, the page may keep loading; that is expected.\n2. Open the browser's developer tools and find the cookies for `accounts.google.com`.\n3. Copy the value of the `oauth_token` cookie and paste it below straight away. It expires within minutes and works only once.\n\nStep-by-step instructions: {browser_docs_url}\n\nTo choose another way to sign in, close this window and add the integration again.",
+        "description": "1. On a computer, open {embedded_setup_url} in a private browser window and sign in. After you accept, the page may keep loading; that is expected.\n2. Open the browser's developer tools and find the cookies for `accounts.google.com`.\n3. Copy the value of the `oauth_token` cookie and paste it below straight away. It can expire quickly and works only once.\n\nStep-by-step instructions: {browser_docs_url}\n\nTo choose another way to sign in, close this window and add the integration again.",
         "data": {
           "oauth_token": "oauth_token cookie"
         },
@@ -33,6 +33,16 @@
           "master_token": "Starts with aas_et/"
         }
       },
+      "homes": {
+        "title": "Choose homes",
+        "description": "Your Google account is a member of several homes. Choose the homes whose speakers and displays to add. You can change this later in the integration's options: select **Configure** on the integration's page.",
+        "data": {
+          "homes": "Homes"
+        },
+        "data_description": {
+          "homes": "Select at least one home. Speakers and displays in homes that your account joins later are also added."
+        }
+      },
       "reauth": {
         "title": "Sign in again",
         "description": "Google no longer accepts the sign-in saved for {name}. Sign in to the same Google account again: your devices, entities and automations stay as they are. Until you do, your devices' entities can show out-of-date values or be unavailable.",
@@ -41,13 +51,13 @@
           "master_token": "Master token"
         },
         "menu_option_descriptions": {
-          "browser": "Sign in to Google in a desktop browser, then paste a cookie. Works for most accounts.",
+          "browser": "Sign in to Google in a desktop browser, then paste a cookie.",
           "master_token": "Paste a master token you already have."
         }
       },
       "reauth_browser": {
         "title": "Browser sign-in",
-        "description": "1. On a computer, open {embedded_setup_url} in a private browser window and sign in to the same Google account. After you accept, the page may keep loading; that is expected.\n2. Open the browser's developer tools and find the cookies for `accounts.google.com`.\n3. Copy the value of the `oauth_token` cookie and paste it below straight away. It expires within minutes and works only once.\n\nStep-by-step instructions: {browser_docs_url}",
+        "description": "1. On a computer, open {embedded_setup_url} in a private browser window and sign in to the same Google account. After you accept, the page may keep loading; that is expected.\n2. Open the browser's developer tools and find the cookies for `accounts.google.com`.\n3. Copy the value of the `oauth_token` cookie and paste it below straight away. It can expire quickly and works only once.\n\nStep-by-step instructions: {browser_docs_url}",
         "data": {
           "oauth_token": "oauth_token cookie"
         },
@@ -67,19 +77,82 @@
       }
     },
     "error": {
-      "oauth-token-invalid": "Google didn't accept the cookie. Get a new one and paste it straight away: it expires within minutes and works only once. Copy the whole value, starting with oauth2_4/.",
+      "oauth-token-invalid": "Google didn't accept the sign-in. Get a new cookie and paste it straight away: it can expire quickly and works only once. Copy the whole value, starting with oauth2_4/.",
       "master-token-invalid": "Google didn't accept the master token. Check that you copied it correctly. If it worked before, for example until you changed your Google password, Google no longer accepts it: use browser sign-in instead.",
       "google-rejected": "Google didn't accept the sign-in. For details, see the Home Assistant log.",
       "google-unreachable": "Couldn't reach Google. Check that Home Assistant is connected to the internet, then try again.",
       "google-busy": "Google is busy or is limiting sign-ins. Wait a few minutes, then sign in again.",
       "oauth-token-format": "This isn't the oauth_token cookie. Its value starts with oauth2_4/.",
-      "master-token-format": "A master token starts with aas_et/ and is 223 characters long. Copy the whole token.",
-      "other-account": "You signed in to a different Google account, so nothing was changed. Sign in with the account this integration uses. To use the other account instead, delete the integration and add it again."
+      "master-token-format": "A master token starts with aas_et/ and is {token_length} characters long. Copy the whole token.",
+      "other-account": "You signed in to a different Google account, so nothing was changed. Sign in with the account this integration uses. To use the other account instead, delete the integration and add it again.",
+      "no-home-selected": "Choose at least one home."
+    },
+    "abort": {
+      "no-home": "Google reports that this account isn't a member of any home, so there are no speakers or displays to add. In the Google Home app, invite the account to the home that your devices are in and accept the invitation, then add the integration again. A Google Workspace account can't be invited, so add the integration with a Gmail account that is a member of the home instead. For details, see {docs_url}."
+    }
+  },
+  "entity": {
+    "button": {
+      "reboot": {
+        "name": "Reboot"
+      }
+    },
+    "number": {
+      "alarm_volume": {
+        "name": "Alarm volume"
+      }
+    },
+    "sensor": {
+      "alarms": {
+        "name": "Alarms"
+      },
+      "device": {
+        "name": "Device"
+      },
+      "timers": {
+        "name": "Timers"
+      },
+      "wifi_network": {
+        "name": "Wi-Fi network"
+      }
+    },
+    "switch": {
+      "do_not_disturb": {
+        "name": "Do Not Disturb"
+      }
+    },
+    "event": {
+      "alarm_events": {
+        "name": "Alarm events",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "ringing": "Ringing",
+              "snoozed": "Snoozed",
+              "stopped": "Stopped"
+            }
+          }
+        }
+      },
+      "timer_events": {
+        "name": "Timer events",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "ringing": "Ringing",
+              "stopped": "Stopped"
+            }
+          }
+        }
+      }
     }
   },
   "exceptions": {
     "alarms_and_timers_not_fetched": {
       "message": "Couldn't get the current alarms and timers from {device}, so nothing was deleted from it. Check that it's online and try again later."
+    },
+    "alarms_and_timers_not_fetched_token_rejected_polling_off": {
+      "message": "Couldn't get the current alarms and timers from {device}, so nothing was deleted from it. It rejected its token. Polling is turned off, so the integration doesn't ask Google again by itself: run the Refresh devices action, then try again."
     },
     "alarms_and_timers_not_fetched_from_devices": {
       "message": "Couldn't get the current alarms and timers from these devices, so nothing was deleted from them: {devices}. Check that they're online and try again later."
@@ -87,8 +160,14 @@
     "alarms_and_timers_not_deleted": {
       "message": "{device} didn't confirm deleting the alarms or timers, so they may still be set. Check that it's online and try again later."
     },
+    "alarms_and_timers_not_deleted_token_rejected_polling_off": {
+      "message": "{device} didn't confirm deleting the alarms or timers, so they may still be set. It rejected its token. Polling is turned off, so the integration doesn't ask Google again by itself: run the Refresh devices action, then try again."
+    },
     "alarms_and_timers_not_deleted_from_devices": {
       "message": "Couldn't delete alarms or timers from these devices, or confirm that they were deleted: {devices}. Check that they're online and try again later."
+    },
+    "alarms_and_timers_not_deleted_from_devices_token_rejected_polling_off": {
+      "message": "Couldn't delete alarms or timers from these devices, or confirm that they were deleted: {devices}. At least one of them rejected its token. Polling is turned off, so the integration doesn't ask Google again by itself: run the Refresh devices action, check that the devices are online, then try again."
     },
     "invalid_alarm_id": {
       "message": "“{alarm_id}” isn't an alarm ID. Copy the ID, which starts with alarm/, from the alarms attribute of the device's alarms sensor."
@@ -109,7 +188,10 @@
       "message": "{device} didn't confirm that it did this: it didn't answer in time, or its answer was cut off. Check that it's online and try again."
     },
     "device_token_rejected": {
-      "message": "{device} rejected its token, and getting a new one from Google didn't help. The integration keeps asking Google for one, so try again later."
+      "message": "{device} rejected its token. The integration keeps asking Google for one, so try again later."
+    },
+    "device_token_rejected_polling_off": {
+      "message": "{device} rejected its token. Polling is turned off, so the integration doesn't ask Google again by itself: run the Refresh devices action, then try again."
     },
     "device_not_ready": {
       "message": "{device} answered “not found”. It may still be starting up, so try again later, or it may not support this."
@@ -119,22 +201,131 @@
     },
     "devices_not_rebooted": {
       "message": "These devices didn't confirm that they'll reboot: {devices}. Check that they're online and try again later."
+    },
+    "sign_in_rejected": {
+      "message": "Google didn't accept the sign-in ({reason}). Sign in again."
+    }
+  },
+  "issues": {
+    "polling_disabled": {
+      "title": "Polling for changes is turned off",
+      "fix_flow": {
+        "step": {
+          "init": {
+            "title": "Polling for changes is turned off",
+            "description": "**Enable polling for changes** is turned off in the integration's system options, so the integration doesn't check your devices on its own. Alarms, timers and other entities update only when you ask, for example with the **Refresh devices** action. For what still works, see {docs_url}.\n\nIf you turn polling back on, the integration reloads, then checks your devices at its update interval. If you keep it off, this repair is hidden until you turn polling on and then off again.",
+            "menu_options": {
+              "turn_on": "Turn polling back on",
+              "keep_off": "Keep polling off and hide this repair"
+            }
+          }
+        },
+        "abort": {
+          "polling_kept_off": "Polling stays off, and this repair is hidden."
+        }
+      }
+    },
+    "invalid_update_interval": {
+      "title": "The saved update interval is below {min_interval} s",
+      "fix_flow": {
+        "step": {
+          "init": {
+            "title": "The saved update interval is below {min_interval} s",
+            "description": "The update interval saved in the integration's options is {interval} s, which is below the minimum of {min_interval} s. The integration uses the default instead and checks your devices every {default_interval} s.\n\nIf you saved 0 to stop these regular checks, turn off polling instead. Unlike 0, it also stops Bluetooth scans and the adding of new devices that mDNS finds. For details, see {docs_url}.\n\nTo use another interval, open the [Google Home integration]({integration_url}), select **Configure**, enter it, then select **Submit**.",
+            "menu_options": {
+              "use_default": "Use the default of {default_interval} s",
+              "turn_off_polling": "Turn off polling instead"
+            }
+          }
+        }
+      }
+    },
+    "homes_deselected": {
+      "title": "None of your Google account's homes is selected",
+      "description": "Your Google account is only a member of homes that you deselected in the integration's options, so the integration doesn't add the speakers and displays in them. To add a home's devices, open the [Google Home integration]({integration_url}), select **Configure**, select the home under **Homes**, then select **Submit**.\n\nIf you want to keep these homes deselected, select **Ignore**."
+    },
+    "no_home": {
+      "title": "Google reports no home for your account",
+      "description": "Google reports that the account the integration signed in with isn't a member of any home, so there are no speakers or displays to add. In the Google Home app, invite this account to the home that your devices are in, and accept the invitation. Then reload the [Google Home integration]({integration_url}): select **⋮** > **Reload**.\n\nIf you're keeping the integration on purpose, for example while you're between homes, select **Ignore**. If you no longer need it, you can delete it on the same page."
+    }
+  },
+  "config_subentries": {
+    "bluetooth_device": {
+      "entry_type": "Bluetooth device",
+      "initiate_flow": {
+        "user": "Track a Bluetooth device"
+      },
+      "step": {
+        "user": {
+          "title": "Track a Bluetooth device",
+          "description": "Enter the IRK of a phone, or the MAC address of a device whose address never changes, such as some watches and tags. Phones change their address every few minutes, so track them by IRK. For how to find the IRK, see {docs_url}.",
+          "data": {
+            "name": "Name",
+            "irk_or_mac": "IRK or MAC address",
+            "additional_departure_delay": "Additional departure delay"
+          },
+          "data_description": {
+            "name": "Name of the tracker, such as Alex's phone.",
+            "irk_or_mac": "A phone's Identity Resolving Key, as {irk_hex_length} hex digits or in base64, or a MAC address such as AA:BB:CC:DD:EE:FF.",
+            "additional_departure_delay": "Additional time after the normal {presence_window}-second presence window before changing from Home to Away. Normal timing adds no delay. A longer delay also delays a real departure. If scans cannot confirm absence, the tracker may become unavailable."
+          }
+        },
+        "reconfigure": {
+          "title": "Bluetooth device settings",
+          "description": "Change the additional departure delay for this tracker.",
+          "data": {
+            "additional_departure_delay": "Additional departure delay"
+          },
+          "data_description": {
+            "additional_departure_delay": "Additional time after the normal {presence_window}-second presence window before changing from Home to Away. Normal timing adds no delay. A longer delay also delays a real departure. If scans cannot confirm absence, the tracker may become unavailable."
+          }
+        }
+      },
+      "error": {
+        "name-empty": "Enter a name.",
+        "irk-or-mac": "Enter an IRK or a MAC address.",
+        "irk-invalid": "This isn't an IRK. Enter {irk_bytes} bytes as {irk_hex_length} hex digits or in base64.",
+        "mac-invalid": "This isn't a MAC address. Enter six pairs of hex digits separated by colons or hyphens, such as AA:BB:CC:DD:EE:FF.",
+        "already-tracked": "This device is already tracked.",
+        "departure-delay-invalid": "Choose one of the listed departure delays."
+      },
+      "abort": {
+        "bluetooth-tracking-off": "Bluetooth tracking is off. Turn it on in the integration's options first: select Configure on the integration's page.",
+        "device-removed": "This Bluetooth device was removed. Add it again to track it."
+      }
     }
   },
   "options": {
     "step": {
       "init": {
         "data": {
-          "update_interval": "Change the update interval. Increase this if your devices do not respond in time. Default: {default_interval} (seconds)",
-          "known_hosts": "Known hosts"
+          "update_interval": "Update interval (seconds)",
+          "known_hosts": "Known hosts",
+          "homes": "Homes"
         },
         "data_description": {
-          "known_hosts": "IP addresses of speakers and displays that the integration can't find on its own, for example because they're on another network or VLAN."
+          "update_interval": "Increase this if your devices often don't answer in time. Default: {default_interval} seconds.",
+          "known_hosts": "IP addresses of speakers and displays that the integration can't find on its own, for example because they're on another network or VLAN.",
+          "homes": "Speakers and displays in homes you deselect aren't added. Deselecting a home removes its devices and their entities from Home Assistant, so automations, scripts and dashboards that use them stop working. Select the home again to add them back with the names and areas you gave them."
+        },
+        "sections": {
+          "bluetooth": {
+            "name": "Bluetooth",
+            "data": {
+              "bluetooth_tracking": "Bluetooth tracking",
+              "bluetooth_excluded_speakers": "Speakers not used for Bluetooth tracking"
+            },
+            "data_description": {
+              "bluetooth_tracking": "Use your speakers to tell whether your phone or other Bluetooth devices are home. After turning it on, select Track a Bluetooth device on the integration's page for each device to track. While it's off, the integration sends no Bluetooth requests to your speakers.",
+              "bluetooth_excluded_speakers": "Speakers that don't scan for Bluetooth devices. Add a speaker that's unplugged or out of service."
+            }
+          }
         }
       }
     },
     "error": {
-      "known-host-not-ip": "Enter IP addresses only, such as 192.168.1.20."
+      "known-host-not-ip": "Enter IP addresses only, such as 192.168.1.20.",
+      "no-home-selected": "Choose at least one home."
     }
   },
   "services": {
@@ -201,6 +392,29 @@
     "refresh_devices": {
       "description": "Refresh the status of all Google Home Devices.",
       "name": "Refresh devices"
+    }
+  },
+  "system_health": {
+    "info": {
+      "can_reach_sign_in": "Reach Google sign-in server",
+      "can_reach_device_list": "Reach Google device list server",
+      "device_list": "Google's device list",
+      "retry_not_before": "Retry not before",
+      "polling": "Polling for changes",
+      "bluetooth_tracking": "Bluetooth tracking",
+      "devices_listed": "Devices in Google's list",
+      "devices_not_answering": "Devices not answering"
+    }
+  },
+  "selector": {
+    "departure_delay": {
+      "options": {
+        "0": "0 seconds (normal timing)",
+        "30": "30 seconds",
+        "60": "60 seconds",
+        "90": "90 seconds",
+        "120": "120 seconds"
+      }
     }
   }
 }

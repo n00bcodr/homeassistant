@@ -9,13 +9,13 @@
           "master_token": "Mastertoken"
         },
         "menu_option_descriptions": {
-          "browser": "Log in bij Google in een desktopbrowser en plak daarna een cookie. Werkt voor de meeste accounts.",
+          "browser": "Log in bij Google in een desktopbrowser en plak daarna een cookie.",
           "master_token": "Plak een mastertoken dat je al hebt."
         }
       },
       "browser": {
         "title": "Inloggen via de browser",
-        "description": "1. Open op een computer {embedded_setup_url} in een privévenster en log in. Nadat je hebt geaccepteerd, kan de pagina blijven laden; dat is normaal.\n2. Open de ontwikkelaarstools van de browser en zoek de cookies voor `accounts.google.com`.\n3. Kopieer de waarde van de cookie `oauth_token` en plak deze meteen hieronder. De cookie verloopt binnen een paar minuten en werkt maar één keer.\n\nStapsgewijze instructies: {browser_docs_url}\n\nSluit dit venster en voeg de integratie opnieuw toe om een andere manier van inloggen te kiezen.",
+        "description": "1. Open op een computer {embedded_setup_url} in een privévenster en log in. Nadat je hebt geaccepteerd, kan de pagina blijven laden; dat is normaal.\n2. Open de ontwikkelaarstools van de browser en zoek de cookies voor `accounts.google.com`.\n3. Kopieer de waarde van de cookie `oauth_token` en plak deze meteen hieronder. De cookie kan snel verlopen en werkt maar één keer.\n\nStapsgewijze instructies: {browser_docs_url}\n\nSluit dit venster en voeg de integratie opnieuw toe om een andere manier van inloggen te kiezen.",
         "data": {
           "oauth_token": "Cookie oauth_token"
         },
@@ -33,6 +33,16 @@
           "master_token": "Begint met aas_et/"
         }
       },
+      "homes": {
+        "title": "Huizen kiezen",
+        "description": "Je Google-account is lid van meerdere huizen. Kies de huizen waarvan je de speakers en schermen wilt toevoegen. Je kunt dit later wijzigen in de instellingen van de integratie: selecteer **Configureer** op de pagina van de integratie.",
+        "data": {
+          "homes": "Huizen"
+        },
+        "data_description": {
+          "homes": "Selecteer ten minste één huis. Speakers en schermen in huizen waar je account later lid van wordt, worden ook toegevoegd."
+        }
+      },
       "reauth": {
         "title": "Opnieuw inloggen",
         "description": "Google accepteert de opgeslagen inloggegevens voor {name} niet meer. Log opnieuw in met hetzelfde Google-account: je apparaten, entiteiten en automatiseringen blijven zoals ze zijn. Tot je dat doet, kunnen de entiteiten van je apparaten verouderde waarden tonen of niet beschikbaar zijn.",
@@ -41,13 +51,13 @@
           "master_token": "Mastertoken"
         },
         "menu_option_descriptions": {
-          "browser": "Log in bij Google in een desktopbrowser en plak daarna een cookie. Werkt voor de meeste accounts.",
+          "browser": "Log in bij Google in een desktopbrowser en plak daarna een cookie.",
           "master_token": "Plak een mastertoken dat je al hebt."
         }
       },
       "reauth_browser": {
         "title": "Inloggen via de browser",
-        "description": "1. Open op een computer {embedded_setup_url} in een privévenster en log in met hetzelfde Google-account. Nadat je hebt geaccepteerd, kan de pagina blijven laden; dat is normaal.\n2. Open de ontwikkelaarstools van de browser en zoek de cookies voor `accounts.google.com`.\n3. Kopieer de waarde van de cookie `oauth_token` en plak deze meteen hieronder. De cookie verloopt binnen een paar minuten en werkt maar één keer.\n\nStapsgewijze instructies: {browser_docs_url}",
+        "description": "1. Open op een computer {embedded_setup_url} in een privévenster en log in met hetzelfde Google-account. Nadat je hebt geaccepteerd, kan de pagina blijven laden; dat is normaal.\n2. Open de ontwikkelaarstools van de browser en zoek de cookies voor `accounts.google.com`.\n3. Kopieer de waarde van de cookie `oauth_token` en plak deze meteen hieronder. De cookie kan snel verlopen en werkt maar één keer.\n\nStapsgewijze instructies: {browser_docs_url}",
         "data": {
           "oauth_token": "Cookie oauth_token"
         },
@@ -67,19 +77,82 @@
       }
     },
     "error": {
-      "oauth-token-invalid": "Google heeft de cookie niet geaccepteerd. Haal een nieuwe op en plak deze meteen: de cookie verloopt binnen een paar minuten en werkt maar één keer. Kopieer de volledige waarde, die begint met oauth2_4/.",
+      "oauth-token-invalid": "Google heeft de aanmelding niet geaccepteerd. Haal een nieuwe cookie op en plak deze meteen: de cookie kan snel verlopen en werkt maar één keer. Kopieer de volledige waarde, die begint met oauth2_4/.",
       "master-token-invalid": "Google heeft het mastertoken niet geaccepteerd. Controleer of je het goed hebt gekopieerd. Als het eerder werkte, bijvoorbeeld totdat je je Google-wachtwoord hebt gewijzigd, accepteert Google het niet meer: gebruik in plaats daarvan inloggen via de browser.",
       "google-rejected": "Google heeft de inlogpoging niet geaccepteerd. Bekijk de logboeken van Home Assistant voor details.",
       "google-unreachable": "Google kon niet worden bereikt. Controleer of Home Assistant met internet is verbonden en probeer het daarna opnieuw.",
       "google-busy": "Google is overbelast of beperkt het aantal inlogpogingen. Wacht een paar minuten en log daarna opnieuw in.",
       "oauth-token-format": "Dit is niet de cookie oauth_token. De waarde begint met oauth2_4/.",
-      "master-token-format": "Een mastertoken begint met aas_et/ en is 223 tekens lang. Kopieer het volledige token.",
-      "other-account": "Je bent ingelogd met een ander Google-account, dus er is niets gewijzigd. Log in met het account dat deze integratie gebruikt. Om in plaats daarvan dat andere account te gebruiken, verwijder je de integratie en voeg je deze opnieuw toe."
+      "master-token-format": "Een mastertoken begint met aas_et/ en is {token_length} tekens lang. Kopieer het volledige token.",
+      "other-account": "Je bent ingelogd met een ander Google-account, dus er is niets gewijzigd. Log in met het account dat deze integratie gebruikt. Om in plaats daarvan dat andere account te gebruiken, verwijder je de integratie en voeg je deze opnieuw toe.",
+      "no-home-selected": "Kies ten minste één huis."
+    },
+    "abort": {
+      "no-home": "Google meldt dat dit account geen lid is van een huis, dus er zijn geen speakers of schermen om toe te voegen. Nodig het account in de Google Home-app uit voor het huis waarin je apparaten staan, accepteer de uitnodiging en voeg de integratie daarna opnieuw toe. Een Google Workspace-account kan niet worden uitgenodigd, dus voeg de integratie in dat geval toe met een Gmail-account dat lid is van het huis. Zie {docs_url} voor meer informatie."
+    }
+  },
+  "entity": {
+    "button": {
+      "reboot": {
+        "name": "Herstarten"
+      }
+    },
+    "number": {
+      "alarm_volume": {
+        "name": "Alarmvolume"
+      }
+    },
+    "sensor": {
+      "alarms": {
+        "name": "Alarmen"
+      },
+      "device": {
+        "name": "Apparaat"
+      },
+      "timers": {
+        "name": "Timers"
+      },
+      "wifi_network": {
+        "name": "Wifi-netwerk"
+      }
+    },
+    "switch": {
+      "do_not_disturb": {
+        "name": "Niet storen"
+      }
+    },
+    "event": {
+      "alarm_events": {
+        "name": "Alarmgebeurtenissen",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "ringing": "Gaat af",
+              "snoozed": "Gesnoozed",
+              "stopped": "Gestopt"
+            }
+          }
+        }
+      },
+      "timer_events": {
+        "name": "Timergebeurtenissen",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "ringing": "Gaat af",
+              "stopped": "Gestopt"
+            }
+          }
+        }
+      }
     }
   },
   "exceptions": {
     "alarms_and_timers_not_fetched": {
       "message": "De huidige alarmen en timers konden niet worden opgehaald van {device}. Er is daarom niets van dit apparaat verwijderd. Controleer of het apparaat online is en probeer het later opnieuw."
+    },
+    "alarms_and_timers_not_fetched_token_rejected_polling_off": {
+      "message": "De huidige alarmen en timers konden niet worden opgehaald van {device}. Er is daarom niets van dit apparaat verwijderd. Het apparaat heeft zijn token geweigerd. Polling voor wijzigingen is uitgeschakeld, dus de integratie vraagt niet uit zichzelf opnieuw een token aan bij Google: voer de actie ‘Apparaten verversen’ uit en probeer het daarna opnieuw."
     },
     "alarms_and_timers_not_fetched_from_devices": {
       "message": "De huidige alarmen en timers konden niet worden opgehaald van de volgende apparaten: {devices}. Er is daarom niets van deze apparaten verwijderd. Controleer of de apparaten online zijn en probeer het later opnieuw."
@@ -87,8 +160,14 @@
     "alarms_and_timers_not_deleted": {
       "message": "{device} heeft het verwijderen van de alarmen of timers niet bevestigd. Ze kunnen dus nog ingesteld zijn. Controleer of het apparaat online is en probeer het later opnieuw."
     },
+    "alarms_and_timers_not_deleted_token_rejected_polling_off": {
+      "message": "{device} heeft het verwijderen van de alarmen of timers niet bevestigd. Ze kunnen dus nog ingesteld zijn. Het apparaat heeft zijn token geweigerd. Polling voor wijzigingen is uitgeschakeld, dus de integratie vraagt niet uit zichzelf opnieuw een token aan bij Google: voer de actie ‘Apparaten verversen’ uit en probeer het daarna opnieuw."
+    },
     "alarms_and_timers_not_deleted_from_devices": {
       "message": "Alarmen of timers konden niet worden verwijderd van de volgende apparaten, of het verwijderen kon niet worden bevestigd: {devices}. Controleer of de apparaten online zijn en probeer het later opnieuw."
+    },
+    "alarms_and_timers_not_deleted_from_devices_token_rejected_polling_off": {
+      "message": "Alarmen of timers konden niet worden verwijderd van de volgende apparaten, of het verwijderen kon niet worden bevestigd: {devices}. Ten minste één ervan heeft zijn token geweigerd. Polling voor wijzigingen is uitgeschakeld, dus de integratie vraagt niet uit zichzelf opnieuw een token aan bij Google: voer de actie ‘Apparaten verversen’ uit, controleer of de apparaten online zijn en probeer het daarna opnieuw."
     },
     "invalid_alarm_id": {
       "message": "‘{alarm_id}’ is geen alarm-ID. Kopieer de ID, die begint met alarm/, uit het attribuut alarms van de alarmsensor van het apparaat."
@@ -109,7 +188,10 @@
       "message": "{device} heeft niet bevestigd dat de actie is uitgevoerd: het heeft niet op tijd geantwoord of het antwoord werd afgebroken. Controleer of het apparaat online is en probeer het opnieuw."
     },
     "device_token_rejected": {
-      "message": "{device} heeft zijn token geweigerd, en het ophalen van een nieuw token bij Google heeft niet geholpen. De integratie blijft een nieuw token aanvragen bij Google, dus probeer het later opnieuw."
+      "message": "{device} heeft zijn token geweigerd. De integratie blijft een nieuw token aanvragen bij Google, dus probeer het later opnieuw."
+    },
+    "device_token_rejected_polling_off": {
+      "message": "{device} heeft zijn token geweigerd. Polling voor wijzigingen is uitgeschakeld, dus de integratie vraagt niet uit zichzelf opnieuw een token aan bij Google: voer de actie ‘Apparaten verversen’ uit en probeer het daarna opnieuw."
     },
     "device_not_ready": {
       "message": "{device} heeft ‘niet gevonden’ geantwoord. Het apparaat is misschien nog aan het opstarten, dus probeer het later opnieuw, of het ondersteunt dit misschien niet."
@@ -119,22 +201,131 @@
     },
     "devices_not_rebooted": {
       "message": "De volgende apparaten hebben niet bevestigd dat ze herstarten: {devices}. Controleer of de apparaten online zijn en probeer het later opnieuw."
+    },
+    "sign_in_rejected": {
+      "message": "Google heeft de inlogpoging niet geaccepteerd ({reason}). Log opnieuw in."
+    }
+  },
+  "issues": {
+    "polling_disabled": {
+      "title": "Polling voor wijzigingen is uitgeschakeld",
+      "fix_flow": {
+        "step": {
+          "init": {
+            "title": "Polling voor wijzigingen is uitgeschakeld",
+            "description": "De optie **Schakel polling voor wijzigingen in** staat uit in de systeeminstellingen van de integratie, dus de integratie controleert je apparaten niet uit zichzelf. Alarmen, timers en andere entiteiten worden alleen bijgewerkt als je erom vraagt, bijvoorbeeld met de actie **Apparaten verversen**. Raadpleeg {docs_url} om te zien wat nog werkt.\n\nAls je polling weer inschakelt, wordt de integratie opnieuw geladen en controleert ze daarna je apparaten volgens het update-interval. Als je polling uitgeschakeld laat, wordt deze reparatie verborgen totdat je polling in- en daarna weer uitschakelt.",
+            "menu_options": {
+              "turn_on": "Polling weer inschakelen",
+              "keep_off": "Polling uitgeschakeld laten en deze reparatie verbergen"
+            }
+          }
+        },
+        "abort": {
+          "polling_kept_off": "Polling blijft uitgeschakeld en deze reparatie is verborgen."
+        }
+      }
+    },
+    "invalid_update_interval": {
+      "title": "Het opgeslagen update-interval is korter dan {min_interval} s",
+      "fix_flow": {
+        "step": {
+          "init": {
+            "title": "Het opgeslagen update-interval is korter dan {min_interval} s",
+            "description": "Het update-interval dat in de instellingen van de integratie is opgeslagen, is {interval} s, wat onder het minimum van {min_interval} s ligt. De integratie gebruikt in plaats daarvan de standaardwaarde en controleert je apparaten elke {default_interval} s.\n\nAls je 0 hebt opgeslagen om deze regelmatige controles te stoppen, schakel dan in plaats daarvan polling uit. Anders dan 0 stopt dat ook het zoeken naar Bluetooth-apparaten en het toevoegen van nieuwe apparaten die mDNS vindt. Raadpleeg {docs_url} voor meer informatie.\n\nOm een ander interval te gebruiken, open je de [Google Home-integratie]({integration_url}), selecteer je **Configureer**, vul je het in en selecteer je daarna **Verzend**.",
+            "menu_options": {
+              "use_default": "Standaardwaarde van {default_interval} s gebruiken",
+              "turn_off_polling": "In plaats daarvan polling uitschakelen"
+            }
+          }
+        }
+      }
+    },
+    "homes_deselected": {
+      "title": "Geen van de huizen van je Google-account is geselecteerd",
+      "description": "Je Google-account is alleen lid van huizen die je hebt gedeselecteerd in de instellingen van de integratie, dus de integratie voegt de speakers en schermen in die huizen niet toe. Om de apparaten van een huis toe te voegen, open je de [Google Home-integratie]({integration_url}), selecteer je **Configureer**, selecteer je het huis onder **Huizen** en selecteer je daarna **Verzend**.\n\nAls je deze huizen gedeselecteerd wilt laten, selecteer je **Negeer**."
+    },
+    "no_home": {
+      "title": "Google meldt geen huis voor je account",
+      "description": "Google meldt dat het account waarmee de integratie is ingelogd geen lid is van een huis, dus er zijn geen speakers of schermen om toe te voegen. Nodig dit account in de Google Home-app uit voor het huis waarin je apparaten staan, en accepteer de uitnodiging. Herlaad daarna de [Google Home-integratie]({integration_url}): selecteer **⋮** > **Herladen**.\n\nAls je de integratie bewust houdt, bijvoorbeeld tijdens een verhuizing, selecteer je **Negeer**. Als je de integratie niet meer nodig hebt, kun je deze op dezelfde pagina verwijderen."
+    }
+  },
+  "config_subentries": {
+    "bluetooth_device": {
+      "entry_type": "Bluetooth-apparaat",
+      "initiate_flow": {
+        "user": "Een Bluetooth-apparaat volgen"
+      },
+      "step": {
+        "user": {
+          "title": "Een Bluetooth-apparaat volgen",
+          "description": "Voer de IRK van een telefoon in, of het MAC-adres van een apparaat waarvan het adres nooit verandert, zoals sommige horloges en tags. Telefoons wijzigen hun adres om de paar minuten, dus volg ze via de IRK. Zie {docs_url} voor hoe je de IRK vindt.",
+          "data": {
+            "name": "Naam",
+            "irk_or_mac": "IRK of MAC-adres",
+            "additional_departure_delay": "Extra vertraging bij vertrek"
+          },
+          "data_description": {
+            "name": "Naam van de tracker, bijvoorbeeld Telefoon van Alex.",
+            "irk_or_mac": "De Identity Resolving Key van een telefoon, als {irk_hex_length} hexadecimale cijfers of in base64, of een MAC-adres zoals AA:BB:CC:DD:EE:FF.",
+            "additional_departure_delay": "Extra tijd na het normale aanwezigheidsvenster van {presence_window} seconden voordat de status van ‘Thuis’ naar ‘Afwezig’ verandert. Normale timing voegt geen vertraging toe. Een langere vertraging vertraagt ook de detectie van een daadwerkelijk vertrek. Als de scans afwezigheid niet kunnen bevestigen, kan de tracker de status ‘Niet beschikbaar’ krijgen."
+          }
+        },
+        "reconfigure": {
+          "title": "Instellingen van Bluetooth-apparaat",
+          "description": "Wijzig de extra vertraging bij vertrek voor deze tracker.",
+          "data": {
+            "additional_departure_delay": "Extra vertraging bij vertrek"
+          },
+          "data_description": {
+            "additional_departure_delay": "Extra tijd na het normale aanwezigheidsvenster van {presence_window} seconden voordat de status van ‘Thuis’ naar ‘Afwezig’ verandert. Normale timing voegt geen vertraging toe. Een langere vertraging vertraagt ook de detectie van een daadwerkelijk vertrek. Als de scans afwezigheid niet kunnen bevestigen, kan de tracker de status ‘Niet beschikbaar’ krijgen."
+          }
+        }
+      },
+      "error": {
+        "name-empty": "Voer een naam in.",
+        "irk-or-mac": "Voer een IRK of een MAC-adres in.",
+        "irk-invalid": "Dit is geen IRK. Voer {irk_bytes} bytes in als {irk_hex_length} hexadecimale cijfers of in base64.",
+        "mac-invalid": "Dit is geen MAC-adres. Voer zes paren hexadecimale cijfers in, gescheiden door dubbele punten of koppeltekens, bijvoorbeeld AA:BB:CC:DD:EE:FF.",
+        "already-tracked": "Dit apparaat wordt al gevolgd.",
+        "departure-delay-invalid": "Kies een van de vermelde vertragingen bij vertrek."
+      },
+      "abort": {
+        "bluetooth-tracking-off": "Bluetooth-tracking is uitgeschakeld. Schakel het eerst in bij de instellingen van de integratie: selecteer ‘Configureer’ op de pagina van de integratie.",
+        "device-removed": "Dit Bluetooth-apparaat is verwijderd. Voeg het opnieuw toe om het te volgen."
+      }
     }
   },
   "options": {
     "step": {
       "init": {
         "data": {
-          "update_interval": "Wijzig het update-interval. Verhoog dit als je apparaten vaak een time-out geven. Standaard: {default_interval} (seconden)",
-          "known_hosts": "Bekende hosts"
+          "update_interval": "Update-interval (seconden)",
+          "known_hosts": "Bekende hosts",
+          "homes": "Huizen"
         },
         "data_description": {
-          "known_hosts": "IP-adressen van speakers en schermen die de integratie zelf niet kan vinden, bijvoorbeeld omdat ze op een ander netwerk of VLAN staan."
+          "update_interval": "Verhoog dit als je apparaten vaak niet op tijd reageren. Standaard: {default_interval} seconden.",
+          "known_hosts": "IP-adressen van speakers en schermen die de integratie zelf niet kan vinden, bijvoorbeeld omdat ze op een ander netwerk of VLAN staan.",
+          "homes": "Speakers en schermen in huizen die je deselecteert, worden niet toegevoegd. Als je een huis deselecteert, worden de apparaten ervan en hun entiteiten uit Home Assistant verwijderd, waardoor automatiseringen, scripts en dashboards die ze gebruiken niet meer werken. Selecteer het huis opnieuw om ze terug te zetten met de namen en ruimtes die je ze had gegeven."
+        },
+        "sections": {
+          "bluetooth": {
+            "name": "Bluetooth",
+            "data": {
+              "bluetooth_tracking": "Bluetooth-tracking",
+              "bluetooth_excluded_speakers": "Speakers die niet worden gebruikt voor Bluetooth-tracking"
+            },
+            "data_description": {
+              "bluetooth_tracking": "Gebruik je speakers om te zien of je telefoon of andere Bluetooth-apparaten thuis zijn. Selecteer na het inschakelen ‘Een Bluetooth-apparaat volgen’ op de pagina van de integratie voor elk apparaat dat je wilt volgen. Zolang het is uitgeschakeld, stuurt de integratie geen Bluetooth-verzoeken naar je speakers.",
+              "bluetooth_excluded_speakers": "Speakers die niet naar Bluetooth-apparaten zoeken. Voeg een speaker toe die is losgekoppeld of buiten gebruik is."
+            }
+          }
         }
       }
     },
     "error": {
-      "known-host-not-ip": "Voer alleen IP-adressen in, zoals 192.168.1.20."
+      "known-host-not-ip": "Voer alleen IP-adressen in, zoals 192.168.1.20.",
+      "no-home-selected": "Kies ten minste één huis."
     }
   },
   "services": {
@@ -201,6 +392,29 @@
     "refresh_devices": {
       "description": "De status van alle Google Home-apparaten verversen.",
       "name": "Apparaten verversen"
+    }
+  },
+  "system_health": {
+    "info": {
+      "can_reach_sign_in": "Inlogserver van Google bereikbaar",
+      "can_reach_device_list": "Server van de apparatenlijst van Google bereikbaar",
+      "device_list": "Apparatenlijst van Google",
+      "retry_not_before": "Nieuwe poging niet vóór",
+      "polling": "Polling voor wijzigingen",
+      "bluetooth_tracking": "Bluetooth-tracking",
+      "devices_listed": "Apparaten in de lijst van Google",
+      "devices_not_answering": "Apparaten die niet reageren"
+    }
+  },
+  "selector": {
+    "departure_delay": {
+      "options": {
+        "0": "0 seconden (normale timing)",
+        "30": "30 seconden",
+        "60": "60 seconden",
+        "90": "90 seconden",
+        "120": "120 seconden"
+      }
     }
   }
 }

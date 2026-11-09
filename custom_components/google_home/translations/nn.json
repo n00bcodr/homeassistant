@@ -9,13 +9,13 @@
           "master_token": "Master token"
         },
         "menu_option_descriptions": {
-          "browser": "Logg på Google i ein nettlesar på ei datamaskin, og lim deretter inn ein informasjonskapsel. Fungerer for dei fleste kontoane.",
+          "browser": "Logg på Google i ein nettlesar på ei datamaskin, og lim deretter inn ein informasjonskapsel.",
           "master_token": "Lim inn eit master token du allereie har."
         }
       },
       "browser": {
         "title": "Pålogging i nettlesaren",
-        "description": "1. Opne {embedded_setup_url} i eit privat nettlesarvindauge på ei datamaskin, og logg på. Etter at du har godteke, kan sida halde fram med å laste; det er venta.\n2. Opne utviklarverktøya i nettlesaren, og finn informasjonskapslane for `accounts.google.com`.\n3. Kopier verdien til informasjonskapselen `oauth_token`, og lim han inn nedanfor med ein gong. Han er berre gyldig i nokre minutt og fungerer berre éin gong.\n\nRettleiing steg for steg: {browser_docs_url}\n\nFor å velje ein annan påloggingsmåte, lukk dette vindauget og legg til integrasjonen på nytt.",
+        "description": "1. Opne {embedded_setup_url} i eit privat nettlesarvindauge på ei datamaskin, og logg på. Etter at du har godteke, kan sida halde fram med å laste; det er venta.\n2. Opne utviklarverktøya i nettlesaren, og finn informasjonskapslane for `accounts.google.com`.\n3. Kopier verdien til informasjonskapselen `oauth_token`, og lim han inn nedanfor med ein gong. Han kan raskt bli ugyldig og fungerer berre éin gong.\n\nRettleiing steg for steg: {browser_docs_url}\n\nFor å velje ein annan påloggingsmåte, lukk dette vindauget og legg til integrasjonen på nytt.",
         "data": {
           "oauth_token": "Informasjonskapselen oauth_token"
         },
@@ -33,6 +33,16 @@
           "master_token": "Byrjar med aas_et/"
         }
       },
+      "homes": {
+        "title": "Vel heimar",
+        "description": "Google-kontoen din er medlem av fleire heimar. Vel heimane du vil leggje til høgtalarar og skjermar frå. Du kan endre dette seinare i vala for integrasjonen: Vel **Konfigurer** på sida til integrasjonen.",
+        "data": {
+          "homes": "Heimar"
+        },
+        "data_description": {
+          "homes": "Vel minst éin heim. Høgtalarar og skjermar i heimar som kontoen din seinare blir medlem av, blir òg lagde til."
+        }
+      },
       "reauth": {
         "title": "Logg på igjen",
         "description": "Google godtek ikkje lenger den lagra pålogginga for {name}. Logg på den same Google-kontoen igjen: einingane, entitetane og automatiseringane dine blir verande som dei er. Fram til du gjer det, kan entitetane til einingane dine vise utdaterte verdiar eller vere utilgjengelege.",
@@ -41,13 +51,13 @@
           "master_token": "Master token"
         },
         "menu_option_descriptions": {
-          "browser": "Logg på Google i ein nettlesar på ei datamaskin, og lim deretter inn ein informasjonskapsel. Fungerer for dei fleste kontoane.",
+          "browser": "Logg på Google i ein nettlesar på ei datamaskin, og lim deretter inn ein informasjonskapsel.",
           "master_token": "Lim inn eit master token du allereie har."
         }
       },
       "reauth_browser": {
         "title": "Pålogging i nettlesaren",
-        "description": "1. Opne {embedded_setup_url} i eit privat nettlesarvindauge på ei datamaskin, og logg på den same Google-kontoen. Etter at du har godteke, kan sida halde fram med å laste; det er venta.\n2. Opne utviklarverktøya i nettlesaren, og finn informasjonskapslane for `accounts.google.com`.\n3. Kopier verdien til informasjonskapselen `oauth_token`, og lim han inn nedanfor med ein gong. Han er berre gyldig i nokre minutt og fungerer berre éin gong.\n\nRettleiing steg for steg: {browser_docs_url}",
+        "description": "1. Opne {embedded_setup_url} i eit privat nettlesarvindauge på ei datamaskin, og logg på den same Google-kontoen. Etter at du har godteke, kan sida halde fram med å laste; det er venta.\n2. Opne utviklarverktøya i nettlesaren, og finn informasjonskapslane for `accounts.google.com`.\n3. Kopier verdien til informasjonskapselen `oauth_token`, og lim han inn nedanfor med ein gong. Han kan raskt bli ugyldig og fungerer berre éin gong.\n\nRettleiing steg for steg: {browser_docs_url}",
         "data": {
           "oauth_token": "Informasjonskapselen oauth_token"
         },
@@ -67,19 +77,82 @@
       }
     },
     "error": {
-      "oauth-token-invalid": "Google godtok ikkje informasjonskapselen. Hent ein ny, og lim han inn med ein gong: han er berre gyldig i nokre minutt og fungerer berre éin gong. Kopier heile verdien, som byrjar med oauth2_4/.",
+      "oauth-token-invalid": "Google godtok ikkje pålogginga. Hent ein ny informasjonskapsel, og lim han inn med ein gong: han kan raskt bli ugyldig og fungerer berre éin gong. Kopier heile verdien, som byrjar med oauth2_4/.",
       "master-token-invalid": "Google godtok ikkje master tokenet. Kontroller at du har kopiert det rett. Om det fungerte før, til dømes fram til du endra Google-passordet ditt, godtek ikkje Google det lenger: bruk pålogging i nettlesaren i staden.",
       "google-rejected": "Google godtok ikkje pålogginga. Sjå Home Assistant-loggane for detaljar.",
       "google-unreachable": "Klarte ikkje å nå Google. Kontroller at Home Assistant er kopla til internett, og prøv deretter igjen.",
       "google-busy": "Google har stor pågang eller avgrensar påloggingar. Vent nokre minutt, og logg deretter på igjen.",
       "oauth-token-format": "Dette er ikkje informasjonskapselen oauth_token. Verdien byrjar med oauth2_4/.",
-      "master-token-format": "Eit master token byrjar med aas_et/ og er 223 teikn langt. Kopier heile tokenet.",
-      "other-account": "Du logga på ein annan Google-konto, så ingenting vart endra. Logg på med kontoen som denne integrasjonen brukar. For å bruke den andre kontoen i staden, slett integrasjonen og legg han til på nytt."
+      "master-token-format": "Eit master token byrjar med aas_et/ og er {token_length} teikn langt. Kopier heile tokenet.",
+      "other-account": "Du logga på ein annan Google-konto, så ingenting vart endra. Logg på med kontoen som denne integrasjonen brukar. For å bruke den andre kontoen i staden, slett integrasjonen og legg han til på nytt.",
+      "no-home-selected": "Vel minst éin heim."
+    },
+    "abort": {
+      "no-home": "Google oppgjev at denne kontoen ikkje er medlem av nokon heim, så det finst ingen høgtalarar eller skjermar å leggje til. I Google Home-appen inviterer du kontoen til heimen einingane dine er i, godtek invitasjonen og legg deretter til integrasjonen på nytt. Ein Google Workspace-konto kan ikkje inviterast, så legg i staden til integrasjonen med ein Gmail-konto som er medlem av heimen. Du finn meir informasjon på {docs_url}."
+    }
+  },
+  "entity": {
+    "button": {
+      "reboot": {
+        "name": "Start på nytt"
+      }
+    },
+    "number": {
+      "alarm_volume": {
+        "name": "Alarmvolum"
+      }
+    },
+    "sensor": {
+      "alarms": {
+        "name": "Alarmar"
+      },
+      "device": {
+        "name": "Eining"
+      },
+      "timers": {
+        "name": "Tidtakarar"
+      },
+      "wifi_network": {
+        "name": "Wi-Fi-nettverk"
+      }
+    },
+    "switch": {
+      "do_not_disturb": {
+        "name": "Ikkje forstyrr"
+      }
+    },
+    "event": {
+      "alarm_events": {
+        "name": "Alarmhendingar",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "ringing": "Ringjer",
+              "snoozed": "Utsett",
+              "stopped": "Stoppa"
+            }
+          }
+        }
+      },
+      "timer_events": {
+        "name": "Tidtakarhendingar",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "ringing": "Ringjer",
+              "stopped": "Stoppa"
+            }
+          }
+        }
+      }
     }
   },
   "exceptions": {
     "alarms_and_timers_not_fetched": {
       "message": "Klarte ikkje å hente gjeldande alarmar og tidtakarar frå {device}, så ingenting vart sletta frå denne eininga. Kontroller at eininga er på nett, og prøv igjen seinare."
+    },
+    "alarms_and_timers_not_fetched_token_rejected_polling_off": {
+      "message": "Klarte ikkje å hente gjeldande alarmar og tidtakarar frå {device}, så ingenting vart sletta frå denne eininga. Eininga avviste tokenet sitt. Polling av oppdateringar er slått av, så integrasjonen ber ikkje Google om eit nytt igjen på eiga hand: køyr handlinga «Oppdater einingar», og prøv deretter igjen."
     },
     "alarms_and_timers_not_fetched_from_devices": {
       "message": "Klarte ikkje å hente gjeldande alarmar og tidtakarar frå desse einingane, så ingenting vart sletta frå dei: {devices}. Kontroller at einingane er på nett, og prøv igjen seinare."
@@ -87,8 +160,14 @@
     "alarms_and_timers_not_deleted": {
       "message": "{device} stadfesta ikkje sletting av alarmane eller tidtakarane, så dei kan framleis vere stilte inn. Kontroller at eininga er på nett, og prøv igjen seinare."
     },
+    "alarms_and_timers_not_deleted_token_rejected_polling_off": {
+      "message": "{device} stadfesta ikkje sletting av alarmane eller tidtakarane, så dei kan framleis vere stilte inn. Eininga avviste tokenet sitt. Polling av oppdateringar er slått av, så integrasjonen ber ikkje Google om eit nytt igjen på eiga hand: køyr handlinga «Oppdater einingar», og prøv deretter igjen."
+    },
     "alarms_and_timers_not_deleted_from_devices": {
       "message": "Klarte ikkje å slette alarmar eller tidtakarar frå desse einingane, eller stadfeste at dei vart sletta: {devices}. Kontroller at einingane er på nett, og prøv igjen seinare."
+    },
+    "alarms_and_timers_not_deleted_from_devices_token_rejected_polling_off": {
+      "message": "Klarte ikkje å slette alarmar eller tidtakarar frå desse einingane, eller stadfeste at dei vart sletta: {devices}. Minst éi av dei avviste tokenet sitt. Polling av oppdateringar er slått av, så integrasjonen ber ikkje Google om eit nytt igjen på eiga hand: køyr handlinga «Oppdater einingar», kontroller at einingane er på nett, og prøv deretter igjen."
     },
     "invalid_alarm_id": {
       "message": "«{alarm_id}» er ikkje ein alarm-ID. Kopier ID-en, som byrjar med alarm/, frå attributtet alarms på alarmsensoren til eininga."
@@ -109,7 +188,10 @@
       "message": "{device} stadfesta ikkje at handlinga vart utført: eininga svarte ikkje i tide, eller svaret vart avbrote. Kontroller at eininga er på nett, og prøv igjen."
     },
     "device_token_rejected": {
-      "message": "{device} avviste tokenet sitt, og det hjelpte ikkje å hente eit nytt frå Google. Integrasjonen held fram med å be Google om eit nytt, så prøv igjen seinare."
+      "message": "{device} avviste tokenet sitt. Integrasjonen held fram med å be Google om eit nytt, så prøv igjen seinare."
+    },
+    "device_token_rejected_polling_off": {
+      "message": "{device} avviste tokenet sitt. Polling av oppdateringar er slått av, så integrasjonen ber ikkje Google om eit nytt igjen på eiga hand: køyr handlinga «Oppdater einingar», og prøv deretter igjen."
     },
     "device_not_ready": {
       "message": "{device} svarte «ikkje funne». Eininga held kanskje framleis på å starte opp, så prøv igjen seinare, eller eininga støttar kanskje ikkje dette."
@@ -119,22 +201,131 @@
     },
     "devices_not_rebooted": {
       "message": "Desse einingane stadfesta ikkje at dei vil starte på nytt: {devices}. Kontroller at einingane er på nett, og prøv igjen seinare."
+    },
+    "sign_in_rejected": {
+      "message": "Google godtok ikkje pålogginga ({reason}). Logg på igjen."
+    }
+  },
+  "issues": {
+    "polling_disabled": {
+      "title": "Polling av oppdateringar er slått av",
+      "fix_flow": {
+        "step": {
+          "init": {
+            "title": "Polling av oppdateringar er slått av",
+            "description": "**Enable polling for changes** er slått av i systemvala for integrasjonen, så integrasjonen sjekkar ikkje einingane dine på eiga hand. Alarmar, tidtakarar og andre entitetar blir berre oppdaterte når du ber om det, til dømes med handlinga **Oppdater einingar**. Sjå kva som framleis fungerer, her: {docs_url}.\n\nOm du slår polling på igjen, blir integrasjonen lasta inn på nytt, og deretter sjekkar integrasjonen einingane dine med oppdateringsintervallet. Om du lèt polling vere slått av, blir denne reparasjonen gøymd til du slår polling på og deretter av igjen.",
+            "menu_options": {
+              "turn_on": "Slå polling på igjen",
+              "keep_off": "La polling vere av og gøym denne reparasjonen"
+            }
+          }
+        },
+        "abort": {
+          "polling_kept_off": "Polling blir verande av, og denne reparasjonen er gøymd."
+        }
+      }
+    },
+    "invalid_update_interval": {
+      "title": "Det lagra oppdateringsintervallet er under {min_interval} s",
+      "fix_flow": {
+        "step": {
+          "init": {
+            "title": "Det lagra oppdateringsintervallet er under {min_interval} s",
+            "description": "Oppdateringsintervallet som er lagra i vala for integrasjonen, er {interval} sekund, som er under minimumsverdien på {min_interval} s. Integrasjonen brukar i staden standardverdien og sjekkar einingane dine med {default_interval} s mellomrom.\n\nOm du lagra 0 for å stoppe desse faste sjekkane, bør du heller slå av polling. I motsetnad til 0 stoppar det også søket etter Bluetooth-einingar og at nye einingar som mDNS finn, blir lagde til. Sjå fleire detaljar her: {docs_url}.\n\nFor å bruke eit anna intervall opnar du [Google Home-integrasjonen]({integration_url}), vel **Konfigurer**, skriv det inn og vel deretter **Send inn**.",
+            "menu_options": {
+              "use_default": "Bruk standardverdien på {default_interval} s",
+              "turn_off_polling": "Slå av polling i staden"
+            }
+          }
+        }
+      }
+    },
+    "homes_deselected": {
+      "title": "Ingen av heimane til Google-kontoen din er valde",
+      "description": "Google-kontoen din er berre medlem av heimar du har valt bort i vala for integrasjonen, så integrasjonen legg ikkje til høgtalarane og skjermane i dei. For å leggje til einingane i ein heim opnar du [Google Home-integrasjonen]({integration_url}), vel **Konfigurer**, vel heimen under **Heimar** og vel deretter **Send inn**.\n\nOm du vil la desse heimane vere valde bort, vel du **Ignorer**."
+    },
+    "no_home": {
+      "title": "Google oppgjev ingen heim for kontoen din",
+      "description": "Google oppgjev at kontoen integrasjonen er logga på med, ikkje er medlem av nokon heim, så det finst ingen høgtalarar eller skjermar å leggje til. I Google Home-appen inviterer du denne kontoen til heimen einingane dine er i, og godtek invitasjonen. Last deretter inn [Google Home-integrasjonen]({integration_url}) på nytt: Vel **⋮** > **Last inn på nytt**.\n\nOm du beheld integrasjonen med vilje, til dømes medan du flyttar, vel du **Ignorer**. Om du ikkje treng integrasjonen lenger, kan du slette ho på same sida."
+    }
+  },
+  "config_subentries": {
+    "bluetooth_device": {
+      "entry_type": "Bluetooth-eining",
+      "initiate_flow": {
+        "user": "Spor ei Bluetooth-eining"
+      },
+      "step": {
+        "user": {
+          "title": "Spor ei Bluetooth-eining",
+          "description": "Skriv inn IRK-en til ein telefon, eller MAC-adressa til ei eining med ei adresse som aldri blir endra, til dømes somme klokker og sporingsbrikker. Telefonar byter adresse med nokre minutts mellomrom, så spor dei med IRK. Sjå {docs_url} for korleis du finn IRK-en.",
+          "data": {
+            "name": "Namn",
+            "irk_or_mac": "IRK eller MAC-adresse",
+            "additional_departure_delay": "Ekstra forseinking ved avreise"
+          },
+          "data_description": {
+            "name": "Namnet på sporaren, til dømes Telefonen til Alex.",
+            "irk_or_mac": "Identity Resolving Key til ein telefon, som {irk_hex_length} heksadesimale siffer eller i base64, eller ei MAC-adresse, til dømes AA:BB:CC:DD:EE:FF.",
+            "additional_departure_delay": "Ekstra tid etter det vanlege nærværsvindauget på {presence_window} sekund før tilstanden blir endra frå «Heime» til «Borte». Vanleg tidsinnstilling legg ikkje til noka forseinking. Ei lengre forseinking forseinkar òg registreringa av ei faktisk avreise. Viss skanningane ikkje kan stadfeste fråvær, kan sporaren bli utilgjengeleg."
+          }
+        },
+        "reconfigure": {
+          "title": "Innstillingar for Bluetooth-eining",
+          "description": "Endre den ekstra forseinkinga ved avreise for denne sporaren.",
+          "data": {
+            "additional_departure_delay": "Ekstra forseinking ved avreise"
+          },
+          "data_description": {
+            "additional_departure_delay": "Ekstra tid etter det vanlege nærværsvindauget på {presence_window} sekund før tilstanden blir endra frå «Heime» til «Borte». Vanleg tidsinnstilling legg ikkje til noka forseinking. Ei lengre forseinking forseinkar òg registreringa av ei faktisk avreise. Viss skanningane ikkje kan stadfeste fråvær, kan sporaren bli utilgjengeleg."
+          }
+        }
+      },
+      "error": {
+        "name-empty": "Skriv inn eit namn.",
+        "irk-or-mac": "Skriv inn ein IRK eller ei MAC-adresse.",
+        "irk-invalid": "Dette er ikkje ein IRK. Skriv inn {irk_bytes} byte som {irk_hex_length} heksadesimale siffer eller i base64.",
+        "mac-invalid": "Dette er ikkje ei MAC-adresse. Skriv inn seks par heksadesimale siffer skilde med kolon eller bindestrek, til dømes AA:BB:CC:DD:EE:FF.",
+        "already-tracked": "Denne eininga blir allereie spora.",
+        "departure-delay-invalid": "Vel ei av dei oppførte forseinkingane ved avreise."
+      },
+      "abort": {
+        "bluetooth-tracking-off": "Bluetooth-sporing er slått av. Slå på sporinga i vala for integrasjonen først: Vel «Konfigurer» på sida til integrasjonen.",
+        "device-removed": "Denne Bluetooth-eininga er fjerna. Legg henne til att for å spore henne."
+      }
     }
   },
   "options": {
     "step": {
       "init": {
         "data": {
-          "update_interval": "Endre oppdateringsintervall. Du kan auke dette om einingane ofte får tidsavbrot. Standard: {default_interval} (sekund)",
-          "known_hosts": "Kjende vertar"
+          "update_interval": "Oppdateringsintervall (sekund)",
+          "known_hosts": "Kjende vertar",
+          "homes": "Heimar"
         },
         "data_description": {
-          "known_hosts": "IP-adresser til høgtalarar og skjermar som integrasjonen ikkje finn sjølv, til dømes fordi dei er på eit anna nettverk eller VLAN."
+          "update_interval": "Auk dette om einingane dine ofte ikkje svarar i tide. Standard: {default_interval} sekund.",
+          "known_hosts": "IP-adresser til høgtalarar og skjermar som integrasjonen ikkje finn sjølv, til dømes fordi dei er på eit anna nettverk eller VLAN.",
+          "homes": "Høgtalarar og skjermar i heimar du vel bort, blir ikkje lagde til. Når du vel bort ein heim, blir einingane i heimen og entitetane deira fjerna frå Home Assistant, slik at automatiseringar, skript og dashbord som brukar dei, sluttar å fungere. Vel heimen igjen for å leggje dei til på nytt med namna og områda du gav dei."
+        },
+        "sections": {
+          "bluetooth": {
+            "name": "Bluetooth",
+            "data": {
+              "bluetooth_tracking": "Bluetooth-sporing",
+              "bluetooth_excluded_speakers": "Høgtalarar som ikkje blir brukte til Bluetooth-sporing"
+            },
+            "data_description": {
+              "bluetooth_tracking": "Bruk høgtalarane til å sjå om telefonen din eller andre Bluetooth-einingar er heime. Når sporinga er slått på, vel du «Spor ei Bluetooth-eining» på sida til integrasjonen for kvar eining som skal sporast. Når sporinga er slått av, sender ikkje integrasjonen nokon Bluetooth-førespurnader til høgtalarane.",
+              "bluetooth_excluded_speakers": "Høgtalarar som ikkje søkjer etter Bluetooth-einingar. Legg til ein høgtalar som er kopla frå straumen eller ute av drift."
+            }
+          }
         }
       }
     },
     "error": {
-      "known-host-not-ip": "Skriv berre inn IP-adresser, til dømes 192.168.1.20."
+      "known-host-not-ip": "Skriv berre inn IP-adresser, til dømes 192.168.1.20.",
+      "no-home-selected": "Vel minst éin heim."
     }
   },
   "services": {
@@ -201,6 +392,29 @@
     "refresh_devices": {
       "description": "Oppdater statusen til alle Google Home-einingar.",
       "name": "Oppdater einingar"
+    }
+  },
+  "system_health": {
+    "info": {
+      "can_reach_sign_in": "Nå påloggingstenaren til Google",
+      "can_reach_device_list": "Nå tenaren for einingslista til Google",
+      "device_list": "Einingslista til Google",
+      "retry_not_before": "Nytt forsøk tidlegast",
+      "polling": "Polling av oppdateringar",
+      "bluetooth_tracking": "Bluetooth-sporing",
+      "devices_listed": "Einingar i lista til Google",
+      "devices_not_answering": "Einingar som ikkje svarar"
+    }
+  },
+  "selector": {
+    "departure_delay": {
+      "options": {
+        "0": "0 sekund (vanleg tidsinnstilling)",
+        "30": "30 sekund",
+        "60": "60 sekund",
+        "90": "90 sekund",
+        "120": "120 sekund"
+      }
     }
   }
 }

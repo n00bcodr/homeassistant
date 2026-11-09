@@ -2,6 +2,10 @@ import logging
 from dataclasses import asdict, dataclass
 from typing import Any
 
+# HA's typed async_show_form() expects probatio.schema.Schema since the
+# voluptuous-to-probatio migration; at runtime vol.Schema is probatio.Schema
+# via a shim, but mypy only sees the voluptuous-stubs type. Each data_schema=
+# below needs a type: ignore[arg-type] for that reason.
 import voluptuous as vol
 from homeassistant.components.bluetooth import (
     BluetoothServiceInfoBleak,
@@ -116,7 +120,7 @@ class TiltConfigFlow(ConfigFlow, domain=DOMAIN):  # type: ignore[call-arg]
 
         return self.async_show_form(
             step_id="select_bluetooth_device",
-            data_schema=vol.Schema(
+            data_schema=vol.Schema(  # type: ignore[arg-type]
                 {vol.Required(CONF_ADDRESS): vol.In(self._discovered_bt_devices)}
             ),
         )
@@ -175,7 +179,7 @@ class TiltConfigFlow(ConfigFlow, domain=DOMAIN):  # type: ignore[call-arg]
 
         return self.async_show_form(
             step_id="bluetooth_connect",
-            data_schema=vol.Schema(
+            data_schema=vol.Schema(  # type: ignore[arg-type]
                 {
                     vol.Required(CONF_USERNAME): str,
                     vol.Required(CONF_PASSWORD): TextSelector(
@@ -208,7 +212,7 @@ class TiltConfigFlow(ConfigFlow, domain=DOMAIN):  # type: ignore[call-arg]
 
         return self.async_show_form(
             step_id="provide_cloud_credentials",
-            data_schema=vol.Schema(
+            data_schema=vol.Schema(  # type: ignore[arg-type]
                 {
                     vol.Required(CONF_USERNAME): str,
                     vol.Required(CONF_PASSWORD): TextSelector(
@@ -275,7 +279,9 @@ class TiltConfigFlow(ConfigFlow, domain=DOMAIN):  # type: ignore[call-arg]
 
         return self.async_show_form(
             step_id="select_cloud_device",
-            data_schema=vol.Schema({vol.Required(CONF_ID): vol.In(options)}),
+            data_schema=vol.Schema(  # type: ignore[arg-type]
+                {vol.Required(CONF_ID): vol.In(options)}
+            ),
             errors=errors,
         )
 
@@ -305,7 +311,7 @@ class CloudOptionsFlowHandler(OptionsFlow):
 
         return self.async_show_form(
             step_id="init",
-            data_schema=vol.Schema({}),
+            data_schema=vol.Schema({}),  # type: ignore[arg-type]
         )
 
 
@@ -327,7 +333,7 @@ class BluetoothOptionsFlowHandler(OptionsFlow):
 
         return self.async_show_form(
             step_id="init",
-            data_schema=vol.Schema(
+            data_schema=vol.Schema(  # type: ignore[arg-type]
                 {
                     vol.Optional(
                         CONF_BT_RECONNECT_INTERVAL,

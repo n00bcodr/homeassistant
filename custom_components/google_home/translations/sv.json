@@ -9,13 +9,13 @@
           "master_token": "Master token"
         },
         "menu_option_descriptions": {
-          "browser": "Logga in på Google i en webbläsare på en dator och klistra sedan in en cookie. Fungerar för de flesta konton.",
+          "browser": "Logga in på Google i en webbläsare på en dator och klistra sedan in en cookie.",
           "master_token": "Klistra in en master token som du redan har."
         }
       },
       "browser": {
         "title": "Inloggning via webbläsare",
-        "description": "1. Öppna {embedded_setup_url} i ett privat webbläsarfönster på en dator och logga in. När du har godkänt kan sidan fortsätta att laddas. Det är normalt.\n2. Öppna webbläsarens utvecklarverktyg och leta upp cookies för `accounts.google.com`.\n3. Kopiera värdet för cookien `oauth_token` och klistra in det nedan direkt. Det upphör att gälla inom några minuter och kan bara användas en gång.\n\nStegvisa instruktioner: {browser_docs_url}\n\nStäng det här fönstret och lägg till integrationen igen om du vill välja ett annat sätt att logga in.",
+        "description": "1. Öppna {embedded_setup_url} i ett privat webbläsarfönster på en dator och logga in. När du har godkänt kan sidan fortsätta att laddas. Det är normalt.\n2. Öppna webbläsarens utvecklarverktyg och leta upp cookies för `accounts.google.com`.\n3. Kopiera värdet för cookien `oauth_token` och klistra in det nedan direkt. Det kan snabbt upphöra att gälla och kan bara användas en gång.\n\nStegvisa instruktioner: {browser_docs_url}\n\nStäng det här fönstret och lägg till integrationen igen om du vill välja ett annat sätt att logga in.",
         "data": {
           "oauth_token": "Cookien oauth_token"
         },
@@ -33,6 +33,16 @@
           "master_token": "Börjar med aas_et/"
         }
       },
+      "homes": {
+        "title": "Välj hem",
+        "description": "Ditt Google-konto är medlem i flera hem. Välj de hem vars högtalare och skärmar ska läggas till. Du kan ändra detta senare i integrationens alternativ: välj **Konfigurera** på integrationens sida.",
+        "data": {
+          "homes": "Hem"
+        },
+        "data_description": {
+          "homes": "Markera minst ett hem. Högtalare och skärmar i hem som ditt konto senare blir medlem i läggs också till."
+        }
+      },
       "reauth": {
         "title": "Logga in igen",
         "description": "Google godkänner inte längre den sparade inloggningen för {name}. Logga in på samma Google-konto igen: dina enheter, entiteter och automatiseringar förblir som de är. Tills dess kan entiteterna för dina enheter visa inaktuella värden eller vara otillgängliga.",
@@ -41,13 +51,13 @@
           "master_token": "Master token"
         },
         "menu_option_descriptions": {
-          "browser": "Logga in på Google i en webbläsare på en dator och klistra sedan in en cookie. Fungerar för de flesta konton.",
+          "browser": "Logga in på Google i en webbläsare på en dator och klistra sedan in en cookie.",
           "master_token": "Klistra in en master token som du redan har."
         }
       },
       "reauth_browser": {
         "title": "Inloggning via webbläsare",
-        "description": "1. Öppna {embedded_setup_url} i ett privat webbläsarfönster på en dator och logga in på samma Google-konto. När du har godkänt kan sidan fortsätta att laddas. Det är normalt.\n2. Öppna webbläsarens utvecklarverktyg och leta upp cookies för `accounts.google.com`.\n3. Kopiera värdet för cookien `oauth_token` och klistra in det nedan direkt. Det upphör att gälla inom några minuter och kan bara användas en gång.\n\nStegvisa instruktioner: {browser_docs_url}",
+        "description": "1. Öppna {embedded_setup_url} i ett privat webbläsarfönster på en dator och logga in på samma Google-konto. När du har godkänt kan sidan fortsätta att laddas. Det är normalt.\n2. Öppna webbläsarens utvecklarverktyg och leta upp cookies för `accounts.google.com`.\n3. Kopiera värdet för cookien `oauth_token` och klistra in det nedan direkt. Det kan snabbt upphöra att gälla och kan bara användas en gång.\n\nStegvisa instruktioner: {browser_docs_url}",
         "data": {
           "oauth_token": "Cookien oauth_token"
         },
@@ -67,19 +77,82 @@
       }
     },
     "error": {
-      "oauth-token-invalid": "Google godkände inte cookien. Hämta en ny och klistra in den direkt. Den upphör att gälla inom några minuter och kan bara användas en gång. Kopiera hela värdet, som börjar med oauth2_4/.",
+      "oauth-token-invalid": "Google godkände inte inloggningen. Hämta en ny cookie och klistra in den direkt. Den kan snabbt upphöra att gälla och kan bara användas en gång. Kopiera hela värdet, som börjar med oauth2_4/.",
       "master-token-invalid": "Google godkände inte din master token. Kontrollera att du har kopierat den korrekt. Om den fungerade tidigare, till exempel tills du bytte ditt Google-lösenord, godkänner Google den inte längre: använd inloggning via webbläsare i stället.",
       "google-rejected": "Google godkände inte inloggningen. Mer information finns i Home Assistants loggar.",
       "google-unreachable": "Det gick inte att nå Google. Kontrollera att Home Assistant har internetanslutning och försök sedan igen.",
       "google-busy": "Google har hög belastning eller begränsar inloggningar. Vänta några minuter och logga sedan in igen.",
       "oauth-token-format": "Det här är inte cookien oauth_token. Dess värde börjar med oauth2_4/.",
-      "master-token-format": "En master token börjar med aas_et/ och är 223 tecken lång. Kopiera hela värdet.",
-      "other-account": "Du loggade in på ett annat Google-konto, så inget ändrades. Logga in med kontot som den här integrationen använder. Om du i stället vill använda det andra kontot raderar du integrationen och lägger till den igen."
+      "master-token-format": "En master token börjar med aas_et/ och är {token_length} tecken lång. Kopiera hela värdet.",
+      "other-account": "Du loggade in på ett annat Google-konto, så inget ändrades. Logga in med kontot som den här integrationen använder. Om du i stället vill använda det andra kontot raderar du integrationen och lägger till den igen.",
+      "no-home-selected": "Välj minst ett hem."
+    },
+    "abort": {
+      "no-home": "Google rapporterar att det här kontot inte är medlem i något hem, så det finns inga högtalare eller skärmar att lägga till. I Google Home-appen bjuder du in kontot till hemmet där dina enheter finns, godkänner inbjudan och lägger sedan till integrationen igen. Ett Google Workspace-konto kan inte bjudas in, så lägg i stället till integrationen med ett Gmail-konto som är medlem i hemmet. Mer information finns på {docs_url}."
+    }
+  },
+  "entity": {
+    "button": {
+      "reboot": {
+        "name": "Starta om"
+      }
+    },
+    "number": {
+      "alarm_volume": {
+        "name": "Alarmvolym"
+      }
+    },
+    "sensor": {
+      "alarms": {
+        "name": "Alarm"
+      },
+      "device": {
+        "name": "Enhet"
+      },
+      "timers": {
+        "name": "Timers"
+      },
+      "wifi_network": {
+        "name": "Wi-Fi-nätverk"
+      }
+    },
+    "switch": {
+      "do_not_disturb": {
+        "name": "Stör ej"
+      }
+    },
+    "event": {
+      "alarm_events": {
+        "name": "Alarmhändelser",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "ringing": "Ringer",
+              "snoozed": "Snoozat",
+              "stopped": "Stoppat"
+            }
+          }
+        }
+      },
+      "timer_events": {
+        "name": "Timerhändelser",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "ringing": "Ringer",
+              "stopped": "Stoppat"
+            }
+          }
+        }
+      }
     }
   },
   "exceptions": {
     "alarms_and_timers_not_fetched": {
       "message": "Det gick inte att hämta aktuella alarm och timers från {device}, så inget raderades från den enheten. Kontrollera att enheten är online och försök igen senare."
+    },
+    "alarms_and_timers_not_fetched_token_rejected_polling_off": {
+      "message": "Det gick inte att hämta aktuella alarm och timers från {device}, så inget raderades från den enheten. Enheten avvisade sin token. Pollning för ändringar är inaktiverad, så integrationen ber inte Google om en ny igen på egen hand: kör åtgärden ”Uppdatera enheter” och försök sedan igen."
     },
     "alarms_and_timers_not_fetched_from_devices": {
       "message": "Det gick inte att hämta aktuella alarm och timers från följande enheter, så inget raderades från dem: {devices}. Kontrollera att enheterna är online och försök igen senare."
@@ -87,8 +160,14 @@
     "alarms_and_timers_not_deleted": {
       "message": "{device} bekräftade inte att alarm eller timers raderades, så de kan fortfarande vara inställda. Kontrollera att enheten är online och försök igen senare."
     },
+    "alarms_and_timers_not_deleted_token_rejected_polling_off": {
+      "message": "{device} bekräftade inte att alarm eller timers raderades, så de kan fortfarande vara inställda. Enheten avvisade sin token. Pollning för ändringar är inaktiverad, så integrationen ber inte Google om en ny igen på egen hand: kör åtgärden ”Uppdatera enheter” och försök sedan igen."
+    },
     "alarms_and_timers_not_deleted_from_devices": {
       "message": "Det gick inte att radera alarm eller timers från följande enheter eller bekräfta att de raderades: {devices}. Kontrollera att enheterna är online och försök igen senare."
+    },
+    "alarms_and_timers_not_deleted_from_devices_token_rejected_polling_off": {
+      "message": "Det gick inte att radera alarm eller timers från följande enheter eller bekräfta att de raderades: {devices}. Minst en av dem avvisade sin token. Pollning för ändringar är inaktiverad, så integrationen ber inte Google om en ny igen på egen hand: kör åtgärden ”Uppdatera enheter”, kontrollera att enheterna är online och försök sedan igen."
     },
     "invalid_alarm_id": {
       "message": "”{alarm_id}” är inte ett alarm-ID. Kopiera ID:t, som börjar med alarm/, från attributet alarms på enhetens alarmsensor."
@@ -109,7 +188,10 @@
       "message": "{device} bekräftade inte att den utförde åtgärden: den svarade inte i tid, eller så avbröts svaret. Kontrollera att enheten är online och försök igen."
     },
     "device_token_rejected": {
-      "message": "{device} avvisade sin token, och det hjälpte inte att hämta en ny från Google. Integrationen fortsätter att be Google om en ny, så försök igen senare."
+      "message": "{device} avvisade sin token. Integrationen fortsätter att be Google om en ny, så försök igen senare."
+    },
+    "device_token_rejected_polling_off": {
+      "message": "{device} avvisade sin token. Pollning för ändringar är inaktiverad, så integrationen ber inte Google om en ny igen på egen hand: kör åtgärden ”Uppdatera enheter” och försök sedan igen."
     },
     "device_not_ready": {
       "message": "{device} svarade ”hittades inte”. Den håller kanske fortfarande på att starta, så försök igen senare, eller så stöder den inte detta."
@@ -119,22 +201,131 @@
     },
     "devices_not_rebooted": {
       "message": "Följande enheter bekräftade inte att de kommer att starta om: {devices}. Kontrollera att enheterna är online och försök igen senare."
+    },
+    "sign_in_rejected": {
+      "message": "Google godkände inte inloggningen ({reason}). Logga in igen."
+    }
+  },
+  "issues": {
+    "polling_disabled": {
+      "title": "Pollning för ändringar är inaktiverad",
+      "fix_flow": {
+        "step": {
+          "init": {
+            "title": "Pollning för ändringar är inaktiverad",
+            "description": "Alternativet **Aktivera pollning för ändringar** är avstängt i integrationens systemalternativ, så integrationen kontrollerar inte dina enheter på egen hand. Alarm, timers och andra entiteter uppdateras bara när du ber om det, till exempel med åtgärden **Uppdatera enheter**. Se vad som fortfarande fungerar på {docs_url}.\n\nOm du aktiverar pollning igen laddas integrationen om och kontrollerar sedan dina enheter med uppdateringsintervallet. Om du låter pollning vara inaktiverad döljs den här lagningen tills du aktiverar pollning och sedan inaktiverar den igen.",
+            "menu_options": {
+              "turn_on": "Aktivera pollning igen",
+              "keep_off": "Låt pollning vara inaktiverad och dölj den här lagningen"
+            }
+          }
+        },
+        "abort": {
+          "polling_kept_off": "Pollning förblir inaktiverad och den här lagningen är dold."
+        }
+      }
+    },
+    "invalid_update_interval": {
+      "title": "Det sparade uppdateringsintervallet är kortare än {min_interval} s",
+      "fix_flow": {
+        "step": {
+          "init": {
+            "title": "Det sparade uppdateringsintervallet är kortare än {min_interval} s",
+            "description": "Uppdateringsintervallet som sparats i integrationens alternativ är {interval} s, vilket är under minimivärdet {min_interval} s. Integrationen använder i stället standardvärdet och kontrollerar dina enheter med {default_interval} s mellanrum.\n\nOm du sparade 0 för att stoppa de här regelbundna kontrollerna kan du inaktivera pollning i stället. Till skillnad från 0 stoppar det även sökningen efter Bluetooth-enheter och att nya enheter som mDNS hittar läggs till. Läs mer på {docs_url}.\n\nOm du vill använda ett annat intervall öppnar du [Google Home-integrationen]({integration_url}), väljer **Konfigurera**, anger det och väljer sedan **Bekräfta**.",
+            "menu_options": {
+              "use_default": "Använd standardvärdet {default_interval} s",
+              "turn_off_polling": "Inaktivera pollning i stället"
+            }
+          }
+        }
+      }
+    },
+    "homes_deselected": {
+      "title": "Inget av Google-kontots hem är valt",
+      "description": "Ditt Google-konto är bara medlem i hem som du har avmarkerat i integrationens alternativ, så integrationen lägger inte till högtalarna och skärmarna i dem. Om du vill lägga till ett hems enheter öppnar du [Google Home-integrationen]({integration_url}), väljer **Konfigurera**, markerar hemmet under **Hem** och väljer sedan **Bekräfta**.\n\nOm du vill att de här hemmen ska förbli avmarkerade väljer du **Ignorera**."
+    },
+    "no_home": {
+      "title": "Google rapporterar inget hem för ditt konto",
+      "description": "Google rapporterar att kontot som integrationen loggade in med inte är medlem i något hem, så det finns inga högtalare eller skärmar att lägga till. I Google Home-appen bjuder du in det här kontot till hemmet där dina enheter finns och godkänner inbjudan. Ladda sedan om [Google Home-integrationen]({integration_url}): välj **⋮** > **Ladda om**.\n\nOm du behåller integrationen med avsikt, till exempel medan du flyttar, väljer du **Ignorera**. Om du inte längre behöver den kan du ta bort den på samma sida."
+    }
+  },
+  "config_subentries": {
+    "bluetooth_device": {
+      "entry_type": "Bluetooth-enhet",
+      "initiate_flow": {
+        "user": "Spåra en Bluetooth-enhet"
+      },
+      "step": {
+        "user": {
+          "title": "Spåra en Bluetooth-enhet",
+          "description": "Ange IRK för en telefon, eller MAC-adressen för en enhet vars adress aldrig ändras, till exempel vissa klockor och taggar. Telefoner byter adress med några minuters mellanrum, så spåra dem med IRK. Se {docs_url} för hur du hittar IRK.",
+          "data": {
+            "name": "Namn",
+            "irk_or_mac": "IRK eller MAC-adress",
+            "additional_departure_delay": "Extra fördröjning vid avfärd"
+          },
+          "data_description": {
+            "name": "Namnet på spåraren, till exempel Alex telefon.",
+            "irk_or_mac": "En telefons Identity Resolving Key, som {irk_hex_length} hexadecimala siffror eller i base64, eller en MAC-adress, till exempel AA:BB:CC:DD:EE:FF.",
+            "additional_departure_delay": "Extra tid efter det vanliga närvarofönstret på {presence_window} sekunder innan tillståndet ändras från ”Hemma” till ”Borta”. Vanlig tidsinställning lägger inte till någon fördröjning. En längre fördröjning fördröjer också registreringen av en verklig avfärd. Om skanningarna inte kan bekräfta frånvaro kan spåraren bli otillgänglig."
+          }
+        },
+        "reconfigure": {
+          "title": "Inställningar för Bluetooth-enhet",
+          "description": "Ändra den extra fördröjningen vid avfärd för den här spåraren.",
+          "data": {
+            "additional_departure_delay": "Extra fördröjning vid avfärd"
+          },
+          "data_description": {
+            "additional_departure_delay": "Extra tid efter det vanliga närvarofönstret på {presence_window} sekunder innan tillståndet ändras från ”Hemma” till ”Borta”. Vanlig tidsinställning lägger inte till någon fördröjning. En längre fördröjning fördröjer också registreringen av en verklig avfärd. Om skanningarna inte kan bekräfta frånvaro kan spåraren bli otillgänglig."
+          }
+        }
+      },
+      "error": {
+        "name-empty": "Ange ett namn.",
+        "irk-or-mac": "Ange en IRK eller en MAC-adress.",
+        "irk-invalid": "Det här är ingen IRK. Ange {irk_bytes} byte som {irk_hex_length} hexadecimala siffror eller i base64.",
+        "mac-invalid": "Det här är ingen MAC-adress. Ange sex par hexadecimala siffror åtskilda med kolon eller bindestreck, till exempel AA:BB:CC:DD:EE:FF.",
+        "already-tracked": "Den här enheten spåras redan.",
+        "departure-delay-invalid": "Välj en av de angivna fördröjningarna vid avfärd."
+      },
+      "abort": {
+        "bluetooth-tracking-off": "Bluetooth-spårning är avaktiverad. Aktivera den först i integrationens alternativ: välj ”Konfigurera” på integrationens sida.",
+        "device-removed": "Den här Bluetooth-enheten har tagits bort. Lägg till den igen för att spåra den."
+      }
     }
   },
   "options": {
     "step": {
       "init": {
         "data": {
-          "update_interval": "Ändra uppdateringsintervallet. Öka det om enheterna inte svarar i tid. Standard: {default_interval} sekunder.",
-          "known_hosts": "Kända värdar"
+          "update_interval": "Uppdateringsintervall (sekunder)",
+          "known_hosts": "Kända värdar",
+          "homes": "Hem"
         },
         "data_description": {
-          "known_hosts": "IP-adresser till högtalare och skärmar som integrationen inte kan hitta på egen hand, till exempel för att de finns i ett annat nätverk eller VLAN."
+          "update_interval": "Öka det om dina enheter ofta inte svarar i tid. Standard: {default_interval} sekunder.",
+          "known_hosts": "IP-adresser till högtalare och skärmar som integrationen inte kan hitta på egen hand, till exempel för att de finns i ett annat nätverk eller VLAN.",
+          "homes": "Högtalare och skärmar i hem som du avmarkerar läggs inte till. Om du avmarkerar ett hem tas dess enheter och deras entiteter bort från Home Assistant, så automatiseringar, skript och kontrollpaneler som använder dem slutar fungera. Markera hemmet igen för att lägga tillbaka dem med de namn och områden du gav dem."
+        },
+        "sections": {
+          "bluetooth": {
+            "name": "Bluetooth",
+            "data": {
+              "bluetooth_tracking": "Bluetooth-spårning",
+              "bluetooth_excluded_speakers": "Högtalare som inte används för Bluetooth-spårning"
+            },
+            "data_description": {
+              "bluetooth_tracking": "Använd dina högtalare för att se om din telefon eller andra Bluetooth-enheter är hemma. När du har aktiverat spårningen väljer du ”Spåra en Bluetooth-enhet” på integrationens sida för varje enhet som ska spåras. Så länge den är avaktiverad skickar integrationen inga Bluetooth-förfrågningar till dina högtalare.",
+              "bluetooth_excluded_speakers": "Högtalare som inte söker efter Bluetooth-enheter. Lägg till en högtalare som är urkopplad eller ur drift."
+            }
+          }
         }
       }
     },
     "error": {
-      "known-host-not-ip": "Ange endast IP-adresser, till exempel 192.168.1.20."
+      "known-host-not-ip": "Ange endast IP-adresser, till exempel 192.168.1.20.",
+      "no-home-selected": "Välj minst ett hem."
     }
   },
   "services": {
@@ -201,6 +392,29 @@
     "refresh_devices": {
       "description": "Uppdatera statusen för alla Google Home-enheter.",
       "name": "Uppdatera enheter"
+    }
+  },
+  "system_health": {
+    "info": {
+      "can_reach_sign_in": "Når Googles inloggningsserver",
+      "can_reach_device_list": "Når Googles server för enhetslistan",
+      "device_list": "Googles enhetslista",
+      "retry_not_before": "Nytt försök tidigast",
+      "polling": "Pollning för ändringar",
+      "bluetooth_tracking": "Bluetooth-spårning",
+      "devices_listed": "Enheter i Googles lista",
+      "devices_not_answering": "Enheter som inte svarar"
+    }
+  },
+  "selector": {
+    "departure_delay": {
+      "options": {
+        "0": "0 sekunder (vanlig tidsinställning)",
+        "30": "30 sekunder",
+        "60": "60 sekunder",
+        "90": "90 sekunder",
+        "120": "120 sekunder"
+      }
     }
   }
 }

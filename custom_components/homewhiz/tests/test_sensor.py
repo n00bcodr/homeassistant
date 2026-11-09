@@ -10,7 +10,7 @@ and monkeypatched RestoreSensor hooks rather than a real hass instance.
 import asyncio
 import math
 from datetime import UTC, datetime
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import AsyncMock, Mock, PropertyMock, patch
 
 import pytest
 from homeassistant.components.sensor import (
@@ -22,7 +22,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from custom_components.homewhiz.api import ApplianceContents
 from custom_components.homewhiz.appliance_config import ApplianceFeatureBoundedOption
-from custom_components.homewhiz.appliance_controls import EnumControl, NumericControl
+from custom_components.homewhiz.appliance_controls import NumericControl
 from custom_components.homewhiz.config_flow import EntryData
 from custom_components.homewhiz.const import DOMAIN
 from custom_components.homewhiz.sensor import (
@@ -30,7 +30,6 @@ from custom_components.homewhiz.sensor import (
     INSTANT_CONSUMPTION_KEY,
     MAX_INTEGRATION_GAP_HOURS,
     HomeWhizEnergyEntity,
-    HomeWhizMachineStatusEntity,
     HomeWhizSensorEntity,
     _find_instant_consumption_controls,
 )
@@ -424,91 +423,76 @@ def test_advance_integration_never_raises_on_bad_coordinator_data(
     assert math.isfinite(entity.native_value)
 
 
-def _status_entity(coordinator: Mock) -> HomeWhizMachineStatusEntity:
-    return HomeWhizMachineStatusEntity(
-        coordinator,
-        "Test washer",
-        _entry_data(),
-        state_control=EnumControl(
-            "state",
-            35,
-            {10: "device_state_on", 20: "device_state_off", 30: "device_state_running"},
-        ),
-        sub_state_control=EnumControl(
-            "sub_state",
-            50,
-            {1: "washer_substate_washing", 15: "washer_substate_remove_laundry"},
-        ),
+def _sensor_entity(control: NumericControl) -> HomeWhizSensorEntity:
+    return HomeWhizSensorEntity(
+        coordinator=Mock(),
+        control=control,
+        device_name="Test AC",
+        data=_entry_data(),
     )
 
 
-def _frame(state: int, sub_state: int) -> bytearray:
-    data = bytearray(60)
-    data[35] = state
-    data[50] = sub_state
-    return data
+def test_entity_id_changed_rekeys_my_entity_ids() -> None:
+    """A renamed entity_id must replace the old key in my_entity_ids, which
+    feeds the "sources" attribute of SummedTimestampControl sensors."""
+    control = _power_control()
+    entity = _sensor_entity(control)
+    control.my_entity_ids = {  # type: ignore[attr-defined]
+        "sensor.old": "Power",
+        "select.other": "Other",
+    }
+    entity.entity_id = "sensor.new"
+
+    with patch.object(
+        HomeWhizSensorEntity, "name", new_callable=PropertyMock, return_value="Power"
+    ):
+        entity.async_entity_id_changed("sensor.old")
+
+    assert control.my_entity_ids == {  # type: ignore[attr-defined]
+        "select.other": "Other",
+        "sensor.new": "Power",
+    }
 
 
-def test_machine_status_entity_is_enum_and_always_available() -> None:
-    coordinator = Mock()
-    entity = _status_entity(coordinator)
-    assert entity.device_class == SensorDeviceClass.ENUM
-    assert entity.unique_id == "Test washer_machine_status"
-    assert entity.translation_key == "machine_status"
-    assert entity.available is True
+def test_entity_id_changed_without_my_entity_ids_is_a_no_op() -> None:
+    control = _power_control()
+    entity = _sensor_entity(control)
+    entity.entity_id = "sensor.new"
+
+    entity.async_entity_id_changed("sensor.old")
+
+    assert not hasattr(control, "my_entity_ids")
 
 
-def test_machine_status_stale_sub_state_after_reconnect() -> None:
-    coordinator = Mock()
-    coordinator.available = True
-    coordinator.data = _frame(30, 15)  # running + stale "remove laundry"
-    entity = _status_entity(coordinator)
-    entity._refresh()
-    assert entity.native_value == "running"
-    assert entity.extra_state_attributes["raw_state"] == "device_state_running"
-    assert entity.extra_state_attributes["raw_sub_state"] == (
-        "washer_substate_remove_laundry"
-    )
+def test_entity_id_changed_calls_the_parent_hook_if_present() -> None:
+    """From Home Assistant 2026.11 on the base class defines the hook and it
+    must be called. Older versions lack it, which the other tests cover."""
+    control = _power_control()
+    entity = _sensor_entity(control)
+    control.my_entity_ids = {"sensor.old": "Power"}  # type: ignore[attr-defined]
+    entity.entity_id = "sensor.new"
+    parent = Mock()
+
+    with (
+        patch.object(CoordinatorEntity, "async_entity_id_changed", parent, create=True),
+        patch.object(
+            HomeWhizSensorEntity,
+            "name",
+            new_callable=PropertyMock,
+            return_value="Power",
+        ),
+    ):
+        entity.async_entity_id_changed("sensor.old")
+
+    parent.assert_called_once_with("sensor.old")
+    assert control.my_entity_ids == {"sensor.new": "Power"}  # type: ignore[attr-defined]
 
 
-def test_machine_status_keeps_last_status_during_grace_then_unavailable() -> None:
-    coordinator = Mock()
-    coordinator.available = True
-    coordinator.data = _frame(30, 1)
-    entity = _status_entity(coordinator)
-    entity._refresh()
-    assert entity.native_value == "washing"
-    # short drop: coordinator still available, still serves the last data
-    entity._refresh()
-    assert entity.native_value == "washing"
-    # grace expired
-    coordinator.available = False
-    coordinator.data = None
-    entity._refresh()
-    assert entity.native_value == "unavailable"
+def test_energy_entity_opts_in_to_entity_id_changes() -> None:
+    """HomeWhizEnergyEntity defines its own async_added_to_hass, so it needs
+    its own async_entity_id_changed to be changed in place."""
+    assert "async_entity_id_changed" in HomeWhizEnergyEntity.__dict__
+    entity = _energy_entity()
+    entity.entity_id = "sensor.new_total"
 
-
-def test_machine_status_no_cycle_complete_after_long_drop() -> None:
-    coordinator = Mock()
-    coordinator.available = True
-    coordinator.data = _frame(30, 1)
-    entity = _status_entity(coordinator)
-    entity._refresh()
-    coordinator.available = False
-    coordinator.data = None
-    entity._refresh()
-    coordinator.available = True
-    coordinator.data = _frame(10, 15)  # reconnected, finished, stale sub-state
-    entity._refresh()
-    assert entity.native_value == "idle"
-
-
-def test_machine_status_cycle_complete_in_same_session() -> None:
-    coordinator = Mock()
-    coordinator.available = True
-    coordinator.data = _frame(30, 1)
-    entity = _status_entity(coordinator)
-    entity._refresh()
-    coordinator.data = _frame(10, 15)
-    entity._refresh()
-    assert entity.native_value == "cycle_complete"
+    entity.async_entity_id_changed("sensor.old_total")
