@@ -9,13 +9,13 @@
           "master_token": "Token principal"
         },
         "menu_option_descriptions": {
-          "browser": "Inicie sessão na Google num navegador de computador e, em seguida, cole um cookie. Funciona para a maioria das contas.",
+          "browser": "Inicie sessão na Google num navegador de computador e, em seguida, cole um cookie.",
           "master_token": "Cole um token principal que já tenha."
         }
       },
       "browser": {
         "title": "Início de sessão no navegador",
-        "description": "1. Num computador, abra {embedded_setup_url} numa janela de navegação privada e inicie sessão. Depois de aceitar, a página pode continuar a carregar; isso é esperado.\n2. Abra as ferramentas de programador do navegador e procure os cookies de `accounts.google.com`.\n3. Copie o valor do cookie `oauth_token` e cole-o abaixo de imediato. Expira em poucos minutos e só funciona uma vez.\n\nInstruções passo a passo: {browser_docs_url}\n\nPara escolher outra forma de iniciar sessão, feche esta janela e adicione novamente a integração.",
+        "description": "1. Num computador, abra {embedded_setup_url} numa janela de navegação privada e inicie sessão. Depois de aceitar, a página pode continuar a carregar; isso é esperado.\n2. Abra as ferramentas de programador do navegador e procure os cookies de `accounts.google.com`.\n3. Copie o valor do cookie `oauth_token` e cole-o abaixo de imediato. Pode expirar rapidamente e só funciona uma vez.\n\nInstruções passo a passo: {browser_docs_url}\n\nPara escolher outra forma de iniciar sessão, feche esta janela e adicione novamente a integração.",
         "data": {
           "oauth_token": "Cookie oauth_token"
         },
@@ -33,6 +33,16 @@
           "master_token": "Começa por aas_et/"
         }
       },
+      "homes": {
+        "title": "Escolher casas",
+        "description": "A sua conta Google é membro de várias casas. Escolha as casas cujos altifalantes e ecrãs pretende adicionar. Pode alterar isto mais tarde nas opções da integração: selecione **Configurar** na página da integração.",
+        "data": {
+          "homes": "Casas"
+        },
+        "data_description": {
+          "homes": "Marque pelo menos uma casa. Se mais tarde a sua conta se tornar membro de outra casa, os altifalantes e ecrãs dessa casa também serão adicionados."
+        }
+      },
       "reauth": {
         "title": "Iniciar sessão novamente",
         "description": "A Google já não aceita os dados de início de sessão guardados para {name}. Inicie sessão novamente na mesma conta Google: os seus dispositivos, entidades e automatizações mantêm-se como estão. Até o fazer, as entidades dos seus dispositivos podem mostrar valores desatualizados ou ficar indisponíveis.",
@@ -41,13 +51,13 @@
           "master_token": "Token principal"
         },
         "menu_option_descriptions": {
-          "browser": "Inicie sessão na Google num navegador de computador e, em seguida, cole um cookie. Funciona para a maioria das contas.",
+          "browser": "Inicie sessão na Google num navegador de computador e, em seguida, cole um cookie.",
           "master_token": "Cole um token principal que já tenha."
         }
       },
       "reauth_browser": {
         "title": "Início de sessão no navegador",
-        "description": "1. Num computador, abra {embedded_setup_url} numa janela de navegação privada e inicie sessão na mesma conta Google. Depois de aceitar, a página pode continuar a carregar; isso é esperado.\n2. Abra as ferramentas de programador do navegador e procure os cookies de `accounts.google.com`.\n3. Copie o valor do cookie `oauth_token` e cole-o abaixo de imediato. Expira em poucos minutos e só funciona uma vez.\n\nInstruções passo a passo: {browser_docs_url}",
+        "description": "1. Num computador, abra {embedded_setup_url} numa janela de navegação privada e inicie sessão na mesma conta Google. Depois de aceitar, a página pode continuar a carregar; isso é esperado.\n2. Abra as ferramentas de programador do navegador e procure os cookies de `accounts.google.com`.\n3. Copie o valor do cookie `oauth_token` e cole-o abaixo de imediato. Pode expirar rapidamente e só funciona uma vez.\n\nInstruções passo a passo: {browser_docs_url}",
         "data": {
           "oauth_token": "Cookie oauth_token"
         },
@@ -67,19 +77,82 @@
       }
     },
     "error": {
-      "oauth-token-invalid": "A Google não aceitou o cookie. Obtenha um novo e cole-o de imediato: expira em poucos minutos e só funciona uma vez. Copie o valor completo, que começa por oauth2_4/.",
+      "oauth-token-invalid": "A Google não aceitou o início de sessão. Obtenha um novo cookie e cole-o de imediato: pode expirar rapidamente e só funciona uma vez. Copie o valor completo, que começa por oauth2_4/.",
       "master-token-invalid": "A Google não aceitou o token principal. Verifique se o copiou corretamente. Se funcionava antes, por exemplo até ter alterado a sua palavra-passe Google, a Google já não o aceita: utilize antes o início de sessão no navegador.",
       "google-rejected": "A Google não aceitou o início de sessão. Para ver os detalhes, consulte os logs do Home Assistant.",
       "google-unreachable": "Não foi possível estabelecer ligação à Google. Verifique se o Home Assistant está ligado à Internet e tente novamente.",
       "google-busy": "A Google está ocupada ou está a limitar os inícios de sessão. Aguarde alguns minutos e inicie sessão novamente.",
       "oauth-token-format": "Este não é o cookie oauth_token. O seu valor começa por oauth2_4/.",
-      "master-token-format": "Um token principal começa por aas_et/ e tem 223 caracteres. Copie o token completo.",
-      "other-account": "Iniciou sessão numa conta Google diferente, pelo que nada foi alterado. Inicie sessão com a conta que esta integração utiliza. Para passar a utilizar essa outra conta, elimine a integração e adicione-a novamente."
+      "master-token-format": "Um token principal começa por aas_et/ e tem {token_length} caracteres. Copie o token completo.",
+      "other-account": "Iniciou sessão numa conta Google diferente, pelo que nada foi alterado. Inicie sessão com a conta que esta integração utiliza. Para passar a utilizar essa outra conta, elimine a integração e adicione-a novamente.",
+      "no-home-selected": "Escolha pelo menos uma casa."
+    },
+    "abort": {
+      "no-home": "A Google indica que esta conta não é membro de nenhuma casa, por isso não há altifalantes nem ecrãs para adicionar. Na aplicação Google Home, convide a conta para a casa onde estão os seus dispositivos, aceite o convite e adicione novamente a integração. Uma conta Google Workspace não pode ser convidada, por isso adicione a integração com uma conta Gmail que seja membro da casa. Para mais detalhes, consulte {docs_url}."
+    }
+  },
+  "entity": {
+    "button": {
+      "reboot": {
+        "name": "Reiniciar"
+      }
+    },
+    "number": {
+      "alarm_volume": {
+        "name": "Volume do alarme"
+      }
+    },
+    "sensor": {
+      "alarms": {
+        "name": "Alarmes"
+      },
+      "device": {
+        "name": "Dispositivo"
+      },
+      "timers": {
+        "name": "Temporizadores"
+      },
+      "wifi_network": {
+        "name": "Rede Wi-Fi"
+      }
+    },
+    "switch": {
+      "do_not_disturb": {
+        "name": "Não incomodar"
+      }
+    },
+    "event": {
+      "alarm_events": {
+        "name": "Eventos de alarmes",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "ringing": "A tocar",
+              "snoozed": "Adiado",
+              "stopped": "Parado"
+            }
+          }
+        }
+      },
+      "timer_events": {
+        "name": "Eventos de temporizadores",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "ringing": "A tocar",
+              "stopped": "Parado"
+            }
+          }
+        }
+      }
     }
   },
   "exceptions": {
     "alarms_and_timers_not_fetched": {
       "message": "Não foi possível obter os alarmes e temporizadores atuais do dispositivo {device}, pelo que nada foi eliminado desse dispositivo. Verifique se está online e tente novamente mais tarde."
+    },
+    "alarms_and_timers_not_fetched_token_rejected_polling_off": {
+      "message": "Não foi possível obter os alarmes e temporizadores atuais do dispositivo {device}, pelo que nada foi eliminado desse dispositivo. O dispositivo rejeitou o seu token. A procura por alterações está desativada, pelo que a integração não volta a pedir um novo à Google por iniciativa própria: execute a ação «Atualizar dispositivos» e tente novamente."
     },
     "alarms_and_timers_not_fetched_from_devices": {
       "message": "Não foi possível obter os alarmes e temporizadores atuais dos seguintes dispositivos, pelo que nada foi eliminado desses dispositivos: {devices}. Verifique se estão online e tente novamente mais tarde."
@@ -87,8 +160,14 @@
     "alarms_and_timers_not_deleted": {
       "message": "O dispositivo {device} não confirmou a eliminação dos alarmes ou temporizadores, pelo que poderão continuar definidos. Verifique se está online e tente novamente mais tarde."
     },
+    "alarms_and_timers_not_deleted_token_rejected_polling_off": {
+      "message": "O dispositivo {device} não confirmou a eliminação dos alarmes ou temporizadores, pelo que poderão continuar definidos. O dispositivo rejeitou o seu token. A procura por alterações está desativada, pelo que a integração não volta a pedir um novo à Google por iniciativa própria: execute a ação «Atualizar dispositivos» e tente novamente."
+    },
     "alarms_and_timers_not_deleted_from_devices": {
       "message": "Não foi possível eliminar os alarmes ou temporizadores dos seguintes dispositivos, ou confirmar a sua eliminação: {devices}. Verifique se estão online e tente novamente mais tarde."
+    },
+    "alarms_and_timers_not_deleted_from_devices_token_rejected_polling_off": {
+      "message": "Não foi possível eliminar os alarmes ou temporizadores dos seguintes dispositivos, ou confirmar a sua eliminação: {devices}. Pelo menos um deles rejeitou o seu token. A procura por alterações está desativada, pelo que a integração não volta a pedir um novo à Google por iniciativa própria: execute a ação «Atualizar dispositivos», verifique se os dispositivos estão online e tente novamente."
     },
     "invalid_alarm_id": {
       "message": "«{alarm_id}» não é um ID de alarme. Copie o ID, que começa por alarm/, do atributo alarms do sensor de alarmes do dispositivo."
@@ -109,7 +188,10 @@
       "message": "O dispositivo {device} não confirmou que executou a ação: não respondeu a tempo ou a resposta foi interrompida. Verifique se está online e tente novamente."
     },
     "device_token_rejected": {
-      "message": "O dispositivo {device} rejeitou o seu token, e obter um novo junto da Google não ajudou. A integração continua a pedir um novo à Google, por isso tente novamente mais tarde."
+      "message": "O dispositivo {device} rejeitou o seu token. A integração continua a pedir um novo à Google, por isso tente novamente mais tarde."
+    },
+    "device_token_rejected_polling_off": {
+      "message": "O dispositivo {device} rejeitou o seu token. A procura por alterações está desativada, pelo que a integração não volta a pedir um novo à Google por iniciativa própria: execute a ação «Atualizar dispositivos» e tente novamente."
     },
     "device_not_ready": {
       "message": "O dispositivo {device} respondeu «não encontrado». Pode ainda estar a iniciar, por isso tente novamente mais tarde, ou pode não suportar esta funcionalidade."
@@ -119,22 +201,131 @@
     },
     "devices_not_rebooted": {
       "message": "Os seguintes dispositivos não confirmaram que vão reiniciar: {devices}. Verifique se estão online e tente novamente mais tarde."
+    },
+    "sign_in_rejected": {
+      "message": "A Google não aceitou o início de sessão ({reason}). Inicie sessão novamente."
+    }
+  },
+  "issues": {
+    "polling_disabled": {
+      "title": "A procura por alterações está desativada",
+      "fix_flow": {
+        "step": {
+          "init": {
+            "title": "A procura por alterações está desativada",
+            "description": "A opção **Ativar procura por alterações** está desativada nas opções do sistema da integração, pelo que a integração não verifica os seus dispositivos por iniciativa própria. Os alarmes, temporizadores e outras entidades só são atualizados quando o pedir, por exemplo com a ação **Atualizar dispositivos**. Para saber o que continua a funcionar, consulte {docs_url}.\n\nSe voltar a ativar a procura, a integração é recarregada e depois passa a verificar os seus dispositivos de acordo com o intervalo de atualização. Se a mantiver desativada, esta correção fica oculta até ativar a procura e voltar a desativá-la.",
+            "menu_options": {
+              "turn_on": "Voltar a ativar a procura",
+              "keep_off": "Manter a procura desativada e ocultar esta correção"
+            }
+          }
+        },
+        "abort": {
+          "polling_kept_off": "A procura continua desativada e esta correção foi ocultada."
+        }
+      }
+    },
+    "invalid_update_interval": {
+      "title": "O intervalo de atualização guardado é inferior a {min_interval} s",
+      "fix_flow": {
+        "step": {
+          "init": {
+            "title": "O intervalo de atualização guardado é inferior a {min_interval} s",
+            "description": "O intervalo de atualização guardado nas opções da integração é de {interval} s, abaixo do mínimo de {min_interval} s. A integração usa antes o valor predefinido e verifica os seus dispositivos a cada {default_interval} s.\n\nSe guardou 0 para parar estas verificações regulares, desative antes a procura. Ao contrário de 0, isto também interrompe a pesquisa de dispositivos Bluetooth e a adição de novos dispositivos encontrados pelo mDNS. Para mais detalhes, consulte {docs_url}.\n\nPara usar outro intervalo, abra a [integração Google Home]({integration_url}), selecione **Configurar**, introduza-o e depois selecione **Enviar**.",
+            "menu_options": {
+              "use_default": "Usar o valor predefinido de {default_interval} s",
+              "turn_off_polling": "Desativar a procura em vez disso"
+            }
+          }
+        }
+      }
+    },
+    "homes_deselected": {
+      "title": "Nenhuma casa da sua conta Google está selecionada",
+      "description": "A sua conta Google só é membro de casas que desmarcou nas opções da integração, por isso a integração não adiciona os altifalantes e ecrãs dessas casas. Para adicionar os dispositivos de uma casa, abra a [integração Google Home]({integration_url}), selecione **Configurar**, marque a casa em **Casas** e depois selecione **Enviar**.\n\nSe pretender manter estas casas desmarcadas, selecione **Ignorar**."
+    },
+    "no_home": {
+      "title": "A Google não indica nenhuma casa para a sua conta",
+      "description": "A Google indica que a conta com que a integração iniciou sessão não é membro de nenhuma casa, por isso não há altifalantes nem ecrãs para adicionar. Na aplicação Google Home, convide esta conta para a casa onde estão os seus dispositivos e aceite o convite. Depois, recarregue a [integração Google Home]({integration_url}): selecione **⋮** > **Recarregar**.\n\nSe está a manter a integração de propósito, por exemplo durante uma mudança de casa, selecione **Ignorar**. Se já não precisar dela, pode eliminá-la na mesma página."
+    }
+  },
+  "config_subentries": {
+    "bluetooth_device": {
+      "entry_type": "Dispositivo Bluetooth",
+      "initiate_flow": {
+        "user": "Localizar um dispositivo Bluetooth"
+      },
+      "step": {
+        "user": {
+          "title": "Localizar um dispositivo Bluetooth",
+          "description": "Introduza a IRK de um telemóvel ou o endereço MAC de um dispositivo cujo endereço nunca muda, como alguns relógios e etiquetas. Os telemóveis mudam de endereço a cada poucos minutos, por isso localize-os pela IRK. Para saber como encontrar a IRK, consulte {docs_url}.",
+          "data": {
+            "name": "Nome",
+            "irk_or_mac": "IRK ou endereço MAC",
+            "additional_departure_delay": "Atraso adicional de saída"
+          },
+          "data_description": {
+            "name": "Nome do localizador, por exemplo Telemóvel do Alex.",
+            "irk_or_mac": "A Identity Resolving Key de um telemóvel, como {irk_hex_length} dígitos hexadecimais ou em base64, ou um endereço MAC como AA:BB:CC:DD:EE:FF.",
+            "additional_departure_delay": "Tempo adicional após o período normal de presença de {presence_window} segundos antes de passar de «Casa» para «Ausente». Os tempos normais não adicionam atraso. Um atraso maior também atrasa a deteção de uma saída real. Se as pesquisas não conseguirem confirmar a ausência, o localizador poderá ficar indisponível."
+          }
+        },
+        "reconfigure": {
+          "title": "Definições do dispositivo Bluetooth",
+          "description": "Altere o atraso adicional de saída deste localizador.",
+          "data": {
+            "additional_departure_delay": "Atraso adicional de saída"
+          },
+          "data_description": {
+            "additional_departure_delay": "Tempo adicional após o período normal de presença de {presence_window} segundos antes de passar de «Casa» para «Ausente». Os tempos normais não adicionam atraso. Um atraso maior também atrasa a deteção de uma saída real. Se as pesquisas não conseguirem confirmar a ausência, o localizador poderá ficar indisponível."
+          }
+        }
+      },
+      "error": {
+        "name-empty": "Introduza um nome.",
+        "irk-or-mac": "Introduza uma IRK ou um endereço MAC.",
+        "irk-invalid": "Isto não é uma IRK. Introduza {irk_bytes} bytes como {irk_hex_length} dígitos hexadecimais ou em base64.",
+        "mac-invalid": "Isto não é um endereço MAC. Introduza seis pares de dígitos hexadecimais separados por dois pontos ou hífenes, por exemplo AA:BB:CC:DD:EE:FF.",
+        "already-tracked": "Este dispositivo já está a ser localizado.",
+        "departure-delay-invalid": "Escolha um dos atrasos de saída apresentados."
+      },
+      "abort": {
+        "bluetooth-tracking-off": "A localização por Bluetooth está desativada. Ative-a primeiro nas opções da integração: selecione «Configurar» na página da integração.",
+        "device-removed": "Este dispositivo Bluetooth foi removido. Adicione-o novamente para o localizar."
+      }
     }
   },
   "options": {
     "step": {
       "init": {
         "data": {
-          "update_interval": "Altere o intervalo de atualização. Aumente este valor se os dispositivos excederem frequentemente o tempo limite. Predefinição: {default_interval} (segundos)",
-          "known_hosts": "Anfitriões conhecidos"
+          "update_interval": "Intervalo de atualização (segundos)",
+          "known_hosts": "Anfitriões conhecidos",
+          "homes": "Casas"
         },
         "data_description": {
-          "known_hosts": "Endereços IP de altifalantes e ecrãs que a integração não consegue encontrar sozinha, por exemplo porque estão noutra rede ou VLAN."
+          "update_interval": "Aumente este valor se os seus dispositivos não responderem a tempo com frequência. Predefinição: {default_interval} segundos.",
+          "known_hosts": "Endereços IP de altifalantes e ecrãs que a integração não consegue encontrar sozinha, por exemplo porque estão noutra rede ou VLAN.",
+          "homes": "Os altifalantes e ecrãs das casas que desmarcar não são adicionados. Desmarcar uma casa remove do Home Assistant os respetivos dispositivos e as entidades destes, pelo que as automatizações, scripts e painéis que os utilizam deixam de funcionar. Volte a marcar a casa para os adicionar novamente com os nomes e as áreas que lhes atribuiu."
+        },
+        "sections": {
+          "bluetooth": {
+            "name": "Bluetooth",
+            "data": {
+              "bluetooth_tracking": "Localização por Bluetooth",
+              "bluetooth_excluded_speakers": "Altifalantes não utilizados para a localização por Bluetooth"
+            },
+            "data_description": {
+              "bluetooth_tracking": "Utilize os seus altifalantes para saber se o seu telemóvel ou outros dispositivos Bluetooth estão em casa. Depois de a ativar, selecione «Localizar um dispositivo Bluetooth» na página da integração para cada dispositivo a localizar. Enquanto estiver desativada, a integração não envia pedidos Bluetooth aos seus altifalantes.",
+              "bluetooth_excluded_speakers": "Altifalantes que não procuram dispositivos Bluetooth. Adicione um altifalante desligado da corrente ou fora de serviço."
+            }
+          }
         }
       }
     },
     "error": {
-      "known-host-not-ip": "Introduza apenas endereços IP, como 192.168.1.20."
+      "known-host-not-ip": "Introduza apenas endereços IP, como 192.168.1.20.",
+      "no-home-selected": "Escolha pelo menos uma casa."
     }
   },
   "services": {
@@ -201,6 +392,29 @@
     "refresh_devices": {
       "description": "Atualizar o estado de todos os dispositivos Google Home.",
       "name": "Atualizar dispositivos"
+    }
+  },
+  "system_health": {
+    "info": {
+      "can_reach_sign_in": "Acesso ao servidor de início de sessão da Google",
+      "can_reach_device_list": "Acesso ao servidor da lista de dispositivos da Google",
+      "device_list": "Lista de dispositivos da Google",
+      "retry_not_before": "Nova tentativa não antes de",
+      "polling": "Procura por alterações",
+      "bluetooth_tracking": "Localização por Bluetooth",
+      "devices_listed": "Dispositivos na lista da Google",
+      "devices_not_answering": "Dispositivos que não respondem"
+    }
+  },
+  "selector": {
+    "departure_delay": {
+      "options": {
+        "0": "0 segundos (tempos normais)",
+        "30": "30 segundos",
+        "60": "60 segundos",
+        "90": "90 segundos",
+        "120": "120 segundos"
+      }
     }
   }
 }

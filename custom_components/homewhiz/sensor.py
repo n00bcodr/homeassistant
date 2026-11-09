@@ -14,7 +14,7 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .appliance_controls import (
@@ -339,6 +339,14 @@ class HomeWhizEnergyEntity(HomeWhizEntity, RestoreSensor):
         if current is not None:
             self._last_power_kw = current
 
+    @callback
+    def async_entity_id_changed(self, old_entity_id: str) -> None:
+        """Opt in to in-place entity_id changes, see HomeWhizEntity.
+
+        Needed because this class defines its own async_added_to_hass.
+        """
+        super().async_entity_id_changed(old_entity_id)
+
     def _current_power_kw(self) -> float | None:
         if self.coordinator.data is None:
             return None
@@ -429,15 +437,14 @@ async def async_setup_entry(
         for control in _find_instant_consumption_controls(sensor_controls)
     )
 
+    _LOGGER.debug(
+        "Entities: %s",
+        {entity.entity_key: entity for entity in homewhiz_sensor_entities},
+    )
     machine_status = _find_machine_status_controls(controls)
     status_entities: list[HomeWhizMachineStatusEntity] = (
         [HomeWhizMachineStatusEntity(coordinator, entry.title, data, **machine_status)]
         if machine_status is not None
         else []
-    )
-
-    _LOGGER.debug(
-        "Entities: %s",
-        {entity.entity_key: entity for entity in homewhiz_sensor_entities},
     )
     async_add_entities([*homewhiz_sensor_entities, *status_entities])

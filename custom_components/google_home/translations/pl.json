@@ -9,13 +9,13 @@
           "master_token": "Token główny"
         },
         "menu_option_descriptions": {
-          "browser": "Zaloguj się do Google w przeglądarce na komputerze, a następnie wklej plik cookie. Działa w przypadku większości kont.",
+          "browser": "Zaloguj się do Google w przeglądarce na komputerze, a następnie wklej plik cookie.",
           "master_token": "Wklej token główny, który już masz."
         }
       },
       "browser": {
         "title": "Logowanie w przeglądarce",
-        "description": "1. Na komputerze otwórz {embedded_setup_url} w oknie prywatnym przeglądarki i zaloguj się. Po zaakceptowaniu strona może się dalej ładować; to normalne.\n2. Otwórz narzędzia deweloperskie przeglądarki i znajdź pliki cookie dla `accounts.google.com`.\n3. Skopiuj wartość pliku cookie `oauth_token` i od razu wklej ją poniżej. Wygasa po kilku minutach i działa tylko raz.\n\nInstrukcje krok po kroku: {browser_docs_url}\n\nAby wybrać inny sposób logowania, zamknij to okno i dodaj integrację ponownie.",
+        "description": "1. Na komputerze otwórz {embedded_setup_url} w oknie prywatnym przeglądarki i zaloguj się. Po zaakceptowaniu strona może się dalej ładować; to normalne.\n2. Otwórz narzędzia deweloperskie przeglądarki i znajdź pliki cookie dla `accounts.google.com`.\n3. Skopiuj wartość pliku cookie `oauth_token` i od razu wklej ją poniżej. Może szybko wygasnąć i działa tylko raz.\n\nInstrukcje krok po kroku: {browser_docs_url}\n\nAby wybrać inny sposób logowania, zamknij to okno i dodaj integrację ponownie.",
         "data": {
           "oauth_token": "Plik cookie oauth_token"
         },
@@ -33,6 +33,16 @@
           "master_token": "Zaczyna się od aas_et/"
         }
       },
+      "homes": {
+        "title": "Wybierz domy",
+        "description": "Twoje konto Google jest członkiem kilku domów. Wybierz domy, których głośniki i wyświetlacze mają zostać dodane. Możesz to później zmienić w opcjach integracji: wybierz **Konfiguruj** na stronie integracji.",
+        "data": {
+          "homes": "Domy"
+        },
+        "data_description": {
+          "homes": "Zaznacz co najmniej jeden dom. Dodawane są też głośniki i wyświetlacze z domów, do których Twoje konto dołączy później."
+        }
+      },
       "reauth": {
         "title": "Zaloguj się ponownie",
         "description": "Google nie akceptuje już danych logowania zapisanych dla {name}. Zaloguj się ponownie na to samo konto Google: Twoje urządzenia, encje i automatyzacje pozostaną bez zmian. Dopóki tego nie zrobisz, encje Twoich urządzeń mogą pokazywać nieaktualne wartości lub być niedostępne.",
@@ -41,13 +51,13 @@
           "master_token": "Token główny"
         },
         "menu_option_descriptions": {
-          "browser": "Zaloguj się do Google w przeglądarce na komputerze, a następnie wklej plik cookie. Działa w przypadku większości kont.",
+          "browser": "Zaloguj się do Google w przeglądarce na komputerze, a następnie wklej plik cookie.",
           "master_token": "Wklej token główny, który już masz."
         }
       },
       "reauth_browser": {
         "title": "Logowanie w przeglądarce",
-        "description": "1. Na komputerze otwórz {embedded_setup_url} w oknie prywatnym przeglądarki i zaloguj się na to samo konto Google. Po zaakceptowaniu strona może się dalej ładować; to normalne.\n2. Otwórz narzędzia deweloperskie przeglądarki i znajdź pliki cookie dla `accounts.google.com`.\n3. Skopiuj wartość pliku cookie `oauth_token` i od razu wklej ją poniżej. Wygasa po kilku minutach i działa tylko raz.\n\nInstrukcje krok po kroku: {browser_docs_url}",
+        "description": "1. Na komputerze otwórz {embedded_setup_url} w oknie prywatnym przeglądarki i zaloguj się na to samo konto Google. Po zaakceptowaniu strona może się dalej ładować; to normalne.\n2. Otwórz narzędzia deweloperskie przeglądarki i znajdź pliki cookie dla `accounts.google.com`.\n3. Skopiuj wartość pliku cookie `oauth_token` i od razu wklej ją poniżej. Może szybko wygasnąć i działa tylko raz.\n\nInstrukcje krok po kroku: {browser_docs_url}",
         "data": {
           "oauth_token": "Plik cookie oauth_token"
         },
@@ -67,19 +77,82 @@
       }
     },
     "error": {
-      "oauth-token-invalid": "Google nie zaakceptowało pliku cookie. Pobierz nowy i od razu go wklej: wygasa po kilku minutach i działa tylko raz. Skopiuj całą wartość, zaczynającą się od oauth2_4/.",
+      "oauth-token-invalid": "Google nie zaakceptowało logowania. Pobierz nowy plik cookie i od razu go wklej: może szybko wygasnąć i działa tylko raz. Skopiuj całą wartość, zaczynającą się od oauth2_4/.",
       "master-token-invalid": "Google nie zaakceptowało tokenu głównego. Sprawdź, czy został poprawnie skopiowany. Jeśli wcześniej działał, na przykład do czasu zmiany hasła do konta Google, Google już go nie akceptuje: zamiast tego użyj logowania w przeglądarce.",
       "google-rejected": "Google nie zaakceptowało logowania. Szczegóły znajdziesz w logach Home Assistanta.",
       "google-unreachable": "Nie udało się połączyć z Google. Sprawdź, czy Home Assistant ma połączenie z internetem, a następnie spróbuj ponownie.",
       "google-busy": "Google jest przeciążone lub ogranicza liczbę logowań. Odczekaj kilka minut, a następnie zaloguj się ponownie.",
       "oauth-token-format": "To nie jest plik cookie oauth_token. Jego wartość zaczyna się od oauth2_4/.",
-      "master-token-format": "Token główny zaczyna się od aas_et/ i ma 223 znaki. Skopiuj cały token.",
-      "other-account": "Zalogowano się na inne konto Google, więc nic nie zostało zmienione. Zaloguj się na konto używane przez tę integrację. Aby zamiast tego używać tamtego konta, usuń integrację i dodaj ją ponownie."
+      "master-token-format": "Token główny zaczyna się od aas_et/. Wymagana liczba znaków: {token_length}. Skopiuj cały token.",
+      "other-account": "Zalogowano się na inne konto Google, więc nic nie zostało zmienione. Zaloguj się na konto używane przez tę integrację. Aby zamiast tego używać tamtego konta, usuń integrację i dodaj ją ponownie.",
+      "no-home-selected": "Wybierz co najmniej jeden dom."
+    },
+    "abort": {
+      "no-home": "Według Google to konto nie jest członkiem żadnego domu, więc nie ma głośników ani wyświetlaczy do dodania. W aplikacji Google Home zaproś to konto do domu, w którym są Twoje urządzenia, zaakceptuj zaproszenie, a potem dodaj integrację ponownie. Konta Google Workspace nie można zaprosić, więc w takim przypadku dodaj integrację za pomocą konta Gmail, które jest członkiem domu. Szczegóły znajdziesz na stronie {docs_url}."
+    }
+  },
+  "entity": {
+    "button": {
+      "reboot": {
+        "name": "Uruchom ponownie"
+      }
+    },
+    "number": {
+      "alarm_volume": {
+        "name": "Głośność alarmu"
+      }
+    },
+    "sensor": {
+      "alarms": {
+        "name": "Alarmy"
+      },
+      "device": {
+        "name": "Urządzenie"
+      },
+      "timers": {
+        "name": "Timery"
+      },
+      "wifi_network": {
+        "name": "Sieć Wi-Fi"
+      }
+    },
+    "switch": {
+      "do_not_disturb": {
+        "name": "Nie przeszkadzać"
+      }
+    },
+    "event": {
+      "alarm_events": {
+        "name": "Zdarzenia alarmów",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "ringing": "Dzwoni",
+              "snoozed": "Odłożony",
+              "stopped": "Zatrzymano"
+            }
+          }
+        }
+      },
+      "timer_events": {
+        "name": "Zdarzenia timerów",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "ringing": "Dzwoni",
+              "stopped": "Zatrzymano"
+            }
+          }
+        }
+      }
     }
   },
   "exceptions": {
     "alarms_and_timers_not_fetched": {
       "message": "Nie udało się pobrać aktualnych alarmów i timerów z urządzenia {device}, więc nic z niego nie usunięto. Sprawdź, czy urządzenie jest online, i spróbuj ponownie później."
+    },
+    "alarms_and_timers_not_fetched_token_rejected_polling_off": {
+      "message": "Nie udało się pobrać aktualnych alarmów i timerów z urządzenia {device}, więc nic z niego nie usunięto. Urządzenie odrzuciło swój token. Cykliczne odpytywanie jest wyłączone, więc integracja sama nie poprosi ponownie Google o nowy token: uruchom akcję „Odśwież urządzenia”, a potem spróbuj ponownie."
     },
     "alarms_and_timers_not_fetched_from_devices": {
       "message": "Nie udało się pobrać aktualnych alarmów i timerów z tych urządzeń, więc nic z nich nie usunięto: {devices}. Sprawdź, czy urządzenia są online, i spróbuj ponownie później."
@@ -87,8 +160,14 @@
     "alarms_and_timers_not_deleted": {
       "message": "Urządzenie {device} nie potwierdziło usunięcia alarmów lub timerów, więc mogą one nadal być ustawione. Sprawdź, czy urządzenie jest online, i spróbuj ponownie później."
     },
+    "alarms_and_timers_not_deleted_token_rejected_polling_off": {
+      "message": "Urządzenie {device} nie potwierdziło usunięcia alarmów lub timerów, więc mogą one nadal być ustawione. Urządzenie odrzuciło swój token. Cykliczne odpytywanie jest wyłączone, więc integracja sama nie poprosi ponownie Google o nowy token: uruchom akcję „Odśwież urządzenia”, a potem spróbuj ponownie."
+    },
     "alarms_and_timers_not_deleted_from_devices": {
       "message": "Nie udało się usunąć alarmów lub timerów z tych urządzeń albo potwierdzić ich usunięcia: {devices}. Sprawdź, czy urządzenia są online, i spróbuj ponownie później."
+    },
+    "alarms_and_timers_not_deleted_from_devices_token_rejected_polling_off": {
+      "message": "Nie udało się usunąć alarmów lub timerów z tych urządzeń albo potwierdzić ich usunięcia: {devices}. Co najmniej jedno z nich odrzuciło swój token. Cykliczne odpytywanie jest wyłączone, więc integracja sama nie poprosi ponownie Google o nowy token: uruchom akcję „Odśwież urządzenia”, sprawdź, czy urządzenia są online, a potem spróbuj ponownie."
     },
     "invalid_alarm_id": {
       "message": "„{alarm_id}” nie jest identyfikatorem alarmu. Skopiuj identyfikator zaczynający się od alarm/ z atrybutu alarms czujnika alarmów urządzenia."
@@ -109,7 +188,10 @@
       "message": "Urządzenie {device} nie potwierdziło, że wykonało akcję: nie odpowiedziało na czas lub jego odpowiedź została przerwana. Sprawdź, czy urządzenie jest online, i spróbuj ponownie."
     },
     "device_token_rejected": {
-      "message": "Urządzenie {device} odrzuciło swój token, a pobranie nowego z Google nie pomogło. Integracja nadal prosi Google o nowy, więc spróbuj ponownie później."
+      "message": "Urządzenie {device} odrzuciło swój token. Integracja nadal prosi Google o nowy, więc spróbuj ponownie później."
+    },
+    "device_token_rejected_polling_off": {
+      "message": "Urządzenie {device} odrzuciło swój token. Cykliczne odpytywanie jest wyłączone, więc integracja sama nie poprosi ponownie Google o nowy token: uruchom akcję „Odśwież urządzenia”, a potem spróbuj ponownie."
     },
     "device_not_ready": {
       "message": "Urządzenie {device} odpowiedziało „nie znaleziono”. Być może nadal się uruchamia, więc spróbuj ponownie później, albo może tego nie obsługiwać."
@@ -119,22 +201,131 @@
     },
     "devices_not_rebooted": {
       "message": "Te urządzenia nie potwierdziły, że uruchomią się ponownie: {devices}. Sprawdź, czy urządzenia są online, i spróbuj ponownie później."
+    },
+    "sign_in_rejected": {
+      "message": "Google nie zaakceptowało logowania ({reason}). Zaloguj się ponownie."
+    }
+  },
+  "issues": {
+    "polling_disabled": {
+      "title": "Cykliczne odpytywanie jest wyłączone",
+      "fix_flow": {
+        "step": {
+          "init": {
+            "title": "Cykliczne odpytywanie jest wyłączone",
+            "description": "Opcja **Włącz cykliczne odpytywanie** jest wyłączona w opcjach systemowych integracji, więc integracja nie sprawdza Twoich urządzeń samodzielnie. Alarmy, timery i inne encje aktualizują się tylko na Twoje żądanie, na przykład za pomocą akcji **Odśwież urządzenia**. Informacje o tym, co nadal działa, znajdziesz tutaj: {docs_url}.\n\nJeśli ponownie włączysz odpytywanie, integracja zostanie wczytana ponownie, a potem będzie sprawdzać Twoje urządzenia zgodnie z interwałem aktualizacji. Jeśli pozostawisz je wyłączone, ten problem będzie ukryty, dopóki nie włączysz odpytywania i nie wyłączysz go ponownie.",
+            "menu_options": {
+              "turn_on": "Włącz ponownie odpytywanie",
+              "keep_off": "Pozostaw odpytywanie wyłączone i ukryj ten problem"
+            }
+          }
+        },
+        "abort": {
+          "polling_kept_off": "Odpytywanie pozostaje wyłączone, a ten problem został ukryty."
+        }
+      }
+    },
+    "invalid_update_interval": {
+      "title": "Zapisany interwał aktualizacji jest krótszy niż {min_interval} s",
+      "fix_flow": {
+        "step": {
+          "init": {
+            "title": "Zapisany interwał aktualizacji jest krótszy niż {min_interval} s",
+            "description": "Interwał aktualizacji zapisany w opcjach integracji wynosi {interval} s, czyli mniej niż minimalna wartość {min_interval} s. Integracja używa zamiast tego wartości domyślnej i sprawdza Twoje urządzenia co {default_interval} s.\n\nJeśli wartość 0 została zapisana po to, żeby zatrzymać te regularne sprawdzenia, wyłącz zamiast tego odpytywanie. W przeciwieństwie do 0 wyłączenie odpytywania zatrzymuje też wyszukiwanie urządzeń Bluetooth i dodawanie nowych urządzeń znalezionych przez mDNS. Szczegóły znajdziesz tutaj: {docs_url}.\n\nAby użyć innego interwału, otwórz [integrację Google Home]({integration_url}), wybierz **Konfiguruj**, wpisz go, a następnie wybierz **Zatwierdź**.",
+            "menu_options": {
+              "use_default": "Użyj wartości domyślnej: {default_interval} s",
+              "turn_off_polling": "Zamiast tego wyłącz odpytywanie"
+            }
+          }
+        }
+      }
+    },
+    "homes_deselected": {
+      "title": "Nie wybrano żadnego domu Twojego konta Google",
+      "description": "Twoje konto Google jest członkiem tylko domów odznaczonych w opcjach integracji, więc integracja nie dodaje znajdujących się w nich głośników i wyświetlaczy. Aby dodać urządzenia domu, otwórz [integrację Google Home]({integration_url}), wybierz **Konfiguruj**, zaznacz dom w polu **Domy**, a następnie wybierz **Zatwierdź**.\n\nJeśli chcesz, żeby te domy pozostały odznaczone, wybierz **Ignoruj**."
+    },
+    "no_home": {
+      "title": "Google nie zgłasza żadnego domu dla Twojego konta",
+      "description": "Według Google konto, na które zalogowała się integracja, nie jest członkiem żadnego domu, więc nie ma głośników ani wyświetlaczy do dodania. W aplikacji Google Home zaproś to konto do domu, w którym są Twoje urządzenia, i zaakceptuj zaproszenie. Następnie wczytaj ponownie [integrację Google Home]({integration_url}): wybierz **⋮** > **Wczytaj ponownie**.\n\nJeśli celowo zachowujesz integrację, na przykład podczas przeprowadzki, wybierz **Ignoruj**. Jeśli już jej nie potrzebujesz, możesz ją usunąć na tej samej stronie."
+    }
+  },
+  "config_subentries": {
+    "bluetooth_device": {
+      "entry_type": "Urządzenie Bluetooth",
+      "initiate_flow": {
+        "user": "Śledź urządzenie Bluetooth"
+      },
+      "step": {
+        "user": {
+          "title": "Śledź urządzenie Bluetooth",
+          "description": "Wpisz IRK telefonu albo adres MAC urządzenia, którego adres nigdy się nie zmienia, np. niektórych zegarków i lokalizatorów. Telefony zmieniają adres co kilka minut, więc śledź je za pomocą IRK. Jak znaleźć IRK, opisano w {docs_url}.",
+          "data": {
+            "name": "Nazwa",
+            "irk_or_mac": "IRK lub adres MAC",
+            "additional_departure_delay": "Dodatkowe opóźnienie wyjścia"
+          },
+          "data_description": {
+            "name": "Nazwa trackera, np. Telefon Alexa.",
+            "irk_or_mac": "Identity Resolving Key telefonu jako {irk_hex_length} cyfry szesnastkowe lub w base64 albo adres MAC, np. AA:BB:CC:DD:EE:FF.",
+            "additional_departure_delay": "Dodatkowy czas po standardowym {presence_window}-sekundowym okresie obecności, zanim stan zmieni się z „w domu” na „poza domem”. Standardowe czasy nie dodają opóźnienia. Dłuższe opóźnienie opóźnia również wykrycie rzeczywistego wyjścia. Jeśli skanowanie nie może potwierdzić nieobecności, tracker może stać się niedostępny."
+          }
+        },
+        "reconfigure": {
+          "title": "Ustawienia urządzenia Bluetooth",
+          "description": "Zmień dodatkowe opóźnienie wyjścia dla tego trackera.",
+          "data": {
+            "additional_departure_delay": "Dodatkowe opóźnienie wyjścia"
+          },
+          "data_description": {
+            "additional_departure_delay": "Dodatkowy czas po standardowym {presence_window}-sekundowym okresie obecności, zanim stan zmieni się z „w domu” na „poza domem”. Standardowe czasy nie dodają opóźnienia. Dłuższe opóźnienie opóźnia również wykrycie rzeczywistego wyjścia. Jeśli skanowanie nie może potwierdzić nieobecności, tracker może stać się niedostępny."
+          }
+        }
+      },
+      "error": {
+        "name-empty": "Wpisz nazwę.",
+        "irk-or-mac": "Wpisz IRK lub adres MAC.",
+        "irk-invalid": "To nie jest IRK. Wpisz {irk_bytes} bajtów jako {irk_hex_length} cyfry szesnastkowe lub w base64.",
+        "mac-invalid": "To nie jest adres MAC. Wpisz sześć par cyfr szesnastkowych rozdzielonych dwukropkami lub łącznikami, np. AA:BB:CC:DD:EE:FF.",
+        "already-tracked": "To urządzenie jest już śledzone.",
+        "departure-delay-invalid": "Wybierz jedno z wymienionych opóźnień wyjścia."
+      },
+      "abort": {
+        "bluetooth-tracking-off": "Śledzenie Bluetooth jest wyłączone. Najpierw włącz je w opcjach integracji: wybierz „Konfiguruj” na stronie integracji.",
+        "device-removed": "To urządzenie Bluetooth zostało usunięte. Dodaj je ponownie, aby je śledzić."
+      }
     }
   },
   "options": {
     "step": {
       "init": {
         "data": {
-          "update_interval": "Zmień interwał aktualizacji. Zwiększ go, jeśli urządzenia często przekraczają limit czasu odpowiedzi. Domyślnie: {default_interval} (sekund)",
-          "known_hosts": "Znane hosty"
+          "update_interval": "Interwał aktualizacji (w sekundach)",
+          "known_hosts": "Znane hosty",
+          "homes": "Domy"
         },
         "data_description": {
-          "known_hosts": "Adresy IP głośników i wyświetlaczy, których integracja nie może sama znaleźć, na przykład dlatego, że są w innej sieci lub sieci VLAN."
+          "update_interval": "Zwiększ tę wartość, jeśli Twoje urządzenia często nie odpowiadają na czas. Domyślnie: {default_interval} sekund.",
+          "known_hosts": "Adresy IP głośników i wyświetlaczy, których integracja nie może sama znaleźć, na przykład dlatego, że są w innej sieci lub sieci VLAN.",
+          "homes": "Głośniki i wyświetlacze z odznaczonych domów nie są dodawane. Odznaczenie domu usuwa jego urządzenia i ich encje z Home Assistanta, więc korzystające z nich automatyzacje, skrypty i panele przestają działać. Zaznacz dom ponownie, aby przywrócić urządzenia z nadanymi im nazwami i obszarami."
+        },
+        "sections": {
+          "bluetooth": {
+            "name": "Bluetooth",
+            "data": {
+              "bluetooth_tracking": "Śledzenie Bluetooth",
+              "bluetooth_excluded_speakers": "Głośniki nieużywane do śledzenia Bluetooth"
+            },
+            "data_description": {
+              "bluetooth_tracking": "Używaj głośników, aby sprawdzać, czy telefon lub inne urządzenia Bluetooth są w domu. Po włączeniu wybierz „Śledź urządzenie Bluetooth” na stronie integracji dla każdego urządzenia, które chcesz śledzić. Gdy śledzenie jest wyłączone, integracja nie wysyła do głośników żadnych żądań Bluetooth.",
+              "bluetooth_excluded_speakers": "Głośniki, które nie wyszukują urządzeń Bluetooth. Dodaj głośnik odłączony od zasilania lub niedziałający."
+            }
+          }
         }
       }
     },
     "error": {
-      "known-host-not-ip": "Wprowadź tylko adresy IP, na przykład 192.168.1.20."
+      "known-host-not-ip": "Wprowadź tylko adresy IP, na przykład 192.168.1.20.",
+      "no-home-selected": "Wybierz co najmniej jeden dom."
     }
   },
   "services": {
@@ -201,6 +392,29 @@
     "refresh_devices": {
       "description": "Odśwież stan wszystkich urządzeń Google Home.",
       "name": "Odśwież urządzenia"
+    }
+  },
+  "system_health": {
+    "info": {
+      "can_reach_sign_in": "Dostęp do serwera logowania Google",
+      "can_reach_device_list": "Dostęp do serwera listy urządzeń Google",
+      "device_list": "Lista urządzeń Google",
+      "retry_not_before": "Ponowna próba nie wcześniej niż",
+      "polling": "Cykliczne odpytywanie",
+      "bluetooth_tracking": "Śledzenie Bluetooth",
+      "devices_listed": "Urządzenia na liście Google",
+      "devices_not_answering": "Urządzenia, które nie odpowiadają"
+    }
+  },
+  "selector": {
+    "departure_delay": {
+      "options": {
+        "0": "0 sekund (standardowe czasy)",
+        "30": "30 sekund",
+        "60": "60 sekund",
+        "90": "90 sekund",
+        "120": "120 sekund"
+      }
     }
   }
 }

@@ -1,19 +1,18 @@
 """Defines base entities for Google Home."""
 
 from abc import ABC, abstractmethod
+from functools import partial
 import logging
 from typing import override
 
 from homeassistant.core import callback
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.update_coordinator import (
-    CoordinatorEntity,
-    DataUpdateCoordinator,
-)
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .api import GlocaltokensApiClient
 from .const import DOMAIN, MANUFACTURER, UNANSWERED_UPDATES
+from .coordinator import GoogleHomeDeviceCoordinator
 from .exceptions import DeviceRequestFailed
 from .models import GoogleHomeDevice
 from .types import GoogleHomeConfigEntry
@@ -21,9 +20,7 @@ from .types import GoogleHomeConfigEntry
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
 
-class GoogleHomeBaseEntity(
-    CoordinatorEntity[DataUpdateCoordinator[list[GoogleHomeDevice]]], ABC
-):
+class GoogleHomeBaseEntity(CoordinatorEntity[GoogleHomeDeviceCoordinator], ABC):
     """Base entity base for Google Home sensors."""
 
     # Subclasses name only themselves, and Home Assistant adds the device's
@@ -33,7 +30,7 @@ class GoogleHomeBaseEntity(
 
     def __init__(
         self,
-        coordinator: DataUpdateCoordinator[list[GoogleHomeDevice]],
+        coordinator: GoogleHomeDeviceCoordinator,
         client: GlocaltokensApiClient,
         device_id: str,
         device_name: str,
@@ -71,22 +68,27 @@ class GoogleHomeBaseEntity(
     @property
     @override
     def device_info(self) -> DeviceInfo | None:
-        """Return device info."""
-        return DeviceInfo(
+        """Return device info, with the firmware version once the device has said it."""
+        info = DeviceInfo(
             identifiers={(DOMAIN, self.device_id)},
             name=self.device_name,
             manufacturer=MANUFACTURER,
             model=self.device_model,
         )
+        # Never None, which would clear the version that the device page shows
+        if (device := self.get_device()) is not None and device.sw_version is not None:
+            info.sw_version = device.sw_version
+        return info
 
     def get_device(self) -> GoogleHomeDevice | None:
-        """Return the device matched by device name from the list of google devices in coordinator_data."""
-        matched_devices: list[GoogleHomeDevice] = [
-            device
-            for device in self.coordinator.data
-            if device.device_id == self.device_id
-        ]
-        return matched_devices[0] if matched_devices else None
+        """Return the entity's device, if Google lists it."""
+        return self.coordinator.data
+
+    @callback
+    def async_show_device_changes(self) -> None:
+        """Show a change to the device's data now, on each of its entities."""
+        # The device's other entities show its data too
+        self.coordinator.async_update_listeners()
 
     async def async_reboot_device(self) -> None:
         """Reboot the device."""
@@ -99,23 +101,45 @@ class GoogleHomeBaseEntity(
         await self.client.reboot_google_device(device)
 
 
+class GoogleHomeAddressedEntity(GoogleHomeBaseEntity):
+    """Base entity for the device sensor, Wi-Fi, firmware and reboot, which need the device's address."""
+
+    @property
+    @override
+    def available(self) -> bool:
+        """Return whether Google still lists the device, it answers and it was found on the network."""
+        device = self.get_device()
+        return (
+            super().available and device is not None and device.ip_address is not None
+        )
+
+
 class GoogleHomeFeatureEntity(GoogleHomeBaseEntity):
     """Base entity for alarms, timers and their settings, which some devices don't have."""
 
     @property
     @override
     def available(self) -> bool:
-        """Return whether Google still lists the device, it answers and it has these features."""
+        """Return whether Google still lists the device, it answers and it has these features.
+
+        They don't need its address until it has had none for UNANSWERED_UPDATES
+        updates: before then they show what the device object has. Once it has an
+        address, only the other conditions apply.
+        """
         device = self.get_device()
         return (
-            super().available and device is not None and not device.alarms_unsupported
+            super().available
+            and device is not None
+            and not device.alarms_unsupported
+            and (
+                device.ip_address is not None
+                or device.addressless_updates < UNANSWERED_UPDATES
+            )
         )
 
 
 def async_add_device_entities(
     entry: GoogleHomeConfigEntry,
-    coordinator: DataUpdateCoordinator[list[GoogleHomeDevice]],
-    client: GlocaltokensApiClient,
     async_add_entities: AddEntitiesCallback,
     *entity_classes: type[GoogleHomeBaseEntity],
     needs_answer: bool = True,
@@ -123,37 +147,54 @@ def async_add_device_entities(
     """Add these entities for each device, at setup or when a later update finds it.
 
     With needs_answer, a device gets them only once it answers: one that is
-    offline or doesn't support alarms, timers and settings gets none.
+    offline or doesn't support alarms, timers and settings gets none. Each device's
+    coordinator is watched from when the account's coordinator adds it, which also
+    keeps it updating before the device has entities.
     """
-    added: set[str] = set()
+    client = entry.runtime_data.client
+    # By coordinator, as a device that is removed and listed again gets a new one
+    added: set[GoogleHomeDeviceCoordinator] = set()
+    watched: set[GoogleHomeDeviceCoordinator] = set()
 
     @callback
-    def add_entities() -> None:
-        devices = [
-            device
-            for device in coordinator.data
-            if device.device_id not in added
-            and (
-                not needs_answer
-                or (
+    def add_entities(coordinator: GoogleHomeDeviceCoordinator) -> None:
+        device = coordinator.data
+        if (
+            device is None
+            or coordinator in added
+            or (
+                needs_answer
+                and not (
                     device.auth_token
                     and device.available
                     and not device.alarms_unsupported
                 )
             )
-        ]
-        if not devices:
+        ):
             return
-        added.update(device.device_id for device in devices)
+        added.add(coordinator)
         async_add_entities(
             [
                 entity_class(
                     coordinator, client, device.device_id, device.name, device.hardware
                 )
-                for device in devices
                 for entity_class in entity_classes
             ]
         )
 
-    add_entities()
-    entry.async_on_unload(coordinator.async_add_listener(add_entities))
+    @callback
+    def watch_devices() -> None:
+        for coordinator in entry.runtime_data.devices.values():
+            if coordinator in watched:
+                continue
+            watched.add(coordinator)
+            # Its first update may have finished already
+            add_entities(coordinator)
+            # ponytail: a removed device's coordinator keeps this listener until
+            # unload, though it never updates again
+            entry.async_on_unload(
+                coordinator.async_add_listener(partial(add_entities, coordinator))
+            )
+
+    watch_devices()
+    entry.async_on_unload(entry.runtime_data.account.async_add_listener(watch_devices))

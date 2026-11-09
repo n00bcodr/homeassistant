@@ -9,13 +9,13 @@
           "master_token": "Token master"
         },
         "menu_option_descriptions": {
-          "browser": "Login ke Google melalui browser di komputer, lalu tempelkan cookie. Berfungsi untuk sebagian besar akun.",
+          "browser": "Login ke Google melalui browser di komputer, lalu tempelkan cookie.",
           "master_token": "Tempelkan token master yang sudah Anda miliki."
         }
       },
       "browser": {
         "title": "Login melalui browser",
-        "description": "1. Di komputer, buka {embedded_setup_url} di jendela penjelajahan pribadi browser, misalnya jendela Samaran, lalu login. Setelah Anda menyetujui, halaman mungkin terus memuat; ini normal.\n2. Buka alat developer browser dan cari cookie untuk `accounts.google.com`.\n3. Salin nilai cookie `oauth_token` dan segera tempelkan di bawah. Nilai ini kedaluwarsa dalam beberapa menit dan hanya dapat digunakan sekali.\n\nPetunjuk langkah demi langkah: {browser_docs_url}\n\nUntuk memilih cara login lain, tutup jendela ini dan tambahkan kembali integrasi.",
+        "description": "1. Di komputer, buka {embedded_setup_url} di jendela penjelajahan pribadi browser, misalnya jendela Samaran, lalu login. Setelah Anda menyetujui, halaman mungkin terus memuat; ini normal.\n2. Buka alat developer browser dan cari cookie untuk `accounts.google.com`.\n3. Salin nilai cookie `oauth_token` dan segera tempelkan di bawah. Nilai ini dapat kedaluwarsa dengan cepat dan hanya dapat digunakan sekali.\n\nPetunjuk langkah demi langkah: {browser_docs_url}\n\nUntuk memilih cara login lain, tutup jendela ini dan tambahkan kembali integrasi.",
         "data": {
           "oauth_token": "Cookie oauth_token"
         },
@@ -33,6 +33,16 @@
           "master_token": "Diawali dengan aas_et/"
         }
       },
+      "homes": {
+        "title": "Pilih rumah",
+        "description": "Akun Google Anda adalah anggota beberapa rumah. Pilih rumah yang speaker dan layarnya ingin ditambahkan. Anda dapat mengubahnya nanti di opsi integrasi: pilih **Konfigurasikan** di halaman integrasi.",
+        "data": {
+          "homes": "Rumah"
+        },
+        "data_description": {
+          "homes": "Pilih minimal satu rumah. Jika nanti akun Anda bergabung dengan rumah lain, speaker dan layar di rumah tersebut juga ditambahkan."
+        }
+      },
       "reauth": {
         "title": "Login ulang",
         "description": "Google tidak lagi menerima data login yang tersimpan untuk {name}. Login ulang ke akun Google yang sama: perangkat, entitas, dan otomasi Anda tetap seperti semula. Sebelum Anda melakukannya, entitas perangkat Anda mungkin menampilkan nilai yang tidak terbaru atau menjadi tidak tersedia.",
@@ -41,13 +51,13 @@
           "master_token": "Token master"
         },
         "menu_option_descriptions": {
-          "browser": "Login ke Google melalui browser di komputer, lalu tempelkan cookie. Berfungsi untuk sebagian besar akun.",
+          "browser": "Login ke Google melalui browser di komputer, lalu tempelkan cookie.",
           "master_token": "Tempelkan token master yang sudah Anda miliki."
         }
       },
       "reauth_browser": {
         "title": "Login melalui browser",
-        "description": "1. Di komputer, buka {embedded_setup_url} di jendela penjelajahan pribadi browser, misalnya jendela Samaran, lalu login ke akun Google yang sama. Setelah Anda menyetujui, halaman mungkin terus memuat; ini normal.\n2. Buka alat developer browser dan cari cookie untuk `accounts.google.com`.\n3. Salin nilai cookie `oauth_token` dan segera tempelkan di bawah. Nilai ini kedaluwarsa dalam beberapa menit dan hanya dapat digunakan sekali.\n\nPetunjuk langkah demi langkah: {browser_docs_url}",
+        "description": "1. Di komputer, buka {embedded_setup_url} di jendela penjelajahan pribadi browser, misalnya jendela Samaran, lalu login ke akun Google yang sama. Setelah Anda menyetujui, halaman mungkin terus memuat; ini normal.\n2. Buka alat developer browser dan cari cookie untuk `accounts.google.com`.\n3. Salin nilai cookie `oauth_token` dan segera tempelkan di bawah. Nilai ini dapat kedaluwarsa dengan cepat dan hanya dapat digunakan sekali.\n\nPetunjuk langkah demi langkah: {browser_docs_url}",
         "data": {
           "oauth_token": "Cookie oauth_token"
         },
@@ -67,19 +77,82 @@
       }
     },
     "error": {
-      "oauth-token-invalid": "Google tidak menerima cookie tersebut. Dapatkan cookie baru dan segera tempelkan: cookie kedaluwarsa dalam beberapa menit dan hanya dapat digunakan sekali. Salin seluruh nilai yang diawali dengan oauth2_4/.",
+      "oauth-token-invalid": "Google tidak menerima login tersebut. Dapatkan cookie baru dan segera tempelkan: cookie dapat kedaluwarsa dengan cepat dan hanya dapat digunakan sekali. Salin seluruh nilai yang diawali dengan oauth2_4/.",
       "master-token-invalid": "Google tidak menerima token master tersebut. Pastikan Anda menyalinnya dengan benar. Jika sebelumnya token berfungsi, misalnya hingga Anda mengubah sandi Google, Google tidak lagi menerimanya: gunakan login melalui browser sebagai gantinya.",
       "google-rejected": "Google tidak menerima login tersebut. Untuk detailnya, lihat log Home Assistant.",
       "google-unreachable": "Tidak dapat terhubung ke Google. Pastikan Home Assistant terhubung ke internet, lalu coba lagi.",
       "google-busy": "Google sedang sibuk atau membatasi login. Tunggu beberapa menit, lalu login ulang.",
       "oauth-token-format": "Ini bukan cookie oauth_token. Nilainya diawali dengan oauth2_4/.",
-      "master-token-format": "Token master diawali dengan aas_et/ dan panjangnya 223 karakter. Salin seluruh token.",
-      "other-account": "Anda login ke akun Google yang berbeda, sehingga tidak ada yang diubah. Login dengan akun yang digunakan integrasi ini. Untuk menggunakan akun lain tersebut, hapus integrasi lalu tambahkan kembali."
+      "master-token-format": "Token master diawali dengan aas_et/ dan panjangnya {token_length} karakter. Salin seluruh token.",
+      "other-account": "Anda login ke akun Google yang berbeda, sehingga tidak ada yang diubah. Login dengan akun yang digunakan integrasi ini. Untuk menggunakan akun lain tersebut, hapus integrasi lalu tambahkan kembali.",
+      "no-home-selected": "Pilih minimal satu rumah."
+    },
+    "abort": {
+      "no-home": "Google melaporkan bahwa akun ini bukan anggota rumah mana pun, sehingga tidak ada speaker atau layar yang dapat ditambahkan. Di aplikasi Google Home, undang akun ini ke rumah tempat perangkat Anda berada, terima undangannya, lalu tambahkan kembali integrasi. Akun Google Workspace tidak dapat diundang, jadi tambahkan integrasi dengan akun Gmail yang merupakan anggota rumah tersebut. Untuk detailnya, lihat {docs_url}."
+    }
+  },
+  "entity": {
+    "button": {
+      "reboot": {
+        "name": "Mulai ulang"
+      }
+    },
+    "number": {
+      "alarm_volume": {
+        "name": "Volume alarm"
+      }
+    },
+    "sensor": {
+      "alarms": {
+        "name": "Alarm"
+      },
+      "device": {
+        "name": "Perangkat"
+      },
+      "timers": {
+        "name": "Timer"
+      },
+      "wifi_network": {
+        "name": "Jaringan Wi-Fi"
+      }
+    },
+    "switch": {
+      "do_not_disturb": {
+        "name": "Jangan ganggu"
+      }
+    },
+    "event": {
+      "alarm_events": {
+        "name": "Peristiwa alarm",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "ringing": "Berdering",
+              "snoozed": "Ditunda",
+              "stopped": "Berhenti"
+            }
+          }
+        }
+      },
+      "timer_events": {
+        "name": "Peristiwa timer",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "ringing": "Berdering",
+              "stopped": "Berhenti"
+            }
+          }
+        }
+      }
     }
   },
   "exceptions": {
     "alarms_and_timers_not_fetched": {
       "message": "Tidak dapat mengambil alarm dan timer saat ini dari perangkat {device}, sehingga tidak ada yang dihapus dari perangkat tersebut. Pastikan perangkat online dan coba lagi nanti."
+    },
+    "alarms_and_timers_not_fetched_token_rejected_polling_off": {
+      "message": "Tidak dapat mengambil alarm dan timer saat ini dari perangkat {device}, sehingga tidak ada yang dihapus dari perangkat tersebut. Perangkat tersebut menolak tokennya. Polling untuk perubahan dinonaktifkan, sehingga integrasi tidak meminta token baru dari Google lagi secara mandiri: jalankan aksi “Perbarui status perangkat”, lalu coba lagi."
     },
     "alarms_and_timers_not_fetched_from_devices": {
       "message": "Tidak dapat mengambil alarm dan timer saat ini dari perangkat berikut, sehingga tidak ada yang dihapus dari perangkat tersebut: {devices}. Pastikan semuanya online dan coba lagi nanti."
@@ -87,8 +160,14 @@
     "alarms_and_timers_not_deleted": {
       "message": "Perangkat {device} tidak mengonfirmasi penghapusan alarm atau timer, sehingga alarm atau timer tersebut mungkin masih disetel. Pastikan perangkat online dan coba lagi nanti."
     },
+    "alarms_and_timers_not_deleted_token_rejected_polling_off": {
+      "message": "Perangkat {device} tidak mengonfirmasi penghapusan alarm atau timer, sehingga alarm atau timer tersebut mungkin masih disetel. Perangkat tersebut menolak tokennya. Polling untuk perubahan dinonaktifkan, sehingga integrasi tidak meminta token baru dari Google lagi secara mandiri: jalankan aksi “Perbarui status perangkat”, lalu coba lagi."
+    },
     "alarms_and_timers_not_deleted_from_devices": {
       "message": "Tidak dapat menghapus alarm atau timer dari perangkat berikut, atau mengonfirmasi bahwa alarm atau timer tersebut telah dihapus: {devices}. Pastikan semuanya online dan coba lagi nanti."
+    },
+    "alarms_and_timers_not_deleted_from_devices_token_rejected_polling_off": {
+      "message": "Tidak dapat menghapus alarm atau timer dari perangkat berikut, atau mengonfirmasi bahwa alarm atau timer tersebut telah dihapus: {devices}. Setidaknya salah satu di antaranya menolak tokennya. Polling untuk perubahan dinonaktifkan, sehingga integrasi tidak meminta token baru dari Google lagi secara mandiri: jalankan aksi “Perbarui status perangkat”, pastikan semua perangkat tersebut online, lalu coba lagi."
     },
     "invalid_alarm_id": {
       "message": "“{alarm_id}” bukan ID alarm. Salin ID yang diawali dengan alarm/ dari atribut alarms pada sensor alarm perangkat."
@@ -109,7 +188,10 @@
       "message": "Perangkat {device} tidak mengonfirmasi bahwa tindakan ini sudah dilakukan: perangkat tidak merespons tepat waktu, atau responsnya terputus. Pastikan perangkat online dan coba lagi."
     },
     "device_token_rejected": {
-      "message": "Perangkat {device} menolak tokennya, dan mendapatkan token baru dari Google tidak membantu. Integrasi terus meminta token baru dari Google, jadi coba lagi nanti."
+      "message": "Perangkat {device} menolak tokennya. Integrasi terus meminta token baru dari Google, jadi coba lagi nanti."
+    },
+    "device_token_rejected_polling_off": {
+      "message": "Perangkat {device} menolak tokennya. Polling untuk perubahan dinonaktifkan, sehingga integrasi tidak meminta token baru dari Google lagi secara mandiri: jalankan aksi “Perbarui status perangkat”, lalu coba lagi."
     },
     "device_not_ready": {
       "message": "Perangkat {device} merespons “tidak ditemukan”. Perangkat mungkin masih dalam proses penyalaan, jadi coba lagi nanti, atau mungkin tidak mendukung tindakan ini."
@@ -119,22 +201,131 @@
     },
     "devices_not_rebooted": {
       "message": "Perangkat berikut tidak mengonfirmasi bahwa perangkat tersebut akan dimulai ulang: {devices}. Pastikan semuanya online dan coba lagi nanti."
+    },
+    "sign_in_rejected": {
+      "message": "Google tidak menerima login tersebut ({reason}). Login ulang."
+    }
+  },
+  "issues": {
+    "polling_disabled": {
+      "title": "Polling untuk perubahan dinonaktifkan",
+      "fix_flow": {
+        "step": {
+          "init": {
+            "title": "Polling untuk perubahan dinonaktifkan",
+            "description": "Opsi **Aktifkan polling untuk perubahan** dinonaktifkan di opsi sistem integrasi, sehingga integrasi tidak memeriksa perangkat Anda secara mandiri. Alarm, timer, dan entitas lainnya hanya diperbarui saat Anda memintanya, misalnya dengan aksi **Perbarui status perangkat**. Untuk mengetahui apa saja yang masih berfungsi, lihat {docs_url}.\n\nJika Anda mengaktifkan polling kembali, integrasi akan dimuat ulang, lalu memeriksa perangkat Anda sesuai interval pembaruannya. Jika Anda membiarkannya nonaktif, perbaikan ini disembunyikan hingga Anda mengaktifkan polling lalu menonaktifkannya lagi.",
+            "menu_options": {
+              "turn_on": "Aktifkan kembali polling",
+              "keep_off": "Biarkan polling nonaktif dan sembunyikan perbaikan ini"
+            }
+          }
+        },
+        "abort": {
+          "polling_kept_off": "Polling tetap nonaktif, dan perbaikan ini disembunyikan."
+        }
+      }
+    },
+    "invalid_update_interval": {
+      "title": "Interval pembaruan yang disimpan kurang dari {min_interval} detik",
+      "fix_flow": {
+        "step": {
+          "init": {
+            "title": "Interval pembaruan yang disimpan kurang dari {min_interval} detik",
+            "description": "Interval pembaruan yang disimpan di opsi integrasi adalah {interval} detik, di bawah batas minimum {min_interval} detik. Integrasi menggunakan nilai default sebagai gantinya dan memeriksa perangkat Anda setiap {default_interval} detik.\n\nJika Anda menyimpan 0 untuk menghentikan pemeriksaan rutin ini, nonaktifkan polling sebagai gantinya. Berbeda dengan 0, cara ini juga menghentikan pemindaian perangkat Bluetooth dan penambahan perangkat baru yang ditemukan mDNS. Untuk detailnya, lihat {docs_url}.\n\nUntuk menggunakan interval lain, buka [integrasi Google Home]({integration_url}), pilih **Konfigurasikan**, masukkan intervalnya, lalu pilih **Kirimkan**.",
+            "menu_options": {
+              "use_default": "Gunakan nilai default {default_interval} detik",
+              "turn_off_polling": "Nonaktifkan polling sebagai gantinya"
+            }
+          }
+        }
+      }
+    },
+    "homes_deselected": {
+      "title": "Tidak ada rumah akun Google Anda yang dipilih",
+      "description": "Akun Google Anda hanya menjadi anggota rumah yang pilihannya Anda batalkan di opsi integrasi, sehingga integrasi tidak menambahkan speaker dan layar di rumah tersebut. Untuk menambahkan perangkat suatu rumah, buka [integrasi Google Home]({integration_url}), pilih **Konfigurasikan**, pilih rumah tersebut di **Rumah**, lalu pilih **Kirimkan**.\n\nJika Anda ingin rumah-rumah ini tetap tidak dipilih, pilih **Abaikan**."
+    },
+    "no_home": {
+      "title": "Google tidak melaporkan rumah apa pun untuk akun Anda",
+      "description": "Google melaporkan bahwa akun yang digunakan integrasi untuk login bukan anggota rumah mana pun, sehingga tidak ada speaker atau layar yang dapat ditambahkan. Di aplikasi Google Home, undang akun ini ke rumah tempat perangkat Anda berada, lalu terima undangannya. Kemudian, muat ulang [integrasi Google Home]({integration_url}): pilih **⋮** > **Muat Ulang**.\n\nJika Anda sengaja mempertahankan integrasi ini, misalnya saat sedang pindah rumah, pilih **Abaikan**. Jika tidak memerlukannya lagi, Anda dapat menghapusnya di halaman yang sama."
+    }
+  },
+  "config_subentries": {
+    "bluetooth_device": {
+      "entry_type": "Perangkat Bluetooth",
+      "initiate_flow": {
+        "user": "Lacak perangkat Bluetooth"
+      },
+      "step": {
+        "user": {
+          "title": "Lacak perangkat Bluetooth",
+          "description": "Masukkan IRK ponsel, atau alamat MAC perangkat yang alamatnya tidak pernah berubah, seperti beberapa jam tangan dan tag pelacak. Ponsel mengganti alamatnya setiap beberapa menit, jadi lacak ponsel dengan IRK. Untuk cara menemukan IRK, lihat {docs_url}.",
+          "data": {
+            "name": "Nama",
+            "irk_or_mac": "IRK atau alamat MAC",
+            "additional_departure_delay": "Penundaan tambahan saat pergi"
+          },
+          "data_description": {
+            "name": "Nama pelacak, misalnya Ponsel Alex.",
+            "irk_or_mac": "Identity Resolving Key ponsel, sebagai {irk_hex_length} digit heksadesimal atau dalam base64, atau alamat MAC seperti AA:BB:CC:DD:EE:FF.",
+            "additional_departure_delay": "Waktu tambahan setelah periode kehadiran normal selama {presence_window} detik sebelum berubah dari “Di Rumah” menjadi “Keluar”. Waktu normal tidak menambahkan penundaan. Penundaan yang lebih lama juga menunda deteksi kepergian yang sebenarnya. Jika pemindaian tidak dapat memastikan ketidakhadiran, pelacak dapat menjadi tidak tersedia."
+          }
+        },
+        "reconfigure": {
+          "title": "Pengaturan perangkat Bluetooth",
+          "description": "Ubah penundaan tambahan saat pergi untuk pelacak ini.",
+          "data": {
+            "additional_departure_delay": "Penundaan tambahan saat pergi"
+          },
+          "data_description": {
+            "additional_departure_delay": "Waktu tambahan setelah periode kehadiran normal selama {presence_window} detik sebelum berubah dari “Di Rumah” menjadi “Keluar”. Waktu normal tidak menambahkan penundaan. Penundaan yang lebih lama juga menunda deteksi kepergian yang sebenarnya. Jika pemindaian tidak dapat memastikan ketidakhadiran, pelacak dapat menjadi tidak tersedia."
+          }
+        }
+      },
+      "error": {
+        "name-empty": "Masukkan nama.",
+        "irk-or-mac": "Masukkan IRK atau alamat MAC.",
+        "irk-invalid": "Ini bukan IRK. Masukkan {irk_bytes} byte sebagai {irk_hex_length} digit heksadesimal atau dalam base64.",
+        "mac-invalid": "Ini bukan alamat MAC. Masukkan enam pasang digit heksadesimal yang dipisahkan titik dua atau tanda hubung, misalnya AA:BB:CC:DD:EE:FF.",
+        "already-tracked": "Perangkat ini sudah dilacak.",
+        "departure-delay-invalid": "Pilih salah satu penundaan saat pergi yang tercantum."
+      },
+      "abort": {
+        "bluetooth-tracking-off": "Pelacakan Bluetooth nonaktif. Aktifkan terlebih dahulu di opsi integrasi: pilih “Konfigurasikan” di halaman integrasi.",
+        "device-removed": "Perangkat Bluetooth ini telah dihapus. Tambahkan lagi untuk melacaknya."
+      }
     }
   },
   "options": {
     "step": {
       "init": {
         "data": {
-          "update_interval": "Ubah interval pembaruan. Tingkatkan nilai ini jika perangkat Anda tidak merespons tepat waktu. Nilai default: {default_interval} detik.",
-          "known_hosts": "Host yang dikenal"
+          "update_interval": "Interval pembaruan (detik)",
+          "known_hosts": "Host yang dikenal",
+          "homes": "Rumah"
         },
         "data_description": {
-          "known_hosts": "Alamat IP speaker dan layar yang tidak dapat ditemukan secara otomatis oleh integrasi, misalnya karena berada di jaringan atau VLAN lain."
+          "update_interval": "Tingkatkan nilai ini jika perangkat Anda sering tidak merespons tepat waktu. Nilai default: {default_interval} detik.",
+          "known_hosts": "Alamat IP speaker dan layar yang tidak dapat ditemukan secara otomatis oleh integrasi, misalnya karena berada di jaringan atau VLAN lain.",
+          "homes": "Speaker dan layar di rumah yang pilihannya Anda batalkan tidak ditambahkan. Membatalkan pilihan rumah akan menghapus perangkat rumah tersebut beserta entitasnya dari Home Assistant, sehingga otomasi, skrip, dan dasbor yang menggunakannya berhenti berfungsi. Pilih kembali rumah tersebut untuk menambahkan perangkatnya lagi dengan nama dan area yang telah Anda berikan."
+        },
+        "sections": {
+          "bluetooth": {
+            "name": "Bluetooth",
+            "data": {
+              "bluetooth_tracking": "Pelacakan Bluetooth",
+              "bluetooth_excluded_speakers": "Speaker yang tidak digunakan untuk pelacakan Bluetooth"
+            },
+            "data_description": {
+              "bluetooth_tracking": "Gunakan speaker Anda untuk mengetahui apakah ponsel Anda atau perangkat Bluetooth lain ada di rumah. Setelah mengaktifkannya, pilih “Lacak perangkat Bluetooth” di halaman integrasi untuk setiap perangkat yang ingin dilacak. Selama nonaktif, integrasi tidak mengirim permintaan Bluetooth apa pun ke speaker Anda.",
+              "bluetooth_excluded_speakers": "Speaker yang tidak memindai perangkat Bluetooth. Tambahkan speaker yang dicabut atau tidak berfungsi."
+            }
+          }
         }
       }
     },
     "error": {
-      "known-host-not-ip": "Masukkan hanya alamat IP, seperti 192.168.1.20."
+      "known-host-not-ip": "Masukkan hanya alamat IP, seperti 192.168.1.20.",
+      "no-home-selected": "Pilih minimal satu rumah."
     }
   },
   "services": {
@@ -201,6 +392,29 @@
     "refresh_devices": {
       "description": "Memperbarui status semua perangkat Google Home.",
       "name": "Perbarui status perangkat"
+    }
+  },
+  "system_health": {
+    "info": {
+      "can_reach_sign_in": "Keterjangkauan server login Google",
+      "can_reach_device_list": "Keterjangkauan server daftar perangkat Google",
+      "device_list": "Daftar perangkat Google",
+      "retry_not_before": "Coba lagi paling cepat",
+      "polling": "Polling untuk perubahan",
+      "bluetooth_tracking": "Pelacakan Bluetooth",
+      "devices_listed": "Perangkat di daftar Google",
+      "devices_not_answering": "Perangkat yang tidak merespons"
+    }
+  },
+  "selector": {
+    "departure_delay": {
+      "options": {
+        "0": "0 detik (waktu normal)",
+        "30": "30 detik",
+        "60": "60 detik",
+        "90": "90 detik",
+        "120": "120 detik"
+      }
     }
   }
 }

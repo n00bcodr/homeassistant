@@ -9,13 +9,13 @@
           "master_token": "Testimoni mestre"
         },
         "menu_option_descriptions": {
-          "browser": "Inicia la sessió a Google en un navegador d'ordinador i després enganxa una galeta. Funciona amb la majoria de comptes.",
+          "browser": "Inicia la sessió a Google en un navegador d'ordinador i després enganxa una galeta.",
           "master_token": "Enganxa un testimoni mestre que ja tinguis."
         }
       },
       "browser": {
         "title": "Inici de sessió amb el navegador",
-        "description": "1. En un ordinador, obre {embedded_setup_url} en una finestra de navegació privada i inicia la sessió. Després d'acceptar, és possible que la pàgina continuï carregant; és normal.\n2. Obre les eines per a desenvolupadors del navegador i cerca les galetes de `accounts.google.com`.\n3. Copia el valor de la galeta `oauth_token` i enganxa'l a continuació immediatament. Caduca en pocs minuts i només funciona una vegada.\n\nInstruccions pas a pas (en anglès): {browser_docs_url}\n\nPer triar una altra manera d'iniciar la sessió, tanca aquesta finestra i torna a afegir la integració.",
+        "description": "1. En un ordinador, obre {embedded_setup_url} en una finestra de navegació privada i inicia la sessió. Després d'acceptar, és possible que la pàgina continuï carregant; és normal.\n2. Obre les eines per a desenvolupadors del navegador i cerca les galetes de `accounts.google.com`.\n3. Copia el valor de la galeta `oauth_token` i enganxa'l a continuació immediatament. Pot caducar ràpidament i només funciona una vegada.\n\nInstruccions pas a pas (en anglès): {browser_docs_url}\n\nPer triar una altra manera d'iniciar la sessió, tanca aquesta finestra i torna a afegir la integració.",
         "data": {
           "oauth_token": "Galeta oauth_token"
         },
@@ -33,6 +33,16 @@
           "master_token": "Comença per aas_et/"
         }
       },
+      "homes": {
+        "title": "Tria les llars",
+        "description": "El teu compte de Google és membre de diverses llars. Tria les llars de les quals vols afegir els altaveus i les pantalles. Pots canviar-ho més endavant a les opcions de la integració: selecciona **Configura** a la pàgina de la integració.",
+        "data": {
+          "homes": "Llars"
+        },
+        "data_description": {
+          "homes": "Marca almenys una llar. També s'afegeixen els altaveus i les pantalles de les llars de les quals el teu compte es faci membre més endavant."
+        }
+      },
       "reauth": {
         "title": "Torna a iniciar la sessió",
         "description": "Google ja no accepta les dades d'inici de sessió desades per a {name}. Torna a iniciar la sessió al mateix compte de Google: els teus dispositius, entitats i automatitzacions es mantenen tal com estan. Fins que no ho facis, les entitats dels teus dispositius poden mostrar valors desactualitzats o no estar disponibles.",
@@ -41,13 +51,13 @@
           "master_token": "Testimoni mestre"
         },
         "menu_option_descriptions": {
-          "browser": "Inicia la sessió a Google en un navegador d'ordinador i després enganxa una galeta. Funciona amb la majoria de comptes.",
+          "browser": "Inicia la sessió a Google en un navegador d'ordinador i després enganxa una galeta.",
           "master_token": "Enganxa un testimoni mestre que ja tinguis."
         }
       },
       "reauth_browser": {
         "title": "Inici de sessió amb el navegador",
-        "description": "1. En un ordinador, obre {embedded_setup_url} en una finestra de navegació privada i inicia la sessió al mateix compte de Google. Després d'acceptar, és possible que la pàgina continuï carregant; és normal.\n2. Obre les eines per a desenvolupadors del navegador i cerca les galetes de `accounts.google.com`.\n3. Copia el valor de la galeta `oauth_token` i enganxa'l a continuació immediatament. Caduca en pocs minuts i només funciona una vegada.\n\nInstruccions pas a pas (en anglès): {browser_docs_url}",
+        "description": "1. En un ordinador, obre {embedded_setup_url} en una finestra de navegació privada i inicia la sessió al mateix compte de Google. Després d'acceptar, és possible que la pàgina continuï carregant; és normal.\n2. Obre les eines per a desenvolupadors del navegador i cerca les galetes de `accounts.google.com`.\n3. Copia el valor de la galeta `oauth_token` i enganxa'l a continuació immediatament. Pot caducar ràpidament i només funciona una vegada.\n\nInstruccions pas a pas (en anglès): {browser_docs_url}",
         "data": {
           "oauth_token": "Galeta oauth_token"
         },
@@ -67,19 +77,82 @@
       }
     },
     "error": {
-      "oauth-token-invalid": "Google no ha acceptat la galeta. Obtén-ne una de nova i enganxa-la immediatament: caduca en pocs minuts i només funciona una vegada. Copia el valor sencer, que comença per oauth2_4/.",
+      "oauth-token-invalid": "Google no ha acceptat l'inici de sessió. Obtén una galeta nova i enganxa-la immediatament: pot caducar ràpidament i només funciona una vegada. Copia el valor sencer, que comença per oauth2_4/.",
       "master-token-invalid": "Google no ha acceptat el testimoni mestre. Comprova que l'has copiat correctament. Si abans funcionava, per exemple fins que vas canviar la contrasenya de Google, Google ja no l'accepta: en lloc d'això, fes servir l'inici de sessió amb el navegador.",
       "google-rejected": "Google no ha acceptat l'inici de sessió. Per veure'n els detalls, consulta els registres de Home Assistant.",
       "google-unreachable": "No s'ha pogut connectar amb Google. Comprova que Home Assistant estigui connectat a Internet i torna-ho a provar.",
       "google-busy": "Google està ocupat o està limitant els inicis de sessió. Espera uns minuts i torna a iniciar la sessió.",
       "oauth-token-format": "Aquesta no és la galeta oauth_token. El seu valor comença per oauth2_4/.",
-      "master-token-format": "Un testimoni mestre comença per aas_et/ i té 223 caràcters. Copia el testimoni sencer.",
-      "other-account": "Has iniciat la sessió en un altre compte de Google, de manera que no s'ha canviat res. Inicia la sessió amb el compte que fa servir aquesta integració. Per fer servir aquest altre compte, elimina la integració i torna-la a afegir."
+      "master-token-format": "Un testimoni mestre comença per aas_et/ i té {token_length} caràcters. Copia el testimoni sencer.",
+      "other-account": "Has iniciat la sessió en un altre compte de Google, de manera que no s'ha canviat res. Inicia la sessió amb el compte que fa servir aquesta integració. Per fer servir aquest altre compte, elimina la integració i torna-la a afegir.",
+      "no-home-selected": "Tria almenys una llar."
+    },
+    "abort": {
+      "no-home": "Google indica que aquest compte no és membre de cap llar, de manera que no hi ha altaveus ni pantalles per afegir. A l'aplicació Google Home, convida el compte a la llar on tens els dispositius, accepta la invitació i després torna a afegir la integració. Un compte de Google Workspace no es pot convidar, així que afegeix la integració amb un compte de Gmail que sigui membre de la llar. Per a més informació, consulta {docs_url}."
+    }
+  },
+  "entity": {
+    "button": {
+      "reboot": {
+        "name": "Reinicia"
+      }
+    },
+    "number": {
+      "alarm_volume": {
+        "name": "Volum de l'alarma"
+      }
+    },
+    "sensor": {
+      "alarms": {
+        "name": "Alarmes"
+      },
+      "device": {
+        "name": "Dispositiu"
+      },
+      "timers": {
+        "name": "Temporitzadors"
+      },
+      "wifi_network": {
+        "name": "Xarxa Wi-Fi"
+      }
+    },
+    "switch": {
+      "do_not_disturb": {
+        "name": "No molestis"
+      }
+    },
+    "event": {
+      "alarm_events": {
+        "name": "Esdeveniments d’alarmes",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "ringing": "Sonant",
+              "snoozed": "Ajornada",
+              "stopped": "Aturada"
+            }
+          }
+        }
+      },
+      "timer_events": {
+        "name": "Esdeveniments de temporitzadors",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "ringing": "Sonant",
+              "stopped": "Aturat"
+            }
+          }
+        }
+      }
     }
   },
   "exceptions": {
     "alarms_and_timers_not_fetched": {
       "message": "No s'han pogut obtenir les alarmes i els temporitzadors actuals de {device}, de manera que no s'ha eliminat res d'aquest dispositiu. Comprova que estigui en línia i torna-ho a provar més tard."
+    },
+    "alarms_and_timers_not_fetched_token_rejected_polling_off": {
+      "message": "No s'han pogut obtenir les alarmes i els temporitzadors actuals de {device}, de manera que no s'ha eliminat res d'aquest dispositiu. El dispositiu ha rebutjat el seu testimoni. El sondeig està desactivat, de manera que la integració no torna a demanar-ne un a Google per si mateixa: executa l'acció «Actualitza dispositius» i torna-ho a provar."
     },
     "alarms_and_timers_not_fetched_from_devices": {
       "message": "No s'han pogut obtenir les alarmes i els temporitzadors actuals d'aquests dispositius, de manera que no se n'ha eliminat res: {devices}. Comprova que estiguin en línia i torna-ho a provar més tard."
@@ -87,8 +160,14 @@
     "alarms_and_timers_not_deleted": {
       "message": "{device} no ha confirmat l'eliminació de les alarmes o els temporitzadors, de manera que encara poden estar configurats. Comprova que estigui en línia i torna-ho a provar més tard."
     },
+    "alarms_and_timers_not_deleted_token_rejected_polling_off": {
+      "message": "{device} no ha confirmat l'eliminació de les alarmes o els temporitzadors, de manera que encara poden estar configurats. El dispositiu ha rebutjat el seu testimoni. El sondeig està desactivat, de manera que la integració no torna a demanar-ne un a Google per si mateixa: executa l'acció «Actualitza dispositius» i torna-ho a provar."
+    },
     "alarms_and_timers_not_deleted_from_devices": {
       "message": "No s'han pogut eliminar les alarmes o els temporitzadors d'aquests dispositius, o confirmar que s'hagin eliminat: {devices}. Comprova que estiguin en línia i torna-ho a provar més tard."
+    },
+    "alarms_and_timers_not_deleted_from_devices_token_rejected_polling_off": {
+      "message": "No s'han pogut eliminar les alarmes o els temporitzadors d'aquests dispositius, o confirmar que s'hagin eliminat: {devices}. Almenys un d'ells ha rebutjat el seu testimoni. El sondeig està desactivat, de manera que la integració no torna a demanar-ne un a Google per si mateixa: executa l'acció «Actualitza dispositius», comprova que els dispositius estiguin en línia i torna-ho a provar."
     },
     "invalid_alarm_id": {
       "message": "«{alarm_id}» no és un ID d'alarma. Copia l'ID, que comença per alarm/, de l'atribut alarms del sensor d'alarmes del dispositiu."
@@ -109,7 +188,10 @@
       "message": "{device} no ha confirmat que ho hagi fet: no ha respost a temps, o la resposta s'ha tallat. Comprova que estigui en línia i torna-ho a provar."
     },
     "device_token_rejected": {
-      "message": "{device} ha rebutjat el seu testimoni, i obtenir-ne un altre de Google no ha servit de res. La integració continua demanant-ne un de nou a Google, així que torna-ho a provar més tard."
+      "message": "{device} ha rebutjat el seu testimoni. La integració continua demanant-ne un de nou a Google, així que torna-ho a provar més tard."
+    },
+    "device_token_rejected_polling_off": {
+      "message": "{device} ha rebutjat el seu testimoni. El sondeig està desactivat, de manera que la integració no torna a demanar-ne un a Google per si mateixa: executa l'acció «Actualitza dispositius» i torna-ho a provar."
     },
     "device_not_ready": {
       "message": "{device} ha respost «no s'ha trobat». És possible que encara s'estigui iniciant, així que torna-ho a provar més tard, o que no admeti aquesta acció."
@@ -119,22 +201,131 @@
     },
     "devices_not_rebooted": {
       "message": "Aquests dispositius no han confirmat que es reiniciaran: {devices}. Comprova que estiguin en línia i torna-ho a provar més tard."
+    },
+    "sign_in_rejected": {
+      "message": "Google no ha acceptat l'inici de sessió ({reason}). Torna a iniciar la sessió."
+    }
+  },
+  "issues": {
+    "polling_disabled": {
+      "title": "El sondeig per obtenir canvis està desactivat",
+      "fix_flow": {
+        "step": {
+          "init": {
+            "title": "El sondeig per obtenir canvis està desactivat",
+            "description": "L'opció **Activa el sondeig per obtenir canvis** està desactivada a les opcions de sistema de la integració, de manera que la integració no consulta els teus dispositius per si mateixa. Les alarmes, els temporitzadors i les altres entitats només s'actualitzen quan ho demanes, per exemple amb l'acció **Actualitza dispositius**. Per saber què continua funcionant, consulta {docs_url} (en anglès).\n\nSi tornes a activar el sondeig, la integració es torna a carregar i després consulta els teus dispositius segons el seu interval d'actualització. Si el mantens desactivat, aquesta reparació s'amaga fins que activis el sondeig i el tornis a desactivar.",
+            "menu_options": {
+              "turn_on": "Torna a activar el sondeig",
+              "keep_off": "Mantén el sondeig desactivat i amaga aquesta reparació"
+            }
+          }
+        },
+        "abort": {
+          "polling_kept_off": "El sondeig continua desactivat i aquesta reparació s'ha amagat."
+        }
+      }
+    },
+    "invalid_update_interval": {
+      "title": "L'interval d'actualització desat és inferior a {min_interval} s",
+      "fix_flow": {
+        "step": {
+          "init": {
+            "title": "L'interval d'actualització desat és inferior a {min_interval} s",
+            "description": "L'interval d'actualització desat a les opcions de la integració és de {interval} s, per sota del mínim de {min_interval} s. La integració utilitza el valor per defecte i consulta els teus dispositius cada {default_interval} s.\n\nSi vas desar 0 per aturar aquestes consultes periòdiques, desactiva el sondeig en lloc d'això. A diferència del 0, desactivar el sondeig també atura les cerques de dispositius Bluetooth i l'addició dels dispositius nous que troba mDNS. Per a més detalls, consulta {docs_url} (en anglès).\n\nPer utilitzar un altre interval, obre la [integració Google Home]({integration_url}), selecciona **Configura**, introdueix-lo i després selecciona **Envia**.",
+            "menu_options": {
+              "use_default": "Utilitza el valor per defecte de {default_interval} s",
+              "turn_off_polling": "Desactiva el sondeig en lloc d'això"
+            }
+          }
+        }
+      }
+    },
+    "homes_deselected": {
+      "title": "Cap llar del teu compte de Google no està seleccionada",
+      "description": "El teu compte de Google només és membre de llars que has desmarcat a les opcions de la integració, de manera que la integració no n'afegeix els altaveus ni les pantalles. Per afegir els dispositius d'una llar, obre la [integració Google Home]({integration_url}), selecciona **Configura**, marca la llar a **Llars** i després selecciona **Envia**.\n\nSi vols mantenir aquestes llars desmarcades, selecciona **Ignora**."
+    },
+    "no_home": {
+      "title": "Google no indica cap llar per al teu compte",
+      "description": "Google indica que el compte amb què la integració ha iniciat la sessió no és membre de cap llar, de manera que no hi ha altaveus ni pantalles per afegir. A l'aplicació Google Home, convida aquest compte a la llar on tens els dispositius i accepta la invitació. Després, torna a carregar la [integració Google Home]({integration_url}): selecciona **⋮** > **Torna a carregar**.\n\nSi mantens la integració expressament, per exemple mentre et canvies de casa, selecciona **Ignora**. Si ja no la necessites, la pots eliminar a la mateixa pàgina."
+    }
+  },
+  "config_subentries": {
+    "bluetooth_device": {
+      "entry_type": "Dispositiu Bluetooth",
+      "initiate_flow": {
+        "user": "Segueix un dispositiu Bluetooth"
+      },
+      "step": {
+        "user": {
+          "title": "Segueix un dispositiu Bluetooth",
+          "description": "Introdueix la IRK d'un telèfon o l'adreça MAC d'un dispositiu amb una adreça que no canvia mai, com alguns rellotges i etiquetes localitzadores. Els telèfons canvien d'adreça cada pocs minuts, així que segueix-los per la IRK. Per saber com trobar la IRK, consulta {docs_url}.",
+          "data": {
+            "name": "Nom",
+            "irk_or_mac": "IRK o adreça MAC",
+            "additional_departure_delay": "Retard addicional de sortida"
+          },
+          "data_description": {
+            "name": "Nom del rastrejador, per exemple Telèfon de l'Alex.",
+            "irk_or_mac": "La Identity Resolving Key d'un telèfon, com a {irk_hex_length} dígits hexadecimals o en base64, o una adreça MAC com AA:BB:CC:DD:EE:FF.",
+            "additional_departure_delay": "Temps addicional després del període normal de presència de {presence_window} segons abans de passar d’«A casa» a «Fora». Els temps normals no afegeixen cap retard. Un retard més llarg també endarrereix la detecció d’una sortida real. Si els escanejos no poden confirmar l’absència, el rastrejador pot passar a no disponible."
+          }
+        },
+        "reconfigure": {
+          "title": "Configuració del dispositiu Bluetooth",
+          "description": "Canvia el retard addicional de sortida d’aquest rastrejador.",
+          "data": {
+            "additional_departure_delay": "Retard addicional de sortida"
+          },
+          "data_description": {
+            "additional_departure_delay": "Temps addicional després del període normal de presència de {presence_window} segons abans de passar d’«A casa» a «Fora». Els temps normals no afegeixen cap retard. Un retard més llarg també endarrereix la detecció d’una sortida real. Si els escanejos no poden confirmar l’absència, el rastrejador pot passar a no disponible."
+          }
+        }
+      },
+      "error": {
+        "name-empty": "Introdueix un nom.",
+        "irk-or-mac": "Introdueix una IRK o una adreça MAC.",
+        "irk-invalid": "Això no és una IRK. Introdueix {irk_bytes} bytes com a {irk_hex_length} dígits hexadecimals o en base64.",
+        "mac-invalid": "Això no és una adreça MAC. Introdueix sis parells de dígits hexadecimals separats per dos punts o guions, per exemple AA:BB:CC:DD:EE:FF.",
+        "already-tracked": "Ja es fa el seguiment d'aquest dispositiu.",
+        "departure-delay-invalid": "Tria un dels retards de sortida de la llista."
+      },
+      "abort": {
+        "bluetooth-tracking-off": "El seguiment per Bluetooth està desactivat. Activa'l primer a les opcions de la integració: selecciona «Configura» a la pàgina de la integració.",
+        "device-removed": "S’ha eliminat aquest dispositiu Bluetooth. Afegeix-lo de nou per fer-ne el seguiment."
+      }
     }
   },
   "options": {
     "step": {
       "init": {
         "data": {
-          "update_interval": "Canvia l'interval d'actualització. Augmenta'l si els dispositius sovint no responen a temps. Valor per defecte: {default_interval} (segons)",
-          "known_hosts": "Amfitrions coneguts"
+          "update_interval": "Interval d'actualització (segons)",
+          "known_hosts": "Amfitrions coneguts",
+          "homes": "Llars"
         },
         "data_description": {
-          "known_hosts": "Adreces IP d'altaveus i pantalles que la integració no pot trobar per si mateixa, per exemple perquè són en una altra xarxa o VLAN."
+          "update_interval": "Augmenta'l si els teus dispositius sovint no responen a temps. Valor per defecte: {default_interval} segons.",
+          "known_hosts": "Adreces IP d'altaveus i pantalles que la integració no pot trobar per si mateixa, per exemple perquè són en una altra xarxa o VLAN.",
+          "homes": "No s'afegeixen els altaveus ni les pantalles de les llars que desmarquis. Si desmarques una llar, els seus dispositius i les entitats d'aquests s'eliminen de Home Assistant, de manera que les automatitzacions, els scripts i els panells que els utilitzen deixen de funcionar. Torna a marcar la llar per tornar-los a afegir amb els noms i les àrees que els vas donar."
+        },
+        "sections": {
+          "bluetooth": {
+            "name": "Bluetooth",
+            "data": {
+              "bluetooth_tracking": "Seguiment per Bluetooth",
+              "bluetooth_excluded_speakers": "Altaveus no utilitzats per al seguiment per Bluetooth"
+            },
+            "data_description": {
+              "bluetooth_tracking": "Utilitza els altaveus per saber si el teu telèfon o altres dispositius Bluetooth són a casa. Després d'activar-lo, selecciona «Segueix un dispositiu Bluetooth» a la pàgina de la integració per a cada dispositiu que vulguis seguir. Mentre estigui desactivat, la integració no envia cap sol·licitud Bluetooth als altaveus.",
+              "bluetooth_excluded_speakers": "Altaveus que no cerquen dispositius Bluetooth. Afegeix-hi un altaveu desendollat o fora de servei."
+            }
+          }
         }
       }
     },
     "error": {
-      "known-host-not-ip": "Introdueix només adreces IP, com ara 192.168.1.20."
+      "known-host-not-ip": "Introdueix només adreces IP, com ara 192.168.1.20.",
+      "no-home-selected": "Tria almenys una llar."
     }
   },
   "services": {
@@ -201,6 +392,29 @@
     "refresh_devices": {
       "description": "Actualitza l'estat de tots els dispositius Google Home.",
       "name": "Actualitza dispositius"
+    }
+  },
+  "system_health": {
+    "info": {
+      "can_reach_sign_in": "Servidor d'inici de sessió de Google accessible",
+      "can_reach_device_list": "Servidor de la llista de dispositius de Google accessible",
+      "device_list": "Llista de dispositius de Google",
+      "retry_not_before": "Reintent no abans de",
+      "polling": "Sondeig per obtenir canvis",
+      "bluetooth_tracking": "Seguiment per Bluetooth",
+      "devices_listed": "Dispositius a la llista de Google",
+      "devices_not_answering": "Dispositius que no responen"
+    }
+  },
+  "selector": {
+    "departure_delay": {
+      "options": {
+        "0": "0 segons (temps normals)",
+        "30": "30 segons",
+        "60": "60 segons",
+        "90": "90 segons",
+        "120": "120 segons"
+      }
     }
   }
 }

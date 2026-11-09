@@ -2,6 +2,7 @@
 
 import asyncio
 from collections.abc import Awaitable, Callable
+from datetime import datetime
 from enum import IntFlag
 from functools import partial
 import logging
@@ -9,27 +10,45 @@ from typing import Literal, override
 
 import probatio
 
-from homeassistant.components.sensor import SensorDeviceClass
-from homeassistant.const import STATE_UNAVAILABLE, EntityCategory
-from homeassistant.core import HomeAssistant, ServiceCall
-from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
-from homeassistant.helpers import config_validation as cv, service
+from homeassistant.auth.permissions.const import POLICY_CONTROL
+from homeassistant.components.sensor import (
+    SensorDeviceClass,
+    SensorEntity,
+    SensorStateClass,
+)
+from homeassistant.const import (
+    ATTR_ENTITY_ID,
+    ENTITY_MATCH_ALL,
+    SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
+    STATE_UNAVAILABLE,
+    EntityCategory,
+)
+from homeassistant.core import HomeAssistant, ServiceCall, callback
+from homeassistant.exceptions import (
+    HomeAssistantError,
+    ServiceValidationError,
+    Unauthorized,
+    UnknownUser,
+)
+from homeassistant.helpers import (
+    config_validation as cv,
+    entity_registry as er,
+    service,
+    target,
+)
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+from homeassistant.helpers.typing import VolDictType, VolSchemaType
 
-from .api import GlocaltokensApiClient
 from .const import (
     ALARM_AND_TIMER_ID_LENGTH,
-    DATA_CLIENT,
-    DATA_COORDINATOR,
     DOMAIN,
     GOOGLE_HOME_ALARM_DEFAULT_VALUE,
-    ICON_ALARMS,
-    ICON_TIMERS,
-    ICON_TOKEN,
     LABEL_ALARMS,
     LABEL_DEVICE,
     LABEL_TIMERS,
+    LABEL_UPTIME,
+    LABEL_WIFI_NETWORK,
+    LABEL_WIFI_SIGNAL,
     SENSOR,
     SERVICE_ATTR_ALARM_ID,
     SERVICE_ATTR_SKIP_REFRESH,
@@ -42,6 +61,7 @@ from .const import (
     SERVICE_REFRESH,
 )
 from .entity import (
+    GoogleHomeAddressedEntity,
     GoogleHomeBaseEntity,
     GoogleHomeFeatureEntity,
     async_add_device_entities,
@@ -51,7 +71,12 @@ from .exceptions import (
     AlarmsAndTimersNotFetched,
     DeviceRequestFailed,
 )
-from .models import GoogleHomeAlarmStatus, GoogleHomeDevice, GoogleHomeTimerStatus
+from .models import (
+    LAST_ALARM_STATUSES,
+    GoogleHomeAlarmStatus,
+    GoogleHomeDevice,
+    GoogleHomeTimerStatus,
+)
 from .types import (
     AlarmsAttributes,
     DeviceAttributes,
@@ -62,6 +87,10 @@ from .types import (
 )
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
+
+# The coordinator does the updates. The integration's own actions, such as
+# reboot_device, get all their sensors in one call, which this limit doesn't cover.
+PARALLEL_UPDATES = 0
 
 
 class GoogleHomeSensorFeature(IntFlag):
@@ -94,44 +123,62 @@ def valid_id(kind: Literal["alarm", "timer"]) -> Callable[[str], str]:
 
 
 async def async_setup_entry(
-    hass: HomeAssistant,
+    _hass: HomeAssistant,
     entry: GoogleHomeConfigEntry,
     async_add_devices: AddEntitiesCallback,
 ) -> bool:
     """Set up sensor platform."""
-    client: GlocaltokensApiClient = hass.data[DOMAIN][entry.entry_id][DATA_CLIENT]
-    coordinator: DataUpdateCoordinator[list[GoogleHomeDevice]] = hass.data[DOMAIN][
-        entry.entry_id
-    ][DATA_COORDINATOR]
+    # Devices without alarms have diagnostic info too
     async_add_device_entities(
         entry,
-        coordinator,
-        client,
         async_add_devices,
         GoogleHomeDeviceSensor,
+        WifiNetworkSensor,
+        WifiSignalSensor,
+        UptimeSensor,
         needs_answer=False,
     )
     async_add_device_entities(
-        entry,
-        coordinator,
-        client,
-        async_add_devices,
-        GoogleHomeAlarmsSensor,
-        GoogleHomeTimersSensor,
+        entry, async_add_devices, GoogleHomeAlarmsSensor, GoogleHomeTimersSensor
     )
+    return True
 
-    # Services
+
+@callback
+def async_setup_actions(hass: HomeAssistant) -> None:
+    """Register the actions when the integration is set up, before its entry.
+
+    They then exist, so automations and scripts that use them stay valid, also
+    while the entry isn't loaded. A call then fails instead of doing nothing.
+    """
+
+    def entry_loaded(data: dict[str, object]) -> dict[str, object]:
+        # Unless the entry is loaded, raises Home Assistant's own translated
+        # error, which continue_on_error covers
+        service.async_get_config_entry(hass, DOMAIN, None)
+        return data
+
+    def when_loaded(fields: VolDictType) -> VolSchemaType:
+        """Check an action's data, then that the entry is loaded.
+
+        Home Assistant checks the data before it looks for the targeted sensors,
+        and finds none while the entry isn't loaded.
+        """
+        return probatio.All(cv.make_entity_service_schema(fields), entry_loaded)
+
     service.async_register_batched_platform_entity_service(
         hass,
         DOMAIN,
         SERVICE_DELETE_ALARM,
         entity_domain=SENSOR,
-        schema={
-            probatio.Required(SERVICE_ATTR_ALARM_ID): probatio.All(
-                cv.string, valid_id("alarm")
-            ),
-            probatio.Optional(SERVICE_ATTR_SKIP_REFRESH): cv.boolean,
-        },
+        schema=when_loaded(
+            {
+                probatio.Required(SERVICE_ATTR_ALARM_ID): probatio.All(
+                    cv.string, valid_id("alarm")
+                ),
+                probatio.Optional(SERVICE_ATTR_SKIP_REFRESH): cv.boolean,
+            }
+        ),
         func=partial(
             async_delete_from_devices,
             GoogleHomeAlarmsSensor.async_delete_alarm,
@@ -145,12 +192,14 @@ async def async_setup_entry(
         DOMAIN,
         SERVICE_DELETE_TIMER,
         entity_domain=SENSOR,
-        schema={
-            probatio.Required(SERVICE_ATTR_TIMER_ID): probatio.All(
-                cv.string, valid_id("timer")
-            ),
-            probatio.Optional(SERVICE_ATTR_SKIP_REFRESH): cv.boolean,
-        },
+        schema=when_loaded(
+            {
+                probatio.Required(SERVICE_ATTR_TIMER_ID): probatio.All(
+                    cv.string, valid_id("timer")
+                ),
+                probatio.Optional(SERVICE_ATTR_SKIP_REFRESH): cv.boolean,
+            }
+        ),
         func=partial(
             async_delete_from_devices,
             GoogleHomeTimersSensor.async_delete_timer,
@@ -164,7 +213,7 @@ async def async_setup_entry(
         DOMAIN,
         SERVICE_DELETE_ALL_ALARMS,
         entity_domain=SENSOR,
-        schema={probatio.Optional(SERVICE_ATTR_SKIP_REFRESH): cv.boolean},
+        schema=when_loaded({probatio.Optional(SERVICE_ATTR_SKIP_REFRESH): cv.boolean}),
         func=partial(
             async_delete_from_devices, GoogleHomeAlarmsSensor.async_delete_all
         ),
@@ -176,7 +225,7 @@ async def async_setup_entry(
         DOMAIN,
         SERVICE_DELETE_ALL_TIMERS,
         entity_domain=SENSOR,
-        schema={probatio.Optional(SERVICE_ATTR_SKIP_REFRESH): cv.boolean},
+        schema=when_loaded({probatio.Optional(SERVICE_ATTR_SKIP_REFRESH): cv.boolean}),
         func=partial(
             async_delete_from_devices, GoogleHomeTimersSensor.async_delete_all
         ),
@@ -188,28 +237,67 @@ async def async_setup_entry(
         DOMAIN,
         SERVICE_REBOOT,
         entity_domain=SENSOR,
-        schema={},
+        schema=when_loaded({}),
         func=async_reboot_devices,
     )
 
-    service.async_register_batched_platform_entity_service(
-        hass,
-        DOMAIN,
-        SERVICE_REFRESH,
-        entity_domain=SENSOR,
-        schema={},
-        func=async_refresh_devices,
+    # A plain action: Home Assistant doesn't run entity actions on unavailable sensors
+    hass.services.async_register(
+        DOMAIN, SERVICE_REFRESH, async_refresh_devices, schema=when_loaded({})
     )
 
-    return True
 
+async def async_refresh_devices(call: ServiceCall) -> None:
+    """Refresh all devices once if the target covers a Google Home sensor, even an unavailable one.
 
-async def async_refresh_devices(
-    entities: list[GoogleHomeBaseEntity], _call: ServiceCall
-) -> None:
-    """Refresh all devices once, however many sensors are targeted."""
-    # The integration allows one config entry, so all sensors share its coordinator
-    await entities[0].coordinator.async_request_refresh()
+    Like Home Assistant's entity actions, a user who isn't an admin needs control
+    of every entity the target covers, and with entity_id: all only the sensors
+    they control count.
+    """
+    hass = call.hass
+    may_control: Callable[[str, str], bool] | None = None
+    if call.context.user_id:
+        user = await hass.auth.async_get_user(call.context.user_id)
+        if user is None:
+            raise UnknownUser(context=call.context)
+        if not user.is_admin:
+            may_control = user.permissions.check_entity
+    entry: GoogleHomeConfigEntry = service.async_get_config_entry(hass, DOMAIN, None)
+    # Also the sensors of a device that hasn't answered since setup, which aren't
+    # added until it does
+    sensors = {
+        registered.entity_id
+        for registered in er.async_entries_for_config_entry(
+            er.async_get(hass), entry.entry_id
+        )
+        if registered.domain == SENSOR and not registered.disabled
+    }
+    selection = target.TargetSelection(call.data)
+    if call.data.get(ATTR_ENTITY_ID) == ENTITY_MATCH_ALL:
+        targeted = sensors - target.async_extract_excluded_entity_ids(hass, selection)
+        if may_control is not None:
+            targeted = {e for e in targeted if may_control(e, POLICY_CONTROL)}
+    else:
+        selected = target.async_extract_referenced_entity_ids(hass, selection)
+        referenced = selected.referenced | selected.indirectly_referenced
+        if may_control is not None:
+            for entity_id in referenced:
+                if not may_control(entity_id, POLICY_CONTROL):
+                    raise Unauthorized(
+                        context=call.context,
+                        entity_id=entity_id,
+                        permission=POLICY_CONTROL,
+                    )
+        targeted = referenced & sensors
+        selected.log_missing(selected.referenced - targeted, _LOGGER)
+    if not targeted:
+        return
+    await asyncio.gather(
+        *(
+            coordinator.async_request_refresh()
+            for coordinator in entry.runtime_data.devices.values()
+        )
+    )
 
 
 async def async_fetch_current(entity: GoogleHomeBaseEntity) -> GoogleHomeDevice:
@@ -234,9 +322,8 @@ async def async_delete(
         else:
             _LOGGER.debug("Nothing to delete for %s", device.name)
     finally:
-        # Other entities show this device's data too. Show what was just fetched
-        # also when the device doesn't confirm the delete.
-        entity.coordinator.async_update_listeners()
+        # Show what was just fetched also when the device doesn't confirm the delete
+        entity.async_show_device_changes()
     return bool(ids)
 
 
@@ -249,7 +336,7 @@ async def async_delete_from_devices[_SensorT: GoogleHomeBaseEntity](
 ) -> None:
     """Delete from each device, then name every device that failed.
 
-    Request a refresh of all devices once if a delete request was sent, unless
+    Request a refresh of each device that a delete request was sent to, unless
     skip_refresh is set. With kind, the action deletes one alarm or timer, and
     fails if every device answered and none has it.
     """
@@ -263,30 +350,37 @@ async def async_delete_from_devices[_SensorT: GoogleHomeBaseEntity](
     results = await asyncio.gather(
         *(delete_from(entity) for entity in entities), return_exceptions=True
     )
-    # One refresh updates every device. Another request while it runs or in the
-    # debouncer's cooldown after it would poll them all again when that ends. A
-    # delete that the device didn't confirm may still have happened.
-    sent = any(
-        result is True or isinstance(result, AlarmsAndTimersNotDeleted)
-        for result in results
-    )
-    if sent and not call.data.get(SERVICE_ATTR_SKIP_REFRESH, False):
-        await entities[0].coordinator.async_request_refresh()
+    # A delete that the device didn't confirm may still have happened
+    sent_to = [
+        entity
+        for entity, result in zip(entities, results, strict=True)
+        if result is True or isinstance(result, AlarmsAndTimersNotDeleted)
+    ]
+    if not call.data.get(SERVICE_ATTR_SKIP_REFRESH, False):
+        await asyncio.gather(
+            *(entity.coordinator.async_request_refresh() for entity in sent_to)
+        )
     failed: list[AlarmsAndTimersNotFetched | AlarmsAndTimersNotDeleted] = []
     for result in results:
         if isinstance(result, AlarmsAndTimersNotFetched | AlarmsAndTimersNotDeleted):
             failed.append(result)
-        # Don't hide an unexpected error, such as from a malformed reply
+        # Don't hide an unexpected error
         elif isinstance(result, BaseException):
             raise result
     if len(failed) > 1:
+        # One Refresh devices covers every device, so the error needn't say which
+        # needs it
+        if any(error.refresh_needed for error in failed):
+            key = (
+                "alarms_and_timers_not_deleted_from_devices_token_rejected_polling_off"
+            )
+        elif all(isinstance(error, AlarmsAndTimersNotFetched) for error in failed):
+            key = "alarms_and_timers_not_fetched_from_devices"
+        else:
+            key = "alarms_and_timers_not_deleted_from_devices"
         raise HomeAssistantError(
             translation_domain=DOMAIN,
-            translation_key=(
-                "alarms_and_timers_not_fetched_from_devices"
-                if all(isinstance(error, AlarmsAndTimersNotFetched) for error in failed)
-                else "alarms_and_timers_not_deleted_from_devices"
-            ),
+            translation_key=key,
             translation_placeholders={
                 "devices": ", ".join(sorted(error.device_name for error in failed))
             },
@@ -294,7 +388,7 @@ async def async_delete_from_devices[_SensorT: GoogleHomeBaseEntity](
     if failed:
         raise failed[0]
     # Every device answered. A device that failed could have had the alarm or timer.
-    if kind is not None and not sent:
+    if kind is not None and not sent_to:
         raise ServiceValidationError(
             translation_domain=DOMAIN,
             # alarm_not_found or timer_not_found
@@ -334,11 +428,10 @@ async def async_reboot_devices(
         raise failed[0]
 
 
-class GoogleHomeDeviceSensor(GoogleHomeBaseEntity):
+class GoogleHomeDeviceSensor(GoogleHomeAddressedEntity):
     """Google Home Device sensor."""
 
-    _attr_name = "Device"
-    _attr_icon = ICON_TOKEN
+    _attr_translation_key = "device"
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
     @property
@@ -349,15 +442,6 @@ class GoogleHomeDeviceSensor(GoogleHomeBaseEntity):
 
     @property
     @override
-    def available(self) -> bool:
-        """Return whether the device was found on the network."""
-        device = self.get_device()
-        return (
-            super().available and device is not None and device.ip_address is not None
-        )
-
-    @property
-    @override
     def state(self) -> str | None:
         """Return device IP address if any."""
         device = self.get_device()
@@ -365,17 +449,10 @@ class GoogleHomeDeviceSensor(GoogleHomeBaseEntity):
 
     @property
     @override
-    def extra_state_attributes(self) -> DeviceAttributes:
-        """Return the state attributes."""
+    def extra_state_attributes(self) -> DeviceAttributes | None:
+        """Return the state attributes, or None while Google doesn't list the device."""
         device = self.get_device()
-        attributes: DeviceAttributes = {
-            "device_id": None,
-            "device_name": self.device_name,
-            "auth_token": None,
-            "ip_address": None,
-            "available": False,
-        }
-        return self.get_device_attributes(device) if device else attributes
+        return self.get_device_attributes(device) if device else None
 
     @staticmethod
     def get_device_attributes(device: GoogleHomeDevice) -> DeviceAttributes:
@@ -383,17 +460,91 @@ class GoogleHomeDeviceSensor(GoogleHomeBaseEntity):
         return {
             "device_id": device.device_id,
             "device_name": device.name,
+            "home": device.home_name,
             "auth_token": device.auth_token,
             "ip_address": device.ip_address,
             "available": device.reachable,
         }
 
 
+class InfoSensor(GoogleHomeAddressedEntity, SensorEntity):
+    """What the device's info said at the last firmware check.
+
+    Disabled by default, as few users need it. Every device gets it, also one that
+    doesn't report the value, whose sensor stays unknown.
+    """
+
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_entity_registry_enabled_default = False
+
+
+class WifiNetworkSensor(InfoSensor):
+    """The name (SSID) of the Wi-Fi network that the device uses."""
+
+    _attr_translation_key = "wifi_network"
+
+    @property
+    @override
+    def label(self) -> str:
+        """Label to use for unique id."""
+        return LABEL_WIFI_NETWORK
+
+    @property
+    @override
+    def native_value(self) -> str | None:
+        """Return the network's name, or None until the device gives one."""
+        device = self.get_device()
+        return device.wifi_ssid if device else None
+
+
+class WifiSignalSensor(InfoSensor):
+    """The device's Wi-Fi signal strength, which a Nest Hub doesn't report.
+
+    Without a translation key, Home Assistant names it after its device class, in its
+    language.
+    """
+
+    _attr_device_class = SensorDeviceClass.SIGNAL_STRENGTH
+    _attr_native_unit_of_measurement = SIGNAL_STRENGTH_DECIBELS_MILLIWATT
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    @property
+    @override
+    def label(self) -> str:
+        """Label to use for unique id."""
+        return LABEL_WIFI_SIGNAL
+
+    @property
+    @override
+    def native_value(self) -> float | None:
+        """Return the signal strength in dBm, or None until the device gives it."""
+        device = self.get_device()
+        return device.wifi_signal if device else None
+
+
+class UptimeSensor(InfoSensor):
+    """Estimated last boot, with Home Assistant's localized name and drift tolerance."""
+
+    _attr_device_class = SensorDeviceClass.UPTIME
+
+    @property
+    @override
+    def label(self) -> str:
+        """Label to use for unique id."""
+        return LABEL_UPTIME
+
+    @property
+    @override
+    def native_value(self) -> datetime | None:
+        """Return the stored estimate, or None until the device reports valid uptime."""
+        device = self.get_device()
+        return device.booted_at if device else None
+
+
 class GoogleHomeAlarmsSensor(GoogleHomeFeatureEntity):
     """Google Home Alarms sensor."""
 
-    _attr_name = "Alarms"
-    _attr_icon = ICON_ALARMS
+    _attr_translation_key = "alarms"
     _attr_device_class = SensorDeviceClass.TIMESTAMP
     _attr_supported_features = GoogleHomeSensorFeature.ALARMS
 
@@ -413,9 +564,7 @@ class GoogleHomeAlarmsSensor(GoogleHomeFeatureEntity):
         next_alarm = device.get_next_alarm()
         return (
             next_alarm.local_time_iso
-            if next_alarm
-            and next_alarm.status
-            not in {GoogleHomeAlarmStatus.INACTIVE, GoogleHomeAlarmStatus.MISSED}
+            if next_alarm and next_alarm.status not in LAST_ALARM_STATUSES
             else STATE_UNAVAILABLE
         )
 
@@ -442,7 +591,7 @@ class GoogleHomeAlarmsSensor(GoogleHomeFeatureEntity):
     def _get_alarm_volume(self) -> float:
         """Update alarm volume status from coordinator."""
         device = self.get_device()
-        alarm_volume = device.get_alarm_volume() if device else None
+        alarm_volume = device.alarm_volume if device else None
         return alarm_volume or GOOGLE_HOME_ALARM_DEFAULT_VALUE
 
     def _get_alarms_data(self) -> list[GoogleHomeAlarmDict]:
@@ -469,8 +618,7 @@ class GoogleHomeAlarmsSensor(GoogleHomeFeatureEntity):
 class GoogleHomeTimersSensor(GoogleHomeFeatureEntity):
     """Google Home Timers sensor."""
 
-    _attr_name = "Timers"
-    _attr_icon = ICON_TIMERS
+    _attr_translation_key = "timers"
     _attr_device_class = SensorDeviceClass.TIMESTAMP
     _attr_supported_features = GoogleHomeSensorFeature.TIMERS
 
@@ -490,7 +638,9 @@ class GoogleHomeTimersSensor(GoogleHomeFeatureEntity):
         timer = device.get_next_timer()
         return (
             timer.local_time_iso
-            if timer and timer.local_time_iso
+            if timer
+            and timer.local_time_iso
+            and timer.status is not GoogleHomeTimerStatus.UNKNOWN
             else STATE_UNAVAILABLE
         )
 
