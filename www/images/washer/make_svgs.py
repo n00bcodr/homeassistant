@@ -129,6 +129,42 @@ def delayed_start() -> str:
     return svg(c, clock)
 
 
+def add_laundry() -> str:
+    """A pulsing plus: the machine is waiting for you to add more laundry."""
+    c = "#009688"
+    plus = (
+        f'<g fill="none" stroke="{c}" stroke-width="1.7" stroke-linecap="round">'
+        '<path d="M12 10.9V17.1M8.9 14H15.1"/>'
+        '<animate attributeName="opacity" values="1;.35;1" dur="1.6s" repeatCount="indefinite"/></g>'
+    )
+    return svg(c, plus)
+
+
+def door_open() -> str:
+    """The porthole door swinging open on its right-hand hinge."""
+    c = "#607D8B"
+    door = (
+        f'<ellipse cx="12" cy="14" rx="5.4" ry="5.4" fill="{c}" fill-opacity=".45">'
+        '<animate attributeName="rx" values="5.4;1.8;5.4" keyTimes="0;.5;1" calcMode="spline" '
+        'keySplines=".45 0 .55 1;.45 0 .55 1" dur="2.6s" repeatCount="indefinite"/>'
+        '<animate attributeName="cx" values="12;15.6;12" keyTimes="0;.5;1" calcMode="spline" '
+        'keySplines=".45 0 .55 1;.45 0 .55 1" dur="2.6s" repeatCount="indefinite"/></ellipse>'
+    )
+    return svg(c, door)
+
+
+def anti_crease() -> str:
+    """A slow, gentle tumble that keeps the clothes from creasing."""
+    c = "#673AB7"
+    ring = (
+        f'<circle cx="12" cy="14" r="3.6" fill="none" stroke="{c}" stroke-width="1.4" '
+        'stroke-dasharray="3 2.6" stroke-linecap="round">'
+        '<animateTransform attributeName="transform" type="rotate" values="0 12 14;70 12 14;0 12 14" '
+        'keyTimes="0;.5;1" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1" dur="4s" repeatCount="indefinite"/></circle>'
+    )
+    return svg(c, ring)
+
+
 FILES = {
     "washing": washing,
     "rinsing": rinsing,
@@ -137,6 +173,9 @@ FILES = {
     "cycle_complete": cycle_complete,
     "paused": paused,
     "delayed_start": delayed_start,
+    "add_laundry": add_laundry,
+    "door_open": door_open,
+    "anti_crease": anti_crease,
 }
 
 if __name__ == "__main__":

@@ -49,6 +49,8 @@ ha-card{position:relative;height:200px;overflow:hidden;box-sizing:border-box;con
 .b ha-icon{--mdc-icon-size:calc(var(--z)*.667);color:rgb(var(--c));display:flex}
 .b.pic .s{background:none}
 .b img{object-fit:contain;border-radius:0}
+.ind{display:none;width:9px;height:9px;margin-left:9px;border-radius:50%;background:#ffb300;vertical-align:middle;box-shadow:0 0 8px 2px rgba(255,179,0,.75);animation:indp 2s ease-in-out infinite}
+@keyframes indp{50%{opacity:.45}}
 .bb{position:absolute;right:-2px;top:-2px;width:16px;height:16px;border-radius:50%;display:none;align-items:center;justify-content:center;background:rgb(var(--bc))}
 .bb ha-icon{--mdc-icon-size:12px;color:#fff;display:flex}
 .a-washing{animation:shake-washing .4s ease-in-out infinite,drum-washing 2s ease infinite;transform-origin:50% 110%}
@@ -183,7 +185,20 @@ class RoomTile extends HTMLElement {
     const r = this.shadowRoot, q = s => r.querySelector(s), E = (v, x) => this._e(v, x);
     this._d = new Set();
     // title and text
-    set(q('.t'), 't', String(E(c.name) ?? ''), (e, v) => { e.textContent = v; });
+    const ind = this._ind || (this._ind = Object.assign(document.createElement('i'), { className: 'ind' }));
+    set(q('.t'), 't', String(E(c.name) ?? ''), (e, v) => { e.textContent = v; e.appendChild(ind); });
+    // "something is on" indicator: amber dot after the title when any watched entity is on
+    let n = 0;
+    if (c.indicator !== false) {
+      const w = new Set([...(c.watch || []), ...(c.buttons || []).map(b => b.entity)]);
+      w.forEach(id => {
+        if (!id) return; this._d.add(id);
+        const o = h.states[id], dm = id.split('.')[0];
+        if (!o || ['sensor', 'binary_sensor'].includes(dm)) return;
+        if (dm === 'media_player' ? ['on', 'playing', 'buffering'].includes(o.state) : dm === 'climate' ? !['off', 'unavailable', 'unknown'].includes(o.state) : o.state === 'on') n++;
+      });
+    }
+    set(ind, 'n', n > 0, (e, v) => { e.style.display = v ? 'inline-block' : 'none'; });
     set(q('.u'), 't', String(E(c.secondary) ?? ''), rich);
     // big icon or picture
     const col = rgb(E(c.color)), pic = E(c.picture), ic = E(c.icon);
@@ -221,6 +236,7 @@ class RoomTile extends HTMLElement {
       set(el, 'h', show, (e, v) => { e.style.display = v ? '' : 'none'; });
       if (show) {
         set(el.firstChild, 't', String(x.value !== undefined ? E(x.value) : (x.entity ? this._s(x.entity) : '')), (e, v) => { e.textContent = v; });
+        set(el.firstChild, 'k', x.color ? String(E(x.color) || '') : '', (e, v) => { e.style.color = v; });
         set(el.lastChild, 't', String(E(x.label) ?? ''), (e, v) => { e.textContent = v; });
       }
     });
@@ -388,6 +404,7 @@ const TILE_EXTRA = [
   { p: 'label', s: TM, l: 'Label', h: 'Small text under the value.' + TPL },
   { p: 'value', s: TM, l: 'Value', h: 'Leave empty to show the entity state.' + TPL },
   { p: 'show', s: TM, l: 'Show when', h: 'A template that returns true or false.' },
+  { p: 'color', s: TM, l: 'Value colour', h: 'A CSS colour, for example orange or #4caf50.' + TPL },
   { p: 'top', s: N, l: 'Top (px)' },
 ];
 

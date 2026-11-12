@@ -30,7 +30,11 @@ class GlassMediaCard extends HTMLElement {
       .b{width:44px;height:44px;border-radius:50%;border:0;background:rgba(255,255,255,.14);color:#fff;cursor:pointer;
         display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);transition:background .15s,transform .1s}
       .b:hover{background:rgba(255,255,255,.26)} .b:active{transform:scale(.94)}
-      .b.big{width:52px;height:52px} .b ha-icon{--mdc-icon-size:26px}
+      .b.big{width:52px;height:52px;position:relative;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+      .b.big .ring{position:absolute;inset:-6px;width:calc(100% + 12px);height:calc(100% + 12px);pointer-events:none;overflow:visible;transform:rotate(-90deg)}
+      .b.big .ring circle{fill:none;stroke:#ff5252;stroke-width:3.5;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;opacity:0}
+      .b.big.holding .ring circle{stroke-dashoffset:0;opacity:1;transition:stroke-dashoffset .8s linear,opacity .1s}
+      .b.big.holding{background:rgba(255,82,82,.35);transform:scale(.94)} .b ha-icon{--mdc-icon-size:26px}
       .art.noimg ha-icon{--mdc-icon-size:64px!important;right:50%;bottom:50%;transform:translate(50%,50%);opacity:.8}
       .b.on{background:rgba(29,185,84,.35);color:#7dffa8}
       .bar{height:6px;border-radius:3px;background:rgba(255,255,255,.2);cursor:pointer;position:relative}
@@ -92,9 +96,8 @@ class GlassMediaCard extends HTMLElement {
         <div class="ctl">
           <button class="b" data-s="shuffle_set"><ha-icon icon="mdi:shuffle-variant"></ha-icon></button>
           <button class="b" data-s="media_previous_track"><ha-icon icon="mdi:skip-previous"></ha-icon></button>
-          <button class="b big" data-s="media_play_pause"><ha-icon class="pp" icon="mdi:pause"></ha-icon></button>
+          <button class="b big" data-s="media_play_pause"><ha-icon class="pp" icon="mdi:pause"></ha-icon><svg class="ring" viewBox="0 0 60 60"><circle cx="30" cy="30" r="28" pathLength="100"></circle></svg></button>
           <button class="b" data-s="media_next_track"><ha-icon icon="mdi:skip-next"></ha-icon></button>
-          <button class="b stp" data-s="media_stop" title="Stop"><ha-icon icon="mdi:stop"></ha-icon></button>
           <button class="b" data-s="repeat_set"><ha-icon class="rp" icon="mdi:repeat"></ha-icon></button>
           <button class="b dj" data-s="dj" title="Spotify DJ"><ha-icon icon="mdi:microphone-variant"></ha-icon></button>
         </div>
@@ -104,8 +107,23 @@ class GlassMediaCard extends HTMLElement {
     const q = s => r.querySelector(s);
     this._e = { art: q('.art'), t: q('.t'), a: q('.a'), al: q('.al'), pill: q('.pill'), pp: q('.pp'), rp: q('.rp'),
       fill: q('.fill'), dot: q('.dot'), p: q('.p'), d: q('.d'), bar: q('.bar'),
-      sh: q('[data-s=shuffle_set]'), rpb: q('[data-s=repeat_set]'), dj: q('.dj'), stp: q('.stp'), ai: q('.ai'), wrap: q('.wrap'), vol: q('.vol'), vr: q('.vr'), vi: q('.vi'), vd: q('.vd'), vu: q('.vu') };
-    r.querySelectorAll('.b').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); this._act(b.dataset.s); }));
+      sh: q('[data-s=shuffle_set]'), rpb: q('[data-s=repeat_set]'), dj: q('.dj'), ai: q('.ai'), wrap: q('.wrap'), vol: q('.vol'), vr: q('.vr'), vi: q('.vi'), vd: q('.vd'), vu: q('.vu') };
+    r.querySelectorAll('.b').forEach(b => b.addEventListener('click', e => {
+      e.stopPropagation();
+      if (b.classList.contains('big') && this._held) { this._held = false; return; }
+      this._act(b.dataset.s);
+    }));
+    // hold play/pause for 1s to stop playback (red ring fills while holding)
+    const pb = r.querySelector('.b.big');
+    const endHold = () => { clearTimeout(this._ht); clearTimeout(this._hv); pb.classList.remove('holding'); };
+    pb.addEventListener('pointerdown', () => {
+      this._held = false;
+      // the ring only appears after 200ms so a normal tap shows no flash; it then fills over the remaining 800ms
+      this._hv = setTimeout(() => pb.classList.add('holding'), 200);
+      this._ht = setTimeout(() => { this._held = true; pb.classList.remove('holding'); this._stop(); if (navigator.vibrate) navigator.vibrate(40); }, 1000);
+    });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => pb.addEventListener(ev, endHold));
+    pb.addEventListener('contextmenu', e => e.preventDefault());
     this._e.bar.addEventListener('click', e => {
       const s = this._st(); if (!s || !(s.attributes.media_duration > 1)) return;
       const rc = this._e.bar.getBoundingClientRect();
@@ -154,6 +172,22 @@ class GlassMediaCard extends HTMLElement {
     for (const id of [ids[0], ...ids.slice(1).reverse()]) { const o = h.states[id]; if (o && (o.attributes.supported_features & 4)) return { id, set: true }; }
     return h.states[ids[0]] ? { id: ids[0], set: false } : null;
   }
+  // stop: real STOP if supported, else turn the player off, else pause
+  _stop() {
+    const st = this._st(); if (!st) return;
+    const h = this._h, a = st.attributes;
+    // Spotify entities report the cast device as `source`: stop that real player (ends the cast session) instead of Spotify
+    let tid = st._target, f = a.supported_features || 0;
+    if (a.source) {
+      const dev = Object.values(h.states).find(o => o.entity_id.startsWith('media_player.') && o.entity_id !== tid
+        && o.attributes.friendly_name === a.source && o.state !== 'unavailable');
+      if (dev) { tid = dev.entity_id; f = dev.attributes.supported_features || 0; }
+    }
+    // cast speakers time out on media_stop during a Spotify session; turn_off quits the cast app and ends it reliably
+    const viaSource = tid !== st._target;
+    const svc = viaSource && (f & 256) ? 'turn_off' : (f & 4096) ? 'media_stop' : (f & 256) ? 'turn_off' : 'media_pause';
+    h.callService('media_player', svc, { entity_id: tid });
+  }
   _act(s) {
     const st = this._st(), id = st._target, a = st.attributes;
     if (s === 'vol_up' || s === 'vol_down') { const v = this._vt(); this._h.callService('media_player', s === 'vol_up' ? 'volume_up' : 'volume_down', { entity_id: v.id }); }
@@ -200,16 +234,18 @@ class GlassMediaCard extends HTMLElement {
     if (!pic && st._frame) { pic = st._frame; frame = true; }
     const url = pic ? `url("${pic}")` : '';
     e.art.style.backgroundImage = url; this._bg.style.backgroundImage = url;
-    e.t.textContent = a.media_title || a.app_name || a.friendly_name || '';
-    e.a.textContent = a.media_artist || (a.media_title ? '' : (a.app_name ? (st.state === 'on' ? 'Open' : st.state) : ''));
+    // ADB-based players (Fire TV) have no app_name, only the named source
+    const app = a.app_name || (!this._c.dj && a.source && a.source !== a.friendly_name ? a.source : '');
+    e.t.textContent = a.media_title || app || a.friendly_name || '';
+    e.a.textContent = a.media_artist || (a.media_title ? '' : (app ? (st.state === 'on' ? 'Open' : st.state.charAt(0).toUpperCase() + st.state.slice(1)) : ''));
     const hasDur = a.media_duration > 1;
     e.bar.parentElement.style.visibility = hasDur ? 'visible' : 'hidden';
     e.wrap.classList.toggle('noart', !pic);
-    e.art.classList.toggle('wide', frame);
+    e.art.classList.toggle('wide', frame || !!this._c.wide);
     const APPS = [['youtube music','mdi:music-circle','#ff0033'],['youtube','mdi:youtube','#ff0033'],['netflix','mdi:netflix','#e50914'],['spotify','mdi:spotify','#1DB954'],
       ['jellyfin','mdi:jellyfish','#a95ce6'],['wholphin','mdi:jellyfish','#a95ce6'],['hotstar','mdi:movie-open','#4a7bff'],['prime','mdi:amazon','#00a8e1'],
       ['plex','mdi:plex','#e5a00d'],['twitch','mdi:twitch','#9146ff'],['sony','mdi:television-play','#ffffff'],['kodi','mdi:kodi','#17b2e7']];
-    const an = (a.app_name || '').toLowerCase(), hit = APPS.find(x => an.includes(x[0]));
+    const an = (app || '').toLowerCase(), hit = APPS.find(x => an.includes(x[0]));
     e.ai.firstElementChild.setAttribute('icon', hit ? hit[1] : (this._c.icon || 'mdi:television-play'));
     e.ai.firstElementChild.style.color = hit ? hit[2] : '#fff';
     e.al.textContent = (a.media_album_name && a.media_album_name !== a.media_artist) ? a.media_album_name : '';
@@ -218,9 +254,6 @@ class GlassMediaCard extends HTMLElement {
     e.art.querySelector('ha-icon').style.color = this._c.dj ? '#1DB954' : '#fff';
     e.pill.style.background = this._c.dj ? '#1DB954' : 'rgba(255,255,255,.22)';
     e.dj.style.display = this._c.dj ? '' : 'none';
-    // stop ends the cast session (a pause leaves it open); only when the player supports STOP (4096)
-    const canStop = (a.supported_features & 4096) && ['playing', 'paused', 'buffering'].includes(st.state);
-    e.stp.style.display = canStop ? '' : 'none';
     const hasMode = a.shuffle !== undefined;
     e.sh.style.display = hasMode ? '' : 'none'; e.rpb.style.display = hasMode ? '' : 'none';
     e.pp.setAttribute('icon', st.state === 'playing' ? 'mdi:pause' : 'mdi:play');

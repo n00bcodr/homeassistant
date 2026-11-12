@@ -61,7 +61,7 @@ const GCSS = `:host{display:block}.g{padding:4px 4px 8px}.h{font-size:28px;font-
 .cs{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .c{display:inline-flex;align-items:center;gap:6px;padding:5px 12px 5px 8px;border-radius:16px;font-size:14px;font-weight:500;color:var(--primary-text-color);background:var(--secondary-background-color)}
 .c ha-icon{--mdc-icon-size:20px;display:flex}
-.c.w{background:rgba(var(--c),.18)}.c.w ha-icon{color:rgb(var(--c))}.c.m{padding:5px 12px}
+.c.t{cursor:pointer}.c.w{background:rgba(var(--c),.18)}.c.w ha-icon{color:rgb(var(--c))}.c.m{padding:5px 12px;background:rgba(var(--c,255,255,255),.10)}
 `;
 class Greeting extends Base {
   static async getConfigElement() { return document.createElement('greeting-card-editor'); }
@@ -69,14 +69,21 @@ class Greeting extends Base {
     const w = hass && Object.keys(hass.states).find(e => e.startsWith('weather.'));
     return w ? { weather_entity: w } : {};
   }
-  constructor() { super(); this.attachShadow({ mode: 'open' }); }
+  constructor() {
+    super(); this.attachShadow({ mode: 'open' });
+    this.shadowRoot.addEventListener('click', ev => {
+      const el = ev.target.closest && ev.target.closest('.c.t'); if (!el) return;
+      this.dispatchEvent(new CustomEvent('hass-more-info', { detail: { entityId: el.dataset.e }, bubbles: true, composed: true }));
+    });
+  }
   setConfig(c) { this._c = c || {}; this._ok = false; this._sn = null; this._key = null; }
   _u() {
     const h = this._h; if (!h) return;
     this._ok = true;
     const c = this._c, wid = c.weather_entity || 'weather.home';
     const o = h.states[wid], at = o ? o.attributes : {};
-    this._sn = new Map([[wid, o]]);
+    const oT = c.outdoor_temperature, oH = c.outdoor_humidity, ot = oT ? h.states[oT] : null, oh = oH ? h.states[oH] : null;
+    this._sn = new Map([[wid, o]]); if (oT) this._sn.set(oT, ot); if (oH) this._sn.set(oH, oh);
     const w = String(o ? o.state : 'unknown').toLowerCase();
     const t = parseFloat(at.temperature), has = !isNaN(t), hour = new Date().getHours();
     let msg;
@@ -86,16 +93,21 @@ class Greeting extends Base {
     else if (has && t < 10) msg = rand(['🧥 Bit nippy—layer up!', '🧣 Chilly one today!', '🥶 Baltic out!']);
     else if (has && t >= 20) msg = rand(['🥵 Roasting! Stay hydrated.', '☀️ Scorcher today!', "🌡️ We're not used to this heat!"]);
     else msg = rand(['😊 Grand stretch in the evenings!', '👌 Not bad at all!', '🙂 Decent day!']);
+    const tcol = v => v < 0 ? '#b39ddb' : v < 10 ? '#4fc3f7' : v < 17 ? '#66bb6a' : v < 24 ? '#ffca28' : v < 30 ? '#ff9800' : '#f4511e';
     const x = WX[w] || ['help-circle-outline', w ? w[0].toUpperCase() + w.slice(1) : 'N/A', '#9e9e9e'];
     const user = c.name !== undefined ? String(this._e(c.name) ?? '') : ((h.user && h.user.name) || '');
     const hello = (c.greeting !== undefined ? String(this._e(c.greeting) ?? '') : 'Dia Duit') + (user ? ', ' + user : '');
     const icon = c.show_icon === false ? '' : (c.icon || 'mdi:hand-wave');
     const showMsg = c.show_message !== false;
-    const chip = (ic, tx, col) => '<span class="c"><ha-icon icon="mdi:' + ic + '" style="color:' + col + '"></ha-icon>' + tx + '</span>';
-    let cs = '<span class="c w" style="--c:' + rgb(x[2]) + '"><ha-icon icon="mdi:' + x[0] + '"></ha-icon>' + x[1] + '</span>';
-    if (has) cs += chip('thermometer', (Number.isInteger(t) ? t.toFixed(1) : t) + '°C', '#ff7043');
-    if (at.humidity != null) cs += chip('water-percent', at.humidity + '%', '#42a5f5');
-    if (at.wind_speed != null) cs += chip('weather-windy', Math.round(at.wind_speed) + ' ' + (at.wind_speed_unit || 'km/h'), '#4db6ac');
+    const chip = (ic, tx, col, ent) => '<span class="c w t" data-e="' + ent + '" style="--c:' + rgb(col) + '"><ha-icon icon="mdi:' + ic + '"></ha-icon>' + tx + '</span>';
+    let cs = '<span class="c w t" data-e="' + wid + '" style="--c:' + rgb(x[2]) + '"><ha-icon icon="mdi:' + x[0] + '"></ha-icon>' + x[1] + '</span>';
+    if (has) cs += chip('thermometer', (Number.isInteger(t) ? t.toFixed(1) : t) + '°C', tcol(t), wid);
+    if (ot && !isNaN(parseFloat(ot.state))) {
+      const ov = parseFloat(ot.state), hv = oh && !isNaN(parseFloat(oh.state)) ? ' · ' + Math.round(parseFloat(oh.state)) + '%' : '';
+      cs += chip('sun-thermometer-outline', 'Outdoor ' + ov.toFixed(1) + '°C' + hv, tcol(ov), oT);
+    }
+    if (at.humidity != null) cs += chip('water-percent', at.humidity + '%', '#7986cb', wid);
+    if (at.wind_speed != null) cs += chip('weather-windy', Math.round(at.wind_speed) + ' ' + (at.wind_speed_unit || 'km/h'), '#4db6ac', wid);
     if (showMsg) cs += '<span class="c m"></span>';
     const html = '<style>' + GCSS + '</style><div class="g"><div class="h"><span></span>' + (icon ? '<ha-icon></ha-icon>' : '') + '</div><div class="cs">' + cs + '</div></div>';
     const r = this.shadowRoot, key = html + hello + icon + (showMsg ? msg : '');
