@@ -50,3 +50,6 @@ home-assistant.log.1
 home-assistant.log.fault
 .DS_Store
 google_health.json
+
+!docs/
+!docs/*.md
