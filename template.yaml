@@ -384,3 +384,74 @@
           {{ states.sensor.doorbell.attributes.unit_of_measurement }}
         icon: >
           {{ states.sensor.doorbell.attributes.icon }}      
+# Last real on/off change per entity. HA stamps last_changed with the restart time
+# (unavailable -> on/off), so this records only genuine changes and survives restarts.
+- triggers:
+    - trigger: state
+      entity_id:
+        - switch.heating
+        - switch.boiler
+        - switch.kettle
+        - switch.string_lights
+        - light.kitchen_light
+        - light.backyard_lights
+        - light.alleyway_lights
+        - light.hallway_chandelier
+        - light.porch_light
+        - light.living_room_lamp
+        - light.chandelier
+        - light.led_strip
+        - light.guest_bed_light
+        - binary_sensor.porch_motion_occupancy
+        - binary_sensor.hallway_motion_occupancy
+        - binary_sensor.living_room_presence
+        - binary_sensor.couch_presence
+        - binary_sensor.kitchen_presence
+      not_from:
+        - unavailable
+        - unknown
+      not_to:
+        - unavailable
+        - unknown
+  conditions:
+    - condition: template
+      value_template: "{{ trigger.from_state is not none and trigger.from_state.state != trigger.to_state.state }}"
+  sensor:
+    - name: Last Real Change
+      unique_id: last_real_change
+      state: "{{ now().isoformat() }}"
+      attributes:
+        times: >
+          {{ (this.attributes.get('times') or {}) | combine({trigger.entity_id: now().isoformat()}) }}
+
+# Washer programme display names (title case), used by the washer cards.
+- sensor:
+    - name: Washer Programme Name
+      unique_id: washer_programme_name
+      icon: mdi:format-list-bulleted
+      state: >
+        {% set p = states('sensor.bob_programme') %}
+        {% set names = {
+          'program_cottons': 'Cottons',
+          'program_eco_40_60': 'Eco 40-60',
+          'program_synthetics': 'Synthetics',
+          'program_wool_handwash': 'Wool Handwash',
+          'program_mini_mini14': "Mini 14'",
+          'program_duvet': 'Duvet',
+          'program_mix': 'Mix',
+          'program_spin_pump': 'Spin & Pump',
+          'program_rinsing': 'Rinsing',
+          'program_shirts': 'Shirts',
+          'program_dryer_cotton': 'Dryer Cotton',
+          'program_dryer_synthetics': 'Dryer Synthetics',
+          'program_hygiene_wash_dry': 'Hygiene Wash & Dry',
+          'program_5kg_wash_dry': '5 KG Wash & Dry',
+          'program_wash_wear': 'Wash & Wear',
+          'program_towel': 'Towel',
+          'program_dark_wash': 'Dark Wash',
+          'program_outdoor': 'Outdoor',
+          'program_lingerie': 'Lingerie',
+          'program_drum_clean_plus': 'Drum Clean +'
+        } %}
+        {% if p in ['unknown', 'unavailable'] %}{{ p }}
+        {% else %}{{ names.get(p, p | replace('program_', '') | replace('_', ' ') | title) }}{% endif %}
