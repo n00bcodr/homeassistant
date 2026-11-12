@@ -19,11 +19,31 @@ clear_shopping_list:
   mode: single
 update_all_phone_sensors:
   alias: Update all phone sensors
+  description: Android, Wear OS and tablets get command_update_sensors. iPhones and
+    iPads get request_location_update.
   sequence:
-  - action: notify.all_phones_android
+  - action: notify.mobile_app_pixel8pro
+    continue_on_error: true
     data:
       message: command_update_sensors
-  - action: notify.all_phones_ios
+  - action: notify.mobile_app_nexus_7
+    continue_on_error: true
+    data:
+      message: command_update_sensors
+  - action: notify.mobile_app_pixel_watch
+    continue_on_error: true
+    data:
+      message: command_update_sensors
+  - action: notify.mobile_app_work_phone
+    continue_on_error: true
+    data:
+      message: request_location_update
+  - action: notify.mobile_app_hilary_s_phone
+    continue_on_error: true
+    data:
+      message: request_location_update
+  - action: notify.mobile_app_pavan_thanujs_ipad_3rd_gen
+    continue_on_error: true
     data:
       message: request_location_update
   mode: single
@@ -604,3 +624,33 @@ spotify_start:
         media_player:
           entity_id: media_player.{{ states('input_select.speakers_spotify') | lower
             | replace("'", "_") | replace(" ", "_") }}
+battery_stock_apply:
+  alias: Battery stock - apply or dismiss
+  mode: queued
+  icon: mdi:battery-sync
+  fields:
+    type:
+      description: CR2032, CR2450 or CR2025
+      example: CR2032
+    apply:
+      description: true = reduce stock, false = dismiss
+      example: true
+  sequence:
+  - variables:
+      stock: counter.{{ type | lower }}_batteries
+      pending: counter.{{ type | lower }}_pending
+  - if:
+    - condition: template
+      value_template: '{{ apply | bool(false) }}'
+    then:
+    - action: counter.set_value
+      target:
+        entity_id: '{{ stock }}'
+      data:
+        value: '{{ [ states(stock) | int(0) - states(pending) | int(0), 0 ] | max
+          }}'
+  - action: counter.set_value
+    target:
+      entity_id: '{{ pending }}'
+    data:
+      value: 0

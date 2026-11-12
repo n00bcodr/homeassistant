@@ -3817,3 +3817,30 @@
         color: '#ff5252'
   mode: queued
   max: 5
+- id: battery_stock_track_replaced
+  alias: "\U0001F50BBattery stock - track replaced batteries"
+  description: Counts used coin cells so the dashboard can ask to reduce stock
+  triggers:
+  - trigger: event
+    event_type: battery_notes_battery_replaced
+  conditions:
+  - condition: template
+    value_template: '{{ trigger.event.data.battery_type in [''CR2032'',''CR2450'',''CR2025'']
+      }}'
+  actions:
+  - variables:
+      pending: counter.{{ trigger.event.data.battery_type | lower }}_pending
+  - action: counter.set_value
+    target:
+      entity_id: '{{ pending }}'
+    data:
+      value: '{{ states(pending) | int(0) + (trigger.event.data.battery_quantity |
+        int(1)) }}'
+  - action: input_text.set_value
+    target:
+      entity_id: input_text.battery_last_replaced
+    data:
+      value: '{{ trigger.event.data.device_name | default(''a device'') }}{{ '' (''
+        ~ trigger.event.data.area_name ~ '')'' if trigger.event.data.area_name else
+        '''' }}'
+  mode: queued
