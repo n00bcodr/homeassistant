@@ -3724,7 +3724,7 @@
   - alias: Update the doorbell alert with an animated preview of the visit
     action: notify.all_phones
     data:
-      message: ' '
+      message: "{% set d = states('input_text.doorbell_last_description') %}{{ d if d not in ['', 'unknown', 'unavailable'] else ' ' }}"
       title: "{{ who ~ ' was at the front door \U0001F3A5' if who else 'Front door
         visit \U0001F3A5' }}"
       data:
