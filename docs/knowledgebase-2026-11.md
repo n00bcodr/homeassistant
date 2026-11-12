@@ -38,6 +38,17 @@ Backups of everything changed live in the session scratchpad (temporary):
 
 ---
 
+## 2b. Doorbell: Gemini visitor description + Frigate name (built 12 Nov)
+
+- Google Generative AI works again (user topped up prepaid credits with EUR 5 and set a EUR 1 spend cap). Paid-tier data is not used by Google to improve products.
+- The old `google_generative_ai_conversation.generate_content` service no longer exists in HA. The integration now offers `ai_task.generate_data` (entity `ai_task.google_ai_task`), which accepts image attachments (`media-source://media_source/local/Doorbell/latest.jpg`). Test: ~4 s per snapshot.
+- **Flow:** person alert goes out as before. Then the 🔔Doorbell automation (`1715598723988`) asks Gemini for a one-sentence description (max 15 words, no buildings/cars, does not guess identity), stores it in `input_text.doorbell_last_description` and calls `script.doorbell_update_alert`, which re-sends the alert (same `tag: doorbell`) with the description as the message. Frigate's face match (`🔔Doorbell - Name the Person`, `1793281373867`) stores the name in `input_text.doorbell_last_name` and calls the same script, so whichever finishes last shows both ("Pat is at the front door" + description).
+- Both helpers are cleared at the start of each visit. A Gemini failure (credits, cap, timeout) is ignored (`continue_on_error`) and the plain alert has already gone out.
+- **Face recognition stays with Frigate** (local, uses the face libraries). Gemini is deliberately not used to identify people.
+- Not yet tested end to end with a real visitor.
+
+---
+
 ## 3. HomeWhiz (custom component, washer "Bob")
 
 - A HACS update (6 Nov, 0.5.28→0.5.29) overwrote local changes. **Ported forward** onto 0.5.29:

@@ -654,3 +654,43 @@ battery_stock_apply:
       entity_id: '{{ pending }}'
     data:
       value: 0
+doorbell_update_alert:
+  alias: Doorbell - update the alert (name and description)
+  icon: mdi:doorbell-video
+  mode: restart
+  sequence:
+  - variables:
+      who: '{{ states(''input_text.doorbell_last_name'') }}'
+      desc: '{{ states(''input_text.doorbell_last_description'') }}'
+  - action: notify.all_phones
+    data:
+      message: '{{ desc if desc not in ['''', ''unknown'', ''unavailable''] else ''
+        '' }}'
+      title: "{% if who in ['', 'unknown', 'unavailable'] %}Someone's at the front
+        door \U0001F464{% else %}{{ who }} is at the front door \U0001F464{% endif
+        %}"
+      data:
+        ttl: 0
+        tag: doorbell
+        entity_id: camera.doorbell
+        notification_icon: mdi:doorbell-video
+        activationMode: foreground
+        channel: Doorbell
+        alert_once: true
+        clickAction: /lovelace/living-room
+        push:
+          interruption-level: passive
+          category: camera
+        actions:
+        - action: URI
+          title: Open
+          uri: /lovelace/camera
+          icon: sfsymbols:camera.viewfinder
+        - action: package
+          title: Package
+          icon: sfsymbols:cube.box
+        - action: be_there
+          title: Will be there
+          icon: sfsymbols:person.crop.circle.badge.checkmark
+        image: /local/cam_snapshot.jpg
+        icon_url: /local/images/emoji/bell.png
