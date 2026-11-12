@@ -2151,6 +2151,14 @@
       timestamp: '{{ as_timestamp(trigger.to_state.last_changed) | timestamp_custom(''%Y-%m-%d_%H-%M-%S'')
         }}'
       camera_snapshot: '{{ timestamp }}.jpg'
+  - alias: 'New visit: forget the previous name and description'
+    action: input_text.set_value
+    target:
+      entity_id:
+      - input_text.doorbell_last_name
+      - input_text.doorbell_last_description
+    data:
+      value: ''
   - alias: Take a Camera Snapshot
     action: camera.snapshot
     metadata: {}
@@ -2331,14 +2339,38 @@
         entity_id: light.shapes
       data:
         flash: short
-  - action: google_generative_ai_conversation.generate_content
-    data:
-      prompt: Very briefly describe what you see in this image from my doorbell camera.
-        Your message needs to be short to fit in a phone notification. Don't describe
-        buildings or cars.
-      image_filename: /config/www/doorbell/{{camera_snapshot}}
-    response_variable: generated_content
-    enabled: false
+  - alias: 'Person alert: describe the visitor with Gemini and update the alert'
+    if:
+    - condition: trigger
+      id:
+      - person
+    then:
+    - alias: Ask Gemini (never blocks the alert, which has already gone out)
+      action: ai_task.generate_data
+      continue_on_error: true
+      response_variable: gemini
+      data:
+        entity_id: ai_task.google_ai_task
+        task_name: doorbell description
+        instructions: 'Describe the person at my front door in one short sentence
+          of at most 15 words: what they wear (note a delivery uniform or hi-vis)
+          and what they carry or do. Do not describe buildings, the door, or cars.
+          Do not guess who they are.'
+        attachments:
+        - media_content_id: media-source://media_source/local/Doorbell/latest.jpg
+          media_content_type: image/jpeg
+    - if:
+      - condition: template
+        value_template: '{{ gemini is defined and gemini.data is defined and (gemini.data
+          | string | trim) != '''' }}'
+      then:
+      - action: input_text.set_value
+        target:
+          entity_id: input_text.doorbell_last_description
+        data:
+          value: '{{ gemini.data | string | trim | replace(''\n'','' '') | truncate(200,
+            True, ''…'') }}'
+      - action: script.doorbell_update_alert
   - alias: Wait 5 s
     delay:
       hours: 0
@@ -3634,36 +3666,14 @@
     variables:
       who: '{{ trigger.payload_json.name | string | replace(''_'', '' '') | title
         }}'
-  - alias: Replace the generic alert with one naming the person
-    action: notify.all_phones
+  - alias: Remember the name for this visit
+    action: input_text.set_value
+    target:
+      entity_id: input_text.doorbell_last_name
     data:
-      message: ' '
-      title: "{{ who }} is at the front door \U0001F464"
-      data:
-        ttl: 0
-        tag: doorbell
-        entity_id: camera.doorbell
-        notification_icon: mdi:doorbell-video
-        activationMode: foreground
-        channel: Doorbell
-        alert_once: true
-        clickAction: /lovelace/living-room
-        push:
-          interruption-level: passive
-          category: camera
-        actions:
-        - action: URI
-          title: Open
-          uri: /lovelace/camera
-          icon: sfsymbols:camera.viewfinder
-        - action: package
-          title: Package
-          icon: sfsymbols:cube.box
-        - action: be_there
-          title: Will be there
-          icon: sfsymbols:person.crop.circle.badge.checkmark
-        image: /local/cam_snapshot.jpg
-        icon_url: /local/images/emoji/bell.png
+      value: '{{ who }}'
+  - alias: Update the alert (name plus description if ready)
+    action: script.doorbell_update_alert
   - alias: Cool down for 30 s so one visit gives one named alert
     delay:
       seconds: 30
