@@ -562,6 +562,8 @@
           "paused": "mdi:pause-circle-outline",
           "door_locked": "mdi:lock",
           "add_laundry": "mdi:tshirt-crew-outline",
+          "anti_crease": "mdi:rotate-3d-variant",
+          "door_open": "mdi:door-open",
           "cycle_complete": "mdi:check-circle-outline",
           "unavailable": "mdi:washing-machine-alert"
         }

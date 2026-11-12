@@ -1483,6 +1483,8 @@
           "paused": "Paused",
           "door_locked": "Door locked",
           "add_laundry": "You may add laundry",
+          "anti_crease": "Anti-crease",
+          "door_open": "Door open",
           "cycle_complete": "Cycle complete",
           "unavailable": "Unavailable"
         },
