@@ -90,6 +90,8 @@ views:
     card:
       name: '[[[ const n = (hass.user && hass.user.name) || ''''; return n.indexOf(''Pavan'')
         === 0 ? ''Pat'' : n.split('' '')[0]; ]]]'
+      outdoor_humidity: sensor.hygrometer_humidity
+      outdoor_temperature: sensor.hygrometer_temperature
       show_icon: true
       show_message: true
       type: custom:greeting-card
@@ -134,6 +136,11 @@ views:
         users:
         - 74f7e2ffd3594037b1a2fc4de82d9fea
         - 714d34245b7d49a1ac5378907e9fa5bd
+      watch:
+      - switch.bed_warmer
+      - switch.bed_warmer_x
+      - switch.diffuser
+      - light.diffuser_light
     - buttons:
       - entity: light.bed_lamp
         icon: mdi:lightbulb-group
@@ -188,6 +195,10 @@ views:
         action: navigate
         navigation_path: /lovelace/living-room?anchor=livingroom
       type: custom:room-tile
+      watch:
+      - switch.couch_warmer
+      - switch.dragon_switch_1
+      - switch.dragon_x
     - buttons:
       - entity: light.kitchen_light
         icon: mdi:dome-light
@@ -278,7 +289,7 @@ views:
         text: '[[[ if((is(''input_boolean.bin'',''on'')&&Math.min(a(''sensor.black_bin'',''next_collection''),a(''sensor.blue_bin'',''next_collection''))<=1))
           return ''✔''; const b=a(''sensor.black_bin'',''next_collection''),l=a(''sensor.blue_bin'',''next_collection'');
           return (b==null||l==null)?'''':String(Math.min(b,l)); ]]]'
-        top: 66
+        top: 80
       buttons:
       - badge:
           color: '[[[ const n=a(''sensor.blue_bin'',''next_collection''); return n>5?''green'':n>2?''yellow'':''red'';
@@ -293,6 +304,7 @@ views:
         size: 50
         tap_action:
           action: more-info
+        top: 4
       - badge:
           color: '[[[ const n=a(''sensor.black_bin'',''next_collection''); return
             n>5?''green'':n>2?''yellow'':''red''; ]]]'
@@ -306,6 +318,15 @@ views:
         size: 55
         tap_action:
           action: more-info
+        top: 58
+      - entity: input_boolean.bin
+        hold_action:
+          action: more-info
+        icon: mdi:delete-restore
+        size: 44
+        tap_action:
+          action: toggle
+        top: 118
       color: disabled
       double_tap_action:
         action: toggle
@@ -317,6 +338,7 @@ views:
       hold_action:
         action: none
       icon: ''
+      indicator: false
       name: '[[[ const b=a(''sensor.black_bin'',''next_collection''),l=a(''sensor.blue_bin'',''next_collection'');
         return (b!=null&&l!=null)?(b<l?''Black Bin'':''Blue Bin''):''Bin Collection'';
         ]]]'
@@ -325,9 +347,10 @@ views:
         ]]]'
       picture_style: filter:brightness(1) contrast(3)
       secondary: '[[[ const b=a(''sensor.black_bin'',''next_collection''),l=a(''sensor.blue_bin'',''next_collection'');
-        if((is(''input_boolean.bin'',''on'')&&Math.min(a(''sensor.black_bin'',''next_collection''),a(''sensor.blue_bin'',''next_collection''))<=1))
-        return ''Bin is outside''; return (b!=null&&l!=null)?''on ''+(b<l?s(''sensor.black_bin''):s(''sensor.blue_bin'')):''Check
-        schedule''; ]]]'
+        if (b==null||l==null) return ''Check schedule''; const n=Math.min(b,l); if
+        (n<=1 && is(''input_boolean.bin'',''on'')) return ''Bin is outside''; if (n==0)
+        return ''Today!''; if (n==1) return ''Tomorrow!''; return ''on ''+(b<l?s(''sensor.black_bin''):s(''sensor.blue_bin''));
+        ]]]'
       shape_left: -30
       shape_top: 62
       tap_action:
@@ -391,13 +414,13 @@ views:
       card_mod:
         style: ".x {\n  left: auto !important;\n  right: 16px;\n  text-align: right;\n\
           }\n"
-      color: '[[[ const m={idle:''blue-grey'',starting:''blue'',delayed_start:''amber'',running:''cyan'',washing:''cyan'',door_locked:''cyan'',add_laundry:''cyan'',spinning:''purple'',rinsing:''blue'',drying:''deep-orange'',paused:''orange'',cycle_complete:''green''};
+      color: '[[[ const m={idle:''blue-grey'',starting:''blue'',delayed_start:''amber'',running:''cyan'',washing:''cyan'',door_locked:''cyan'',add_laundry:''teal'',anti_crease:''deep-purple'',door_open:''blue-grey'',spinning:''purple'',rinsing:''blue'',drying:''deep-orange'',paused:''orange'',cycle_complete:''green''};
         return m[s(''sensor.bob_machine_status'')]||''disabled''; ]]]'
       extras:
       - entity: sensor.bob_programme_end_time
         label: '[[[ return s(''sensor.bob_machine_status'')===''delayed_start'' ?
           ''Starts'' : ''Done at''; ]]]'
-        show: '[[[ const ms=s(''sensor.bob_machine_status''); if([''cycle_complete'',''off'',''idle'',''unavailable''].includes(ms))
+        show: '[[[ const ms=s(''sensor.bob_machine_status''); if([''cycle_complete'',''off'',''idle'',''unavailable'',''door_open'',''anti_crease''].includes(ms))
           return false; const t=s(ms===''delayed_start''?''sensor.bob_delay_start_time'':''sensor.bob_programme_end_time'');
           return !!t && t!==''unknown'' && t!==''unavailable''; ]]]'
         top: 70
@@ -406,7 +429,7 @@ views:
           {hour12:true, hour:''numeric'',minute:''2-digit''}); ]]]'
       - entity: sensor.bob_remaining
         label: Remaining
-        show: '[[[ return s(''sensor.bob_remaining'')!==''unavailable'' && ![''cycle_complete'',''off'',''unavailable''].includes(s(''sensor.bob_machine_status''));
+        show: '[[[ return s(''sensor.bob_remaining'')!==''unavailable'' && ![''cycle_complete'',''off'',''unavailable'',''door_open'',''anti_crease''].includes(s(''sensor.bob_machine_status''));
           ]]]'
         top: 122
         value: '[[[ let m=parseFloat(s(''sensor.bob_remaining'')); if(isNaN(m)) return
@@ -416,19 +439,19 @@ views:
       grid_options:
         columns: 6
         rows: auto
-      icon: '[[[ const m={off:''mdi:washing-machine-off'',idle:''mdi:washing-machine'',delayed_start:''phu:rooms-laundry-room'',starting:''mdi:washing-machine'',running:''mdi:washing-machine'',washing:''mdi:washing-machine'',rinsing:''mdi:dishwasher'',spinning:''fas:spinner'',drying:''mdi:tumble-dryer'',paused:''mdi:pause-box-outline'',door_locked:''mdi:washing-machine'',add_laundry:''mdi:washing-machine'',cycle_complete:''mdi:check-circle-outline'',unavailable:''mdi:washing-machine-alert''};
+      icon: '[[[ const m={off:''mdi:washing-machine-off'',idle:''mdi:washing-machine'',delayed_start:''phu:rooms-laundry-room'',starting:''mdi:washing-machine'',running:''mdi:washing-machine'',washing:''mdi:washing-machine'',rinsing:''mdi:dishwasher'',spinning:''fas:spinner'',drying:''mdi:tumble-dryer'',paused:''mdi:pause-box-outline'',door_locked:''mdi:washing-machine'',add_laundry:''mdi:tshirt-crew-outline'',anti_crease:''mdi:rotate-3d-variant'',door_open:''mdi:door-open'',cycle_complete:''mdi:check-circle-outline'',unavailable:''mdi:washing-machine-alert''};
         return m[s(''sensor.bob_machine_status'')]||''mdi:washing-machine-alert'';
         ]]]'
       name: Washing Machine
-      picture: '[[[ const m={running:''washing'',washing:''washing'',door_locked:''washing'',add_laundry:''washing'',rinsing:''rinsing'',spinning:''spinning'',drying:''drying'',cycle_complete:''cycle_complete'',paused:''paused'',delayed_start:''delayed_start''};
+      picture: '[[[ const m={running:''washing'',washing:''washing'',door_locked:''washing'',add_laundry:''add_laundry'',anti_crease:''anti_crease'',door_open:''door_open'',rinsing:''rinsing'',spinning:''spinning'',drying:''drying'',cycle_complete:''cycle_complete'',paused:''paused'',delayed_start:''delayed_start''};
         const f=m[s(''sensor.bob_machine_status'')]; return f ? ''/local/images/washer/''+f+''.svg?v=1''
         : ''''; ]]]'
       picture_style: object-fit:contain
-      secondary: '[[[ const m={off:''Off'',idle:''Idle'',delayed_start:''Delayed Start'',starting:''Starting'',running:''Washing'',washing:''Washing'',rinsing:''Rinsing'',spinning:''Spinning'',drying:''Drying'',paused:''Paused'',door_locked:''Washing'',add_laundry:''Washing'',cycle_complete:''Cycle
+      secondary: '[[[ const m={off:''Off'',idle:''Idle'',delayed_start:''Delayed Start'',starting:''Starting'',running:''Washing'',washing:''Washing'',rinsing:''Rinsing'',spinning:''Spinning'',drying:''Drying'',paused:''Paused'',door_locked:''Washing'',add_laundry:''Add
+        Laundry'',anti_crease:''Anti-Crease'',door_open:''Door Open'',cycle_complete:''Cycle
         Complete'',unavailable:''Status Unknown''}; const st=m[s(''sensor.bob_machine_status'')]||''Status
         Unknown''; const p=s(''sensor.bob_programme''); if([''off'',''idle'',''unavailable''].includes(s(''sensor.bob_machine_status''))||!p||p===''unknown''||p===''unavailable'')
-        return st; const n=p.replace(''program_'','''').replace(/_/g,'' ''); return
-        st+'' · ''+n.charAt(0).toUpperCase()+n.slice(1); ]]]'
+        return st; return st+'' · ''+s(''sensor.washer_programme_name''); ]]]'
       tap_action:
         action: navigate
         navigation_path: /lovelace/utilities
@@ -469,7 +492,8 @@ views:
         : ''''; ]]]'
       picture_style: object-fit:contain
       secondary: '[[[ const w=o(''switch.heating''); return w?''Turned ''+w.state+''
-        at ''+new Date(w.last_changed).toLocaleTimeString(''en-IE'',{hour:''numeric'',minute:''2-digit'',hour12:true}).toUpperCase():'''';
+        at ''+new Date((a(''sensor.last_real_change'',''times'')||{})[''switch.heating'']
+        || w.last_changed).toLocaleTimeString(''en-IE'',{hour:''numeric'',minute:''2-digit'',hour12:true}).toUpperCase():'''';
         ]]]'
       secondary_size: 12
       tap_action:
@@ -509,7 +533,8 @@ views:
         : ''''; ]]]'
       picture_style: object-fit:contain
       secondary: '[[[ const w=o(''switch.heating''); return w?''Turned ''+w.state+''
-        at ''+new Date(w.last_changed).toLocaleTimeString(''en-IE'',{hour:''numeric'',minute:''2-digit'',hour12:true}).toUpperCase():'''';
+        at ''+new Date((a(''sensor.last_real_change'',''times'')||{})[''switch.heating'']
+        || w.last_changed).toLocaleTimeString(''en-IE'',{hour:''numeric'',minute:''2-digit'',hour12:true}).toUpperCase():'''';
         ]]]'
       secondary_size: 12
       tap_action:
@@ -812,7 +837,7 @@ views:
       hold_action:
         action: more-info
       icon: mdi:robot-vacuum
-      name: RoboVac
+      name: Bob
       picture: '[[[ const v=s(''vacuum.robovac''); const b=parseInt(s(''sensor.robovac_battery''))||0;
         if(v===''cleaning'') return ''/local/images/robovac/robovac-cleaning.svg?v=1'';
         if(v===''returning'') return ''/local/images/robovac/robovac-returning.svg?v=1'';
@@ -1047,10 +1072,19 @@ views:
             type: custom:glass-media-card
         - domain: media_player
           integration: androidtv
+          not:
+            entity_id: media_player.fire_tv
           options:
             entity: this.entity_id
             icon: mdi:google
             type: custom:glass-media-card
+            wide: true
+        - entity_id: media_player.fire_tv
+          options:
+            entity: this.entity_id
+            icon: cbi:firetv
+            type: custom:glass-media-card
+            wide: true
         - domain: media_player
           integration: androidtv_remote
           options:
@@ -1107,8 +1141,9 @@ views:
                 \ 8px;\n  border-radius: 8px;\n  background: {{ '#c0392b' if ns.s\
                 \ else '#27ae60' }};\n  color: white;\n  opacity: 0.9;\n  z-index:\
                 \ 10;\n}\n@media (max-width: 700px) {\n  ha-card::after {\n    top:\
-                \ 22px;\n    right: 104px;\n    bottom: auto;\n    left: auto;\n \
-                \   max-width: 40%;\n    font-size: 9px;\n    padding: 2px 6px;\n\
+                \ 102px;\n    left: 194px;\n    right: auto;\n    bottom: auto;\n\
+                \    max-width: calc(100% - 218px);\n    white-space: normal;\n  \
+                \  font-size: 9px;\n    line-height: 1.25;\n    padding: 2px 6px;\n\
                 \  }\n}\n"
             entity: this.entity_id
             idle_backdrop_cycle: true
@@ -1471,22 +1506,29 @@ views:
     type: horizontal-stack
     view_layout:
       column: 1
-  - enableModeChange: true
-    entities:
-    - entity: calendar.personal
-      name: Personal
-    - entity: calendar.tablets
-      icon: mdi:pill
-      maxDaysToShow: 1
-      name: Tablets
-      showMultiDay: false
-    - entity: calendar.formula1
-    hideFinishedEvents: true
-    maxDaysToShow: 7
-    name: Calendar
-    showDate: true
-    showDeclined: false
-    type: custom:atomic-calendar-revive
+  - cards:
+    - days_to_show: 3
+      entities:
+      - color: var(--primary-color)
+        entity: calendar.personal
+        label: mdi:account
+      - color: '#e10600'
+        entity: calendar.formula1
+        label: mdi:flag-checkered
+      show_past_events: false
+      title: Calendar
+      type: custom:calendar-card-pro
+    - days_to_show: 14
+      entities:
+      - color: '#9e9e9e'
+        entity: calendar.black_bin
+        label: mdi:trash-can
+      - color: '#2196f3'
+        entity: calendar.blue_bin
+        label: mdi:trash-can
+      show_past_events: false
+      type: custom:calendar-card-pro
+    type: vertical-stack
     view_layout:
       column: 1
   - cards:
@@ -3039,11 +3081,234 @@ views:
     type: vertical-stack
     view_layout:
       column: 1
+  - custom_actions:
+    - icon: mdi:power
+      name: power
+      styles: ":host {\n  --icon-color: crimson;\n}"
+      tap_action:
+        action: key
+        key: KEY_POWER
+      type: button
+    - autofill_entity_id: true
+      haptics: false
+      icon: ''
+      label: '{{ (value * 100 ) /4 | int }}'
+      name: slider
+      range:
+      - 0
+      - 1
+      step: 0.01
+      styles: ":host {\n  height: 30px;\n  border-radius: 30px;\n  --color: #4285F4;\n\
+        \  --background-height: 30px;\n  --thumb-border-radius: 30px;\n}\n.icon {\n\
+        \  display: none;\n}\n.label {\n  display: none !important;\n\n  {% if not\
+        \ states(config.entity, 'on') %}\n  display: none;\n  {% endif %}\n  transform:\
+        \ var(--icon-transform);\n  font-size: 14px;\n  color: var(--primary-text-color);\n\
+        }\n.tooltip {\n  display: none;\n}"
+      tap_action:
+        action: perform-action
+        data:
+          volume_level: '{{ value | float }}'
+        perform_action: media_player.volume_set
+      type: slider
+      value_attribute: volume_level
+      value_from_hass_delay: 100
+      vertical: false
+    - icon: ''
+      label: OK
+      name: center
+      styles: ":host {\n  --icon-color: var(--primary-text-color);\n  width: 76px;\n\
+        \  height: 76px;\n  margin: 0;\n  padding: 0;\n  border-radius: 50%;\n  background:\
+        \ rgba(255,255,255,0.10);\n  border: 1px solid rgba(255,255,255,0.14);\n \
+        \ position: relative;\n}\n.icon {\n  display: none !important;\n}\n.label\
+        \ {\n  position: absolute !important;\n  inset: 0;\n  width: 100% !important;\n\
+        \  height: 100% !important;\n  display: flex !important;\n  align-items: center;\n\
+        \  justify-content: center;\n  line-height: 1;\n  font-size: 18px;\n  font-weight:\
+        \ 600;\n  color: var(--primary-text-color);\n}"
+      tap_action:
+        action: key
+        key: KEY_ENTER
+      type: button
+    - hold_action:
+        action: repeat
+      icon: mdi:chevron-up
+      name: up
+      styles: ":host {\n  --icon-color: var(--secondary-text-color);\n  --size: 34px;\n\
+        \  width: 64px;\n  height: 64px;\n  margin: 0;\n  padding: 0;\n  border-radius:\
+        \ 50%;\n  background: rgba(255,255,255,0.05);\n  border: 1px solid rgba(255,255,255,0.08);\n\
+        }\n.label {\n  display: none !important;\n}\n.icon {\n  position: absolute\
+        \ !important;\n  inset: 0;\n  width: 100% !important;\n  height: 100% !important;\n\
+        \  aspect-ratio: auto !important;\n  display: flex !important;\n  align-items:\
+        \ center;\n  justify-content: center;\n}"
+      tap_action:
+        action: key
+        key: KEY_UP
+      type: button
+    - hold_action:
+        action: repeat
+      icon: mdi:chevron-down
+      name: down
+      styles: ":host {\n  --icon-color: var(--secondary-text-color);\n  --size: 34px;\n\
+        \  width: 64px;\n  height: 64px;\n  margin: 0;\n  padding: 0;\n  border-radius:\
+        \ 50%;\n  background: rgba(255,255,255,0.05);\n  border: 1px solid rgba(255,255,255,0.08);\n\
+        }\n.label {\n  display: none !important;\n}\n.icon {\n  position: absolute\
+        \ !important;\n  inset: 0;\n  width: 100% !important;\n  height: 100% !important;\n\
+        \  aspect-ratio: auto !important;\n  display: flex !important;\n  align-items:\
+        \ center;\n  justify-content: center;\n}"
+      tap_action:
+        action: key
+        key: KEY_DOWN
+      type: button
+    - hold_action:
+        action: repeat
+      icon: mdi:chevron-left
+      name: left
+      styles: ":host {\n  --icon-color: var(--secondary-text-color);\n  --size: 34px;\n\
+        \  width: 64px;\n  height: 64px;\n  margin: 0;\n  padding: 0;\n  border-radius:\
+        \ 50%;\n  background: rgba(255,255,255,0.05);\n  border: 1px solid rgba(255,255,255,0.08);\n\
+        }\n.label {\n  display: none !important;\n}\n.icon {\n  position: absolute\
+        \ !important;\n  inset: 0;\n  width: 100% !important;\n  height: 100% !important;\n\
+        \  aspect-ratio: auto !important;\n  display: flex !important;\n  align-items:\
+        \ center;\n  justify-content: center;\n}"
+      tap_action:
+        action: key
+        key: KEY_LEFT
+      type: button
+    - hold_action:
+        action: repeat
+      icon: mdi:chevron-right
+      name: right
+      styles: ":host {\n  --icon-color: var(--secondary-text-color);\n  --size: 34px;\n\
+        \  width: 64px;\n  height: 64px;\n  margin: 0;\n  padding: 0;\n  border-radius:\
+        \ 50%;\n  background: rgba(255,255,255,0.05);\n  border: 1px solid rgba(255,255,255,0.08);\n\
+        }\n.label {\n  display: none !important;\n}\n.icon {\n  position: absolute\
+        \ !important;\n  inset: 0;\n  width: 100% !important;\n  height: 100% !important;\n\
+        \  aspect-ratio: auto !important;\n  display: flex !important;\n  align-items:\
+        \ center;\n  justify-content: center;\n}"
+      tap_action:
+        action: key
+        key: KEY_RIGHT
+      type: button
+    - icon: '{{ ''mdi:volume-off'' if state_attr(''media_player.samsung_4_series_32_ue32t4300akxxu'',''is_volume_muted'')
+        else ''mdi:volume-high'' }}'
+      name: mute
+      styles: ":host {\n  --icon-color: {{ 'crimson' if state_attr('media_player.samsung_4_series_32_ue32t4300akxxu','is_volume_muted')\
+        \ else 'var(--secondary-text-color)' }};\n  --size: 22px;\n  width: 54px;\n\
+        \  height: 54px;\n  margin: 0;\n  padding: 0;\n  border-radius: 50%;\n  background:\
+        \ rgba(255,255,255,0.05);\n  border: 1px solid rgba(255,255,255,0.08);\n}\n\
+        .label {\n  display: none !important;\n}\n.icon {\n  position: absolute !important;\n\
+        \  inset: 0;\n  width: 100% !important;\n  height: 100% !important;\n  aspect-ratio:\
+        \ auto !important;\n  display: flex !important;\n  align-items: center;\n\
+        \  justify-content: center;\n}"
+      tap_action:
+        action: key
+        key: KEY_MUTE
+      type: button
+    - icon: mdi:arrow-left
+      name: back
+      styles: ":host {\n  --icon-color: var(--secondary-text-color);\n  --size: 22px;\n\
+        \  width: 54px;\n  height: 54px;\n  margin: 0;\n  padding: 0;\n  border-radius:\
+        \ 50%;\n  background: rgba(255,255,255,0.05);\n  border: 1px solid rgba(255,255,255,0.08);\n\
+        }\n.label {\n  display: none !important;\n}\n.icon {\n  position: absolute\
+        \ !important;\n  inset: 0;\n  width: 100% !important;\n  height: 100% !important;\n\
+        \  aspect-ratio: auto !important;\n  display: flex !important;\n  align-items:\
+        \ center;\n  justify-content: center;\n}"
+      tap_action:
+        action: key
+        key: KEY_RETURN
+      type: button
+    - icon: mdi:home-outline
+      name: home
+      styles: ":host {\n  --icon-color: var(--secondary-text-color);\n  --size: 22px;\n\
+        \  width: 54px;\n  height: 54px;\n  margin: 0;\n  padding: 0;\n  border-radius:\
+        \ 50%;\n  background: rgba(255,255,255,0.05);\n  border: 1px solid rgba(255,255,255,0.08);\n\
+        }\n.label {\n  display: none !important;\n}\n.icon {\n  position: absolute\
+        \ !important;\n  inset: 0;\n  width: 100% !important;\n  height: 100% !important;\n\
+        \  aspect-ratio: auto !important;\n  display: flex !important;\n  align-items:\
+        \ center;\n  justify-content: center;\n}"
+      tap_action:
+        action: key
+        key: KEY_HOME
+      type: button
+    - icon: mdi:menu
+      name: menu
+      styles: ":host {\n  --icon-color: var(--secondary-text-color);\n  --size: 22px;\n\
+        \  width: 54px;\n  height: 54px;\n  margin: 0;\n  padding: 0;\n  border-radius:\
+        \ 50%;\n  background: rgba(255,255,255,0.05);\n  border: 1px solid rgba(255,255,255,0.08);\n\
+        }\n.label {\n  display: none !important;\n}\n.icon {\n  position: absolute\
+        \ !important;\n  inset: 0;\n  width: 100% !important;\n  height: 100% !important;\n\
+        \  aspect-ratio: auto !important;\n  display: flex !important;\n  align-items:\
+        \ center;\n  justify-content: center;\n}"
+      tap_action:
+        action: key
+        key: KEY_MENU
+      type: button
+    - icon: mdi:import
+      name: source
+      styles: ":host {\n  --icon-color: var(--secondary-text-color);\n  --size: 22px;\n\
+        \  width: 54px;\n  height: 54px;\n  margin: 0;\n  padding: 0;\n  border-radius:\
+        \ 50%;\n  background: rgba(255,255,255,0.05);\n  border: 1px solid rgba(255,255,255,0.08);\n\
+        }\n.label {\n  display: none !important;\n}\n.icon {\n  position: absolute\
+        \ !important;\n  inset: 0;\n  width: 100% !important;\n  height: 100% !important;\n\
+        \  aspect-ratio: auto !important;\n  display: flex !important;\n  align-items:\
+        \ center;\n  justify-content: center;\n}"
+      tap_action:
+        action: key
+        key: KEY_SOURCE
+      type: button
+    - icon: mdi:information-outline
+      name: info
+      styles: ":host {\n  --icon-color: var(--secondary-text-color);\n  --size: 22px;\n\
+        \  width: 54px;\n  height: 54px;\n  margin: 0;\n  padding: 0;\n  border-radius:\
+        \ 50%;\n  background: rgba(255,255,255,0.05);\n  border: 1px solid rgba(255,255,255,0.08);\n\
+        }\n.label {\n  display: none !important;\n}\n.icon {\n  position: absolute\
+        \ !important;\n  inset: 0;\n  width: 100% !important;\n  height: 100% !important;\n\
+        \  aspect-ratio: auto !important;\n  display: flex !important;\n  align-items:\
+        \ center;\n  justify-content: center;\n}"
+      tap_action:
+        action: key
+        key: KEY_INFO
+      type: button
+    - icon: mdi:play-pause
+      name: play_pause
+      styles: ":host {\n  --icon-color: var(--secondary-text-color);\n  --size: 22px;\n\
+        \  width: 54px;\n  height: 54px;\n  margin: 0;\n  padding: 0;\n  border-radius:\
+        \ 50%;\n  background: rgba(255,255,255,0.05);\n  border: 1px solid rgba(255,255,255,0.08);\n\
+        }\n.label {\n  display: none !important;\n}\n.icon {\n  position: absolute\
+        \ !important;\n  inset: 0;\n  width: 100% !important;\n  height: 100% !important;\n\
+        \  aspect-ratio: auto !important;\n  display: flex !important;\n  align-items:\
+        \ center;\n  justify-content: center;\n}"
+      tap_action:
+        action: perform-action
+        perform_action: media_player.media_play_pause
+        target:
+          entity_id: media_player.samsung_4_series_32_ue32t4300akxxu
+      type: button
+    media_player_id: media_player.samsung_4_series_32_ue32t4300akxxu
+    platform: Samsung TV
+    remote_id: remote.samsung_4_series_32_ue32t4300akxxu
+    rows:
+    - - power
+      - slider
+      - mute
+    - - navigation_buttons
+    - - back
+      - home
+      - menu
+    - - source
+      - play_pause
+      - info
+    styles: "#row-2 {\n  justify-content: center;\n}\n#row-3, #row-4 {\n  justify-content:\
+      \ center;\n  gap: 34px;\n  margin-top: 14px;\n}\nremote-button {\n  --size:\
+      \ 35px;\n  color: var(--secondary-text-color);\n}\n"
+    type: custom:universal-remote-card
+    view_layout:
+      column: 1
   icon: mdi:face-woman-profile
   path: hilary
   type: custom:vertical-layout
   visible:
   - user: 96bee73da18e43568e741fe2b7950fe0
+  - user: 74f7e2ffd3594037b1a2fc4de82d9fea
 - cards:
   - anchor_id: home
     offset: -50
@@ -3055,72 +3320,130 @@ views:
     type: custom:mushroom-chips-card
   - card:
       alignment: center
+      card_mod:
+        style:
+          .: "ha-card {\n  --chip-height: 24px;\n  --chip-font-size: 11px;\n  --chip-padding:\
+            \ 0 8px;\n  --chip-spacing: 4px;\n  --chip-icon-size: 15px;\n}\n"
+          mushroom-template-chip:nth-child(1)$: "ha-card {\n  background: {{ 'rgba(255,87,34,0.30)'\
+            \ if is_state('binary_sensor.porch_motion_occupancy','on') else 'rgba(255,87,34,0.12)'\
+            \ }} !important;\n}\n"
+          mushroom-template-chip:nth-child(2)$: "ha-card {\n  background: {{ 'rgba(0,150,136,0.30)'\
+            \ if is_state('binary_sensor.hallway_motion_occupancy','on') else 'rgba(0,150,136,0.12)'\
+            \ }} !important;\n}\n"
+          mushroom-template-chip:nth-child(3)$: "ha-card {\n  background: {{ 'rgba(255,235,59,0.30)'\
+            \ if is_state('binary_sensor.living_room_presence','on') else 'rgba(255,235,59,0.12)'\
+            \ }} !important;\n}\n"
+          mushroom-template-chip:nth-child(4)$: "ha-card {\n  background: {{ 'rgba(255,152,0,0.30)'\
+            \ if is_state('binary_sensor.couch_presence','on') else 'rgba(255,152,0,0.12)'\
+            \ }} !important;\n}\n"
+          mushroom-template-chip:nth-child(5)$: "ha-card {\n  background: {{ 'rgba(0,150,136,0.30)'\
+            \ if is_state('binary_sensor.kitchen_presence','on') else 'rgba(0,150,136,0.12)'\
+            \ }} !important;\n}\n"
+          mushroom-template-chip:nth-child(7)$: "ha-card {\n  background: {{ 'rgba(244,67,54,0.30)'\
+            \ if is_state('binary_sensor.back_door_contact','on') else 'rgba(244,67,54,0.12)'\
+            \ }} !important;\n}\n"
       chips:
-      - content_info: last-changed
+      - content: '{{ relative_time(as_datetime((state_attr(''sensor.last_real_change'',''times'')
+          or {}).get(''binary_sensor.porch_motion_occupancy'') or states.binary_sensor.porch_motion_occupancy.last_changed.isoformat()))
+          }} ago'
         entity: binary_sensor.porch_motion_occupancy
+        hold_action:
+          action: more-info
         icon: mdi:doorbell-video
-        icon_color: deep-orange
-        name: Porch
-        type: entity
-      - content_info: last-changed
+        icon_color: '{{ ''255,87,34'' if is_state(entity, ''on'') else ''255,179,156''
+          }}'
+        tap_action:
+          action: more-info
+        type: template
+      - content: '{{ relative_time(as_datetime((state_attr(''sensor.last_real_change'',''times'')
+          or {}).get(''binary_sensor.hallway_motion_occupancy'') or states.binary_sensor.hallway_motion_occupancy.last_changed.isoformat()))
+          }} ago'
         entity: binary_sensor.hallway_motion_occupancy
+        hold_action:
+          action: more-info
         icon: mdi:coat-rack
-        icon_color: teal
-        name: Hallway
-        type: entity
-      - content_info: last-changed
+        icon_color: '{{ ''0,150,136'' if is_state(entity, ''on'') else ''140,208,201''
+          }}'
+        tap_action:
+          action: more-info
+        type: template
+      - content: '{{ relative_time(as_datetime((state_attr(''sensor.last_real_change'',''times'')
+          or {}).get(''binary_sensor.living_room_presence'') or states.binary_sensor.living_room_presence.last_changed.isoformat()))
+          }} ago'
         entity: binary_sensor.living_room_presence
+        hold_action:
+          action: more-info
         icon: mdi:television
-        icon_color: yellow
-        name: Living Room
-        type: entity
-      - content_info: last-changed
+        icon_color: '{{ ''255,235,59'' if is_state(entity, ''on'') else ''255,246,167''
+          }}'
+        tap_action:
+          action: more-info
+        type: template
+      - content: '{{ relative_time(as_datetime((state_attr(''sensor.last_real_change'',''times'')
+          or {}).get(''binary_sensor.couch_presence'') or states.binary_sensor.couch_presence.last_changed.isoformat()))
+          }} ago'
         entity: binary_sensor.couch_presence
+        hold_action:
+          action: more-info
         icon: mdi:sofa-outline
-        icon_color: orange
-        name: Couch
-        type: entity
-      - content_info: last-changed
+        icon_color: '{{ ''255,152,0'' if is_state(entity, ''on'') else ''255,209,140''
+          }}'
+        tap_action:
+          action: more-info
+        type: template
+      - content: '{{ relative_time(as_datetime((state_attr(''sensor.last_real_change'',''times'')
+          or {}).get(''binary_sensor.kitchen_presence'') or states.binary_sensor.kitchen_presence.last_changed.isoformat()))
+          }} ago'
         entity: binary_sensor.kitchen_presence
+        hold_action:
+          action: more-info
         icon: mdi:countertop-outline
-        icon_color: teal
-        name: Kitchen
-        type: entity
+        icon_color: '{{ ''0,150,136'' if is_state(entity, ''on'') else ''140,208,201''
+          }}'
+        tap_action:
+          action: more-info
+        type: template
       - entity: sensor.living_room_temperature
         icon_color: blue
         type: entity
         use_entity_picture: false
-      - entity: binary_sensor.back_door_contact
-        icon_color: red
-        type: entity
-      - chip:
-          entity: weather.home
-          show_conditions: true
-          show_temperature: true
-          type: weather
-        conditions:
-        - condition: user
-          users:
-          - 03fac29e97844166b40187a8b4c09ded
-          - e07f5c6a76fd4886ad5d945ed22f6d4b
-        type: conditional
+      - content: '{{ ''Open'' if is_state(entity, ''on'') else ''Closed'' }}'
+        entity: binary_sensor.back_door_contact
+        icon: '{{ ''mdi:door-open'' if is_state(entity, ''on'') else ''mdi:door-closed''
+          }}'
+        icon_color: '{{ ''244,67,54'' if is_state(entity, ''on'') else ''250,170,165''
+          }}'
+        tap_action:
+          action: more-info
+        type: template
       type: custom:mushroom-chips-card
     conditions:
     - condition: user
       users:
-      - e07f5c6a76fd4886ad5d945ed22f6d4b
-      - 03fac29e97844166b40187a8b4c09ded
       - 74f7e2ffd3594037b1a2fc4de82d9fea
-      - 6008aa4d06f8495bb08003a8a0382285
+      - 96bee73da18e43568e741fe2b7950fe0
+      - 3bfda48930b040d882b7d5cf1566573a
     type: conditional
   - cards:
     - aspect_ratio: 1/1
+      card_mod:
+        style: 'ha-card { border: none !important; box-shadow: none !important; background:
+          transparent !important; }'
       styles:
         card:
         - --ha-card-background: transparent;
         - --ha-card-box-shadow: none;
+        - --ha-card-border-width: 0px
+        - border: none !important
+        - box-shadow: none !important
+        - background: transparent !important
       type: custom:button-card
     - aspect_ratio: 1/1
+      card_mod:
+        style: 'ha-card { border: none !important; box-shadow: none !important; background:
+          transparent !important; }'
+      double_tap_action:
+        action: none
       entity: person.pavanthanuj
       hold_action:
         action: none
@@ -3144,6 +3467,10 @@ views:
         card:
         - --ha-card-background: transparent;
         - --ha-card-box-shadow: none;
+        - --ha-card-border-width: 0px
+        - border: none !important
+        - box-shadow: none !important
+        - background: transparent !important
         entity_picture:
         - clip-path: circle()
         - width: 80%
@@ -3151,22 +3478,71 @@ views:
         - border-radius: 900px
         - opacity: 1
       tap_action:
-        action: more-info
+        action: none
       type: custom:button-card
     - aspect_ratio: 1/1
+      card_mod:
+        style: 'ha-card { border: none !important; box-shadow: none !important; background:
+          transparent !important; }'
+      double_tap_action:
+        action: none
+      entity: person.hilary
+      hold_action:
+        action: none
+      show_entity_picture: true
+      show_name: false
+      state:
+      - styles:
+          entity_picture:
+          - border-color: '#77c66e'
+        value: home
+      - styles:
+          entity_picture:
+          - border-color: '#EF4F1A'
+          - opacity: 0.8
+        value: not_home
+      - styles:
+          entity_picture:
+          - border-color: deepskyblue
+        value: Work
       styles:
         card:
         - --ha-card-background: transparent;
         - --ha-card-box-shadow: none;
+        - --ha-card-border-width: 0px
+        - border: none !important
+        - box-shadow: none !important
+        - background: transparent !important
+        entity_picture:
+        - clip-path: circle()
+        - width: 80%
+        - border: 5px solid
+        - border-radius: 900px
+        - opacity: 1
+      tap_action:
+        action: none
       type: custom:button-card
-    columns: 3
-    square: true
-    type: grid
+    - aspect_ratio: 1/1
+      card_mod:
+        style: 'ha-card { border: none !important; box-shadow: none !important; background:
+          transparent !important; }'
+      styles:
+        card:
+        - --ha-card-background: transparent;
+        - --ha-card-box-shadow: none;
+        - --ha-card-border-width: 0px
+        - border: none !important
+        - box-shadow: none !important
+        - background: transparent !important
+      type: custom:button-card
+    type: horizontal-stack
     view_layout:
       column: 1
     visibility:
     - condition: user
-      users: []
+      users:
+      - 74f7e2ffd3594037b1a2fc4de82d9fea
+      - 96bee73da18e43568e741fe2b7950fe0
   - card:
       cards:
       - alignment: center
@@ -3314,7 +3690,8 @@ views:
               icon_color: '{{ iif(is_state(''switch.heating'', ''on''), ''red'', ''disabled'')}}'
               multiline_secondary: false
               primary: Heating
-              secondary: Turned {{states.switch.heating.state}} at {{(as_timestamp(states.switch.heating.last_changed)
+              secondary: Turned {{states.switch.heating.state}} at {{(as_timestamp((state_attr('sensor.last_real_change','times')
+                or {}).get('switch.heating') or states.switch.heating.last_changed)
                 | timestamp_custom('%-I:%M %p'))}}
               type: custom:mushroom-legacy-template-card
           time:
@@ -3411,7 +3788,8 @@ views:
       primary: Boiler
       secondary: 'Turned {{states.switch.boiler.state}} at
 
-        {{(as_timestamp(states.switch.boiler.last_changed) |
+        {{(as_timestamp((state_attr(''sensor.last_real_change'',''times'') or {}).get(''switch.boiler'')
+        or states.switch.boiler.last_changed) |
 
         timestamp_custom(''%-I:%M %p''))}}'
       type: custom:mushroom-legacy-template-card
@@ -3507,8 +3885,9 @@ views:
             icon_color: '{{ iif(is_state(''switch.kettle'', ''on''), ''red'', ''disabled'')}}'
             multiline_secondary: false
             primary: Kettle
-            secondary: Turned {{states.switch.kettle.state}} at {{(as_timestamp(states.switch.kettle.last_changed)
-              | timestamp_custom('%-I:%M %p'))}}
+            secondary: Turned {{states.switch.kettle.state}} at {{(as_timestamp((state_attr('sensor.last_real_change','times')
+              or {}).get('switch.kettle') or states.switch.kettle.last_changed) |
+              timestamp_custom('%-I:%M %p'))}}
             type: custom:mushroom-legacy-template-card
         temp:
           card:
@@ -3555,7 +3934,8 @@ views:
       icon: mdi:dome-light
       icon_color: '{{ iif(is_state(''light.kitchen_light'', ''on''), ''lime'', ''disabled'')}}'
       primary: Kitchen Light
-      secondary: Turned {{states.light.kitchen_light.state}} at {{(as_timestamp(states.light.kitchen_light.last_changed)
+      secondary: Turned {{states.light.kitchen_light.state}} at {{(as_timestamp((state_attr('sensor.last_real_change','times')
+        or {}).get('light.kitchen_light') or states.light.kitchen_light.last_changed)
         |timestamp_custom('%-I:%M %p'))}}
       type: custom:mushroom-legacy-template-card
     - cards:
@@ -3569,7 +3949,8 @@ views:
         icon_color: '{{ iif(is_state(''light.backyard_lights'', ''on''), ''deep-orange'',
           ''disabled'')}}'
         primary: Backyard Lights
-        secondary: Turned {{states.light.backyard_lights.state}} at {{(as_timestamp(states.light.backyard_lights.last_changed)
+        secondary: Turned {{states.light.backyard_lights.state}} at {{(as_timestamp((state_attr('sensor.last_real_change','times')
+          or {}).get('light.backyard_lights') or states.light.backyard_lights.last_changed)
           |timestamp_custom('%-I:%M %p'))}}
         type: custom:mushroom-legacy-template-card
       - badge_icon: ''
@@ -3581,7 +3962,8 @@ views:
         icon_color: '{{ iif(is_state(''light.alleyway_lights'', ''on''), ''yellow'',
           ''disabled'')}}'
         primary: Alleyway Lights
-        secondary: Turned {{states.light.alleyway_lights.state}} at {{(as_timestamp(states.light.alleyway_lights.last_changed)
+        secondary: Turned {{states.light.alleyway_lights.state}} at {{(as_timestamp((state_attr('sensor.last_real_change','times')
+          or {}).get('light.alleyway_lights') or states.light.alleyway_lights.last_changed)
           |timestamp_custom('%-I:%M %p'))}}
         type: custom:mushroom-legacy-template-card
       type: horizontal-stack
@@ -3649,10 +4031,11 @@ views:
         type: template
       type: custom:mushroom-chips-card
     - card_mod:
-        style: "ha-card {\n  {% set r = state_attr(config.entity, 'rgb_color')[0]\
-          \ %}\n  {% set g = state_attr(config.entity, 'rgb_color')[1] %}\n  {% set\
-          \ b = state_attr(config.entity, 'rgb_color')[2] %}\n  background: rgba(\
-          \ {{r}}, {{g}}, {{b}}, 0.2 );\n}\n"
+        style: "ha-card {\n  {% set rgb = state_attr(config.entity, 'rgb_color') %}\n\
+          \  {% if is_state(config.entity, 'on') %}\n    {% if rgb %}\n  background:\
+          \ rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.22);\n    {% else %}\n\
+          \  background: rgba(255, 170, 60, 0.2);\n    {% endif %}\n  {% endif %}\n\
+          }\n"
       collapsible_controls: true
       entity: light.living_room_lamp
       icon: mdi:lamp
@@ -3664,8 +4047,11 @@ views:
       type: custom:mushroom-light-card
       use_light_color: true
     - card_mod:
-        style: "ha-card {\n  {% if is_state(config.entity, 'on') %}\n     background:\
-          \ rgba(255, 155, 0, 0.2);\n  {%- else -%}\n  {%- endif %}\n}\n"
+        style: "ha-card {\n  {% set rgb = state_attr(config.entity, 'rgb_color') %}\n\
+          \  {% if is_state(config.entity, 'on') %}\n    {% if rgb %}\n  background:\
+          \ rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.22);\n    {% else %}\n\
+          \  background: rgba(255, 170, 60, 0.2);\n    {% endif %}\n  {% endif %}\n\
+          }\n"
       collapsible_controls: true
       entity: light.chandelier
       icon: mdi:chandelier
@@ -3673,11 +4059,13 @@ views:
       secondary_info: last-changed
       show_brightness_control: true
       type: custom:mushroom-light-card
+      use_light_color: true
     - card_mod:
-        style: "ha-card {\n  {% set r = state_attr(config.entity, 'rgb_color')[0]\
-          \ %}\n  {% set g = state_attr(config.entity, 'rgb_color')[1] %}\n  {% set\
-          \ b = state_attr(config.entity, 'rgb_color')[2] %}\n  background: rgba(\
-          \ {{r}}, {{g}}, {{b}}, 0.2 );\n}\n"
+        style: "ha-card {\n  {% set rgb = state_attr(config.entity, 'rgb_color') %}\n\
+          \  {% if is_state(config.entity, 'on') %}\n    {% if rgb %}\n  background:\
+          \ rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.22);\n    {% else %}\n\
+          \  background: rgba(255, 170, 60, 0.2);\n    {% endif %}\n  {% endif %}\n\
+          }\n"
       collapsible_controls: true
       entity: light.led_strip
       icon: mdi:led-strip-variant
@@ -4112,7 +4500,8 @@ views:
       primary: Chandelier
       secondary: 'Turned {{states.light.hallway_chandelier.state}} at
 
-        {{(as_timestamp(states.light.hallway_chandelier.last_changed) |
+        {{(as_timestamp((state_attr(''sensor.last_real_change'',''times'') or {}).get(''light.hallway_chandelier'')
+        or states.light.hallway_chandelier.last_changed) |
 
         timestamp_custom(''%-I:%M %p''))}}'
       type: custom:mushroom-legacy-template-card
@@ -4130,7 +4519,8 @@ views:
       primary: String Lights
       secondary: 'Turned {{states.switch.string_lights.state}} at
 
-        {{(as_timestamp(states.switch.string_lights.last_changed) |
+        {{(as_timestamp((state_attr(''sensor.last_real_change'',''times'') or {}).get(''switch.string_lights'')
+        or states.switch.string_lights.last_changed) |
 
         timestamp_custom(''%-I:%M %p''))}}'
       type: custom:mushroom-legacy-template-card
@@ -4147,7 +4537,8 @@ views:
       primary: Porch Light
       secondary: 'Turned {{states.light.porch_light.state}} at
 
-        {{(as_timestamp(states.light.porch_light.last_changed) |
+        {{(as_timestamp((state_attr(''sensor.last_real_change'',''times'') or {}).get(''light.porch_light'')
+        or states.light.porch_light.last_changed) |
 
         timestamp_custom(''%-I:%M %p''))}}'
       type: custom:mushroom-legacy-template-card
@@ -4182,7 +4573,13 @@ views:
           navigation_path: /lovelace/living-room?anchor=home
         type: template
       type: custom:mushroom-chips-card
-    - collapsible_controls: true
+    - card_mod:
+        style: "ha-card {\n  {% set rgb = state_attr(config.entity, 'rgb_color') %}\n\
+          \  {% if is_state(config.entity, 'on') %}\n    {% if rgb %}\n  background:\
+          \ rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.22);\n    {% else %}\n\
+          \  background: rgba(255, 170, 60, 0.2);\n    {% endif %}\n  {% endif %}\n\
+          }\n"
+      collapsible_controls: true
       entity: light.guest_bed_light
       icon: mdi:lamp
       name: Bed Light
@@ -4295,14 +4692,14 @@ views:
       type: custom:mushroom-chips-card
     - cards:
       - custom_fields:
-          collection: '[[[ return "on " + states[''sensor.black_bin''].state ]]]
-
-            '
-          date: "[[[ if (states['sensor.black_bin'].attributes.next_collection ==\
-            \ 0)\n    return 'Pickup TODAY!';\n    if (states['sensor.black_bin'].attributes.next_collection\
-            \ > 1)\n    return 'Next Pickup in ' +\n    states['sensor.black_bin'].attributes.next_collection\
-            \ + ' days';\n    else return 'Next Pickup in ' + states['sensor.black_bin'].attributes.next_collection\
-            \ + ' day';\n]]]\n"
+          collection: "[[[ const n = states['sensor.black_bin'].attributes.next_collection;\n\
+            \    if (n == 1) return states['input_boolean.bin'].state == 'on' ? '<span\
+            \ style=\"color:#4caf50\">Bin is outside</span>' : '<span style=\"color:#ff9800\"\
+            >Put the bin out</span>';\n    return 'on ' + states['sensor.black_bin'].state;\n\
+            ]]]\n"
+          date: "[[[ const n = states['sensor.black_bin'].attributes.next_collection;\n\
+            \    if (n == 0) return 'Pickup TODAY!';\n    if (n == 1) return 'Next\
+            \ Pickup Tomorrow';\n    return 'Next Pickup in ' + n + ' days';\n]]]\n"
           picture:
             card:
               custom_fields:
@@ -4346,15 +4743,14 @@ views:
           - grid-template-rows: 3fr 3fr
         type: custom:button-card
       - custom_fields:
-          collection: '[[[ return "on " + states[''sensor.blue_bin''].state ]]]
-
-            '
-          date: "[[[ if (states['sensor.blue_bin'].attributes.next_collection > 1)\n\
-            \    return 'Next Pickup in ' +\n    states['sensor.blue_bin'].attributes.next_collection\
-            \ + ' days';\n    if (states['sensor.blue_bin'].attributes.next_collection\
-            \ == 0)\n    return 'Pickup TODAY!';\n    else return 'Next Pickup in\
-            \ ' + states['sensor.blue_bin'].attributes.next_collection + ' day';\n\
+          collection: "[[[ const n = states['sensor.blue_bin'].attributes.next_collection;\n\
+            \    if (n == 1) return states['input_boolean.bin'].state == 'on' ? '<span\
+            \ style=\"color:#4caf50\">Bin is outside</span>' : '<span style=\"color:#ff9800\"\
+            >Put the bin out</span>';\n    return 'on ' + states['sensor.blue_bin'].state;\n\
             ]]]\n"
+          date: "[[[ const n = states['sensor.blue_bin'].attributes.next_collection;\n\
+            \    if (n == 0) return 'Pickup TODAY!';\n    if (n == 1) return 'Next\
+            \ Pickup Tomorrow';\n    return 'Next Pickup in ' + n + ' days';\n]]]\n"
           picture:
             card:
               custom_fields:
@@ -4743,13 +5139,13 @@ views:
         rows: 2
       hold_action:
         action: none
-      icon_color: '{% set m = {''idle'':''blue-grey'',''starting'':''blue'',''delayed_start'':''amber'',''running'':''cyan'',''washing'':''cyan'',''door_locked'':''cyan'',''add_laundry'':''cyan'',''spinning'':''purple'',''rinsing'':''blue'',''drying'':''deep-orange'',''paused'':''orange'',''cycle_complete'':''green''}
+      icon_color: '{% set m = {''idle'':''blue-grey'',''starting'':''blue'',''delayed_start'':''amber'',''running'':''cyan'',''washing'':''cyan'',''door_locked'':''cyan'',''add_laundry'':''teal'',''anti_crease'':''deep-purple'',''door_open'':''blue-grey'',''spinning'':''purple'',''rinsing'':''blue'',''drying'':''deep-orange'',''paused'':''orange'',''cycle_complete'':''green''}
         %}{{ m.get(states(''sensor.bob_machine_status''), ''disabled'') }}'
       layout: horizontal
       primary: '{% if states(''sensor.washing_machine_state'') in [''Off'',''Idle'']
         or states(''sensor.bob_programme'') in [''unknown'',''unavailable''] %}{{
-        states(''sensor.washing_machine_state'') }}{% else %}{{ states(''sensor.bob_programme'')
-        | replace(''program_'','''') | replace(''_'','' '') | title }}{% endif %}'
+        states(''sensor.washing_machine_state'') }}{% else %}{{ states(''sensor.washer_programme_name'')
+        }}{% endif %}'
       secondary: '{% set ms = states(''sensor.bob_machine_status'') %}{% set e = states(''sensor.bob_programme_end_time'')
         %}{% set ds = states(''sensor.bob_delay_start_time'') %}{% set d = states(''sensor.bob_duration'')
         | float(0) %}{% set r = states(''sensor.bob_remaining'') | float(0) %}{% set
@@ -4757,7 +5153,9 @@ views:
         | round(0)] | min] | max) | int if d > 0 else 0 %}{% if ms == ''delayed_start''
         and ds not in [''unknown'',''unavailable''] %}Starts {{ ds | as_datetime |
         as_local | as_timestamp | timestamp_custom(''%-I:%M %p'') }}{% elif ms ==
-        ''cycle_complete'' %}Finished - empty the drum{% elif ms in [''off'',''idle'',''unavailable'']
+        ''cycle_complete'' %}Finished - empty the drum{% elif ms == ''anti_crease''
+        %}Anti-crease tumbling{% elif ms == ''add_laundry'' %}You may add laundry{%
+        elif ms == ''door_open'' %}Door open{% elif ms in [''off'',''idle'',''unavailable'']
         %}Not running{% elif e not in [''unknown'',''unavailable''] %}Done {{ e |
         as_datetime | as_local | as_timestamp | timestamp_custom(''%-I:%M %p'') }}
         · {{ (m // 60) ~ ''h '' if m >= 60 else '''' }}{{ m % 60 }}m left · {{ pct
@@ -4771,8 +5169,7 @@ views:
         state: 'on'
     - alignment: center
       chips:
-      - content: '{{ states(''sensor.bob_programme'') | replace(''program_'','''')
-          | replace(''_'','' '') | title }}'
+      - content: '{{ states(''sensor.washer_programme_name'') }}'
         double_tap_action:
           action: none
         hold_action:
@@ -5053,7 +5450,7 @@ views:
                 '
           double_tap_action:
             action: none
-          entity: sensor.bob_programme
+          entity: sensor.washer_programme_name
           hold_action:
             action: none
           icon: mdi:format-list-bulleted
@@ -5545,7 +5942,7 @@ views:
                   primary_info: state
                   secondary_info: name
                   type: custom:mushroom-entity-card
-                type: custom:vertical-stack-in-card
+                type: vertical-stack
             radial:
               card:
                 apex_config:
@@ -7145,6 +7542,88 @@ views:
             type: template
           type: custom:mushroom-chips-card
         type: custom:vertical-stack-in-card
+      - cards:
+        - card_mod:
+            style:
+              .: "ha-card {\n  background: transparent !important;\n  border: 0px\
+                \ !important;\n  align-items: center;\n}\nmushroom-badge-icon {\n\
+                \  --badge-icon-size: 20px;\n  margin-right: -5px !important;\n  --badge-size:\
+                \ 30px;\n}\n"
+              mushroom-shape-avatar$: ".container {\n  --icon-size: 100px;\n}\n"
+          entity: person.hilary
+          icon_type: entity-picture
+          primary_info: none
+          secondary_info: none
+          tap_action:
+            action: more-info
+          type: custom:mushroom-person-card
+        - card_mod:
+            style: "ha-card {\n  height: 20px !important;\n  border: none;\n  --chip-font-size:\
+              \ 15px;\n  padding-bottom: 10px !important;\n  --chip-background: transparent\
+              \ !important;\n}\n"
+          chips:
+          - content: '{% set v = states(entity) %}{{ ''--'' if v in [''unknown'',''unavailable'']
+              else v ~ ''%'' }}'
+            entity: sensor.hilary_s_phone_battery_level
+            icon: '{% set bl = states(entity) | int(-1) %}
+
+              {% set is_charging = is_state(''sensor.hilary_s_phone_battery_state'',''charging'')
+              %}mdi:battery{% if is_charging %}-charging{% endif %}{% if bl < 0 %}-unknown{%
+              elif bl < 10 %}-outline
+
+              {% elif bl < 20 %}-10
+
+              {% elif bl < 30 %}-20
+
+              {% elif bl < 40 %}-30
+
+              {% elif bl < 50 %}-40
+
+              {% elif bl < 60 %}-50
+
+              {% elif bl < 70 %}-60
+
+              {% elif bl < 80 %}-70
+
+              {% elif bl < 90 %}-80
+
+              {% elif bl < 100 %}-90
+
+              {% endif %}'
+            icon_color: '{% set bl = states(entity) | int(-1) %}
+
+              {% if bl < 0 %} grey
+
+              {% elif bl < 30 %} red
+
+              {% elif bl < 50 %} orange
+
+              {% else %} green
+
+              {% endif %}'
+            tap_action:
+              action: more-info
+            type: template
+          type: custom:mushroom-chips-card
+        - card_mod:
+            style: "ha-card {\n  height: 50px !important;\n  border: none;\n  --chip-font-size:\
+              \ 15px;\n  padding-top: 10px !important;\n  background: transparent\
+              \ !important;\n}\n"
+          chips:
+          - content: '{% set v = states(entity) %}{{ ''--'' if v in [''unknown'',''unavailable'']
+              else (v | replace(''<not connected>'', ''Not Connected'')) }}'
+            entity: sensor.hilary_s_phone_ssid
+            icon: '{% set v = states(entity) %}{% if v in [''<not connected>'',''Not
+              Connected'',''unknown'',''unavailable''] %}mdi:wifi-off{% else %}mdi:wifi{%
+              endif %}'
+            icon_color: '{% set v = states(entity) %}{% if v in [''<not connected>'',''Not
+              Connected'',''unknown'',''unavailable''] %}disabled{% else %}blue{%
+              endif %}'
+            tap_action:
+              action: more-info
+            type: template
+          type: custom:mushroom-chips-card
+        type: custom:vertical-stack-in-card
       type: horizontal-stack
       view_layout:
         column: 1
@@ -7171,23 +7650,383 @@ views:
       type: custom:auto-entities
       view_layout:
         column: 1
-    - display_mode: buttons
-      entity: counter.cr2032_batteries
-      fill_container: false
-      secondary_info: none
-      type: custom:mushroom-number-card
-    - display_mode: buttons
-      entity: counter.cr2450_batteries
-      fill_container: true
-      icon_color: red
-      secondary_info: none
-      type: custom:mushroom-number-card
-    - display_mode: buttons
-      entity: counter.cr2025_batteries
-      fill_container: true
-      icon_color: orange
-      secondary_info: none
-      type: custom:mushroom-number-card
+    - card_mod:
+        style: "ha-card {\n  overflow: visible;\n}\n{% if (states('counter.cr2032_pending')|int(0)\
+          \ + states('counter.cr2450_pending')|int(0) + states('counter.cr2025_pending')|int(0))\
+          \ > 0 %}\nha-card {\n  outline: 2px solid rgba(255, 82, 82, 0.95);\n  outline-offset:\
+          \ -2px;\n  animation: stockflash 1.4s ease-in-out infinite;\n}\n@keyframes\
+          \ stockflash {\n  0%, 100% { outline-color: rgba(255, 82, 82, 0.95); box-shadow:\
+          \ 0 0 16px 3px rgba(255, 82, 82, 0.55); }\n  50% { outline-color: rgba(255,\
+          \ 82, 82, 0.2); box-shadow: 0 0 0 0 rgba(255, 82, 82, 0); }\n}\n{% else\
+          \ %}\nha-card {\n  outline: 1px solid rgba(255, 255, 255, 0.12);\n  outline-offset:\
+          \ -1px;\n}\n{% endif %}"
+      cards:
+      - alignment: center
+        chips:
+        - content: '{{ ''Batteries · action needed'' if (states(''counter.cr2032_pending'')|int(0)
+            + states(''counter.cr2450_pending'')|int(0) + states(''counter.cr2025_pending'')|int(0))
+            > 0 else ''Battery Stock'' }}'
+          hold_action:
+            action: none
+          icon: mdi:battery-sync-outline
+          icon_color: '{{ ''red'' if (states(''counter.cr2032_pending'')|int(0) +
+            states(''counter.cr2450_pending'')|int(0) + states(''counter.cr2025_pending'')|int(0))
+            > 0 else ''green'' }}'
+          tap_action:
+            action: none
+          type: template
+        type: custom:mushroom-chips-card
+      - card:
+          cards:
+          - card_mod:
+              style: 'ha-card { background: transparent; border: none; box-shadow:
+                none; }'
+            fill_container: true
+            icon: mdi:battery-alert-variant-outline
+            icon_color: blue
+            primary: '{{ states(''counter.cr2032_pending'')|int(0) }}× CR2032 used
+              — update stock?'
+            secondary: '{% set d = states(''input_text.battery_last_replaced'') %}{{
+              d ~ '' · '' if d not in [''unknown'',''unavailable'',''''] else ''''
+              }}stock {{ states(''counter.cr2032_batteries'') }} → {{ [states(''counter.cr2032_batteries'')|int(0)
+              - states(''counter.cr2032_pending'')|int(0), 0]|max }}'
+            type: custom:mushroom-template-card
+          - cards:
+            - icon: mdi:check-circle
+              name: '[[[ const s=parseInt(states[''counter.cr2032_batteries''].state)||0,
+                p=parseInt(states[''counter.cr2032_pending''].state)||0; return ''Reduce
+                to '' + Math.max(s-p,0); ]]]'
+              show_icon: true
+              show_name: true
+              styles:
+                card:
+                - background: transparent
+                - border: none
+                - border-radius: 14px
+                - height: 48px
+                - padding: '0'
+                - box-shadow: inset 0 0 0 100px rgba(76,175,80,0.18), inset 0 0 0
+                    1px rgba(76,175,80,0.45)
+                grid:
+                - grid-template-areas: '"i i i n"'
+                - grid-template-columns: auto auto
+                - justify-content: center
+                - align-items: center
+                - column-gap: 10px
+                icon:
+                - grid-area: i
+                - color: '#4caf50'
+                - width: 24px
+                - height: 24px
+                - --mdc-icon-size: 24px
+                - display: block
+                - justify-self: center
+                name:
+                - grid-area: n
+                - font-size: 14px
+                - font-weight: '500'
+                - color: var(--primary-text-color)
+              tap_action:
+                action: perform-action
+                data:
+                  apply: true
+                  type: CR2032
+                perform_action: script.battery_stock_apply
+              triggers_update:
+              - counter.cr2032_batteries
+              - counter.cr2032_pending
+              type: custom:button-card
+            - icon: mdi:close-circle-outline
+              name: Dismiss
+              show_icon: true
+              show_name: true
+              styles:
+                card:
+                - background: transparent
+                - border: none
+                - border-radius: 14px
+                - height: 48px
+                - padding: '0'
+                - box-shadow: inset 0 0 0 100px rgba(255,255,255,0.05), inset 0 0
+                    0 1px rgba(255,255,255,0.12)
+                grid:
+                - grid-template-areas: '"i i i n"'
+                - grid-template-columns: auto auto
+                - justify-content: center
+                - align-items: center
+                - column-gap: 10px
+                icon:
+                - grid-area: i
+                - color: '#9e9e9e'
+                - width: 24px
+                - height: 24px
+                - --mdc-icon-size: 24px
+                - display: block
+                - justify-self: center
+                name:
+                - grid-area: n
+                - font-size: 14px
+                - font-weight: '500'
+                - color: var(--primary-text-color)
+              tap_action:
+                action: perform-action
+                data:
+                  apply: false
+                  type: CR2032
+                perform_action: script.battery_stock_apply
+              type: custom:button-card
+            type: horizontal-stack
+          type: vertical-stack
+        conditions:
+        - above: 0
+          condition: numeric_state
+          entity: counter.cr2032_pending
+        type: conditional
+      - card:
+          cards:
+          - card_mod:
+              style: 'ha-card { background: transparent; border: none; box-shadow:
+                none; }'
+            fill_container: true
+            icon: mdi:battery-alert-variant-outline
+            icon_color: red
+            primary: '{{ states(''counter.cr2450_pending'')|int(0) }}× CR2450 used
+              — update stock?'
+            secondary: '{% set d = states(''input_text.battery_last_replaced'') %}{{
+              d ~ '' · '' if d not in [''unknown'',''unavailable'',''''] else ''''
+              }}stock {{ states(''counter.cr2450_batteries'') }} → {{ [states(''counter.cr2450_batteries'')|int(0)
+              - states(''counter.cr2450_pending'')|int(0), 0]|max }}'
+            type: custom:mushroom-template-card
+          - cards:
+            - icon: mdi:check-circle
+              name: '[[[ const s=parseInt(states[''counter.cr2450_batteries''].state)||0,
+                p=parseInt(states[''counter.cr2450_pending''].state)||0; return ''Reduce
+                to '' + Math.max(s-p,0); ]]]'
+              show_icon: true
+              show_name: true
+              styles:
+                card:
+                - background: transparent
+                - border: none
+                - border-radius: 14px
+                - height: 48px
+                - padding: '0'
+                - box-shadow: inset 0 0 0 100px rgba(76,175,80,0.18), inset 0 0 0
+                    1px rgba(76,175,80,0.45)
+                grid:
+                - grid-template-areas: '"i i i n"'
+                - grid-template-columns: auto auto
+                - justify-content: center
+                - align-items: center
+                - column-gap: 10px
+                icon:
+                - grid-area: i
+                - color: '#4caf50'
+                - width: 24px
+                - height: 24px
+                - --mdc-icon-size: 24px
+                - display: block
+                - justify-self: center
+                name:
+                - grid-area: n
+                - font-size: 14px
+                - font-weight: '500'
+                - color: var(--primary-text-color)
+              tap_action:
+                action: perform-action
+                data:
+                  apply: true
+                  type: CR2450
+                perform_action: script.battery_stock_apply
+              triggers_update:
+              - counter.cr2450_batteries
+              - counter.cr2450_pending
+              type: custom:button-card
+            - icon: mdi:close-circle-outline
+              name: Dismiss
+              show_icon: true
+              show_name: true
+              styles:
+                card:
+                - background: transparent
+                - border: none
+                - border-radius: 14px
+                - height: 48px
+                - padding: '0'
+                - box-shadow: inset 0 0 0 100px rgba(255,255,255,0.05), inset 0 0
+                    0 1px rgba(255,255,255,0.12)
+                grid:
+                - grid-template-areas: '"i i i n"'
+                - grid-template-columns: auto auto
+                - justify-content: center
+                - align-items: center
+                - column-gap: 10px
+                icon:
+                - grid-area: i
+                - color: '#9e9e9e'
+                - width: 24px
+                - height: 24px
+                - --mdc-icon-size: 24px
+                - display: block
+                - justify-self: center
+                name:
+                - grid-area: n
+                - font-size: 14px
+                - font-weight: '500'
+                - color: var(--primary-text-color)
+              tap_action:
+                action: perform-action
+                data:
+                  apply: false
+                  type: CR2450
+                perform_action: script.battery_stock_apply
+              type: custom:button-card
+            type: horizontal-stack
+          type: vertical-stack
+        conditions:
+        - above: 0
+          condition: numeric_state
+          entity: counter.cr2450_pending
+        type: conditional
+      - card:
+          cards:
+          - card_mod:
+              style: 'ha-card { background: transparent; border: none; box-shadow:
+                none; }'
+            fill_container: true
+            icon: mdi:battery-alert-variant-outline
+            icon_color: orange
+            primary: '{{ states(''counter.cr2025_pending'')|int(0) }}× CR2025 used
+              — update stock?'
+            secondary: '{% set d = states(''input_text.battery_last_replaced'') %}{{
+              d ~ '' · '' if d not in [''unknown'',''unavailable'',''''] else ''''
+              }}stock {{ states(''counter.cr2025_batteries'') }} → {{ [states(''counter.cr2025_batteries'')|int(0)
+              - states(''counter.cr2025_pending'')|int(0), 0]|max }}'
+            type: custom:mushroom-template-card
+          - cards:
+            - icon: mdi:check-circle
+              name: '[[[ const s=parseInt(states[''counter.cr2025_batteries''].state)||0,
+                p=parseInt(states[''counter.cr2025_pending''].state)||0; return ''Reduce
+                to '' + Math.max(s-p,0); ]]]'
+              show_icon: true
+              show_name: true
+              styles:
+                card:
+                - background: transparent
+                - border: none
+                - border-radius: 14px
+                - height: 48px
+                - padding: '0'
+                - box-shadow: inset 0 0 0 100px rgba(76,175,80,0.18), inset 0 0 0
+                    1px rgba(76,175,80,0.45)
+                grid:
+                - grid-template-areas: '"i i i n"'
+                - grid-template-columns: auto auto
+                - justify-content: center
+                - align-items: center
+                - column-gap: 10px
+                icon:
+                - grid-area: i
+                - color: '#4caf50'
+                - width: 24px
+                - height: 24px
+                - --mdc-icon-size: 24px
+                - display: block
+                - justify-self: center
+                name:
+                - grid-area: n
+                - font-size: 14px
+                - font-weight: '500'
+                - color: var(--primary-text-color)
+              tap_action:
+                action: perform-action
+                data:
+                  apply: true
+                  type: CR2025
+                perform_action: script.battery_stock_apply
+              triggers_update:
+              - counter.cr2025_batteries
+              - counter.cr2025_pending
+              type: custom:button-card
+            - icon: mdi:close-circle-outline
+              name: Dismiss
+              show_icon: true
+              show_name: true
+              styles:
+                card:
+                - background: transparent
+                - border: none
+                - border-radius: 14px
+                - height: 48px
+                - padding: '0'
+                - box-shadow: inset 0 0 0 100px rgba(255,255,255,0.05), inset 0 0
+                    0 1px rgba(255,255,255,0.12)
+                grid:
+                - grid-template-areas: '"i i i n"'
+                - grid-template-columns: auto auto
+                - justify-content: center
+                - align-items: center
+                - column-gap: 10px
+                icon:
+                - grid-area: i
+                - color: '#9e9e9e'
+                - width: 24px
+                - height: 24px
+                - --mdc-icon-size: 24px
+                - display: block
+                - justify-self: center
+                name:
+                - grid-area: n
+                - font-size: 14px
+                - font-weight: '500'
+                - color: var(--primary-text-color)
+              tap_action:
+                action: perform-action
+                data:
+                  apply: false
+                  type: CR2025
+                perform_action: script.battery_stock_apply
+              type: custom:button-card
+            type: horizontal-stack
+          type: vertical-stack
+        conditions:
+        - above: 0
+          condition: numeric_state
+          entity: counter.cr2025_pending
+        type: conditional
+      - cards:
+        - card_mod: {}
+          display_mode: buttons
+          entity: counter.cr2032_batteries
+          fill_container: true
+          layout: vertical
+          name: CR2032
+          secondary_info: none
+          type: custom:mushroom-number-card
+        - card_mod: {}
+          display_mode: buttons
+          entity: counter.cr2450_batteries
+          fill_container: true
+          icon_color: red
+          layout: vertical
+          name: CR2450
+          secondary_info: none
+          type: custom:mushroom-number-card
+        - card_mod: {}
+          display_mode: buttons
+          entity: counter.cr2025_batteries
+          fill_container: true
+          icon_color: orange
+          layout: vertical
+          name: CR2025
+          secondary_info: none
+          type: custom:mushroom-number-card
+        columns: 3
+        square: true
+        type: grid
+      grid_options:
+        columns: full
+      type: custom:vertical-stack-in-card
     - options:
         defaultTabIndex: 0
       styles:
@@ -7215,6 +8054,13 @@ views:
             include:
             - entity_id: /battery_level/
               integration: mobile_app
+              not:
+                entity_id: sensor.pixel8pro_battery_level
+            - entity_id: sensor.pixel8pro_battery_level
+              options:
+                charging_state:
+                  entity_id: binary_sensor.pixel8pro_is_charging
+                  state: 'on'
           sort:
             method: state
             numeric: true
@@ -8167,336 +9013,6 @@ views:
     type: grid
   title: F1 Live
   type: sections
-- dense_section_placement: true
-  icon: mdi:flag-checkered
-  max_columns: 4
-  path: f1-live-new
-  sections:
-  - cards:
-    - appearance:
-        font: f1
-        logo_style: color
-        mode: dark
-      grid_options:
-        columns: full
-        rows: auto
-      layout: stack
-      modules:
-      - fields:
-        - session
-        - session_status
-        - lap_progress
-        - track_status
-        - session_time_elapsed
-        - session_time_remaining
-        options: {}
-        type: overview
-      - options:
-          content: track_conditions
-        type: weather
-      title: Live Session
-      type: custom:f1-sensor-card
-    - appearance:
-        font: f1
-        logo_style: color
-        mode: dark
-      grid_options:
-        columns: full
-        rows: auto
-      layout: stack
-      modules:
-      - options:
-          hide_blue_flags: true
-          hide_track_limits: false
-          list_max_height: 600
-          min_display_time: 0
-          presentation: list
-          show_clear_button: true
-          show_fia_logo: true
-        type: race_control
-      title: Race Control
-      type: custom:f1-sensor-card
-    - appearance:
-        font: f1
-        logo_style: color
-        mode: dark
-      grid_options:
-        columns: full
-        rows: auto
-      layout: stack
-      modules:
-      - options:
-          content: investigations
-          presentation: table
-        type: incidents
-      title: Investigations & Penalties
-      type: custom:f1-sensor-card
-    - accessibility:
-        announce: true
-        high_contrast: false
-        motion: system
-        signals: shape
-      appearance:
-        accent: '#e10600'
-        accent_mode: style
-        accent_team: ''
-        density: compact
-        flags: true
-        font: f1
-        full_names: true
-        logo_size: small
-        logo_style: color
-        logos: true
-        mode: auto
-        numbers: tabular
-        palette: {}
-        show_header: true
-        style: f1
-        surface: style
-        team_colors: true
-        tyre_style: ring
-      columns: 2
-      context:
-        driver: ''
-        group: ''
-        scope: local
-        selection:
-          mode: follow
-          source: auto
-        share:
-        - focus
-        show_focus_control: true
-        show_freeze_control: true
-        spoilers: inherit
-        team: ''
-        viewing_controls: false
-      f1_entry_id: ''
-      layout: stack
-      modules:
-      - column_span: 1
-        driver: ''
-        enabled: true
-        fields:
-        - result_position
-        - driver
-        - points
-        - team
-        - wins
-        focus_mode: inherit
-        id: standings-1
-        options:
-          competitors: drivers
-          direction: asc
-          driver_image_type: headshot
-          rows: 30
-          show_availability_notice: true
-          show_mode_badge: true
-          sort: result_position
-          spoiler_placeholder: ''
-        selection:
-          mode: inherit
-        show_header: true
-        show_table_header: true
-        team: ''
-        title: ''
-        type: standings
-        unavailable: explain
-        visibility: []
-        when:
-        - before
-        - active
-        - finished
-        - unknown
-      title: Championship Prediction Drivers
-      type: custom:f1-sensor-card
-      version: 3
-    - appearance:
-        font: f1
-        logo_style: color
-        mode: dark
-      layout: stack
-      modules:
-      - fields:
-        - result_position
-        - team
-        - points
-        - predicted_position
-        - predicted_points
-        - points_change
-        options:
-          competitors: teams
-        type: standings
-      title: Championship Prediction Teams
-      type: custom:f1-sensor-card
-    column_span: 2
-    type: grid
-  - cards:
-    - appearance:
-        font: f1
-        logo_style: color
-        mode: dark
-      layout: stack
-      modules:
-      - fields:
-        - position
-        - driver
-        - status
-        - interval
-        - last_lap
-        - best_lap
-        - lap_delta
-        options:
-          history: 5
-          show_gap_toggle: true
-        type: timing
-      title: Driver Lap Times
-      type: custom:f1-sensor-card
-    - appearance:
-        font: f1
-        logo_style: color
-        mode: dark
-      layout: stack
-      modules:
-      - options:
-          content: track_limits_summary
-          presentation: table
-        type: incidents
-      title: Track Limits
-      type: custom:f1-sensor-card
-    - accessibility:
-        announce: true
-        high_contrast: false
-        motion: system
-        signals: shape
-      appearance:
-        accent: '#e10600'
-        accent_mode: style
-        accent_team: ''
-        density: comfortable
-        flags: true
-        font: f1
-        full_names: false
-        logo_size: normal
-        logo_style: color
-        logos: true
-        mode: dark
-        numbers: tabular
-        palette: {}
-        show_header: true
-        style: f1
-        surface: style
-        team_colors: true
-        tyre_style: ring
-      columns: 2
-      context:
-        driver: ''
-        group: ''
-        scope: local
-        selection:
-          mode: follow
-          source: auto
-        share:
-        - focus
-        show_focus_control: true
-        show_freeze_control: true
-        spoilers: inherit
-        team: ''
-        viewing_controls: false
-      f1_entry_id: ''
-      layout: stack
-      modules:
-      - column_span: 1
-        driver: ''
-        enabled: true
-        fields:
-        - tyre
-        - compound_laps
-        - new_sets
-        - compound_best
-        - compound_gap
-        - total_stints
-        - best_runs
-        focus_mode: inherit
-        id: tyres-1
-        options:
-          best_times_limit: 3
-          compounds: []
-          content: statistics
-          direction: asc
-          rows: 30
-          show_compound_name: true
-          sort: position
-        selection:
-          mode: inherit
-        show_header: true
-        show_table_header: true
-        team: ''
-        title: ''
-        type: tyres
-        unavailable: hide
-        visibility: []
-        when:
-        - before
-        - active
-        - finished
-        - unknown
-      title: Tyres Statistics
-      type: custom:f1-sensor-card
-      version: 3
-    type: grid
-  - cards:
-    - appearance:
-        font: f1
-        logo_style: color
-        mode: dark
-      layout: stack
-      modules:
-      - fields:
-        - position
-        - driver
-        - status
-        - interval
-        - last_lap
-        - best_lap
-        - tyre
-        - tyre_age
-        options:
-          show_gap_toggle: true
-        type: timing
-      - options: {}
-        type: pit_stops
-      title: Race Lap
-      type: custom:f1-sensor-card
-    - appearance:
-        font: f1
-        logo_style: color
-        mode: dark
-      layout: stack
-      modules:
-      - options: {}
-        type: pit_stops
-      - options: {}
-        type: tyres
-      title: Pit Stops & Tyres
-      type: custom:f1-sensor-card
-    - appearance:
-        font: f1
-        logo_style: color
-        mode: dark
-      layout: tabs
-      modules:
-      - options: {}
-        type: results
-      - options: {}
-        type: archive
-      title: Results
-      type: custom:f1-sensor-card
-    type: grid
-  title: F1 Live (new)
-  type: sections
-  visible:
-  - user: 74f7e2ffd3594037b1a2fc4de82d9fea
-  - user: 714d34245b7d49a1ac5378907e9fa5bd
 - cards: []
   icon: mdi:package-up
   max_columns: 2
@@ -8770,1840 +9286,3 @@ views:
   type: sections
   visible:
   - user: 74f7e2ffd3594037b1a2fc4de82d9fea
-- badges: []
-  card_mod:
-    style: "* {\n  box-sizing: border-box !important;\n}\nhui-sections-view > * {\n\
-      \  display: grid !important;\n  grid-template-columns: repeat(2, 1fr) !important;\n\
-      \  gap: 8px !important;\n}\nhui-sections-view > * > * {\n  height: 200px !important;\n\
-      \  width: 100% !important;\n}\n"
-  cards: []
-  dense_section_placement: true
-  header:
-    badges_position: bottom
-    card:
-      content: "# Dia Duit, {{ user }} \U0001F44B\U0001F3FB {% set w = states('weather.home')|lower\
-        \ %} {% set t = state_attr('weather.home','temperature') %} {% set temp =\
-        \ t|float(none) %} {% set hour = now().hour %}\n{% set icons = {\n  'clear-night':'\U0001F319\
-        \ Clear Night','sunny':'☀️ Sunny','partlycloudy':'⛅ Partly Cloudy','cloudy':'☁️\
-        \ Cloudy',\n  'rainy':'\U0001F327️ Rainy','lightning-rainy':'⚡\U0001F327️\
-        \ Thundery Showers',\n  'snowy':'\U0001F328️ Snow','snowy-rainy':'\U0001F328\
-        ️\U0001F327️ Sleet','fog':'\U0001F32B️ Foggy'\n} %} {% set adv = {\n  'rainy':\
-        \ [\n    ' ☔ Grand day for the ducks!',\n    ' ☔ Bring a brolly!',\n    '\
-        \ \U0001F327️ Bit damp out!',\n    \" \U0001F4A7 It's lashing!\"\n  ],\n \
-        \ 'lightning-rainy': [\n    ' \U0001F329️ Thunder about—mind yourself.',\n\
-        \    ' ⚡ Stay inside—thunderstorms!',\n    ' \U0001F329️ Fierce stormy out!'\n\
-        \  ],\n  'snowy': [\n    \" ⛄ Rare as hen's teeth—drive safe!\",\n    ' ❄️\
-        \ Snow! Mind the roads.',\n    \" \U0001F328️ White Christmas in January!\"\
-        \n  ],\n  'snowy-rainy': [\n    \" \U0001F328️ Sleet—roads'll be dodgy.\"\
-        ,\n    ' ❄️ Slushy out there.',\n    ' \U0001F328️ Wintry mix—take it easy.'\n\
-        \  ],\n  'fog': [\n    ' \U0001F32B️ Fierce foggy—slow down.',\n    ' \U0001F32B\
-        ️ Can barely see your hand!',\n    ' \U0001F32B️ Pea souper out there.'\n\
-        \  ],\n  'cloudy': [\n    ' ☁️ Soft day, thank God.',\n    ' ☁️ Bit overcast.',\n\
-        \    ' ☁️ Grey skies today.'\n  ]\n} %} ### {{ icons.get(w, '❓ ' ~ (w or 'N/A'))\
-        \ }} | \U0001F321️ {{ (temp ~ '°C') if temp is not none else '—' }} | {%-\
-        \ if w in adv %} {{ adv[w] | random }} {%- elif w == 'sunny' and hour < 12\
-        \ %} {{ ['\U0001F60E Get out while it lasts!', '☀️ Rare bit of sun!', '\U0001F31E\
-        \ Make hay while the sun shines!'] | random }} {%- elif temp is not none and\
-        \ temp < 2 and hour < 10 %} {{ ['❄️ Frost—scrape the windscreen!', '\U0001F9CA\
-        \ Frosty morning!', '❄️ Brass monkeys out there!'] | random }} {%- elif temp\
-        \ is not none and temp < 10 %} {{ ['\U0001F9E5 Bit nippy—layer up!', '\U0001F9E3\
-        \ Chilly one today!', '\U0001F976 Baltic out!'] | random }} {%- elif temp\
-        \ is not none and temp >= 20 %} {{ ['\U0001F975 Roasting! Stay hydrated.',\
-        \ '☀️ Scorcher today!', \"\U0001F321️ We're not used to this heat!\"] | random\
-        \ }} {%- else %} {{ ['\U0001F60A Grand stretch in the evenings!', '\U0001F44C\
-        \ Not bad at all!', '\U0001F642 Decent day!'] | random }} {%- endif %}"
-      text_only: true
-      type: markdown
-    layout: responsive
-  icon: mdi:flask-outline
-  layout: {}
-  max_columns: 3
-  path: den-speed-test
-  sections:
-  - cards:
-    - card_mod:
-        style: "ha-card {\n  height: 200px !important;\n  border-style: dashed;\n\
-          \  border-width: 2px;\n  overflow: hidden !important;\n}\n"
-      cards:
-      - badge_color: ''
-        badge_icon: ''
-        card_mod:
-          style:
-            .: "ha-card {\n  border: 0px !important;\n  box-shadow: none !important;\n\
-              \  background: none;\n}\n:host {\n  --mush-icon-size: 160px;\n}\n"
-            mushroom-shape-icon$: ".shape {\n  position: relative;\n  left: -40px;\n\
-              \  top: 60px;\n}\n"
-            mushroom-state-info$: ".primary {\n  font-size: 1.5em !important;\n  position:\
-              \ relative;\n  top: -60px;\n  left: -165px;\n  overflow: visible !important;\n\
-              }\n.secondary {\n  font-size: 1em !important;\n  position: relative;\n\
-              \  top: -50px;\n  left: -165px;\n  overflow: visible !important;\n}\n"
-        double_tap_action:
-          action: none
-        hold_action:
-          action: none
-        icon: mdi:skull
-        icon_color: "{% if is_state('binary_sensor.den_motion_occupancy', 'on') %}\n\
-          \  light-blue\n{%else%}\n  disabled\n{% endif %}"
-        layout: horizontal
-        primary: Den
-        secondary: '🌡️ {{ states(''sensor.den_temperature'') | round(1) if states(''sensor.den_temperature'')
-          != ''unavailable'' else ''N/A'' }} °C | 💧 {{ states(''sensor.den_humidity'')
-          | round(1) if states(''sensor.den_humidity'') != ''unavailable'' else ''N/A''
-          }} %
-
-          '
-        tap_action:
-          action: navigate
-          navigation_path: /lovelace/den
-        type: custom:mushroom-legacy-template-card
-      - card_mod:
-          style: "ha-card {\n  width: px;\n  margin-left: 65%;\n  top: -180px;\n \
-            \ background: none;\n}\n:host {\n  --mush-icon-size: 45px;\n  perspective:\
-            \ 900px;\n}\nha-card:active {\n  transform: rotateX(25deg);\n  transform-origin:\
-            \ center bottom;\n  transition: 0s;\n}\nmushroom-badge-icon { display:\
-            \ none !important; }\n"
-        entity: light.light
-        hold_action:
-          action: more-info
-        icon: mdi:lightbulb-on
-        primary_info: none
-        secondary_info: none
-        show_brightness_control: false
-        show_color_control: false
-        show_color_temp_control: false
-        tap_action:
-          action: toggle
-        type: custom:mushroom-light-card
-        use_light_color: true
-      - card_mod:
-          style: "ha-card {\n  width: px;\n  margin-left: 65%;\n  top: -180px;\n \
-            \ background: none;\n}\n:host {\n  --mush-icon-size: 45px;\n  perspective:\
-            \ 900px;\n}\nha-card:active {\n  transform: rotateX(25deg);\n  transform-origin:\
-            \ center bottom;\n  transition: 0s;\n}\nmushroom-badge-icon { display:\
-            \ none !important; }\n"
-        entity: light.shapes
-        hold_action:
-          action: more-info
-        icon: mdi:hexagon-multiple
-        primary_info: none
-        secondary_info: none
-        show_brightness_control: false
-        show_color_control: false
-        show_color_temp_control: false
-        tap_action:
-          action: toggle
-        type: custom:mushroom-light-card
-        use_light_color: true
-      - card_mod:
-          style: "ha-card {\n  width: px;\n  margin-left: 65%;\n  top: -180px;\n \
-            \ background: none;\n}\n:host {\n  --mush-icon-size: 45px;\n  perspective:\
-            \ 900px;\n}\nha-card:active {\n  transform: rotateX(25deg);\n  transform-origin:\
-            \ center bottom;\n  transition: 0s;\n}\n"
-        entity: switch.workstation
-        hold_action:
-          action: more-info
-        icon: mdi:desk
-        icon_color: deep-orange
-        primary_info: none
-        secondary_info: none
-        tap_action:
-          action: toggle
-        type: custom:mushroom-entity-card
-      grid_options:
-        columns: 6
-        rows: auto
-      type: custom:vertical-stack-in-card
-    - card_mod:
-        style: "ha-card {\n  height: 200px !important;\n  border-style: dashed !important;\n\
-          \  border-width: 2px !important;\n  overflow: hidden !important;\n}\n"
-      cards:
-      - badge_color: ''
-        badge_icon: ''
-        card_mod:
-          style:
-            .: "ha-card {\n  border: 0px !important;\n  box-shadow: none !important;\n\
-              \  background: none;\n}\n:host {\n  --mush-icon-size: 160px;\n}\n"
-            mushroom-shape-icon$: ".shape {\n  position: relative;\n  left: -40px;\n\
-              \  top: 60px;\n}\n"
-            mushroom-state-info$: ".primary {\n  font-size: 1.5em !important;\n  position:\
-              \ relative;\n  top: -60px;\n  left: -165px;\n  overflow: visible !important;\n\
-              }\n.secondary {\n  font-size: 1em !important;\n  position: relative;\n\
-              \  top: -50px;\n  left: -165px;\n  overflow: visible !important;\n}\n"
-        double_tap_action:
-          action: none
-        hold_action:
-          action: none
-        icon: mdi:sofa
-        icon_color: '{{ ''yellow'' if is_state(''binary_sensor.living_room_presence'',
-          ''on'') else ''disabled'' }}'
-        layout: horizontal
-        primary: Living Room
-        secondary: '🌡️ {{ states(''sensor.living_room_temperature'') | round(1) if
-          states(''sensor.living_room_temperature'') != ''unavailable'' else ''N/A''
-          }} °C | 💧 {{ states(''sensor.living_room_humidity'') | round(1) if states(''sensor.living_room_humidity'')
-          != ''unavailable'' else ''N/A'' }} %
-
-          '
-        tap_action:
-          action: navigate
-          navigation_path: /lovelace/living-room?anchor=livingroom
-        type: custom:mushroom-legacy-template-card
-      - card_mod:
-          style: "ha-card {\n  width: px;\n  margin-left: 65%;\n  top: -180px;\n \
-            \ background: none;\n}\n:host {\n  --mush-icon-size: 45px;\n  perspective:\
-            \ 900px;\n}\nha-card:active {\n  transform: rotateX(25deg);\n  transform-origin:\
-            \ center bottom;\n  transition: 0s;\n}\nmushroom-badge-icon { display:\
-            \ none !important; }\n"
-        entity: light.living_room_lamp
-        hold_action:
-          action: more-info
-        icon: mdi:lamp
-        primary_info: none
-        secondary_info: none
-        show_brightness_control: false
-        show_color_control: false
-        show_color_temp_control: false
-        tap_action:
-          action: toggle
-        type: custom:mushroom-light-card
-        use_light_color: true
-      - card_mod:
-          style: "ha-card {\n  width: px;\n  margin-left: 65%;\n  top: -180px;\n \
-            \ background: none;\n}\n:host {\n  --mush-icon-size: 45px;\n  perspective:\
-            \ 900px;\n}\nha-card:active {\n  transform: rotateX(25deg);\n  transform-origin:\
-            \ center bottom;\n  transition: 0s;\n}\nmushroom-badge-icon { display:\
-            \ none !important; }\n"
-        entity: light.led_strip
-        hold_action:
-          action: more-info
-        icon: mdi:led-strip-variant
-        primary_info: none
-        secondary_info: none
-        show_brightness_control: false
-        show_color_control: false
-        show_color_temp_control: false
-        tap_action:
-          action: toggle
-        type: custom:mushroom-light-card
-        use_light_color: true
-      - card_mod:
-          style:
-            .: "ha-card {\n  width: px;\n  margin-left: 65%;\n  top: -180px;\n  background:\
-              \ none;\n}\n:host {\n  --mush-icon-size: 45px;\n  perspective: 900px;\n\
-              }\nha-card:active {\n  transform: rotateX(25deg);\n  transform-origin:\
-              \ center bottom;\n  transition: 0s;\n}\n"
-            mushroom-shape-icon$: ".shape {\n    {% if not is_state(config.entity,\
-              \ 'off') and not is_state(config.entity, 'unavailable') %}\n      --icon-color:\
-              \ rgba(var(--rgb-green)) !important;\n      --shape-color: rgba(var(--rgb-green),\
-              \ 0.2) !important;\n    {% endif %}\n  }\n"
-        entity: media_player.google_tv_streamer
-        hold_action:
-          action: more-info
-        icon: mdi:monitor
-        icon_color: disabled
-        primary: ''
-        secondary: ''
-        type: custom:mushroom-legacy-template-card
-      grid_options:
-        columns: 6
-        rows: auto
-      type: custom:vertical-stack-in-card
-    - card_mod:
-        style: "ha-card {\n  height: 200px !important;\n  border-style: dashed;\n\
-          \  border-width: 2px;\n  overflow: hidden !important;\n}\n"
-      cards:
-      - badge_color: ''
-        badge_icon: ''
-        card_mod:
-          style:
-            .: "ha-card {\n\n  border: 0px !important;\n  box-shadow: none !important;\n\
-              \  background: none;\n}\n:host {\n  --mush-icon-size: 160px;\n}\n"
-            mushroom-shape-icon$: ".shape {\n  position: relative;\n  left: -40px;\n\
-              \  top: 60px;\n}\n"
-            mushroom-state-info$: ".primary {\n  font-size: 1.5em !important;\n  position:\
-              \ relative;\n  top: -60px;\n  left: -165px;\n  overflow: visible !important;\n\
-              }\n.secondary {\n  font-size: 1em !important;\n  position: relative;\n\
-              \  top: -50px;\n  left: -165px;\n  overflow: visible !important;\n}\n"
-        double_tap_action:
-          action: none
-        hold_action:
-          action: none
-        icon: mdi:countertop-outline
-        icon_color: "{% if is_state('binary_sensor.kitchen_presence', 'on') %}\n \
-          \ green\n{%else%}\n  disabled\n{% endif %}"
-        layout: horizontal
-        primary: Kitchen
-        secondary: '🌡️ {{ states(''sensor.kitchen_temperature_and_humidity_temperature'')
-          | round(1) if states(''sensor.kitchen_temperature_and_humidity_temperature'')
-          != ''unavailable'' else ''N/A'' }} °C | 💧 {{ states(''sensor.kitchen_temperature_and_humidity_humidity'')
-          | round(1) if states(''sensor.kitchen_temperature_and_humidity_humidity'')
-          != ''unavailable'' else ''N/A'' }} %
-
-          '
-        tap_action:
-          action: navigate
-          navigation_path: /lovelace/living-room?anchor=kitchen
-        type: custom:mushroom-legacy-template-card
-      - card_mod:
-          style: "ha-card {\n  width: px;\n  margin-left: 65%;\n  top: -180px;\n \
-            \ background: none;\n}\n:host {\n  --mush-icon-size: 45px;\n  perspective:\
-            \ 900px;\n}\nha-card:active {\n  transform: rotateX(25deg);\n  transform-origin:\
-            \ center bottom;\n  transition: 0s;\n}\nmushroom-badge-icon { display:\
-            \ none !important; }\n"
-        entity: light.kitchen_light
-        hold_action:
-          action: more-info
-        icon: mdi:dome-light
-        primary_info: none
-        secondary_info: none
-        show_brightness_control: false
-        show_color_control: false
-        show_color_temp_control: false
-        tap_action:
-          action: toggle
-        type: custom:mushroom-light-card
-        use_light_color: true
-      - card_mod:
-          style: "ha-state-icon {\n  {{'animation: boil 600ms 1000;' if is_state(config.entity,'on')}}\n\
-            \  }\n@keyframes boil {\n  0%, 100% { transform: translate({{ range(-20,\
-            \ 20) | random / 10 }}px, {{ range(-20, 20) | random / 10 }}px) rotate({{\
-            \ range(-15, 15) | random }}deg); }\n  10% { transform: translate({{ range(-20,\
-            \ 20) | random / 10 }}px, {{ range(-20, 20) | random / 10 }}px) rotate({{\
-            \ range(-15, 15) | random }}deg); clip-path: polygon(0 0, 66% 10%, 67%\
-            \ 30%, 88% 52%, 100% 100%, 0 100%); }\n  20% { transform: translate({{\
-            \ range(-20, 20) | random / 10 }}px, {{ range(-20, 20) | random / 10 }}px)\
-            \ rotate({{ range(-15, 15) | random }}deg); }\n  30% { transform: translate({{\
-            \ range(-20, 20) | random / 10 }}px, {{ range(-20, 20) | random / 10 }}px)\
-            \ rotate({{ range(-15, 15) | random }}deg); }\n  40% { transform: translate({{\
-            \ range(-20, 20) | random / 10 }}px, {{ range(-20, 20) | random / 10 }}px)\
-            \ rotate({{ range(-15, 15) | random }}deg); }\n  50% { transform: translate({{\
-            \ range(-20, 20) | random / 10 }}px, {{ range(-20, 20) | random / 10 }}px)\
-            \ rotate({{ range(-15, 15) | random }}deg); }\n  60% { transform: translate({{\
-            \ range(-20, 20) | random / 10 }}px, {{ range(-20, 20) | random / 10 }}px)\
-            \ rotate({{ range(-15, 15) | random }}deg); }\n  70% { transform: translate({{\
-            \ range(-20, 20) | random / 10 }}px, {{ range(-20, 20) | random / 10 }}px)\
-            \ rotate({{ range(-15, 15) | random }}deg); }\n  80% { transform: translate({{\
-            \ range(-20, 20) | random / 10 }}px, {{ range(-20, 20) | random / 10 }}px)\
-            \ rotate({{ range(-15, 15) | random }}deg); }\n  90% { transform: translate({{\
-            \ range(-20, 20) | random / 10 }}px, {{ range(-20, 20) | random / 10 }}px)\
-            \ rotate({{ range(-15, 15) | random }}deg); }\n}\nha-card {\n  width:\
-            \ px;\n  margin-left: 65%;\n  top: -180px;\n  background: none;\n}\n:host\
-            \ {\n  --mush-icon-size: 45px;\n  perspective: 900px;\n}\nha-card:active\
-            \ {\n  transform: rotateX(25deg);\n  transform-origin: center bottom;\n\
-            \  transition: 0s;\n}\n"
-        entity: switch.kettle
-        hold_action:
-          action: more-info
-        icon: "{{ iif(is_state(config.entity, 'on'), 'mdi:kettle-steam',\n      'mdi:kettle-off')}}\n"
-        icon_color: '{{ iif(is_state(config.entity, ''on''), ''red'', ''disabled'')}}'
-        primary: ''
-        secondary: ''
-        type: custom:mushroom-legacy-template-card
-      - card_mod:
-          style: "ha-card {\n  width: px;\n  margin-left: 65%;\n  top: -180px;\n \
-            \ background: none;\n}\n:host {\n  --mush-icon-size: 45px;\n  perspective:\
-            \ 900px;\n}\nha-card:active {\n  transform: rotateX(25deg);\n  transform-origin:\
-            \ center bottom;\n  transition: 0s;\n}\nmushroom-badge-icon { display:\
-            \ none !important; }\n"
-        entity: light.backyard_lights
-        hold_action:
-          action: more-info
-        icon: mdi:string-lights
-        primary_info: none
-        secondary_info: none
-        show_brightness_control: false
-        show_color_control: false
-        show_color_temp_control: false
-        tap_action:
-          action: toggle
-        type: custom:mushroom-light-card
-        use_light_color: true
-      grid_options:
-        columns: 6
-        rows: auto
-      type: custom:vertical-stack-in-card
-    - card_mod:
-        style: "ha-card {\n  height: 200px !important;\n  border-style: dashed;\n\
-          \  border-width: 2px;\n  overflow: hidden !important;\n}\n"
-      cards:
-      - badge_color: ''
-        badge_icon: ''
-        card_mod:
-          style:
-            .: "ha-card {\n  border: 0px !important;\n  box-shadow: none !important;\n\
-              \  background: none;\n}\n:host {\n  --mush-icon-size: 160px;\n}\n"
-            mushroom-shape-icon$: ".shape {\n  position: relative;\n  left: -40px;\n\
-              \  top: 60px;\n}\n"
-            mushroom-state-info$: ".primary {\n  font-size: 1.5em !important;\n  position:\
-              \ relative;\n  top: -60px;\n  left: -165px;\n  overflow: visible !important;\n\
-              }\n.secondary {\n  font-size: 1em !important;\n  position: relative;\n\
-              \  top: -50px;\n  left: -165px;\n  overflow: visible !important;\n}\n"
-        double_tap_action:
-          action: none
-        hold_action:
-          action: none
-        icon: mdi:key-chain-variant
-        icon_color: "{% if is_state('binary_sensor.hallway_motion_occupancy', 'on')\
-          \ %}\n  pink\n{%else%}\n  disabled\n{% endif %}"
-        layout: horizontal
-        primary: Hallway
-        secondary: 🌡️ {{ states('sensor.hallway_motion_device_temperature') | round(1)
-          if states('sensor.hallway_motion_device_temperature') != 'unavailable' else
-          'N/A' }} °C
-        tap_action:
-          action: navigate
-          navigation_path: /lovelace/living-room?anchor=hallway
-        type: custom:mushroom-legacy-template-card
-      - card_mod:
-          style: "ha-card {\n  width: px;\n  margin-left: 65%;\n  top: -180px;\n \
-            \ background: none;\n}\n:host {\n  --mush-icon-size: 45px;\n  perspective:\
-            \ 900px;\n}\nha-card:active {\n  transform: rotateX(25deg);\n  transform-origin:\
-            \ center bottom;\n  transition: 0s;\n}\nmushroom-badge-icon { display:\
-            \ none !important; }\n"
-        entity: light.string_lights
-        hold_action:
-          action: more-info
-        icon: mdi:string-lights
-        primary_info: none
-        secondary_info: none
-        show_brightness_control: false
-        show_color_control: false
-        show_color_temp_control: false
-        tap_action:
-          action: toggle
-        type: custom:mushroom-light-card
-        use_light_color: true
-      - card_mod:
-          style: "ha-card {\n  width: px;\n  margin-left: 65%;\n  top: -180px;\n \
-            \ background: none;\n}\n:host {\n  --mush-icon-size: 45px;\n  perspective:\
-            \ 900px;\n}\nha-card:active {\n  transform: rotateX(25deg);\n  transform-origin:\
-            \ center bottom;\n  transition: 0s;\n}\nmushroom-badge-icon { display:\
-            \ none !important; }\n"
-        entity: light.hallway_chandelier
-        hold_action:
-          action: more-info
-        icon: mdi:chandelier
-        primary_info: none
-        secondary_info: none
-        show_brightness_control: false
-        show_color_control: false
-        show_color_temp_control: false
-        tap_action:
-          action: toggle
-        type: custom:mushroom-light-card
-        use_light_color: true
-      grid_options:
-        columns: 6
-        rows: auto
-      type: custom:vertical-stack-in-card
-    - card_mod:
-        style: "ha-card {\n  height: 200px !important;\n  border-style: dashed;\n\
-          \  border-width: 2px;\n  overflow: hidden !important;\n}\n"
-      cards:
-      - card_mod:
-          style:
-            .: "ha-card {\n  border: 0px !important;\n  box-shadow: none !important;\n\
-              \  background: none;\n}\n:host {\n  --mush-icon-size: 160px;\n}\n"
-            mushroom-shape-avatar$: ".picture {\n  position: relative;\n  left: -30px;\n\
-              \  top: 50px;\n}\n"
-            mushroom-state-info$: ".primary {\n  font-size: 1.5em !important;\n  position:\
-              \ relative;\n  top: -60px;\n  left: -165px;\n  overflow: visible !important;\n\
-              }\n.secondary {\n  font-size: 1em !important;\n  position: relative;\n\
-              \  top: -55px;\n  left: -165px;\n  overflow: visible !important;\n}\n"
-        entity: camera.doorbell
-        hold_action:
-          action: more-info
-        layout: horizontal
-        picture: '{{state_attr(''camera.doorbell_snapshot'', ''entity_picture'')}}
-
-          '
-        primary: Doorbell
-        secondary: '{% set last_triggered = state_attr(''automation.doorbell_automations'',
-          ''last_triggered'') %} {{ relative_time(last_triggered) + '' ago'' if last_triggered
-          else ''No recent activity'' }}
-
-          '
-        tap_action:
-          action: navigate
-          navigation_path: /lovelace/living-room?anchor=doorbell
-        type: custom:mushroom-legacy-template-card
-      - card_mod:
-          style:
-            .: "ha-card {\n  width: px;\n  margin-left: 65%;\n  top: -180px;\n  background:\
-              \ none;\n}\n:host {\n  --mush-icon-size: 45px;\n  perspective: 900px;\n\
-              }\nha-card:active {\n  transform: rotateX(25deg);\n  transform-origin:\
-              \ center bottom;\n  transition: 0s;\n}\n"
-        entity: binary_sensor.porch_motion_occupancy
-        hold_action:
-          action: more-info
-        primary_info: none
-        secondary_info: none
-        tap_action:
-          action: more-info
-        type: custom:mushroom-entity-card
-      - card_mod:
-          style: "ha-card {\n  width: px;\n  margin-left: 65%;\n  top: -180px;\n \
-            \ background: none;\n}\n:host {\n  --mush-icon-size: 45px;\n  perspective:\
-            \ 900px;\n}\nha-card:active {\n  transform: rotateX(25deg);\n  transform-origin:\
-            \ center bottom;\n  transition: 0s;\n}\nmushroom-badge-icon { display:\
-            \ none !important; }\n"
-        entity: light.porch_light
-        hold_action:
-          action: more-info
-        icon: mdi:ceiling-light
-        primary_info: none
-        secondary_info: none
-        show_brightness_control: false
-        show_color_control: false
-        show_color_temp_control: false
-        tap_action:
-          action: toggle
-        type: custom:mushroom-light-card
-        use_light_color: true
-      grid_options:
-        columns: 6
-        rows: auto
-      type: custom:vertical-stack-in-card
-    - card_mod:
-        style: "ha-card {\n  height: 200px !important;\n  border-style: dashed;\n\
-          \  border-width: 2px;\n  overflow: hidden !important;\n}\n"
-      cards:
-      - badge_color: transparent
-        badge_icon: none
-        card_mod:
-          style:
-            .: "ha-card {\n\n  border: 0px !important;\n  box-shadow: none !important;\n\
-              \  background: none;\n}\n:host {\n  --mush-icon-size: 160px;\n}\nmushroom-badge-icon:after\
-              \ {\n  content: \"{% if is_state('input_boolean.bin', 'on') %}✔{% else\
-              \ %}{% set black_next_collection = state_attr('sensor.black_bin', 'next_collection')\
-              \ %}{% set blue_next_collection = state_attr('sensor.blue_bin', 'next_collection')\
-              \ %}{% if black_next_collection < blue_next_collection %}{{ black_next_collection\
-              \ }}{% else %}{{ blue_next_collection }}{% endif %}{% endif %}\";\n\
-              \  background: {% if is_state('input_boolean.bin', 'on') %}rgb(var(--rgb-green)){%\
-              \ else %}{% set black_next_collection = state_attr('sensor.black_bin',\
-              \ 'next_collection') %}{% set blue_next_collection = state_attr('sensor.blue_bin',\
-              \ 'next_collection') %}{% set next_collection = black_next_collection\
-              \ if black_next_collection < blue_next_collection else blue_next_collection\
-              \ %}{% if next_collection > 5 %}rgb(var(--rgb-green)){% elif next_collection\
-              \ > 2 %}rgb(var(--rgb-yellow)){% else %}rgb(var(--rgb-red)){% endif\
-              \ %}{% endif %};\n  position: absolute;\n  font-size: 1.3em;\n  display:\
-              \ flex;\n  justify-content: center;\n  align-items: center;\n  color:\
-              \ black;\n  font-weight: bolder;\n  border-radius: 50%;\n  width: 30px;\n\
-              \  height: 30px;\n  top: 60px;\n  right: 50px;\n}\n"
-            mushroom-shape-avatar$: ".picture {\n  position: relative;\n  left: -30px;\n\
-              \  top: 60px;\n  filter: brightness(1) contrast(3);\n}\n"
-            mushroom-state-info$: ".primary {\n  font-size: 1.5em !important;\n  position:\
-              \ relative;\n  top: -60px;\n  left: -165px;\n  overflow: visible !important;\n\
-              }\n.secondary {\n  font-size: 1em !important;\n  position: relative;\n\
-              \  top: -50px;\n  left: -165px;\n  overflow: visible !important;\n}\n"
-        double_tap_action:
-          action: perform-action
-          perform_action: input_boolean.toggle
-          target:
-            entity_id: input_boolean.bin
-        hold_action:
-          action: more-info
-          entity: input_boolean.bin
-        icon: none
-        layout: horizontal
-        picture: "{% set black_next = state_attr('sensor.black_bin', 'next_collection')\
-          \ %} {% set blue_next = state_attr('sensor.blue_bin', 'next_collection')\
-          \ %} {% if black_next is not none and blue_next is not none %}\n  {% if\
-          \ black_next < blue_next %}/local/images/bins/black_bin.png{% else %}/local/images/bins/blue_bin.png{%\
-          \ endif %}\n{% else %}\n  /local/images/bins/black_bin.png\n{% endif %}"
-        primary: "{% set black_next = state_attr('sensor.black_bin', 'next_collection')\
-          \ %} {% set blue_next = state_attr('sensor.blue_bin', 'next_collection')\
-          \ %} {% if black_next is not none and blue_next is not none %}\n  {% if\
-          \ black_next < blue_next %}Black Bin{% else %}Blue Bin{% endif %}\n{% else\
-          \ %}\n  Bin Collection\n{% endif %}\n"
-        secondary: "{% if is_state('input_boolean.bin', 'on') %}Bin is outside{% else\
-          \ %}{% set black_next = state_attr('sensor.black_bin', 'next_collection')\
-          \ %} {% set blue_next = state_attr('sensor.blue_bin', 'next_collection')\
-          \ %} {% if black_next is not none and blue_next is not none %}\n  {% if\
-          \ black_next < blue_next %}\n    on {{ states('sensor.black_bin') }}\n \
-          \ {% else %}\n    on {{ states('sensor.blue_bin') }}\n  {% endif %}\n{%\
-          \ else %}\n  Check schedule\n{% endif %}\n{% endif %}"
-        tap_action:
-          action: navigate
-          navigation_path: /lovelace/living-room?anchor=bins
-        type: custom:mushroom-legacy-template-card
-      - card_mod:
-          style:
-            .: "ha-card {\n  width: 80px;\n  display: flex;\n  justify-content: center;\n\
-              \  margin-left: 65%;\n  top: -180px;\n  background: none;\n  filter:\
-              \ brightness(1) contrast(3)\n\n}\n:host {\n  --mush-icon-size: 50px;\n\
-              \  perspective: 900px;\n}\n"
-        entity: sensor.blue_bin
-        hold_action:
-          action: more-info
-        picture: /local/images/bins/blue_bin.png
-        tap_action:
-          action: more-info
-        type: custom:mushroom-legacy-template-card
-      - card_mod:
-          style:
-            .: "ha-card {\n  width: 80px;\n  display: flex;\n  justify-content: center;\n\
-              \  margin-left: 65%;\n  top: -180px;\n  background: none;\n  filter:\
-              \ brightness(2) contrast(3)\n}\n:host {\n  --mush-icon-size: 50px;\n\
-              \  perspective: 900px;\n}\n"
-        entity: sensor.black_bin
-        hold_action:
-          action: more-info
-        picture: /local/images/bins/black_bin.png
-        tap_action:
-          action: more-info
-        type: custom:mushroom-legacy-template-card
-      grid_options:
-        columns: 6
-        rows: auto
-      type: custom:vertical-stack-in-card
-    - card_mod:
-        style: "ha-card {\n  height: 200px !important;\n  border-style: dashed;\n\
-          \  border-width: 2px;\n  overflow: hidden !important;\n}\n"
-      cards:
-      - badge_color: ''
-        badge_icon: ''
-        card_mod:
-          style:
-            .: "ha-card {\n  border: 0px !important;\n  box-shadow: none !important;\n\
-              \  background: none;\n}\nha-state-icon {\n  {% if is_state('sensor.washing_machine_state',\
-              \ 'Washing') %}\n  animation: shake-washing 400ms ease-in-out infinite,\
-              \ drum-washing 2s ease 1000;\n  transform-origin: 50% 110%;\n  {% elif\
-              \ is_state('sensor.washing_machine_state', 'Spinning') %}\n  animation:\
-              \ spin 2s linear 1000;\n  {% elif is_state('sensor.washing_machine_state',\
-              \ 'Rinsing') %}\n  animation: bounce 1.5s ease-in-out infinite, wash\
-              \ 1s ease-in-out 1000;\n  transform-origin: 50% 75%;\n  {% elif is_state('sensor.washing_machine_state',\
-              \ 'Drying') %}\n  animation: shake-drying 400ms ease-in-out infinite,\
-              \ drum-drying 1s 1000;\n  transform-origin: 50% 65%;\n  {% elif is_state('sensor.washing_machine_state',\
-              \ 'Cycle Complete') %}\n  animation: pulse 2s ease-in-out 1000;\n  {%\
-              \ endif %}\n}\n@keyframes shake-washing {\n  0%, 100% { transform: translate(0,\
-              \ 0) rotate(0); }\n  20% { transform: translate(0.4px, -0.4px) rotate(-4deg);\
-              \ }\n  40% { transform: translate(-0.4px, 0.4px) rotate(4deg); }\n \
-              \ 60% { transform: translate(0.4px, 0.4px) rotate(-4deg); }\n  80% {\
-              \ transform: translate(-0.4px, -0.4px) rotate(4deg); }\n}\n@keyframes\
-              \ drum-washing {\n  50% { clip-path: polygon(0 0, 0 100%, 35% 100%,\
-              \ 34% 68%, 60% 41%, 71% 56%, 65% 74%, 47% 79%, 32% 69%, 35% 100%, 100%\
-              \ 100%, 100% 0); }\n}\n@keyframes bounce {\n  0%, 20%, 50%, 80%, 100%\
-              \ { transform: translateY(0); }\n  40% { transform: translateY(-1.2px)\
-              \ rotate(5deg); }\n  60% { transform: translateY(-1.1px) rotate(-4deg);\
-              \ }\n}\n\n@keyframes wash {\n  50% { clip-path: polygon(0 0, 0 100%,\
-              \ 35% 100%, 36% 74%, 31% 43%, 61% 40%, 71% 69%, 62% 78%, 36% 73%, 35%\
-              \ 100%, 100% 100%, 100% 0); }\n}\n@keyframes shake-drying {\n  0%, 100%\
-              \ { transform: rotate(4deg); }\n  50% { transform: rotate(-4deg); }\n\
-              }\n@keyframes drum-drying {\n  50% { clip-path: polygon(0 0, 0 100%,\
-              \ 35% 100%, 36% 74%, 31% 43%, 61% 40%, 71% 69%, 62% 78%, 36% 73%, 35%\
-              \ 100%, 100% 100%, 100% 0); }\n}\n:host {\n  --mush-icon-size: 160px;\n\
-              }\n"
-            mushroom-shape-icon$: ".shape {\n  position: relative;\n  left: -40px;\n\
-              \  top: 60px;\n}\n"
-            mushroom-state-info$: ".primary {\n  font-size: 1.5em !important;\n  position:\
-              \ relative;\n  top: -60px;\n  left: -165px;\n  overflow: visible !important;\n\
-              }\n.secondary {\n  font-size: 1em !important;\n  position: relative;\n\
-              \  top: -50px;\n  left: -165px;\n  overflow: visible !important;\n}\n"
-        double_tap_action:
-          action: none
-        hold_action:
-          action: none
-        icon: '{{ states.sensor.washing_machine_state.attributes.icon }}'
-        icon_color: "{{ iif(is_state('sensor.washing_machine_state', 'Idle'), 'blue-grey',\n\
-          \  iif(is_state('sensor.washing_machine_state', 'Washing'), 'cyan',\n  iif(is_state('sensor.washing_machine_state',\
-          \ 'Spinning'), 'purple',\n  iif(is_state('sensor.washing_machine_state',\
-          \ 'Rinsing'), 'blue',\n  iif(is_state('sensor.washing_machine_state', 'Drying'),\
-          \ 'deep-orange',\n  iif(is_state('sensor.washing_machine_state', 'Paused'),\
-          \ 'orange',\n  iif(is_state('sensor.washing_machine_state', 'Cycle Complete'),\
-          \ 'green', 'disabled'))))))) }}"
-        layout: horizontal
-        primary: Washing Machine
-        secondary: '{{ states(''sensor.washing_machine_state'') if states(''sensor.washing_machine_state'')
-          != ''unavailable'' else ''Status Unknown'' }}'
-        tap_action:
-          action: navigate
-          navigation_path: /lovelace/utilities
-        type: custom:mushroom-legacy-template-card
-      - card:
-          card_mod:
-            style:
-              .: "ha-card {\n  width: px;\n  margin-left: 40%;\n  top: -120px;\n \
-                \ background: none;\n}\n"
-              mushroom-state-info$: ".primary {\n  {{ 'display: none;' if is_state('sensor.bob_duration',\
-                \ 'unavailable') or is_state('sensor.washing_machine_state', 'Cycle\
-                \ Complete') or is_state('sensor.washing_machine_state', 'Off') else\
-                \ '' }}\n  font-size: 20px !important;\n}\n.secondary {\n  {{ 'display:\
-                \ none;' if is_state('sensor.bob_duration', 'unavailable') or is_state('sensor.washing_machine_state',\
-                \ 'Cycle Complete') or is_state('sensor.washing_machine_state', 'Off')\
-                \ else '' }}\n  font-size: 13px !important;\n}\n"
-          entity: sensor.bob_duration
-          icon: none
-          icon_color: none
-          name: Duration
-          primary_info: state
-          secondary_info: name
-          type: custom:mushroom-entity-card
-        conditions:
-        - condition: state
-          entity: sensor.bob_duration
-          state_not: unavailable
-        type: conditional
-      - card:
-          card_mod:
-            style:
-              .: "ha-card {\n  width: px;\n  margin-left: 40%;\n  top: -130px;\n \
-                \ background: none;\n}\n"
-              mushroom-state-info$: ".primary {\n  {{ 'display: none;' if is_state('sensor.bob_duration',\
-                \ 'unavailable') or is_state('sensor.washing_machine_state', 'Cycle\
-                \ Complete') or is_state('sensor.washing_machine_state', 'Off') else\
-                \ '' }}\n  font-size: 20px !important;\n}\n.secondary {\n  {{ 'display:\
-                \ none;' if is_state('sensor.bob_duration', 'unavailable') or is_state('sensor.washing_machine_state',\
-                \ 'Cycle Complete') or is_state('sensor.washing_machine_state', 'Off')\
-                \ else '' }}\n  font-size: 13px !important;\n}\n"
-          entity: sensor.bob_remaining
-          icon: none
-          icon_color: none
-          name: Remaining
-          primary_info: state
-          secondary_info: name
-          type: custom:mushroom-entity-card
-        conditions:
-        - condition: state
-          entity: sensor.bob_remaining
-          state_not: unavailable
-        type: conditional
-      grid_options:
-        columns: 6
-        rows: auto
-      type: custom:vertical-stack-in-card
-    - card_mod:
-        style: "ha-card {\n  height: 200px !important;\n  border-style: dashed;\n\
-          \  border-width: 2px;\n  overflow: hidden !important;\n}\n"
-      cards:
-      - card_mod:
-          style: "ha-card {\n  --ha-ripple-hover-opacity: 0;\n  --ha-ripple-pressed-opacity:\
-            \ 0;\n  --md-ripple-hover-opacity: 0;\n  --md-ripple-pressed-opacity:\
-            \ 0;\n}\nha-ripple, md-ripple, mwc-ripple { display: none !important;\
-            \ }\n"
-        custom_fields:
-          cards:
-            card:
-              cards:
-              - card_mod:
-                  style:
-                    .: "ha-card {\n  top: -40px;\n  background: none !important;\n\
-                      \  box-shadow: none !important;\n  border: none !important;\n\
-                      \  --ha-ripple-hover-opacity: 0;\n  --ha-ripple-pressed-opacity:\
-                      \ 0;\n  --md-ripple-hover-opacity: 0;\n  --md-ripple-pressed-opacity:\
-                      \ 0;\n}\n:host {\n  --mush-icon-size: 45px;\n  perspective:\
-                      \ 900px;\n}\nha-card:active {\n  transform: rotateX(25deg);\n\
-                      \  transform-origin: center bottom;\n  transition: 0s;\n}\n"
-                    mushroom-shape-icon$: ".shape {\n  {{'--shape-animation: ping\
-                      \ 2s 1000;' if is_state ('switch.boiler', 'on')}}\n}\nha-state-icon\
-                      \ {\n  {{'animation: boil 600ms 1000;' if is_state('switch.boiler','off')}}\n\
-                      }\n@keyframes ping {\n  0% { box-shadow: 0 0 0 0 rgba(var(--rgb-red),\
-                      \ 1); }\n  100% { box-shadow: 0 0 5px 15px transparent; }\n\
-                      }\n@keyframes boil {\n  0%, 100% { transform: translate({{ range(-20,\
-                      \ 20) | random / 10 }}px, {{ range(-20, 20) | random / 10 }}px)\
-                      \ rotate({{ range(-15, 15) | random }}deg); }\n  10% { transform:\
-                      \ translate({{ range(-20, 20) | random / 10 }}px, {{ range(-20,\
-                      \ 20) | random / 10 }}px) rotate({{ range(-15, 15) | random\
-                      \ }}deg); clip-path: polygon(0 0, 66% 10%, 67% 30%, 88% 52%,\
-                      \ 100% 100%, 0 100%); }\n  20% { transform: translate({{ range(-20,\
-                      \ 20) | random / 10 }}px, {{ range(-20, 20) | random / 10 }}px)\
-                      \ rotate({{ range(-15, 15) | random }}deg); }\n  30% { transform:\
-                      \ translate({{ range(-20, 20) | random / 10 }}px, {{ range(-20,\
-                      \ 20) | random / 10 }}px) rotate({{ range(-15, 15) | random\
-                      \ }}deg); }\n  40% { transform: translate({{ range(-20, 20)\
-                      \ | random / 10 }}px, {{ range(-20, 20) | random / 10 }}px)\
-                      \ rotate({{ range(-15, 15) | random }}deg); }\n  50% { transform:\
-                      \ translate({{ range(-20, 20) | random / 10 }}px, {{ range(-20,\
-                      \ 20) | random / 10 }}px) rotate({{ range(-15, 15) | random\
-                      \ }}deg); }\n  60% { transform: translate({{ range(-20, 20)\
-                      \ | random / 10 }}px, {{ range(-20, 20) | random / 10 }}px)\
-                      \ rotate({{ range(-15, 15) | random }}deg); }\n  70% { transform:\
-                      \ translate({{ range(-20, 20) | random / 10 }}px, {{ range(-20,\
-                      \ 20) | random / 10 }}px) rotate({{ range(-15, 15) | random\
-                      \ }}deg); }\n  80% { transform: translate({{ range(-20, 20)\
-                      \ | random / 10 }}px, {{ range(-20, 20) | random / 10 }}px)\
-                      \ rotate({{ range(-15, 15) | random }}deg); }\n  90% { transform:\
-                      \ translate({{ range(-20, 20) | random / 10 }}px, {{ range(-20,\
-                      \ 20) | random / 10 }}px) rotate({{ range(-15, 15) | random\
-                      \ }}deg); }\n}\n"
-                    mushroom-state-item$: 'ha-ripple, md-ripple, mwc-ripple { display:
-                      none !important; }
-
-                      '
-                entity: switch.boiler
-                hold_action:
-                  action: more-info
-                icon: '{{ iif(is_state(''switch.boiler'', ''on''), ''mdi:water-boiler'',
-                  ''mdi:water-boiler-off'')}}'
-                icon_color: '{{ iif(is_state(''switch.boiler'', ''on''), ''red'',
-                  ''disabled'')}}'
-                primary: ''
-                secondary: ''
-                tap_action:
-                  action: toggle
-                type: custom:mushroom-legacy-template-card
-              - card_mod:
-                  style:
-                    .: "ha-card {\n  top: -50px;\n  background: none !important;\n\
-                      \  box-shadow: none !important;\n  border: none !important;\n\
-                      \  --ha-ripple-hover-opacity: 0;\n  --ha-ripple-pressed-opacity:\
-                      \ 0;\n  --md-ripple-hover-opacity: 0;\n  --md-ripple-pressed-opacity:\
-                      \ 0;\n}\n:host {\n  --mush-icon-size: 45px;\n  perspective:\
-                      \ 900px;\n}\nha-state-icon {\n  {% if is_state(config.entity,\
-                      \ 'heat') %}\n    animation: fire 1.5s infinite;\n    transform-origin:\
-                      \ 50% 85%;\n  {% endif %}\n}\n@keyframes fire {\n  0% { transform:\
-                      \ rotate({{range(-20, 20) | random / 10}}deg) scaleY({{range(9,\
-                      \ 12) | random / 10}}); color: rgb(var(--rgb-red)); opacity:\
-                      \ {{range(7, 10) | random / 10}}; }\n  5% { transform: rotate({{range(-20,\
-                      \ 20) | random / 10}}deg) scaleY({{range(9, 12) | random / 10}});\
-                      \ color: rgb(var(--rgb-deep-orange)); opacity: {{range(7, 10)\
-                      \ | random / 10}}; }\n  10% { transform: rotate({{range(-20,\
-                      \ 20) | random / 10}}deg) scaleY({{range(9, 12) | random / 10}});\
-                      \ color: rgb(var(--rgb-red)); opacity: {{range(7, 10) | random\
-                      \ / 10}}; }\n  15% { transform: rotate({{range(-20, 20) | random\
-                      \ / 10}}deg) scaleY({{range(9, 12) | random / 10}}); color:\
-                      \ rgb(var(--rgb-deep-orange)); opacity: {{range(7, 10) | random\
-                      \ / 10}}; }\n  20% { transform: rotate({{range(-20, 20) | random\
-                      \ / 10}}deg) scaleY({{range(9, 12) | random / 10}}); color:\
-                      \ rgb(var(--rgb-deep-orange)); opacity: {{range(7, 10) | random\
-                      \ / 10}}; }\n  25% { transform: rotate({{range(-20, 20) | random\
-                      \ / 10}}deg) scaleY({{range(9, 12) | random / 10}}); color:\
-                      \ rgb(var(--rgb-red)); opacity: {{range(7, 10) | random / 10}};\
-                      \ }\n  30% { transform: rotate({{range(-20, 20) | random / 10}}deg)\
-                      \ scaleY({{range(9, 12) | random / 10}}); color: rgb(var(--rgb-red));\
-                      \ opacity: {{range(7, 10) | random / 10}}; }\n  35% { transform:\
-                      \ rotate({{range(-20, 20) | random / 10}}deg) scaleY({{range(9,\
-                      \ 12) | random / 10}}); color: rgb(var(--rgb-deep-orange));\
-                      \ opacity: {{range(7, 10) | random / 10}}; }\n  40% { transform:\
-                      \ rotate({{range(-20, 20) | random / 10}}deg) scaleY({{range(9,\
-                      \ 12) | random / 10}}); color: rgb(var(--rgb-red)); opacity:\
-                      \ {{range(7, 10) | random / 10}}; }\n  45% { transform: rotate({{range(-20,\
-                      \ 20) | random / 10}}deg) scaleY({{range(9, 12) | random / 10}});\
-                      \ color: rgb(var(--rgb-deep-orange)); opacity: {{range(7, 10)\
-                      \ | random / 10}}; }\n  50% { transform: rotate({{range(-20,\
-                      \ 20) | random / 10}}deg) scaleY({{range(9, 12) | random / 10}});\
-                      \ color: rgb(var(--rgb-deep-orange)); opacity: {{range(7, 10)\
-                      \ | random / 10}}; }\n  55% { transform: rotate({{range(-20,\
-                      \ 20) | random / 10}}deg) scaleY({{range(9, 12) | random / 10}});\
-                      \ color: rgb(var(--rgb-red)); opacity: {{range(7, 10) | random\
-                      \ / 10}}; }\n  60% { transform: rotate({{range(-20, 20) | random\
-                      \ / 10}}deg) scaleY({{range(9, 12) | random / 10}}); color:\
-                      \ rgb(var(--rgb-deep-orange)); opacity: {{range(7, 10) | random\
-                      \ / 10}}; }\n  65% { transform: rotate({{range(-20, 20) | random\
-                      \ / 10}}deg) scaleY({{range(9, 12) | random / 10}}); color:\
-                      \ rgb(var(--rgb-red)); opacity: {{range(7, 10) | random / 10}};\
-                      \ }\n  70% { transform: rotate({{range(-20, 20) | random / 10}}deg)\
-                      \ scaleY({{range(9, 12) | random / 10}}); color: rgb(var(--rgb-deep-orange));\
-                      \ opacity: {{range(7, 10) | random / 10}}; }\n  75% { transform:\
-                      \ rotate({{range(-20, 20) | random / 10}}deg) scaleY({{range(9,\
-                      \ 12) | random / 10}}); color: rgb(var(--rgb-deep-orange));\
-                      \ opacity: {{range(7, 10) | random / 10}}; }\n  80% { transform:\
-                      \ rotate({{range(-20, 20) | random / 10}}deg) scaleY({{range(9,\
-                      \ 12) | random / 10}}); color: rgb(var(--rgb-red)); opacity:\
-                      \ {{range(7, 10) | random / 10}}; }\n  85% { transform: rotate({{range(-20,\
-                      \ 20) | random / 10}}deg) scaleY({{range(9, 12) | random / 10}});\
-                      \ color: rgb(var(--rgb-red)); opacity: {{range(7, 10) | random\
-                      \ / 10}}; }\n  90% { transform: rotate({{range(-20, 20) | random\
-                      \ / 10}}deg) scaleY({{range(9, 12) | random / 10}}); color:\
-                      \ rgb(var(--rgb-deep-orange)); opacity: {{range(7, 10) | random\
-                      \ / 10}}; }\n  95% { transform: rotate({{range(-20, 20) | random\
-                      \ / 10}}deg) scaleY({{range(9, 12) | random / 10}}); color:\
-                      \ rgb(var(--rgb-red)); opacity: {{range(7, 10) | random / 10}};\
-                      \ }\n  100% { transform: rotate({{range(-20, 20) | random /\
-                      \ 10}}deg) scaleY({{range(9, 12) | random / 10}}); color: rgb(var(--rgb-deep-orange));\
-                      \ opacity: {{range(7, 10) | random / 10}}; }\n}\nha-card:active\
-                      \ {\n  transform: rotateX(25deg);\n  transform-origin: center\
-                      \ bottom;\n  transition: 0s;\n}\n"
-                    mushroom-state-item$: 'ha-ripple, md-ripple, mwc-ripple { display:
-                      none !important; }
-
-                      '
-                entity: climate.heater
-                hold_action:
-                  action: more-info
-                icon: '{{ iif(is_state(''climate.heater'', ''heat''), ''mdi:fire'',
-                  ''mdi:fire-off'')}}
-
-                  '
-                icon_color: '{{ iif(is_state(''climate.heater'', ''heat''), ''red'',
-                  ''disabled'')}}
-
-                  '
-                primary: ''
-                secondary: ''
-                tap_action:
-                  action: toggle
-                type: custom:mushroom-legacy-template-card
-              - card_mod:
-                  style:
-                    .: "ha-card {\n  top: -60px;\n  background: none !important;\n\
-                      \  box-shadow: none !important;\n  border: none !important;\n\
-                      \  --ha-ripple-hover-opacity: 0;\n  --ha-ripple-pressed-opacity:\
-                      \ 0;\n  --md-ripple-hover-opacity: 0;\n  --md-ripple-pressed-opacity:\
-                      \ 0;\n}\n:host {\n  --mush-icon-size: 45px;\n  perspective:\
-                      \ 900px;\n}\nha-card:active {\n  transform: rotateX(25deg);\n\
-                      \  transform-origin: center bottom;\n  transition: 0s;\n}\n"
-                    mushroom-state-item$: 'ha-ripple, md-ripple, mwc-ripple { display:
-                      none !important; }
-
-                      '
-                entity: switch.bed_warmer
-                hold_action:
-                  action: more-info
-                icon: m3o:blanket
-                icon_color: '{{ iif(is_state(config.entity, ''on''), ''red'', ''disabled'')}}
-
-                  '
-                primary: ''
-                secondary: ''
-                tap_action:
-                  action: toggle
-                type: custom:mushroom-legacy-template-card
-              type: vertical-stack
-          switch:
-            card:
-              badge_color: ''
-              badge_icon: ''
-              card_mod:
-                style:
-                  .: "ha-card {\n  border: 0px !important;\n  box-shadow: none !important;\n\
-                    \  background: none;\n  --ha-ripple-hover-opacity: 0;\n  --ha-ripple-pressed-opacity:\
-                    \ 0;\n  --md-ripple-hover-opacity: 0;\n  --md-ripple-pressed-opacity:\
-                    \ 0;\n}\n:host {\n  --mush-icon-size: 160px;\n}\n"
-                  mushroom-shape-icon$: ".shape {\n  position: relative;\n  left:\
-                    \ -25px;\n  top: -45px;\n}\n"
-                  mushroom-state-item$: 'ha-ripple, md-ripple, mwc-ripple { display:
-                    none !important; }
-
-                    '
-              entity: switch.heating
-              icon: '{{ iif(is_state(config.entity, ''on''), ''mdi:radiator'', ''mdi:radiator-off'')}}'
-              icon_color: '{{ iif(is_state(config.entity, ''on''), ''red'', ''disabled'')}}'
-              type: custom:mushroom-legacy-template-card
-          timer:
-            card:
-              default: name
-              entity: timer.heating
-              states:
-                active:
-                  bar_radius: 10px
-                  card_mod:
-                    style: "ha-card {\n  background: none;\n  top: -20px;\n  margin-left:\
-                      \ -15px;\n  font-size: 30px !important;\n}\n.primary {\n  font-size:\
-                      \ 20px !important;\n  font-weight: 1 !important;\n  margin-left:\
-                      \ 3px;\n}\n.bar-container {\n  padding: 0px !important;\n  margin-top:\
-                      \ 5px !important;\n}\n"
-                  entity: timer.heating
-                  invert: true
-                  mushroom:
-                    color: red
-                    icon_type: none
-                  name: Heating
-                  text_width: 0px
-                  type: custom:timer-bar-card
-                name:
-                  card_mod:
-                    style:
-                      .: "ha-card {\n  background: none;\n}\n"
-                      mushroom-state-info$: ".primary {\n  font-size: 20px !important;\n\
-                        \  position: relative;\n  top: -25px;\n  overflow: visible\
-                        \ !important;\n}\n.secondary {\n  font-size: 12px !important;\n\
-                        \  position: relative;\n  top: -15px;\n  overflow: visible\
-                        \ !important;\n}\n"
-                  entity: switch.heating
-                  primary: Heating
-                  secondary: 'Turned {{ states.switch.heating.state }} at {{ (as_timestamp(states.switch.heating.last_changed)
-                    | timestamp_custom(''%-I:%M %p'')) }}
-
-                    '
-                  type: custom:mushroom-legacy-template-card
-              type: custom:state-switch
-        styles:
-          grid:
-          - grid-template-areas: '"timer cards" "switch cards"'
-          - grid-template-columns: 70% 30%
-          - grid-template-rows: 95px
-          - text-align: left
-        tap_action:
-          action: call-service
-          service: switch.toggle
-          service_data:
-            entity_id: switch.heating
-        type: custom:button-card
-      grid_options:
-        columns: 6
-        rows: auto
-      type: custom:vertical-stack-in-card
-    - card_mod:
-        style: "ha-card {\n  height: 200px !important;\n  border-style: dashed;\n\
-          \  border-width: 2px;\n  overflow: hidden !important;\n}\n"
-      cards:
-      - badge_color: ''
-        badge_icon: ''
-        card_mod:
-          style:
-            .: "ha-card {\n  border: 0px !important;\n  box-shadow: none !important;\n\
-              \  background: none;\n}\n:host {\n  --mush-icon-size: 160px;\n}\n"
-            mushroom-shape-icon$: ".shape {\n  position: relative;\n  left: -40px;\n\
-              \  top: 60px;\n}\n"
-            mushroom-state-info$: ".primary {\n  font-size: 1.5em !important;\n  position:\
-              \ relative;\n  top: -60px;\n  left: -165px;\n  overflow: visible !important;\n\
-              }\n.secondary {\n  font-size: 1em !important;\n  position: relative;\n\
-              \  top: -50px;\n  left: -165px;\n  overflow: visible !important;\n}\n"
-        double_tap_action:
-          action: none
-        hold_action:
-          action: none
-        icon: mdi:bag-suitcase-outline
-        icon_color: "{% if is_state('light.guest_bed_light', 'on') or\n      not is_state('sensor.tp_link_router_total_guest_wifi_clients',\
-          \ '0') %}\n   #5dfccd\n {% else %}\n  disabled\n {% endif %}"
-        layout: horizontal
-        primary: Guest
-        secondary: '🛜 {{ states(''sensor.tp_link_router_total_guest_wifi_clients'')
-          if states(''sensor.tp_link_router_total_guest_wifi_clients'') != ''unavailable''
-          else ''0'' }} devices
-
-          '
-        tap_action:
-          action: navigate
-          navigation_path: /lovelace/living-room?anchor=guest
-        type: custom:mushroom-legacy-template-card
-      - card_mod:
-          style: "ha-card {\n  width: px;\n  margin-left: 65%;\n  top: -180px;\n \
-            \ background: none;\n}\n:host {\n  --mush-icon-size: 45px;\n  perspective:\
-            \ 900px;\n}\nha-card:active {\n  transform: rotateX(25deg);\n  transform-origin:\
-            \ center bottom;\n  transition: 0s;\n}\nmushroom-badge-icon { display:\
-            \ none !important; }\n"
-        entity: light.guest_light
-        hold_action:
-          action: more-info
-        icon: mdi:globe-light
-        primary_info: none
-        secondary_info: none
-        show_brightness_control: false
-        show_color_control: false
-        show_color_temp_control: false
-        tap_action:
-          action: toggle
-        type: custom:mushroom-light-card
-        use_light_color: true
-      - card_mod:
-          style: "ha-card {\n  width: px;\n  margin-left: 65%;\n  top: -180px;\n \
-            \ background: none;\n}\n:host {\n  --mush-icon-size: 45px;\n  perspective:\
-            \ 900px;\n}\nha-card:active {\n  transform: rotateX(25deg);\n  transform-origin:\
-            \ center bottom;\n  transition: 0s;\n}\nmushroom-badge-icon { display:\
-            \ none !important; }\n"
-        entity: light.guest_bed_light
-        hold_action:
-          action: more-info
-        icon: mdi:lamp
-        primary_info: none
-        secondary_info: none
-        show_brightness_control: false
-        show_color_control: false
-        show_color_temp_control: false
-        tap_action:
-          action: toggle
-        type: custom:mushroom-light-card
-        use_light_color: true
-      grid_options:
-        columns: 6
-        rows: auto
-      type: custom:vertical-stack-in-card
-    - card_mod:
-        style: "ha-card {\n  height: 200px !important;\n  border-style: dashed;\n\
-          \  border-width: 2px;\n  overflow: hidden !important;\n}\n:host {\n  height:\
-          \ 200px !important;\n}\n"
-      cards:
-      - badge_color: ''
-        badge_icon: ''
-        card_mod:
-          style:
-            .: "ha-card {\n\n  border: 0px !important;\n  box-shadow: none !important;\n\
-              \  background: none;\n}\n:host {\n  --mush-icon-size: 160px;\n}\n"
-            mushroom-shape-icon$: ".shape {\n  position: relative;\n  left: -40px;\n\
-              \  top: 60px;\n}\n"
-            mushroom-state-info$: ".primary {\n  font-size: 1.5em !important;\n  position:\
-              \ relative;\n  top: -60px;\n  left: -165px;\n  overflow: visible !important;\n\
-              }\n.secondary {\n  font-size: 1em !important;\n  position: relative;\n\
-              \  top: -50px;\n  left: -165px;\n  overflow: visible !important;\n}\n"
-        double_tap_action:
-          action: none
-        hold_action:
-          action: none
-        icon: mdi:tent
-        icon_color: "{% if is_state('light.backyard_lights', 'on') or is_state('light.alleyway_lights',\
-          \ 'on') or is_state('binary_sensor.back_door_contact', 'on') %}\n  purple\n\
-          {%else%}\n  disabled\n{% endif %}"
-        layout: horizontal
-        primary: Backyard
-        secondary: '🌡️ {{ states(''sensor.hygrometer_temperature'') | round(1) if
-          states(''sensor.hygrometer_temperature'') != ''unavailable'' else ''N/A''
-          }} °C | 💧 {{ states(''sensor.hygrometer_humidity'') | round(1) if states(''sensor.hygrometer_humidity'')
-          != ''unavailable'' else ''N/A'' }} %
-
-          '
-        tap_action:
-          action: navigate
-          navigation_path: /lovelace/living-room?anchor=kitchen
-        type: custom:mushroom-legacy-template-card
-      - card_mod:
-          style: "ha-card {\n  width: px;\n  margin-left: 65%;\n  top: -180px;\n \
-            \ background: none;\n}\n:host {\n  --mush-icon-size: 45px;\n  perspective:\
-            \ 900px;\n}\nha-card:active {\n  transform: rotateX(25deg);\n  transform-origin:\
-            \ center bottom;\n  transition: 0s;\n}\nmushroom-badge-icon { display:\
-            \ none !important; }\n"
-        entity: light.backyard_lights
-        hold_action:
-          action: more-info
-        icon: mdi:string-lights
-        primary_info: none
-        secondary_info: none
-        show_brightness_control: false
-        show_color_control: false
-        show_color_temp_control: false
-        tap_action:
-          action: toggle
-        type: custom:mushroom-light-card
-        use_light_color: true
-      - card_mod:
-          style: "ha-card {\n  width: px;\n  margin-left: 65%;\n  top: -180px;\n \
-            \ background: none;\n}\n:host {\n  --mush-icon-size: 45px;\n  perspective:\
-            \ 900px;\n}\nha-card:active {\n  transform: rotateX(25deg);\n  transform-origin:\
-            \ center bottom;\n  transition: 0s;\n}\nmushroom-badge-icon { display:\
-            \ none !important; }\n"
-        entity: light.alleyway_lights
-        hold_action:
-          action: more-info
-        icon: mdi:light-recessed
-        primary_info: none
-        secondary_info: none
-        show_brightness_control: false
-        show_color_control: false
-        show_color_temp_control: false
-        tap_action:
-          action: toggle
-        type: custom:mushroom-light-card
-        use_light_color: true
-      - card_mod:
-          style:
-            .: "ha-card {\n  width: px;\n  margin-left: 65%;\n  top: -180px;\n  background:\
-              \ none;\n}\n:host {\n  --mush-icon-size: 45px;\n  perspective: 900px;\n\
-              }\nha-card:active {\n  transform: rotateX(25deg);\n  transform-origin:\
-              \ center bottom;\n  transition: 0s;\n}\n"
-        entity: binary_sensor.back_door_contact
-        hold_action:
-          action: more-info
-        primary_info: none
-        secondary_info: none
-        tap_action:
-          action: more-info
-        type: custom:mushroom-entity-card
-      grid_options:
-        columns: 6
-        rows: auto
-      type: custom:vertical-stack-in-card
-    - cards:
-      - card_mod:
-          style: "ha-card {\n  height: 200px !important;\n  border-style: dashed;\n\
-            \  border-width: 2px;\n}\n"
-        cards:
-        - card_mod:
-            style:
-              mushroom-state-info$: ".primary {\n  font-size: 20px !important;\n \
-                \ position: relative;\n  overflow: visible !important;\n}\n.secondary\
-                \ {\n  font-size: 13px !important;\n  position: relative;\n  overflow:\
-                \ visible !important;\n  top: 10px;\n}\n"
-          entity: ''
-          primary: Internet Speed
-          secondary: '⬆️ {{states.sensor.speedtest_download.state}} Mbps |  ⬇️ {{states.sensor.speedtest_upload.state}}
-            Mbps
-
-            '
-          tap_action:
-            action: call-service
-            data:
-              addon: 6b87c29e_speedtest_addon
-            service: hassio.addon_start
-            target: {}
-          type: custom:mushroom-legacy-template-card
-        - entities:
-          - color: '#f24d1b'
-            entity: sensor.speedtest_download
-          hours_to_show: 24
-          line_width: 5
-          show:
-            fill: fade
-            icon: false
-            legend: false
-            name: false
-            state: false
-          type: custom:mini-graph-card
-        - entities:
-          - color: '#0960eb'
-            entity: sensor.speedtest_upload
-          hours_to_show: 24
-          line_width: 5
-          show:
-            fill: fade
-            icon: false
-            legend: false
-            name: false
-            state: false
-          type: custom:mini-graph-card
-        mode: vertical
-        type: custom:stack-in-card
-      - card_mod:
-          style: "ha-card {\n  height: 200px !important;\n  border-style: dashed;\n\
-            \  border-width: 2px;\n}\n"
-        cards:
-        - card_mod:
-            style: 'ha-card {
-
-              padding: 20px !important; height: 45px !important; top: 5px; }
-
-              '
-          double_tap_action:
-            action: none
-          entity: sensor.system_monitor_disk_use
-          fill_container: false
-          hold_action:
-            action: none
-          icon: mdi:harddisk
-          icon_color: "{% set value = states('sensor.system_monitor_disk_use_percent')\
-            \ | float %} {% if value >= 0.00 and value <= 50.99 %}\n  green\n{% elif\
-            \ value >= 51 and value <= 70.99 %}\n  orange\n{% elif value >= 71.00\
-            \ and value <= 100 %}\n  red\n{% endif %}"
-          multiline_secondary: true
-          primary: '{{ states(''sensor.system_monitor_disk_use'') if states(''sensor.system_monitor_disk_use'')
-            != ''unavailable'' else ''N/A'' }} GB'
-          secondary: Hard Disk
-          tap_action:
-            action: more-info
-          type: custom:mushroom-legacy-template-card
-        - card_mod:
-            style: "ha-card {\npadding: 20px !important; height: 40px !important;\
-              \  }          \n"
-          double_tap_action:
-            action: none
-          entity: sensor.system_monitor_disk_use_media_1tb_ssd
-          fill_container: false
-          hold_action:
-            action: none
-          icon: cbi:seagate-ssd-m2
-          icon_color: "{% set value = states('sensor.system_monitor_disk_usage_media_1tb_ssd')\
-            \ | float %} {% if value >= 0.00 and value <= 50.99 %}\n  green\n{% elif\
-            \ value >= 51 and value <= 70.99 %}\n  orange\n{% elif value >= 71.00\
-            \ and value <= 100 %}\n  red\n{% endif %}"
-          multiline_secondary: true
-          primary: '{{ states(''sensor.system_monitor_disk_use_media_1tb_ssd'') if
-            states(''sensor.system_monitor_disk_use_media_1tb_ssd'') != ''unavailable''
-            else ''N/A'' }} GB'
-          secondary: 1 TB SSD
-          tap_action:
-            action: more-info
-          type: custom:mushroom-legacy-template-card
-        - card_mod:
-            style: 'ha-card {
-
-              padding: 20px !important;
-
-              height: 40px !important;
-
-              }
-
-              '
-          double_tap_action:
-            action: none
-          entity: sensor.system_monitor_disk_use_media_5tb
-          fill_container: false
-          hold_action:
-            action: none
-          icon: cbi:seagate-ssd
-          icon_color: "{% set value = states('sensor.system_monitor_disk_usage_media_5tb')\
-            \ | float %} {% if value >= 0.00 and value <= 50.99 %}\n  green\n{% elif\
-            \ value >= 51 and value <= 70.99 %}\n  orange\n{% elif value >= 71.00\
-            \ and value <= 100 %}\n  red\n{% endif %}"
-          multiline_secondary: true
-          primary: '{{ states(''sensor.system_monitor_disk_use_media_5tb'') if states(''sensor.system_monitor_disk_use_media_5tb'')
-            != ''unavailable'' else ''N/A'' }} GB'
-          secondary: 5TB
-          tap_action:
-            action: more-info
-          type: custom:mushroom-legacy-template-card
-        - card_mod:
-            style: "ha-card {\npadding: 20px !important; height: 40px !important;\
-              \  }\n  \n"
-          double_tap_action:
-            action: none
-          entity: sensor.system_monitor_disk_use_media_20tb
-          fill_container: false
-          hold_action:
-            action: none
-          icon: cbi:seagate-ssd
-          icon_color: "{% set value = states('sensor.system_monitor_disk_usage_media_20tb')\
-            \ | float %} {% if value >= 0.00 and value <= 50.99 %}\n  green\n{% elif\
-            \ value >= 51 and value <= 70.99 %}\n  orange\n{% elif value >= 71.00\
-            \ and value <= 100 %}\n  red\n{% endif %}"
-          multiline_secondary: true
-          primary: '{{ states(''sensor.system_monitor_disk_use_media_20tb'') if states(''sensor.system_monitor_disk_use_media_20tb'')
-            != ''unavailable'' else ''N/A'' }} GB'
-          secondary: 20 TB
-          tap_action:
-            action: more-info
-          type: custom:mushroom-legacy-template-card
-        mode: vertical
-        type: custom:stack-in-card
-      - card_mod:
-          style: "ha-card {\n  height: 200px !important;\n  border-style: dashed;\n\
-            \  border-width: 2px;\n}\n"
-        cards:
-        - alignment: center
-          card_mod:
-            style: ".chip-container {\n  --chip-spacing: 6px;\n}\nha-card {\n  --chip-background:\
-              \ black;\n  top: 30px !important;\n}\n"
-          chips:
-          - entity: sensor.processor_use_percent
-            icon_color: '#01C852'
-            type: entity
-          - entity: sensor.memory_use_percent
-            icon_color: '#E91E63'
-            type: entity
-          - entity: sensor.system_monitor_disk_use_percent
-            icon_color: '#FF9101'
-            type: entity
-          - entity: sensor.system_monitor_network_in_enp1s0
-            icon_color: grey
-            type: entity
-          - entity: sensor.processor_temperature
-            icon_color: red
-            type: entity
-          - entity: sensor.system_monitor_last_boot
-            icon: mdi:clock
-            icon_color: blue
-            type: entity
-          type: custom:mushroom-chips-card
-        mode: vertical
-        type: custom:stack-in-card
-      grid_options:
-        columns: 6
-        rows: 200px
-      parameters:
-        autoplay:
-          delay: 7000
-          disableOnInteraction: false
-        effect: coverflow
-        pagination:
-          clickable: true
-          type: bullets
-        speed: 500
-      type: custom:swipe-card
-      visibility:
-      - condition: user
-        users:
-        - 74f7e2ffd3594037b1a2fc4de82d9fea
-    - card_mod:
-        style: "ha-card {\n  height: 200px !important;\n  border-style: dashed;\n\
-          \  border-width: 2px;\n  overflow: hidden !important;\n}\n:host {\n  height:\
-          \ 200px !important;\n}\n"
-      cards:
-      - badge_color: ''
-        badge_icon: ''
-        card_mod:
-          style:
-            .: "ha-card {\n  border: 0px !important;\n  box-shadow: none !important;\n\
-              \  background: none;\n}\n:host {\n  --mush-icon-size: 160px;\n}\n"
-            mushroom-shape-icon$: ".shape {\n  position: relative;\n  left: -40px;\n\
-              \  top: 60px;\n}\n"
-            mushroom-state-info$: ".primary {\n  font-size: 1.5em !important;\n  position:\
-              \ relative;\n  top: -60px;\n  left: -165px;\n  overflow: visible !important;\n\
-              }\n.secondary {\n  font-size: 1em !important;\n  position: relative;\n\
-              \  top: -50px;\n  left: -165px;\n  overflow: visible !important;\n}\n"
-        icon: mdi:package-up
-        icon_color: "{% if is_state('binary_sensor.marketplace_updates', 'on') or\
-          \ is_state('binary_sensor.other_updates', 'on') or is_state('binary_sensor.addon_updates',\
-          \ 'on') or is_state('binary_sensor.remotehaaddon_updates', 'on') or is_state('binary_sensor.remotehahacs_updates',\
-          \ 'on') or is_state('binary_sensor.remotehaother_updates', 'on') %}\n  red\n\
-          {%elif is_state('update.home_assistant_supervisor_update', 'on') or is_state('update.home_assistant_core_update',\
-          \ 'on') %}\n  blue\n{%else%} disabled {% endif %}"
-        layout: horizontal
-        primary: Updates
-        secondary: "{% set marketplace_count = states.update | selectattr('state',\
-          \ 'eq', 'on') | selectattr('entity_id', 'in', integration_entities('marketplace'))\
-          \ | list | count %} {% set addon_count = states.update | selectattr('state',\
-          \ 'eq', 'on') | selectattr('entity_id', 'in', integration_entities('hassio'))\
-          \ | rejectattr('entity_id', 'eq', 'update.home_assistant_core_update') |\
-          \ rejectattr('entity_id', 'eq', 'update.home_assistant_supervisor_update')\
-          \ | list | count %} {% set other_count = states.update | selectattr('state',\
-          \ 'eq', 'on') | rejectattr('entity_id', 'in', integration_entities('hassio'))\
-          \ | rejectattr('entity_id', 'in', integration_entities('marketplace')) |\
-          \ list | count %} {% set supervisor_update = is_state('update.home_assistant_supervisor_update',\
-          \ 'on') %} {% set core_update = is_state('update.home_assistant_core_update',\
-          \ 'on') %}\n{% if marketplace_count + addon_count + other_count == 0 and\
-          \ not supervisor_update and not core_update %}\n  No updates available\n\
-          {% else %}\n  {% if supervisor_update %}Supervisor Update! {% endif %}\n\
-          \  {% if core_update %}Core Update! {% endif %}\n  {% if marketplace_count\
-          \ > 0 %}Marketplace: {{ marketplace_count }} {% endif %}\n  {% if addon_count\
-          \ > 0 %}Addons: {{ addon_count }} {% endif %}\n  {% if other_count > 0 %}Other:\
-          \ {{ other_count }} {% endif %}\n{% endif %}\n"
-        tap_action:
-          action: navigate
-          navigation_path: /lovelace/updates
-        type: custom:mushroom-legacy-template-card
-      - card_mod:
-          style:
-            .: "ha-card {\n  width: px;\n  margin-left: 65%;\n  top: -180px;\n  background:\
-              \ none;\n}\n:host {\n  --mush-icon-size: 45px;\n  perspective: 900px;\n\
-              }\nha-card:active {\n  transform: rotateX(25deg);\n  transform-origin:\
-              \ center bottom;\n  transition: 0s;\n}\n"
-        entity: binary_sensor.marketplace_updates
-        hold_action:
-          action: more-info
-        icon: mdi:store
-        icon_color: "{% if is_state(config.entity, 'on') %}\n  blue\n{% else %}\n\
-          \  disabled\n{% endif %}"
-        primary: ''
-        secondary: ''
-        tap_action:
-          action: more-info
-        type: custom:mushroom-legacy-template-card
-      - card_mod:
-          style:
-            .: "ha-card {\n  width: px;\n  margin-left: 65%;\n  top: -180px;\n  background:\
-              \ none;\n}\n:host {\n  --mush-icon-size: 45px;\n  perspective: 900px;\n\
-              }\nha-card:active {\n  transform: rotateX(25deg);\n  transform-origin:\
-              \ center bottom;\n  transition: 0s;\n}\n"
-        entity: binary_sensor.addon_updates
-        hold_action:
-          action: more-info
-        icon: mdi:home-assistant
-        icon_color: "{% if is_state(config.entity, 'on') %}\n  blue\n{% else %}\n\
-          \  disabled\n{% endif %}"
-        primary: ''
-        secondary: ''
-        tap_action:
-          action: more-info
-        type: custom:mushroom-legacy-template-card
-      - card_mod:
-          style:
-            .: "ha-card {\n  width: px;\n  margin-left: 65%;\n  top: -180px;\n  background:\
-              \ none;\n}\n:host {\n  --mush-icon-size: 45px;\n  perspective: 900px;\n\
-              }\nha-card:active {\n  transform: rotateX(25deg);\n  transform-origin:\
-              \ center bottom;\n  transition: 0s;\n}\n"
-        entity: binary_sensor.other_updates
-        hold_action:
-          action: more-info
-        icon: mdi:arrow-up-bold-hexagon-outline
-        icon_color: "{% if is_state(config.entity, 'on') %}\n  green\n{% else %}\n\
-          \  disabled\n{% endif %}"
-        primary: ''
-        secondary: ''
-        tap_action:
-          action: more-info
-        type: custom:mushroom-legacy-template-card
-      grid_options:
-        columns: 6
-        rows: auto
-      type: custom:vertical-stack-in-card
-      visibility:
-      - condition: state
-        entity: binary_sensor.all_updates
-        state: 'on'
-    - card_mod:
-        style: "ha-card {\n  height: 200px !important;\n  border-style: dashed;\n\
-          \  border-width: 2px;\n  overflow: hidden !important;\n}\n"
-      cards:
-      - card_mod:
-          style:
-            .: "ha-card {\n  border: 0px !important;\n  box-shadow: none !important;\n\
-              \  background: none;\n}\nha-state-icon {\n    {% if is_state('vacuum.robovac',\
-              \ 'cleaning') %}\n      animation: clean-pattern 10s ease-in-out infinite;\n\
-              \      transform-origin: 50% 65%;\n    {% elif is_state('vacuum.robovac',\
-              \ 'returning') %}\n      animation: navigate 5s ease-in-out infinite;\n\
-              \      transform-origin: 50% 60%;\n    {% elif is_state('vacuum.robovac',\
-              \ 'paused') %}\n      animation: pulse-slow 3s ease-in-out infinite;\n\
-              \    {% elif is_state('vacuum.robovac', 'docked') %}\n      {% if states('sensor.robovac_battery')\
-              \ | int(0) >= 100 %}\n        animation: charged 0.6s ease-out 3 forwards;\n\
-              \      {% else %}\n        animation: charging 4s ease-in-out infinite;\n\
-              \      {% endif %}\n    {% endif %}\n  }\n\n  @keyframes clean-pattern\
-              \ {\n    0%   { transform: rotate(0deg)   translateY(0px);   }  /* start\
-              \ centre */\n    10%  { transform: rotate(40deg)  translateY(0px); \
-              \  }  /* turn right */\n    25%  { transform: rotate(40deg)  translateY(-8px);\
-              \  }  /* move forward */\n    35%  { transform: rotate(40deg)  translateY(0px);\
-              \   }  /* come back */\n    50%  { transform: rotate(0deg)   translateY(0px);\
-              \   }  /* re-centre */\n    60%  { transform: rotate(-40deg) translateY(0px);\
-              \   }  /* turn left */\n    75%  { transform: rotate(-40deg) translateY(-8px);\
-              \  }  /* move forward */\n    85%  { transform: rotate(-40deg) translateY(0px);\
-              \   }  /* come back */\n    100% { transform: rotate(0deg)   translateY(0px);\
-              \   }  /* re-centre */\n  }\n\n  @keyframes navigate {\n    0%   { transform:\
-              \ rotate(-20deg); }\n    50%  { transform: rotate(20deg); }\n    100%\
-              \ { transform: rotate(-20deg); }\n  }\n\n  @keyframes pulse-slow {\n\
-              \    0%, 100% { opacity: 1; }\n    50%       { opacity: 0.45; }\n  }\n\
-              \n  @keyframes charging {\n    0%, 100% { opacity: 0.55; transform:\
-              \ scale(1); }\n    50%       { opacity: 0.85; transform: scale(1.04);\
-              \ }\n  }\n\n  @keyframes charged {\n    0%   { transform: scale(1);\
-              \    opacity: 1; }\n    40%  { transform: scale(1.12); opacity: 1; }\n\
-              \    60%  { transform: scale(0.95); opacity: 0.9; }\n    100% { transform:\
-              \ scale(1);    opacity: 1; }\n  }\n\n:host {\n  --mush-icon-size: 160px;\n\
-              }\n"
-            mushroom-shape-icon$: ".shape {\n  position: relative;\n  left: -40px;\n\
-              \  top: 60px;\n}\n"
-            mushroom-state-info$: ".primary {\n  font-size: 1.5em !important;\n  position:\
-              \ relative;\n  top: -60px;\n  left: -165px;\n  overflow: visible !important;\n\
-              }\n.secondary {\n  font-size: 1em !important;\n  position: relative;\n\
-              \  top: -50px;\n  left: -165px;\n  overflow: visible !important;\n}\n"
-        double_tap_action:
-          action: more-info
-        entity: vacuum.robovac
-        hold_action:
-          action: more-info
-        icon: mdi:robot-vacuum
-        icon_color: "{{ iif(is_state('vacuum.robovac', 'docked'), 'green',\n  iif(is_state('vacuum.robovac',\
-          \ 'cleaning'), 'cyan',\n  iif(is_state('vacuum.robovac', 'returning'), 'orange',\n\
-          \  iif(is_state('vacuum.robovac', 'paused'), 'amber',\n  iif(is_state('vacuum.robovac',\
-          \ 'idle'), 'blue-grey',\n  iif(is_state('vacuum.robovac', 'error'), 'red',\
-          \ 'disabled')))))) }}"
-        layout: horizontal
-        primary: RoboVac
-        secondary: '{% set s = states(''vacuum.robovac'') %}
-
-          {% if s == ''docked'' %}Docked & Charging
-
-          {% elif s == ''cleaning'' %}Cleaning
-
-          {% elif s == ''returning'' %}Returning to Dock
-
-          {% elif s == ''paused'' %}Paused
-
-          {% elif s == ''idle'' %}Idle
-
-          {% elif s == ''error'' %}Error
-
-          {% else %}Unknown{% endif %}'
-        tap_action:
-          action: more-info
-        type: custom:mushroom-legacy-template-card
-      - card_mod:
-          style:
-            .: "ha-card {\n  margin-left: 65%;\n  top: -180px;\n  background: none;\n\
-              }\n:host {\n  --mush-icon-size: 45px;\n  perspective: 900px;\n}\nha-card:active\
-              \ {\n  transform: rotateX(25deg);\n  transform-origin: center bottom;\n\
-              \  transition: 0s;\n}\n"
-        double_tap_action:
-          action: more-info
-        entity: sensor.robovac_battery
-        hold_action:
-          action: more-info
-        icon: '{% set b = states(''sensor.robovac_battery'') | int(0) %} {% if b >=
-          95 %} mdi:battery {% elif b >= 85 %} mdi:battery-90 {% elif b >= 75 %} mdi:battery-80
-          {% elif b >= 65 %} mdi:battery-70 {% elif b >= 55 %} mdi:battery-60 {% elif
-          b >= 45 %} mdi:battery-50 {% elif b >= 35 %} mdi:battery-40 {% elif b >=
-          25 %} mdi:battery-30 {% elif b >= 15 %} mdi:battery-20 {% elif b >= 5 %}
-          mdi:battery-10 {% else %} mdi:battery-alert {% endif %}
-
-          '
-        icon_color: "{% set b = states('sensor.robovac_battery') | int(0) %}\n  {%\
-          \ if b >= 75 %} green\n  {% elif b >= 40 %} amber\n  {% elif b >= 15 %}\
-          \ deep-orange\n  {% else %} red\n  {% endif %}"
-        primary: ''
-        secondary: ''
-        tap_action:
-          action: more-info
-        type: custom:mushroom-legacy-template-card
-      grid_options:
-        columns: 6
-        rows: auto
-      type: custom:vertical-stack-in-card
-    - actions:
-        tap_action:
-          action: navigate
-          navigation_path: /lovelace/f1-live
-      card_mod:
-        style: "ha-card h2{\n  font-size: 18px;\n  color: white !important;\n  gap:\
-          \ 0px !important;\n  text-align: center;\n  display: grid;\n  justify-items:\
-          \ center;\n}\ntr:nth-child(2n) {\n  background: none !important;\n  color:\
-          \ white;\n}\ntd {\n  padding: 0px !important;\n}\nha-card {\n  font-size:\
-          \ 9px;\n  height: 200px !important;\n  border-style: dashed;\n  border-width:\
-          \ 2px;\n}\n:host {\n  height: 200px !important;\n}\n"
-      card_type: countdown
-      countdown_type:
-      - qualifying
-      - sprint
-      - race
-      - sprint_qualifying
-      date_locale: ie
-      f1_font: true
-      grid_options:
-        columns: full
-        rows: 200px
-      hide_tracklayout: true
-      image_clickable: false
-      only_show_date: false
-      show_flag: false
-      show_lastyears_result: false
-      show_raceinfo: false
-      show_weather: false
-      type: custom:formulaone-card
-      visibility:
-      - condition: state
-        entity: sensor.f1_race_f1_next_race
-        state_not: unknown
-    - card:
-        grid_options:
-          columns: 2
-          rows: 200px
-        parameters:
-          pagination:
-            clickable: true
-            type: bullets
-        type: custom:swipe-card
-      card_param: cards
-      filter:
-        exclude:
-        - options: {}
-          state: 'off'
-        - options: {}
-          state: unknown
-        - options: {}
-          state: unavailable
-        - options: {}
-          state: idle
-        - entity_id: media_player.google_tv_cast
-          options: {}
-        - entity_id: media_player.google_tv_streamer_cast
-          options: {}
-        include:
-        - domain: media_player
-          integration: jellyfin
-          options:
-            artwork: material
-            card_mod:
-              style: "{% set transcoding = is_state_attr(config.entity, 'is_transcoding',\
-                \ true) %}\n{% set codec = state_attr(config.entity, 'transcode_video_codec')\
-                \ %}\nha-card::after {\n  content: \"{{ '\U0001F504 Transcoding' +\
-                \ (' · ' + codec if codec else '') if transcoding else '▶ Direct Play'\
-                \ }}\";\n  position: absolute;\n  top: 8px;\n  right: 12px;\n  font-size:\
-                \ 10px;\n  font-family: Ubuntu;\n  font-weight: 700;\n  padding: 2px\
-                \ 8px;\n  border-radius: 8px;\n  background: {{ '#c0392b' if transcoding\
-                \ else '#27ae60' }};\n  color: white;\n  opacity: 0.9;\n  z-index:\
-                \ 10;\n}\n.entity__info__name {\n    font-size: 0 !important;\n  }\n\
-                .entity__info__name::after {\n    content: \"{{ state_attr(config.entity,\
-                \ 'user_name') }} on {{ state_attr(config.entity, 'device_name') }}\"\
-                ;\n    font-size: 16px !important;\n    font-family: Ubuntu;\n   \
-                \ display: inline-block;\n  }\n.entity__info {\n  max-width: 100%\
-                \ !important;\n  top: -40px;\n  flex-direction: column-reverse !important;\n\
-                \  }\n.entity__info__media {\n    font-size: 20px !important;\n  \
-                \  font-weight: bold;\n    font-family: Ubuntu;\n  }\n.entity__icon\
-                \ {\n    top: -40px !important;\n  }\nha-card .cover {\n  background-size:\
-                \ contain !important;\n  background-position: right center !important;\n\
-                \  background-repeat: no-repeat !important;\n}\nha-card .cover::after\
-                \ {\n  content: \"\";\n  position: absolute;\n  inset: 0;\n  background:\
-                \ linear-gradient(to left, transparent 5%, rgb(19, 28, 29) 100%);\n\
-                \  pointer-events: none;\n}\n:host {\n  --mini-media-player-background-opacity:\
-                \ 1;\n  --mini-media-player-progress-height: 10px;\n  --mini-media-player-name-font-weight:\
-                \ 800;\n  --mini-media-player-scale:1.1;\n  }\n  @media screen and\
-                \ (max-width: 600px) {\n    :host {\n      --mini-media-player-scale:\
-                \ 1.2;\n    }\n  }\nha-card {\n    border: 0px !important;\n    box-shadow:\
-                \ none !important;\n    height: 200px !important;\n    --mdc-icon-size:\
-                \ 40px  !important;\n  }\n"
-            entities:
-            - this.entity_id
-            grid_options:
-              columns: 12
-              rows: 200px
-            icon: mdi:jellyfish-outline
-            sound_mode: icon
-            source: icon
-            toggle_power: true
-            type: custom:mini-media-player
-            volume_stateless: true
-        - domain: media_player
-          integration: spotify
-          options:
-            artwork: material
-            card_mod:
-              style: ".entity__info {\n  max-width: 100% !important;\n  top: -80px;\n\
-                \  flex-direction: column-reverse !important;\n\n  }\n.entity__info__name\
-                \ {\n    font-size: 16px !important;\n    font-family: Ubuntu;\n \
-                \ }\n.entity__info__media {\n    font-size: 18px !important;\n   \
-                \ font-weight: bold;\n    font-family: Ubuntu;\n  }\n.entity__icon\
-                \ {\n    top: -80px !important;\n    color: #1DB954 !important;\n\
-                \  }\n:host {\n  --mini-media-player-background-opacity: 1;\n  --mini-media-player-progress-height:\
-                \ 10px;\n  --mini-media-player-name-font-weight: 800;\n  --mini-media-player-scale:1.1;\n\
-                \  }\n  @media screen and (max-width: 600px) {\n    :host {\n    \
-                \  --mini-media-player-scale: 1.2;\n    }\n  }\nha-card {\n    border:\
-                \ 0px !important;\n    box-shadow: none !important;\n    height: 200px\
-                \ !important;\n    --mdc-icon-size: 40px  !important;\n  }\n"
-            entities:
-            - this.entity_id
-            info: scroll
-            sound_mode: icon
-            source: icon
-            toggle_power: true
-            type: custom:mini-media-player
-            volume_stateless: true
-        - domain: media_player
-          integration: cast
-          options:
-            artwork: material
-            card_mod:
-              style: ".entity__info {\n  max-width: 100% !important;\n  top: -80px;\n\
-                \  flex-direction: column-reverse !important;\n\n  }\n.entity__info__name\
-                \ {\n    font-size: 16px !important;\n    font-family: Ubuntu;\n \
-                \ }\n.entity__info__media {\n    font-size: 18px !important;\n   \
-                \ font-weight: bold;\n    font-family: Ubuntu;\n  }\n.entity__icon\
-                \ {\n    top: -80px !important;\n  }\n:host {\n  --mini-media-player-background-opacity:\
-                \ 1;\n  --mini-media-player-progress-height: 10px;\n  --mini-media-player-name-font-weight:\
-                \ 800;\n  --mini-media-player-scale:1.1;\n  }\n  @media screen and\
-                \ (max-width: 600px) {\n    :host {\n      --mini-media-player-scale:\
-                \ 1.2;\n    }\n  }\nha-card {\n    border: 0px !important;\n    box-shadow:\
-                \ none !important;\n    height: 200px !important;\n    --mdc-icon-size:\
-                \ 40px  !important;\n  }\n"
-            entities:
-            - this.entity_id
-            grid_options:
-              columns: 12
-              rows: 200px
-            icon: mdi:cast-audio
-            info: scroll
-            sound_mode: icon
-            source: icon
-            toggle_power: true
-            type: custom:mini-media-player
-            volume_stateless: true
-        - domain: media_player
-          integration: androidtv
-          options:
-            artwork: material
-            card_mod:
-              style: ".entity__info {\n  max-width: 100% !important;\n  top: -80px;\n\
-                \  flex-direction: column-reverse !important;\n\n  }\n.entity__info__name\
-                \ {\n    font-size: 16px !important;\n    font-family: Ubuntu;\n \
-                \ }\n.entity__info__media {\n    font-size: 18px !important;\n   \
-                \ font-weight: bold;\n    font-family: Ubuntu;\n  }\n.entity__icon\
-                \ {\n    top: -80px !important;\n  }\n:host {\n  --mini-media-player-background-opacity:\
-                \ 1;\n  --mini-media-player-progress-height: 10px;\n  --mini-media-player-name-font-weight:\
-                \ 800;\n  --mini-media-player-scale:1.1;\n  }\n  @media screen and\
-                \ (max-width: 600px) {\n    :host {\n      --mini-media-player-scale:\
-                \ 1.2;\n    }\n  }\nha-card {\n    border: 0px !important;\n    box-shadow:\
-                \ none !important;\n    height: 200px !important;\n    --mdc-icon-size:\
-                \ 40px  !important;\n  }\n"
-            entities:
-            - this.entity_id
-            grid_options:
-              columns: 12
-              rows: 200px
-            icon: mdi:google
-            info: scroll
-            sound_mode: icon
-            source: icon
-            toggle_power: true
-            type: custom:mini-media-player
-            volume_stateless: true
-        - domain: media_player
-          integration: androidtv_remote
-          options:
-            artwork: material
-            card_mod:
-              style: ".entity__info {\n  max-width: 100% !important;\n  top: -80px;\n\
-                \  flex-direction: column-reverse !important;\n\n  }\n.entity__info__name\
-                \ {\n    font-size: 16px !important;\n    font-family: Ubuntu;\n \
-                \ }\n.entity__info__media {\n    font-size: 18px !important;\n   \
-                \ font-weight: bold;\n    font-family: Ubuntu;\n  }\n.entity__icon\
-                \ {\n    top: -80px !important;\n  }\n:host {\n  --mini-media-player-background-opacity:\
-                \ 1;\n  --mini-media-player-progress-height: 10px;\n  --mini-media-player-name-font-weight:\
-                \ 800;\n  --mini-media-player-scale:1.1;\n  }\n  @media screen and\
-                \ (max-width: 600px) {\n    :host {\n      --mini-media-player-scale:\
-                \ 1.2;\n    }\n  }\nha-card {\n    border: 0px !important;\n    box-shadow:\
-                \ none !important;\n    height: 200px !important;\n    --mdc-icon-size:\
-                \ 40px  !important;\n  }\n"
-            entities:
-            - this.entity_id
-            grid_options:
-              columns: 12
-              rows: 200px
-            icon: mdi:google
-            info: scroll
-            sound_mode: icon
-            source: icon
-            toggle_power: true
-            type: custom:mini-media-player
-            volume_stateless: true
-      show_empty: false
-      sort:
-        method: state
-        reverse: true
-      type: custom:auto-entities
-      visibility:
-      - condition: user
-        users: []
-    - card:
-        grid_options:
-          columns: 2
-          rows: 200px
-        parameters:
-          pagination:
-            clickable: true
-            type: bullets
-        type: custom:swipe-card
-      card_param: cards
-      filter:
-        exclude:
-        - state: idle
-        - state: 'off'
-        - state: unknown
-        - state: unavailable
-        - entity_id: media_player.jellyha_library_browser
-        include:
-        - domain: media_player
-          integration: jellyha
-          options:
-            badge_style: header
-            card_mod:
-              style: "{% set ns = namespace(s=none) %}\n{% for t in (state_attr('sensor.jellyha_transcoding_streams',\
-                \ 'transcode_sessions') or []) %}\n  {% if t.user == state_attr(config.entity,\
-                \ 'user_name') and t.device == state_attr(config.entity, 'device_name')\
-                \ %}\n    {% set ns.s = t %}\n  {% endif %}\n{% endfor %}\n{% set\
-                \ r = (ns.s.reasons or []) if ns.s else [] %}\nha-card {\n  position:\
-                \ relative;\n}\nha-card::after {\n  content: \"{{ ('\U0001F504 Transcoding'\
-                \ ~ (' · ' ~ (r | map('regex_replace', '([a-z])([A-Z])', '\\\\1 \\\
-                \\2') | join(', ')) if r else '')) if ns.s else '▶ Direct Play' }}\"\
-                ;\n  position: absolute;\n  top: 125px;\n  left: 200px;\n  max-width:\
-                \ 65%;\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow:\
-                \ ellipsis;\n  font-size: 10px;\n  font-family: Ubuntu;\n  font-weight:\
-                \ 700;\n  padding: 2px 8px;\n  border-radius: 8px;\n  background:\
-                \ {{ '#c0392b' if ns.s else '#27ae60' }};\n  color: white;\n  opacity:\
-                \ 0.9;\n  z-index: 10;\n}\n"
-            entity: this.entity_id
-            idle_backdrop_cycle: true
-            idle_cycle_interval: 20
-            show_background: true
-            show_runtime: false
-            show_subtitle: true
-            type: custom:jellyha-now-playing-card
-            use_series_image: true
-      grid_options:
-        columns: 16
-        rows: auto
-      show_empty: false
-      sort:
-        method: last_changed
-        reverse: true
-      type: custom:auto-entities
-    column_span: 3
-    type: grid
-  title: Test
-  top_margin: false
-  type: sections
-  visible:
-  - user: 74f7e2ffd3594037b1a2fc4de82d9fea
-  - user: 714d34245b7d49a1ac5378907e9fa5bd
-- path: test
-  sections:
-  - cards: []
-    type: grid
-  title: test
-  type: sections
-  visible:
-  - user: 74f7e2ffd3594037b1a2fc4de82d9fea
-  - user: 714d34245b7d49a1ac5378907e9fa5bd
