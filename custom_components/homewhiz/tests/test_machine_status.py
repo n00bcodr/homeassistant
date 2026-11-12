@@ -84,7 +84,7 @@ def test_cycle_complete_cleared_by_door_sub_state() -> None:
     t = MachineStatusTracker()
     t.update(RUNNING, SPIN)
     t.update(ON, REMOVE)
-    assert t.update(ON, OPENING) == "idle"
+    assert t.update(ON, OPENING) == "door_open"
     assert t.update(ON, REMOVE) == "idle"  # does not come back
 
 
@@ -92,7 +92,7 @@ def test_cycle_complete_cleared_by_door_open_flag() -> None:
     t = MachineStatusTracker()
     t.update(RUNNING, SPIN)
     t.update(ON, REMOVE)
-    assert t.update(ON, REMOVE, door_open=True) == "idle"
+    assert t.update(ON, REMOVE, door_open=True) == "door_open"
     assert t.update(ON, REMOVE, door_open=False) == "idle"
 
 
@@ -136,4 +136,33 @@ def test_remove_laundry_while_running_with_no_time_left_is_complete() -> None:
     t.update(RUNNING, SPIN, remaining=1)
     assert t.update(RUNNING, REMOVE, remaining=0) == "cycle_complete"
     assert t.update(RUNNING, REMOVE, remaining=0) == "cycle_complete"
-    assert t.update(ON, OPENING) == "idle"
+    assert t.update(ON, OPENING) == "door_open"
+
+
+def test_door_open_when_idle() -> None:
+    t = MachineStatusTracker()
+    assert t.update(ON, "washer_substate_program_started") == "idle"
+    assert t.update(ON, "washer_substate_program_started", door_open=True) == "door_open"
+    assert t.update(ON, "washer_substate_program_started", door_open=False) == "idle"
+
+
+def test_door_open_does_not_override_off() -> None:
+    assert MachineStatusTracker().update(OFF, OPENING, door_open=True) == "off"
+
+
+def test_anti_crease() -> None:
+    t = MachineStatusTracker()
+    t.update(RUNNING, SPIN)
+    assert t.update(RUNNING, "washer_substate_remote_anticrease") == "anti_crease"
+    assert t.update(ON, REMOVE) == "cycle_complete"
+
+
+def test_time_delay_enabled_while_running_is_delayed_start() -> None:
+    t = MachineStatusTracker()
+    assert t.update(RUNNING, "washer_substate_time_delay_enabled") == "delayed_start"
+
+
+def test_delayed_start_is_not_kept_for_an_unknown_running_sub_state() -> None:
+    t = MachineStatusTracker()
+    t.update(RUNNING, "washer_substate_time_delay_enabled")
+    assert t.update(RUNNING, "washer_substate_unknown") == "running"

@@ -34,6 +34,8 @@ RUNNING_SUBSTATES = {
     "washer_substate_drying": "drying",
     "washer_substate_paused": "paused",
     "washer_substate_time_delay_paused": "paused",
+    "washer_substate_time_delay_enabled": "delayed_start",
+    "washer_substate_remote_anticrease": "anti_crease",
     "washer_substate_door_locked": "door_locked",
     "washer_substate_locking_door": "door_locked",
     "washer_substate_add_laundry": "add_laundry",
@@ -55,6 +57,8 @@ STATUS_OPTIONS = [
     "paused",
     "door_locked",
     "add_laundry",
+    "anti_crease",
+    "door_open",
     "cycle_complete",
     "unavailable",
 ]
@@ -100,7 +104,7 @@ class MachineStatusTracker:
                 mapped = (
                     self.status
                     if self.status in RUNNING_SUBSTATES.values()
-                    and self.status != "paused"
+                    and self.status not in ("paused", "delayed_start")
                     else "running"
                 )
             self.status = mapped
@@ -113,10 +117,13 @@ class MachineStatusTracker:
             self.status = "delayed_start"
         elif state == STATE_ON:
             if door_open or sub_state == SUBSTATE_OPENING_DOOR:
+                # the door is (being) opened: the cycle is over, show it
                 self._seen_running = self._complete = False
-            elif self._seen_running:
-                self._seen_running = False
-                self._complete = True
-            self.status = "cycle_complete" if self._complete else "idle"
+                self.status = "door_open"
+            else:
+                if self._seen_running:
+                    self._seen_running = False
+                    self._complete = True
+                self.status = "cycle_complete" if self._complete else "idle"
         # state None / unmapped: keep the last status
         return self.status
