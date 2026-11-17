@@ -3724,9 +3724,10 @@
   - alias: Update the doorbell alert with an animated preview of the visit
     action: notify.all_phones
     data:
-      message: "{% set d = states('input_text.doorbell_last_description') %}{{ d if d not in ['', 'unknown', 'unavailable'] else ' ' }}"
-      title: "{{ who ~ ' was at the front door \U0001F3A5' if who else 'Front door
-        visit \U0001F3A5' }}"
+      message: '{% set d = states(''input_text.doorbell_last_description'') %}{{ d
+        if d not in ['''', ''unknown'', ''unavailable''] else '' '' }}'
+      title: "{{ who ~ ' was at the front door \U0001F3A5' if who else 'Front Door
+        \U0001F3A5' }}"
       data:
         ttl: 0
         tag: doorbell
@@ -3862,3 +3863,28 @@
         ~ trigger.event.data.area_name ~ '')'' if trigger.event.data.area_name else
         '''' }}'
   mode: queued
+- id: '1794950000001'
+  alias: "🔔Doorbell - Door burst (best face frames)"
+  description: When a person is at the glass door (Frigate zone door_close), save a burst of six full-resolution snapshots to /config/www/doorbell/burst (burst_1..6.jpg, overwritten each time) so the best face frame can be picked, whether or not the bell is pressed.
+  mode: single
+  triggers:
+  - trigger: mqtt
+    topic: frigate/door_close/person
+    alias: A person is in the door_close zone
+  conditions:
+  - condition: template
+    value_template: '{{ trigger.payload | int(0) > 0 }}'
+  - alias: At most once a minute
+    condition: template
+    value_template: '{{ this.attributes.last_triggered is none or (now() - this.attributes.last_triggered).total_seconds() > 60 }}'
+  actions:
+  - repeat:
+      count: 6
+      sequence:
+      - action: camera.snapshot
+        target:
+          entity_id: camera.doorbell
+        data:
+          filename: /config/www/doorbell/burst/burst_{{ repeat.index }}.jpg
+      - delay:
+          milliseconds: 700
