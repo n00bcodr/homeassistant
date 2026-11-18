@@ -2345,9 +2345,9 @@
       id:
       - person
     then:
-    - alias: Give the visitor 3 s to get closer, then take a fresh picture for Gemini
+    - alias: Give the visitor 6 s to get closer, then take a fresh picture for Gemini
       delay:
-        seconds: 3
+        seconds: 6
     - alias: Fresh snapshot for Gemini
       action: camera.snapshot
       target:
@@ -2385,7 +2385,7 @@
         target:
           entity_id: input_text.doorbell_last_description
         data:
-          value: '{{ gemini.data | string | trim | replace(''\n'','' '') | truncate(200,
+          value: '⭐ {{ gemini.data | string | trim | replace(''\n'','' '') | truncate(200,
             True, ''…'') }}'
       - action: script.doorbell_update_alert
   - alias: Wait 5 s
@@ -3689,8 +3689,12 @@
       entity_id: input_text.doorbell_last_name
     data:
       value: '{{ who }}'
-  - alias: Update the alert (name plus description if ready)
-    action: script.doorbell_update_alert
+  - alias: Update the alert now only if the description update already went out (otherwise that update will include the name)
+    if:
+    - condition: template
+      value_template: "{{ states('input_text.doorbell_last_description') not in ['', 'unknown', 'unavailable'] }}"
+    then:
+    - action: script.doorbell_update_alert
   - alias: Cool down for 30 s so one visit gives one named alert
     delay:
       seconds: 30
@@ -3812,7 +3816,7 @@
           target:
             entity_id: input_text.doorbell_last_name
           data:
-            value: "{{ yes_names[0] }}"
+            value: "{{ yes_names[0] }} ⭐"
   - alias: Work out the clip and who was seen
     variables:
       event_id: '{{ trigger.payload_json.after.data.detections[0] }}'
