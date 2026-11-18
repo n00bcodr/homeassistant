@@ -666,9 +666,7 @@ doorbell_update_alert:
     data:
       message: '{{ desc if desc not in ['''', ''unknown'', ''unavailable''] else ''
         '' }}'
-      title: "{% if who in ['', 'unknown', 'unavailable'] %}Someone's at the front
-        door \U0001F464{% else %}{{ who }} is at the front door \U0001F464{% endif
-        %}"
+      title: "{% set star = ' \u2B50' if (who.endswith('\u2B50') or desc not in ['', 'unknown', 'unavailable']) else '' %}{% set w = who | replace(' \u2B50', '') %}{% if w in ['', 'unknown', 'unavailable'] %}Someone's at the front door \U0001F464{% else %}{{ w }} is at the front door \U0001F464{% endif %}{{ star }}"
       data:
         ttl: 0
         tag: doorbell

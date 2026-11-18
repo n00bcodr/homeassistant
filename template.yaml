@@ -455,3 +455,24 @@
         } %}
         {% if p in ['unknown', 'unavailable'] %}{{ p }}
         {% else %}{{ names.get(p, p | replace('program_', '') | replace('_', ' ') | title) }}{% endif %}
+
+- sensor:
+  - name: Gemini estimated spend
+    unique_id: gemini_estimated_spend
+    unit_of_measurement: "€"
+    state_class: total
+    icon: mdi:creation
+    state: >
+      {{ (states('input_number.gemini_spend_before_counting') | float(0)
+         + states('counter.gemini_calls') | float(0) * states('input_number.gemini_cost_per_call') | float(0)) | round(3) }}
+    attributes:
+      calls: "{{ states('counter.gemini_calls') }}"
+      budget: "{{ states('input_number.gemini_budget') }}"
+      remaining: >
+        {{ (states('input_number.gemini_budget') | float(0)
+           - (states('input_number.gemini_spend_before_counting') | float(0)
+           + states('counter.gemini_calls') | float(0) * states('input_number.gemini_cost_per_call') | float(0))) | round(2) }}
+      percent: >
+        {% set b = states('input_number.gemini_budget') | float(1) %}
+        {{ ((states('input_number.gemini_spend_before_counting') | float(0)
+           + states('counter.gemini_calls') | float(0) * states('input_number.gemini_cost_per_call') | float(0)) / (b if b > 0 else 1) * 100) | round(0) }}
