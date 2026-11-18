@@ -3837,7 +3837,7 @@
         push:
           interruption-level: passive
           category: camera
-        image: /api/frigate/notifications/{{ event_id }}/event_preview.gif
+        image: /api/frigate/notifications/{{ trigger.payload_json.after.id }}/review_preview.gif
         clickAction: /lovelace/living-room
         actions:
         - action: URI
