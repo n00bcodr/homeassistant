@@ -2345,6 +2345,15 @@
       id:
       - person
     then:
+    - alias: Give the visitor 3 s to get closer, then take a fresh picture for Gemini
+      delay:
+        seconds: 3
+    - alias: Fresh snapshot for Gemini
+      action: camera.snapshot
+      target:
+        entity_id: camera.doorbell
+      data:
+        filename: /media/Doorbell/latest.jpg
     - alias: Ask Gemini (never blocks the alert, which has already gone out)
       action: ai_task.generate_data
       continue_on_error: true
@@ -2370,7 +2379,7 @@
     - if:
       - condition: template
         value_template: '{{ gemini is defined and gemini.data is defined and (gemini.data
-          | string | trim) != '''' }}'
+          | string | trim) != '''' and not (gemini.data | string | trim | lower).startswith(''no one'') }}'
       then:
       - action: input_text.set_value
         target:
