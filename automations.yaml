@@ -3727,9 +3727,7 @@
   - alias: Work out the clip and who was seen
     variables:
       event_id: '{{ trigger.payload_json.after.data.detections[0] }}'
-      who: '{% set s = trigger.payload_json.after.data.sub_labels | default([]) %}{{
-        (s[0] | string | replace(''_'', '' '') | title) if (s | count) > 0 else ''''
-        }}'
+      who: "{% set s = trigger.payload_json.after.data.sub_labels | default([]) %}{% set n = states('input_text.doorbell_last_name') %}{% if (s | count) > 0 %}{{ s[0] | string | replace('_', ' ') | title }}{% elif n not in ['', 'unknown', 'unavailable'] %}{{ n }}{% endif %}"
   - alias: Update the doorbell alert with an animated preview of the visit
     action: notify.all_phones
     data:
