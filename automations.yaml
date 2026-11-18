@@ -2325,6 +2325,7 @@
             media_content_type: image/jpeg
     - alias: Send Discord silent notification
       action: rest_command.doorbell_discord
+      continue_on_error: true
       data:
         image_url: https://8hzgwwt0ag8veor40ktvnmc9r9dhxpd3.ui.nabu.casa/local/doorbell/{{
           camera_snapshot }}
