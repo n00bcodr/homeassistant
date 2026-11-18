@@ -2381,6 +2381,9 @@
         attachments:
         - media_content_id: media-source://media_source/local/Doorbell/latest.jpg
           media_content_type: image/jpeg
+    - action: counter.increment
+      target:
+        entity_id: counter.gemini_calls
     - if:
       - condition: template
         value_template: '{{ gemini is defined and gemini.data is defined and (gemini.data
@@ -2390,7 +2393,7 @@
         target:
           entity_id: input_text.doorbell_last_description
         data:
-          value: '⭐ {{ gemini.data | string | trim | replace(''\n'','' '') | truncate(200,
+          value: '{{ gemini.data | string | trim | replace(''\n'','' '') | truncate(200,
             True, ''…'') }}'
       - action: script.doorbell_update_alert
   - alias: Wait 5 s
@@ -3720,11 +3723,6 @@
     payload: end:doorbell:alert
     alias: Frigate finishes an alert-level visit on the doorbell camera
   conditions:
-  - alias: A doorbell alert was sent during this visit
-    condition: template
-    value_template: '{% set t = state_attr(''automation.doorbell_automations'', ''last_triggered'')
-      %}{{ t is not none and t.timestamp() >= (trigger.payload_json.after.start_time
-      | float(0)) - 30 }}'
   - alias: Frigate has a tracked object to build the clip from
     condition: template
     value_template: '{{ (trigger.payload_json.after.data.detections | default([])
@@ -3805,6 +3803,18 @@
               required: true
               selector:
                 text: {}
+      - action: counter.increment
+        target:
+          entity_id: counter.gemini_calls
+        data: {}
+      - action: counter.increment
+        target:
+          entity_id: counter.gemini_calls
+        data: {}
+      - action: counter.increment
+        target:
+          entity_id: counter.gemini_calls
+        data: {}
       - alias: Name the person only if Gemini says yes for exactly one household member
         variables:
           yes_names: >-
@@ -3831,8 +3841,7 @@
     data:
       message: '{% set d = states(''input_text.doorbell_last_description'') %}{{ d
         if d not in ['''', ''unknown'', ''unavailable''] else '' '' }}'
-      title: "{{ who ~ ' was at the front door \U0001F3A5' if who else 'Front Door
-        \U0001F3A5' }}"
+      title: "{% set d = states('input_text.doorbell_last_description') %}{% set star = ' \u2B50' if (who.endswith('\u2B50') or d not in ['', 'unknown', 'unavailable']) else '' %}{% set w = who | replace(' \u2B50', '') %}{{ (w ~ ' was at the front door \U0001F3A5' if w else 'Front Door \U0001F3A5') ~ star }}"
       data:
         ttl: 0
         tag: doorbell
