@@ -3995,7 +3995,7 @@
           filename: /media/Doorbell/burst/burst_{{ repeat.index }}.jpg
       - if:
         - condition: template
-          value_template: '{{ repeat.index == 2 }}'
+          value_template: '{{ repeat.index == 1 }}'
         then:
         - action: camera.snapshot
           target:
