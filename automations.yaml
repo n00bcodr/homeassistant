@@ -3724,6 +3724,95 @@
   - alias: Give Frigate 10 s to finish writing the clip
     delay:
       seconds: 10
+  - alias: 'Nobody was named during the visit: let Gemini check the face against the household'
+    if:
+    - condition: template
+      value_template: "{{ states('input_text.doorbell_last_name') in ['', 'unknown', 'unavailable'] and (trigger.payload_json.after.data.sub_labels | default([]) | count) == 0 and (trigger.payload_json.after.data.detections | default([]) | count) > 0 }}"
+    then:
+    - alias: Prepare the best face crop and the reference crops
+      action: shell_command.face_probe
+      continue_on_error: true
+      response_variable: probe
+      data:
+        event: "{{ trigger.payload_json.after.data.detections[0] }}"
+    - if:
+      - condition: template
+        value_template: "{{ probe is defined and probe.returncode == 0 and (probe.stdout | from_json(default={})).get('ok', false) }}"
+      then:
+      - alias: Ask Gemini whether the face is Pat
+        action: ai_task.generate_data
+        continue_on_error: true
+        response_variable: g_pat
+        data:
+          entity_id: ai_task.google_ai_task
+          task_name: face check Pat
+          instructions: Are the people in these two photos the same person? Answer strictly based on the faces. If you are not sure, answer unsure.
+          attachments:
+          - media_content_id: media-source://media_source/local/Doorbell/probe/probe.jpg
+            media_content_type: image/jpeg
+          - media_content_id: media-source://media_source/local/Doorbell/probe/ref_Pat.jpg
+            media_content_type: image/jpeg
+          structure:
+            same_person:
+              description: yes, no or unsure
+              required: true
+              selector:
+                text: {}
+      - alias: Ask Gemini whether the face is Ramu
+        action: ai_task.generate_data
+        continue_on_error: true
+        response_variable: g_ramu
+        data:
+          entity_id: ai_task.google_ai_task
+          task_name: face check Ramu
+          instructions: Are the people in these two photos the same person? Answer strictly based on the faces. If you are not sure, answer unsure.
+          attachments:
+          - media_content_id: media-source://media_source/local/Doorbell/probe/probe.jpg
+            media_content_type: image/jpeg
+          - media_content_id: media-source://media_source/local/Doorbell/probe/ref_Ramu.jpg
+            media_content_type: image/jpeg
+          structure:
+            same_person:
+              description: yes, no or unsure
+              required: true
+              selector:
+                text: {}
+      - alias: Ask Gemini whether the face is Hilary
+        action: ai_task.generate_data
+        continue_on_error: true
+        response_variable: g_hilary
+        data:
+          entity_id: ai_task.google_ai_task
+          task_name: face check Hilary
+          instructions: Are the people in these two photos the same person? Answer strictly based on the faces. If you are not sure, answer unsure.
+          attachments:
+          - media_content_id: media-source://media_source/local/Doorbell/probe/probe.jpg
+            media_content_type: image/jpeg
+          - media_content_id: media-source://media_source/local/Doorbell/probe/ref_Hilary.jpg
+            media_content_type: image/jpeg
+          structure:
+            same_person:
+              description: yes, no or unsure
+              required: true
+              selector:
+                text: {}
+      - alias: Name the person only if Gemini says yes for exactly one household member
+        variables:
+          yes_names: >-
+            {% set r = namespace(l=[]) %}
+            {% for n, g in [('Pat', (g_pat if g_pat is defined else none)), ('Ramu', (g_ramu if g_ramu is defined else none)), ('Hilary', (g_hilary if g_hilary is defined else none))] %}
+            {% if g is not none and g.data is defined and g.data.same_person | default('') | lower == 'yes' %}{% set r.l = r.l + [n] %}{% endif %}
+            {% endfor %}
+            {{ r.l }}
+      - if:
+        - condition: template
+          value_template: "{{ yes_names | count == 1 }}"
+        then:
+        - action: input_text.set_value
+          target:
+            entity_id: input_text.doorbell_last_name
+          data:
+            value: "{{ yes_names[0] }}"
   - alias: Work out the clip and who was seen
     variables:
       event_id: '{{ trigger.payload_json.after.data.detections[0] }}'
