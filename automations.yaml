@@ -3741,7 +3741,7 @@
       continue_on_error: true
       response_variable: probe
       data:
-        event: "{{ trigger.payload_json.after.data.detections[0] }}"
+        event: "{{ trigger.payload_json.after.data.detections | join(',') }}"
     - if:
       - condition: template
         value_template: "{{ probe is defined and probe.returncode == 0 and (probe.stdout | from_json(default={})).get('ok', false) }}"
@@ -3753,7 +3753,7 @@
         data:
           entity_id: ai_task.google_ai_task
           task_name: face check Pat
-          instructions: Are the people in these two photos the same person? Answer strictly based on the faces. If you are not sure, answer unsure.
+          instructions: Are the people in these two photos the same person? Compare the underlying facial structure only (eyes, nose, mouth, jaw, brows, face shape). Ignore glasses, beard length, clothing, lighting and whether one photo is black and white. Many people wear glasses and have beards, so those are not evidence. If you are not sure, answer unsure.
           attachments:
           - media_content_id: media-source://media_source/local/Doorbell/probe/probe.jpg
             media_content_type: image/jpeg
@@ -3772,7 +3772,7 @@
         data:
           entity_id: ai_task.google_ai_task
           task_name: face check Ramu
-          instructions: Are the people in these two photos the same person? Answer strictly based on the faces. If you are not sure, answer unsure.
+          instructions: Are the people in these two photos the same person? Compare the underlying facial structure only (eyes, nose, mouth, jaw, brows, face shape). Ignore glasses, beard length, clothing, lighting and whether one photo is black and white. Many people wear glasses and have beards, so those are not evidence. If you are not sure, answer unsure.
           attachments:
           - media_content_id: media-source://media_source/local/Doorbell/probe/probe.jpg
             media_content_type: image/jpeg
@@ -3791,7 +3791,7 @@
         data:
           entity_id: ai_task.google_ai_task
           task_name: face check Hilary
-          instructions: Are the people in these two photos the same person? Answer strictly based on the faces. If you are not sure, answer unsure.
+          instructions: Are the people in these two photos the same person? Compare the underlying facial structure only (eyes, nose, mouth, jaw, brows, face shape). Ignore glasses, beard length, clothing, lighting and whether one photo is black and white. Many people wear glasses and have beards, so those are not evidence. If you are not sure, answer unsure.
           attachments:
           - media_content_id: media-source://media_source/local/Doorbell/probe/probe.jpg
             media_content_type: image/jpeg
