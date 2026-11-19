@@ -1,6 +1,6 @@
 """Prepare images for the Gemini face confirmation.
 
-usage: face_probe.py <frigate event id> [candidate names...]
+usage: face_probe.py <frigate event id[,event id...]> [candidate names...]
 Writes /media/Doorbell/probe/probe.jpg (the largest face crop Frigate kept for the
 event) and ref_<Name>.jpg (the largest library crop of each candidate).
 Prints JSON: {"ok": true, "size": [w, h]} or {"ok": false, "why": "..."}.
@@ -13,9 +13,9 @@ OUT = "/media/Doorbell/probe"
 
 
 def main():
-    event, names = sys.argv[1], sys.argv[2:] or ["Pat", "Ramu", "Hilary"]
+    events, names = sys.argv[1].split(","), sys.argv[2:] or ["Pat", "Ramu", "Hilary"]
     os.makedirs(OUT, exist_ok=True)
-    crops = glob.glob(f"{BASE}/train/{event}-*.webp")
+    crops = [f for e in events for f in glob.glob(f"{BASE}/train/{e}-*.webp")]
     if not crops:
         print(json.dumps({"ok": False, "why": "no crops"}))
         return
