@@ -2359,43 +2359,49 @@
           entity_id: camera.doorbell
         data:
           filename: /media/Doorbell/latest.jpg
-    - alias: Ask Gemini (never blocks the alert, which has already gone out)
-      action: ai_task.generate_data
-      continue_on_error: true
-      response_variable: gemini
-      data:
-        entity_id: ai_task.google_ai_task
-        task_name: doorbell description
-        instructions: 'About the camera: it is a doorbell inside an enclosed glass
-          porch, looking out through the glass outer door and side windows to the
-          street. These things are always in the frame, so never mention them: the
-          glass door with leaded diamond patterns and its reflections, the brown wooden
-          and red brick frames, the frosted inner front door on the left, a plastic
-          crate with green bags and a yellow container at the bottom right, the doormat,
-          and the street, houses and parked vehicles seen through the glass. Visitors
-          normally stand outside the glass door or step into the porch. Describe ONLY
-          the person at my front door in one short sentence of at most 15 words: what
-          they wear (note a delivery uniform or hi-vis) and what they carry or do.
-          If they are outside the glass, you can say so. Do not guess who they are.
-          If nobody is clearly visible, reply exactly: No one clearly visible.'
-        attachments:
-        - media_content_id: media-source://media_source/local/Doorbell/latest.jpg
-          media_content_type: image/jpeg
-    - action: counter.increment
-      target:
-        entity_id: counter.gemini_calls
-    - if:
-      - condition: template
-        value_template: '{{ gemini is defined and gemini.data is defined and (gemini.data
-          | string | trim) != '''' and not (gemini.data | string | trim | lower).startswith(''no one'') }}'
-      then:
-      - action: input_text.set_value
-        target:
-          entity_id: input_text.doorbell_last_description
-        data:
-          value: '{{ gemini.data | string | trim | replace(''\n'','' '') | truncate(200,
-            True, ''…'') }}'
-      - action: script.doorbell_update_alert
+    - alias: Describe the visitor (one retry if Google rejects the upload)
+      repeat:
+        sequence:
+          - alias: Ask Gemini (never blocks the alert, which has already gone out)
+            action: ai_task.generate_data
+            continue_on_error: true
+            response_variable: gemini
+            data:
+              entity_id: ai_task.google_ai_task
+              task_name: doorbell description
+              instructions: 'About the camera: it is a doorbell inside an enclosed glass
+                porch, looking out through the glass outer door and side windows to the
+                street. These things are always in the frame, so never mention them: the
+                glass door with leaded diamond patterns and its reflections, the brown wooden
+                and red brick frames, the frosted inner front door on the left, a plastic
+                crate with green bags and a yellow container at the bottom right, the doormat,
+                and the street, houses and parked vehicles seen through the glass. Visitors
+                normally stand outside the glass door or step into the porch. Describe ONLY
+                the person at my front door in one short sentence of at most 15 words: what
+                they wear (note a delivery uniform or hi-vis) and what they carry or do.
+                If they are outside the glass, you can say so. Do not guess who they are.
+                If nobody is clearly visible, reply exactly: No one clearly visible.'
+              attachments:
+              - media_content_id: media-source://media_source/local/Doorbell/latest.jpg
+                media_content_type: image/jpeg
+          - action: counter.increment
+            target:
+              entity_id: counter.gemini_calls
+          - if:
+            - condition: template
+              value_template: '{{ gemini is defined and gemini.data is defined and (gemini.data
+                | string | trim) != '''' and not (gemini.data | string | trim | lower).startswith(''no one'') }}'
+            then:
+            - action: input_text.set_value
+              target:
+                entity_id: input_text.doorbell_last_description
+              data:
+                value: '{{ gemini.data | string | trim | replace(''\n'','' '') | truncate(200,
+                  True, ''…'') }}'
+            - action: script.doorbell_update_alert
+        until:
+        - condition: template
+          value_template: '{{ gemini is defined or repeat.index >= 2 }}'
   - alias: Wait 5 s
     delay:
       hours: 0
