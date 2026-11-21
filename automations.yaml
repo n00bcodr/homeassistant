@@ -3096,23 +3096,27 @@
     - Qualifying
     - Race
   actions:
-  - alias: 'Choose: F1 session status changes and the F1… / F1 session status is ''pre''
-      or ''live'' / F1 session status is ''finished'' or…'
+  - alias: Snapshot the light once at the start of a session
+    if:
+    - condition: state
+      entity_id: sensor.f1_session_f1_session_status
+      state:
+      - pre
+      - live
+    - condition: state
+      entity_id: input_boolean.f1_light_snapshot_taken
+      state: 'off'
+    then:
+    - action: scene.create
+      data:
+        scene_id: f1_track_light_previous
+        snapshot_entities:
+        - light.shapes
+    - action: input_boolean.turn_on
+      target:
+        entity_id: input_boolean.f1_light_snapshot_taken
+  - alias: Show track colour while active, restore afterwards
     choose:
-    - alias: Snapshot light state at session start
-      conditions:
-      - condition: trigger
-        id: session_status
-      - condition: template
-        value_template: '{{ (trigger.from_state.state if trigger.from_state else '''')
-          not in [''pre'', ''live''] and trigger.to_state.state in [''pre'', ''live'']
-          }}'
-      sequence:
-      - action: scene.create
-        data:
-          scene_id: f1_track_light_previous
-          snapshot_entities:
-          - light.shapes
     - alias: Show track status colour while session is active
       conditions:
       - condition: state
@@ -3193,11 +3197,17 @@
         - finished
         - finalised
         - ended
+      - condition: state
+        entity_id: input_boolean.f1_light_snapshot_taken
+        state: 'on'
       sequence:
       - action: scene.turn_on
         continue_on_error: true
         target:
           entity_id: scene.f1_track_light_previous
+      - action: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.f1_light_snapshot_taken
   mode: restart
 - id: '1765443826556'
   alias: "\U0001F3F0Leaving and Arriving Home"
