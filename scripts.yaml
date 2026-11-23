@@ -642,6 +642,7 @@ doorbell_update_alert:
         channel: Doorbell
         alert_once: true
         clickAction: /lovelace/living-room
+        url: /lovelace/living-room
         push:
           interruption-level: passive
           category: camera

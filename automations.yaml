@@ -2198,6 +2198,7 @@
               activationMode: foreground
               channel: Doorbell
               clickAction: /lovelace/living-room
+              url: /lovelace/living-room
               push:
                 interruption-level: time-sensitive
                 category: camera
@@ -2249,6 +2250,7 @@
               car_ui: true
               channel: Doorbell
               clickAction: /lovelace/living-room
+              url: /lovelace/living-room
               push:
                 interruption-level: time-sensitive
                 category: camera
@@ -3899,6 +3901,7 @@
           category: camera
         image: /api/frigate/notifications/{{ trigger.payload_json.after.id }}/review_preview.gif
         clickAction: /lovelace/living-room
+        url: /lovelace/living-room
         actions:
         - action: URI
           title: Open
