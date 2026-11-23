@@ -746,7 +746,7 @@
       - condition: trigger
         id: wash
       sequence:
-      - action: notify.all_phones
+      - action: notify.household_phones
         data:
           message: at {{ as_timestamp(now()) | timestamp_custom('%-I:%M %p')}}
           data:
@@ -762,7 +762,7 @@
       - condition: trigger
         id: dry
       sequence:
-      - action: notify.all_phones
+      - action: notify.household_phones
         data:
           message: at {{ as_timestamp(now()) | timestamp_custom('%-I:%M %p')}}
           data:
@@ -811,13 +811,13 @@
         id:
         - morning
       sequence:
-      - action: notify.all_phones
+      - action: notify.household_phones
         data:
           data:
             tag: bin_pickup
           message: clear_notification
         alias: Clear any existing notifications
-      - action: notify.all_phones
+      - action: notify.household_phones
         data:
           data:
             activationMode: foreground
@@ -837,13 +837,13 @@
         id:
         - morning
       sequence:
-      - action: notify.all_phones
+      - action: notify.household_phones
         data:
           data:
             tag: bin_pickup
           message: clear_notification
         alias: Clear any existing notifications
-      - action: notify.all_phones
+      - action: notify.household_phones
         data:
           data:
             notification_icon: mdi:trash-can-outline
@@ -863,13 +863,13 @@
       - alias: 'Repeat until Bin is ''on'': Clear any existing notifications (+2 more)'
         repeat:
           sequence:
-          - action: notify.all_phones
+          - action: notify.household_phones
             data:
               data:
                 tag: bin_pickup
               message: clear_notification
             alias: Clear any existing notifications
-          - action: notify.all_phones
+          - action: notify.household_phones
             data:
               data:
                 notification_icon: mdi:trash-can
@@ -904,13 +904,13 @@
         id:
         - morning
       sequence:
-      - action: notify.all_phones
+      - action: notify.household_phones
         data:
           data:
             tag: bin_pickup
           message: clear_notification
         alias: Clear any existing notifications
-      - action: notify.all_phones
+      - action: notify.household_phones
         data:
           data:
             notification_icon: mdi:trash-can
@@ -929,13 +929,13 @@
         id:
         - morning
       sequence:
-      - action: notify.all_phones
+      - action: notify.household_phones
         data:
           data:
             tag: bin_pickup
           message: clear_notification
         alias: Clear any existing notifications
-      - action: notify.all_phones
+      - action: notify.household_phones
         data:
           data:
             notification_icon: mdi:trash-can
@@ -955,13 +955,13 @@
       - alias: 'Repeat until Bin is ''on'': Clear any existing notifications (+2 more)'
         repeat:
           sequence:
-          - action: notify.all_phones
+          - action: notify.household_phones
             data:
               data:
                 tag: bin_pickup
               message: clear_notification
             alias: Clear any existing notifications
-          - action: notify.all_phones
+          - action: notify.household_phones
             data:
               data:
                 notification_icon: mdi:trash-can
@@ -1080,7 +1080,7 @@
     target:
       entity_id: switch.heating
     enabled: true
-  - action: notify.all_phones_android
+  - action: notify.household_phones_android
     data:
       message: at  {{ as_timestamp(now()) | timestamp_custom('%-I:%M %p')}}
       title: "\U0001F525 Turned off"
@@ -1665,7 +1665,7 @@
         target:
           entity_id: input_boolean.bin
         data: {}
-      - action: notify.all_phones
+      - action: notify.household_phones
         data:
           data:
             tag: bin_pickup
@@ -1682,7 +1682,7 @@
             }}'
           bin_icon_url: '{{ ''/local/images/bins/black_bin.png'' if black_due else
             (''/local/images/bins/blue_bin.png'' if blue_due else '''') }}'
-      - action: notify.all_phones
+      - action: notify.household_phones
         data:
           data:
             notification_icon: mdi:trash-can-outline
@@ -2185,7 +2185,7 @@
           id:
           - person
         sequence:
-        - action: notify.all_phones
+        - action: notify.household_phones
           metadata: {}
           data:
             message: ' '
@@ -2236,7 +2236,7 @@
           data:
             media_player_entity_id: media_player.friday
             message: Ding dong. Someone is at the front door.
-        - action: notify.all_phones
+        - action: notify.household_phones
           metadata: {}
           data:
             message: "Doorbell \U0001F514"
@@ -3882,7 +3882,7 @@
         | title }}{% elif n not in ['''', ''unknown'', ''unavailable''] %}{{ n }}{%
         endif %}'
   - alias: Update the doorbell alert with an animated preview of the visit
-    action: notify.all_phones
+    action: notify.household_phones
     data:
       message: '{% set d = states(''input_text.doorbell_last_description'') %}{{ d
         if d not in ['''', ''unknown'', ''unavailable''] else '' '' }}'
@@ -3985,7 +3985,7 @@
     value_template: '{{ states(''sensor.washing_machine_state'') not in [''Off'',''Idle'',''Cycle
       Complete''] }}'
   actions:
-  - action: notify.all_phones
+  - action: notify.household_phones
     data:
       title: "\U0001F9FA⚠️ Washer needs attention"
       message: '{{ {''door'':''The door is open'',''water'':''No water supply'',''safety'':''Safety

@@ -15,3 +15,11 @@
     - service: mobile_app_pixel8pro
     - service: mobile_app_work_phone
     - service: mobile_app_pavan_thanujs_ipad_3rd_gen
+
+- name: household_phones
+  platform: group
+  services:
+    - service: mobile_app_pixel8pro
+    - service: mobile_app_work_phone
+    - service: mobile_app_pavan_thanujs_ipad_3rd_gen
+    - service: mobile_app_hilary_s_phone

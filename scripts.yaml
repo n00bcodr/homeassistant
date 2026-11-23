@@ -628,7 +628,7 @@ doorbell_update_alert:
   - variables:
       who: '{{ states(''input_text.doorbell_last_name'') }}'
       desc: '{{ states(''input_text.doorbell_last_description'') }}'
-  - action: notify.all_phones
+  - action: notify.household_phones
     data:
       message: '{{ desc if desc not in ['''', ''unknown'', ''unavailable''] else ''
         '' }}'
