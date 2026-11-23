@@ -2214,6 +2214,8 @@
                 icon: sfsymbols:person.crop.circle.badge.checkmark
               image: /local/doorbell/{{camera_snapshot}}
               icon_url: /local/images/emoji/bell.png
+              priority: high
+              importance: high
         - action: notify.theaterofdreams
           data:
             message: ' '
@@ -2263,6 +2265,8 @@
                 icon: sfsymbols:person.crop.circle.badge.checkmark
               image: /local/doorbell/{{camera_snapshot}}
               icon_url: /local/images/emoji/bell.png
+              priority: high
+              importance: high
         - alias: Wait 10 s
           delay:
             hours: 0
@@ -2349,10 +2353,13 @@
     - alias: Give the visitor 3 s to get closer, then take a fresh picture for Gemini
       delay:
         seconds: 3
-    - alias: Fresh snapshot for Gemini (unless the door burst has just saved a better frame)
+    - alias: Fresh snapshot for Gemini (unless the door burst has just saved a better
+        frame)
       if:
       - condition: template
-        value_template: "{{ state_attr('automation.doorbell_door_burst_best_face_frames', 'last_triggered') is none or (now() - state_attr('automation.doorbell_door_burst_best_face_frames', 'last_triggered')).total_seconds() > 25 }}"
+        value_template: '{{ state_attr(''automation.doorbell_door_burst_best_face_frames'',
+          ''last_triggered'') is none or (now() - state_attr(''automation.doorbell_door_burst_best_face_frames'',
+          ''last_triggered'')).total_seconds() > 25 }}'
       then:
       - action: camera.snapshot
         target:
@@ -2362,43 +2369,45 @@
     - alias: Describe the visitor (one retry if Google rejects the upload)
       repeat:
         sequence:
-          - alias: Ask Gemini (never blocks the alert, which has already gone out)
-            action: ai_task.generate_data
-            continue_on_error: true
-            response_variable: gemini
-            data:
-              entity_id: ai_task.google_ai_task
-              task_name: doorbell description
-              instructions: 'About the camera: it is a doorbell inside an enclosed glass
-                porch, looking out through the glass outer door and side windows to the
-                street. These things are always in the frame, so never mention them: the
-                glass door with leaded diamond patterns and its reflections, the brown wooden
-                and red brick frames, the frosted inner front door on the left, a plastic
-                crate with green bags and a yellow container at the bottom right, the doormat,
-                and the street, houses and parked vehicles seen through the glass. Visitors
-                normally stand outside the glass door or step into the porch. Describe ONLY
-                the person at my front door in one short sentence of at most 15 words: what
-                they wear (note a delivery uniform or hi-vis) and what they carry or do.
-                If they are outside the glass, you can say so. Do not guess who they are.
-                If nobody is clearly visible, reply exactly: No one clearly visible.'
-              attachments:
-              - media_content_id: media-source://media_source/local/Doorbell/latest.jpg
-                media_content_type: image/jpeg
-          - action: counter.increment
+        - alias: Ask Gemini (never blocks the alert, which has already gone out)
+          action: ai_task.generate_data
+          continue_on_error: true
+          response_variable: gemini
+          data:
+            entity_id: ai_task.google_ai_task
+            task_name: doorbell description
+            instructions: 'About the camera: it is a doorbell inside an enclosed glass
+              porch, looking out through the glass outer door and side windows to
+              the street. These things are always in the frame, so never mention them:
+              the glass door with leaded diamond patterns and its reflections, the
+              brown wooden and red brick frames, the frosted inner front door on the
+              left, a plastic crate with green bags and a yellow container at the
+              bottom right, the doormat, and the street, houses and parked vehicles
+              seen through the glass. Visitors normally stand outside the glass door
+              or step into the porch. Describe ONLY the person at my front door in
+              one short sentence of at most 15 words: what they wear (note a delivery
+              uniform or hi-vis) and what they carry or do. If they are outside the
+              glass, you can say so. Do not guess who they are. If nobody is clearly
+              visible, reply exactly: No one clearly visible.'
+            attachments:
+            - media_content_id: media-source://media_source/local/Doorbell/latest.jpg
+              media_content_type: image/jpeg
+        - action: counter.increment
+          target:
+            entity_id: counter.gemini_calls
+        - if:
+          - condition: template
+            value_template: '{{ gemini is defined and gemini.data is defined and (gemini.data
+              | string | trim) != '''' and not (gemini.data | string | trim | lower).startswith(''no
+              one'') }}'
+          then:
+          - action: input_text.set_value
             target:
-              entity_id: counter.gemini_calls
-          - if:
-            - condition: template
-              value_template: '{{ gemini is defined and gemini.data is defined and (gemini.data
-                | string | trim) != '''' and not (gemini.data | string | trim | lower).startswith(''no one'') }}'
-            then:
-            - action: input_text.set_value
-              target:
-                entity_id: input_text.doorbell_last_description
-              data:
-                value: '{{ gemini.data | string | trim | replace(''\n'','' '') | truncate(200,
-                  True, ''…'') }}'
-            - action: script.doorbell_update_alert
+              entity_id: input_text.doorbell_last_description
+            data:
+              value: '{{ gemini.data | string | trim | replace(''\n'','' '') | truncate(200,
+                True, ''…'') }}'
+          - action: script.doorbell_update_alert
         until:
         - condition: template
           value_template: '{{ gemini is defined or repeat.index >= 2 }}'
@@ -3713,10 +3722,12 @@
       entity_id: input_text.doorbell_last_name
     data:
       value: '{{ who }}'
-  - alias: Update the alert now only if the description update already went out (otherwise that update will include the name)
+  - alias: Update the alert now only if the description update already went out (otherwise
+      that update will include the name)
     if:
     - condition: template
-      value_template: "{{ states('input_text.doorbell_last_description') not in ['', 'unknown', 'unavailable'] }}"
+      value_template: '{{ states(''input_text.doorbell_last_description'') not in
+        ['''', ''unknown'', ''unavailable''] }}'
     then:
     - action: script.doorbell_update_alert
   - alias: Cool down for 30 s so one visit gives one named alert
@@ -3747,20 +3758,22 @@
   - alias: Give Frigate 10 s to finish writing the clip
     delay:
       seconds: 10
-  - alias: 'Nobody was named during the visit: let Gemini check the face against the household'
+  - alias: 'Let Gemini check the face against the household (even when Frigate named someone, because Frigate mixes people up)'
     if:
     - condition: template
-      value_template: "{{ states('input_text.doorbell_last_name') in ['', 'unknown', 'unavailable'] and (trigger.payload_json.after.data.sub_labels | default([]) | count) == 0 and (trigger.payload_json.after.data.detections | default([]) | count) > 0 }}"
+      value_template: '{{ (trigger.payload_json.after.data.detections | default([])
+        | count) > 0 }}'
     then:
     - alias: Prepare the best face crop and the reference crops
       action: shell_command.face_probe
       continue_on_error: true
       response_variable: probe
       data:
-        event: "{{ trigger.payload_json.after.data.detections | join(',') }}"
+        event: '{{ trigger.payload_json.after.data.detections | join('','') }}'
     - if:
       - condition: template
-        value_template: "{{ probe is defined and probe.returncode == 0 and (probe.stdout | from_json(default={})).get('ok', false) }}"
+        value_template: '{{ probe is defined and probe.returncode == 0 and (probe.stdout
+          | from_json(default={})).get(''ok'', false) }}'
       then:
       - alias: Ask Gemini whether the face is Pat
         action: ai_task.generate_data
@@ -3769,7 +3782,11 @@
         data:
           entity_id: ai_task.google_ai_task
           task_name: face check Pat
-          instructions: Are the people in these two photos the same person? Compare the underlying facial structure only (eyes, nose, mouth, jaw, brows, face shape). Ignore glasses, beard length, clothing, lighting and whether one photo is black and white. Many people wear glasses and have beards, so those are not evidence. If you are not sure, answer unsure.
+          instructions: Are the people in these two photos the same person? Compare
+            the underlying facial structure only (eyes, nose, mouth, jaw, brows, face
+            shape). Ignore glasses, beard length, clothing, lighting and whether one
+            photo is black and white. Many people wear glasses and have beards, so
+            those are not evidence. If you are not sure, answer unsure.
           attachments:
           - media_content_id: media-source://media_source/local/Doorbell/probe/probe.jpg
             media_content_type: image/jpeg
@@ -3788,7 +3805,11 @@
         data:
           entity_id: ai_task.google_ai_task
           task_name: face check Ramu
-          instructions: Are the people in these two photos the same person? Compare the underlying facial structure only (eyes, nose, mouth, jaw, brows, face shape). Ignore glasses, beard length, clothing, lighting and whether one photo is black and white. Many people wear glasses and have beards, so those are not evidence. If you are not sure, answer unsure.
+          instructions: Are the people in these two photos the same person? Compare
+            the underlying facial structure only (eyes, nose, mouth, jaw, brows, face
+            shape). Ignore glasses, beard length, clothing, lighting and whether one
+            photo is black and white. Many people wear glasses and have beards, so
+            those are not evidence. If you are not sure, answer unsure.
           attachments:
           - media_content_id: media-source://media_source/local/Doorbell/probe/probe.jpg
             media_content_type: image/jpeg
@@ -3807,7 +3828,11 @@
         data:
           entity_id: ai_task.google_ai_task
           task_name: face check Hilary
-          instructions: Are the people in these two photos the same person? Compare the underlying facial structure only (eyes, nose, mouth, jaw, brows, face shape). Ignore glasses, beard length, clothing, lighting and whether one photo is black and white. Many people wear glasses and have beards, so those are not evidence. If you are not sure, answer unsure.
+          instructions: Are the people in these two photos the same person? Compare
+            the underlying facial structure only (eyes, nose, mouth, jaw, brows, face
+            shape). Ignore glasses, beard length, clothing, lighting and whether one
+            photo is black and white. Many people wear glasses and have beards, so
+            those are not evidence. If you are not sure, answer unsure.
           attachments:
           - media_content_id: media-source://media_source/local/Doorbell/probe/probe.jpg
             media_content_type: image/jpeg
@@ -3833,31 +3858,36 @@
         data: {}
       - alias: Name the person only if Gemini says yes for exactly one household member
         variables:
-          yes_names: >-
-            {% set r = namespace(l=[]) %}
-            {% for n, g in [('Pat', (g_pat if g_pat is defined else none)), ('Ramu', (g_ramu if g_ramu is defined else none)), ('Hilary', (g_hilary if g_hilary is defined else none))] %}
-            {% if g is not none and g.data is defined and g.data.same_person | default('') | lower == 'yes' %}{% set r.l = r.l + [n] %}{% endif %}
-            {% endfor %}
-            {{ r.l }}
+          yes_names: '{% set r = namespace(l=[]) %} {% for n, g in [(''Pat'', (g_pat
+            if g_pat is defined else none)), (''Ramu'', (g_ramu if g_ramu is defined
+            else none)), (''Hilary'', (g_hilary if g_hilary is defined else none))]
+            %} {% if g is not none and g.data is defined and g.data.same_person |
+            default('''') | lower == ''yes'' %}{% set r.l = r.l + [n] %}{% endif %}
+            {% endfor %} {{ r.l }}'
       - if:
         - condition: template
-          value_template: "{{ yes_names | count == 1 }}"
+          value_template: '{{ yes_names | count == 1 }}'
         then:
         - action: input_text.set_value
           target:
             entity_id: input_text.doorbell_last_name
           data:
-            value: "{{ yes_names[0] }} ⭐"
+            value: '{{ yes_names[0] }} ⭐'
   - alias: Work out the clip and who was seen
     variables:
       event_id: '{{ trigger.payload_json.after.data.detections[0] }}'
-      who: "{% set s = trigger.payload_json.after.data.sub_labels | default([]) %}{% set n = states('input_text.doorbell_last_name') %}{% if (s | count) > 0 %}{{ s[0] | string | replace('_', ' ') | title }}{% elif n not in ['', 'unknown', 'unavailable'] %}{{ n }}{% endif %}"
+      who: '{% set s = trigger.payload_json.after.data.sub_labels | default([]) %}{%
+        set n = states(''input_text.doorbell_last_name'') %}{% if n.endswith(''⭐'')
+        %}{{ n }}{% elif (s | count) > 0 %}{{ s[0] | string | replace(''_'', '' '')
+        | title }}{% elif n not in ['''', ''unknown'', ''unavailable''] %}{{ n }}{%
+        endif %}'
   - alias: Update the doorbell alert with an animated preview of the visit
     action: notify.all_phones
     data:
       message: '{% set d = states(''input_text.doorbell_last_description'') %}{{ d
         if d not in ['''', ''unknown'', ''unavailable''] else '' '' }}'
-      title: "{% set d = states('input_text.doorbell_last_description') %}{% set star = ' \u2B50' if (who.endswith('\u2B50') or d not in ['', 'unknown', 'unavailable']) else '' %}{% set w = who | replace(' \u2B50', '') %}{{ (w ~ ' was at the front door \U0001F3A5' if w else 'Front Door \U0001F3A5') ~ star }}"
+      title: "{% set star = ' ⭐' if who.endswith('⭐') else '' %}{% set w = who | replace(' ⭐', '') %}{{ (w ~ ' was at the front door
+        \U0001F3A5' if w else 'Front Door \U0001F3A5') ~ star }}"
       data:
         ttl: 0
         tag: doorbell
@@ -3994,8 +4024,11 @@
         '''' }}'
   mode: queued
 - id: '1794950000001'
-  alias: "🔔Doorbell - Door burst (best face frames)"
-  description: When a person is at the glass door or walking in beside the camera (Frigate zones door_close, entry_side), save a burst of six full-resolution snapshots to /media/Doorbell/burst (burst_1..6.jpg, overwritten each time) so the best face frame can be picked, whether or not the bell is pressed.
+  alias: "\U0001F514Doorbell - Door burst (best face frames)"
+  description: When a person is at the glass door or walking in beside the camera
+    (Frigate zones door_close, entry_side), save a burst of six full-resolution snapshots
+    to /media/Doorbell/burst (burst_1..6.jpg, overwritten each time) so the best face
+    frame can be picked, whether or not the bell is pressed.
   mode: single
   triggers:
   - trigger: mqtt
@@ -4009,7 +4042,8 @@
     value_template: '{{ trigger.payload | int(0) > 0 }}'
   - alias: At most once a minute
     condition: template
-    value_template: '{{ this.attributes.last_triggered is none or (now() - this.attributes.last_triggered).total_seconds() > 60 }}'
+    value_template: '{{ this.attributes.last_triggered is none or (now() - this.attributes.last_triggered).total_seconds()
+      > 60 }}'
   actions:
   - repeat:
       count: 6
